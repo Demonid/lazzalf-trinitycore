@@ -1475,7 +1475,7 @@ uint32 Unit::SpellNonMeleeDamageLog(Unit *pVictim, uint32 spellID, uint32 damage
             GetGUIDLow(), GetTypeId(), pVictim->GetGUIDLow(), pVictim->GetTypeId(), damage, spellID, absorb,resist);
 
         // Actual log sent to client
-        SendSpellNonMeleeDamageLog(pVictim, spellID, damage, GetSpellSchoolMask(spellInfo), absorb, resist, false, 0, crit);
+        SendSpellNonMeleeDamageLog(pVictim, spellID, damage + resist, GetSpellSchoolMask(spellInfo), absorb, resist, false, 0, crit);
 
         // Procflags
         uint32 procAttacker = PROC_FLAG_HIT_SPELL;
@@ -8486,10 +8486,16 @@ void Unit::CombatStart(Unit* target)
 
     if(!target->isInCombat() && target->GetTypeId() != TYPEID_PLAYER
         && ((Creature*)target)->isAggressive() && ((Creature*)target)->AI())
+    {
+        SetInCombatWith(target);
+        target->SetInCombatWith(this);
         ((Creature*)target)->AI()->AttackStart(this);
-
-    SetInCombatWith(target);
-    target->SetInCombatWith(this);
+    }
+    else
+    {
+        SetInCombatWith(target);
+        target->SetInCombatWith(this);
+    }
 
     if(Player* attackedPlayer = target->GetCharmerOrOwnerPlayerOrPlayerItself())
         SetContestedPvP(attackedPlayer);
@@ -9622,6 +9628,9 @@ void Unit::SetMaxHealth(uint32 val)
 
 void Unit::SetPower(Powers power, uint32 val)
 {
+    if(GetPower(power) == val)
+        return;
+
     uint32 maxPower = GetMaxPower(power);
     if(maxPower < val)
         val = maxPower;
