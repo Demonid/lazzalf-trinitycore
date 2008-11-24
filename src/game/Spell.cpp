@@ -715,7 +715,8 @@ void Spell::AddUnitTarget(Unit* pVictim, uint32 effIndex)
     if(m_originalCaster)
         target.missCondition = m_originalCaster->SpellHitResult(pVictim, m_spellInfo, m_canReflect);
     else
-        target.missCondition = SPELL_MISS_NONE;
+        target.missCondition = SPELL_MISS_EVADE; //SPELL_MISS_NONE;
+
     if (target.missCondition == SPELL_MISS_NONE)
         ++m_countOfHit;
     else
@@ -928,6 +929,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         return;
 
     SpellMissInfo missInfo = target->missCondition;
+
     // Need init unitTarget by default unit (can changed in code on reflect)
     // Or on missInfo!=SPELL_MISS_NONE unitTarget undefined (but need in trigger subsystem)
     unitTarget = unit;
@@ -938,6 +940,16 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     {
         if (target->reflectResult == SPELL_MISS_NONE)       // If reflected spell hit caster -> do all effect on him
             DoSpellHitOnUnit(m_caster, mask);
+    }
+    else //TODO: This is a hack. need fix
+    {
+        uint32 tempMask = 0;
+        for(uint32 i = 0; i < 3; ++i)
+            if(m_spellInfo->Effect[i] == SPELL_EFFECT_DUMMY
+                || m_spellInfo->Effect[i] == SPELL_EFFECT_TRIGGER_SPELL)
+                tempMask |= 1<<i;
+        if(tempMask &= mask)
+            DoSpellHitOnUnit(unit, tempMask);
     }
 
     // Do triggers only on miss/resist/parry/dodge
