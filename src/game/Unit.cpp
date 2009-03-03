@@ -5796,12 +5796,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 // Judgement of Wisdom
                 case 20186:
                 {
-                    if (pVictim->getPowerType() == POWER_MANA)
-                    {
-                        int32 gainMana = pVictim->GetCreateMana() * triggeredByAura->GetBasePoints() / 100;
-                        pVictim->CastCustomSpell(pVictim, 20268, &gainMana, 0, 0, true, 0, triggeredByAura);
-                    }
-                    return true;
+                    pVictim->CastSpell(pVictim, 20268, true, NULL, triggeredByAura);
                 }
                 // Holy Power (Redemption Armor set)
                 case 28789:
@@ -6337,6 +6332,24 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 basepoints0 = triggerAmount * damage / 100;
                 triggered_spell_id = 50526;
                 break;
+            }
+            // Death Strike healing effect
+            if (dummySpell->Id == 45469)
+            {
+                uint8 n=0;
+                Unit::AuraList const& decSpeedList = pVictim->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+                for(Unit::AuraList::const_iterator iter = decSpeedList.begin(); iter != decSpeedList.end(); ++iter)
+                {
+                    if((*iter)->GetSpellProto()->SpellFamilyName==SPELLFAMILY_DEATHKNIGHT 
+                        && (*iter)->GetCasterGUID() == GetGUID()
+                        && (*iter)->GetSpellProto()->Dispel == DISPEL_DISEASE)
+                    {
+                       n++;
+                    }
+                }
+                int32 heal=0.5f*n*damage+damage;
+                CastCustomSpell(this,45470,&heal,NULL,NULL,true);
+                return true;
             }
             break;
         }
