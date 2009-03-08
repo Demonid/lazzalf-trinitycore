@@ -34,7 +34,6 @@
 #include "ItemPrototype.h"
 #include "NPCHandler.h"
 #include "Database/DatabaseEnv.h"
-#include "AuctionHouseObject.h"
 #include "Mail.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
@@ -368,42 +367,6 @@ class ObjectMgr
             return sInstanceTemplate.LookupEntry<InstanceTemplate>(map);
         }
 
-        Item* GetAItem(uint32 id)
-        {
-            ItemMap::const_iterator itr = mAitems.find(id);
-            if (itr != mAitems.end())
-            {
-                return itr->second;
-            }
-            return NULL;
-        }
-        void AddAItem(Item* it)
-        {
-            ASSERT( it );
-            ASSERT( mAitems.find(it->GetGUIDLow()) == mAitems.end());
-            mAitems[it->GetGUIDLow()] = it;
-        }
-        bool RemoveAItem(uint32 id)
-        {
-            ItemMap::iterator i = mAitems.find(id);
-            if (i == mAitems.end())
-            {
-                return false;
-            }
-            mAitems.erase(i);
-            return true;
-        }
-        AuctionHouseObject * GetAuctionsMap( uint32 location );
-
-        //auction messages
-        void SendAuctionWonMail( AuctionEntry * auction );
-        void SendAuctionSalePendingMail( AuctionEntry * auction );
-        void SendAuctionSuccessfulMail( AuctionEntry * auction );
-        void SendAuctionExpiredMail( AuctionEntry * auction );
-        static uint32 GetAuctionCut( uint32 location, uint32 highBid );
-        static uint32 GetAuctionDeposit(uint32 location, uint32 time, Item *pItem);
-        static uint32 GetAuctionOutBid(uint32 currentBid);
-
         PetLevelInfo const* GetPetLevelInfo(uint32 creature_id, uint32 level) const;
 
         PlayerClassInfo const* GetPlayerClassInfo(uint32 class_) const
@@ -577,9 +540,6 @@ class ObjectMgr
         void LoadItemTexts();
         void LoadPageTexts();
 
-        //load first auction items, because of check if item exists, when loading
-        void LoadAuctionItems();
-        void LoadAuctions();
         void LoadPlayerInfo();
         void LoadPetLevelInfo();
         void LoadExplorationBaseXP();
@@ -752,6 +712,7 @@ class ObjectMgr
         void LoadSpellDisabledEntrys();
         bool IsPlayerSpellDisabled(uint32 spellid) { return (m_DisabledPlayerSpells.count(spellid) != 0); }
         bool IsCreatureSpellDisabled(uint32 spellid) { return (m_DisabledCreatureSpells.count(spellid) != 0); }
+        bool IsPetSpellDisabled(uint32 spellid) { return (m_DisabledPetSpells.count(spellid) != 0); }
 
         int GetIndexForLocale(LocaleConstant loc);
         LocaleConstant GetLocaleForIndex(int i);
@@ -847,13 +808,8 @@ class ObjectMgr
         ArenaTeamMap        mArenaTeamMap;
 
         ItemMap             mItems;
-        ItemMap             mAitems;
 
         ItemTextMap         mItemTexts;
-
-        AuctionHouseObject  mHordeAuctions;
-        AuctionHouseObject  mAllianceAuctions;
-        AuctionHouseObject  mNeutralAuctions;
 
         QuestAreaTriggerMap mQuestAreaTriggerMap;
         BattleMastersMap    mBattleMastersMap;
@@ -876,6 +832,7 @@ class ObjectMgr
 
         std::set<uint32>    m_DisabledPlayerSpells;
         std::set<uint32>    m_DisabledCreatureSpells;
+        std::set<uint32>    m_DisabledPetSpells;
 
         GraveYardMap        mGraveYardMap;
 
