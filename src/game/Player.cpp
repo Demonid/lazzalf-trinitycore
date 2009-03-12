@@ -15227,6 +15227,70 @@ void Player::ConvertInstancesToGroup(Player *player, Group *group, uint64 player
     if(!player || has_solo) CharacterDatabase.PExecute("DELETE FROM character_instance WHERE guid = '%d' AND permanent = 0", GUID_LOPART(player_guid));
 }
 
+bool Player::Satisfy(AccessRequirement const *ar, uint32 target_map, bool report)
+{
+    if(!isGameMaster() && ar)
+    {
+        uint32 LevelMin = 0;
+        if(getLevel() < ar->levelMin && !sWorld.getConfig(CONFIG_INSTANCE_IGNORE_LEVEL))
+            LevelMin = ar->levelMin;
+
+        uint32 LevelMax = 0;
+        if(ar->levelMax >= ar->levelMin && getLevel() > ar->levelMax && !sWorld.getConfig(CONFIG_INSTANCE_IGNORE_LEVEL))
+            LevelMax = ar->levelMax;
+
+        uint32 missingItem = 0;
+        if(ar->item)
+        {
+            if(!HasItemCount(ar->item, 1) &&
+                (!ar->item2 || !HasItemCount(ar->item2, 1)))
+                missingItem = ar->item;
+        }
+        else if(ar->item2 && !HasItemCount(ar->item2, 1))
+            missingItem = ar->item2;
+
+        uint32 missingKey = 0;
+		uint32 missingHeroicQuest = 0;
+        if(GetDifficulty() == DIFFICULTY_HEROIC)
+        {
+            if(ar->heroicKey)
+            {
+                if(!HasItemCount(ar->heroicKey, 1) &&
+                    (!ar->heroicKey2 || !HasItemCount(ar->heroicKey2, 1)))
+                    missingKey = ar->heroicKey;
+            }
+            else if(ar->heroicKey2 && !HasItemCount(ar->heroicKey2, 1))
+                missingKey = ar->heroicKey2;
+
+			if(ar->heroicQuest && !GetQuestRewardStatus(ar->heroicQuest))
+                missingHeroicQuest = ar->heroicQuest;
+        }
+
+        uint32 missingQuest = 0;
+        if(ar->quest && !GetQuestRewardStatus(ar->quest))
+            missingQuest = ar->quest;
+
+        if(LevelMin || LevelMax || missingItem || missingKey || missingQuest || missingHeroicQuest)
+        {
+            if(report)
+            {
+                if(missingItem)
+                    GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED_AND_ITEM), ar->levelMin, objmgr.GetItemPrototype(missingItem)->Name1);
+                else if(missingKey)
+                    SendTransferAborted(target_map, TRANSFER_ABORT_DIFFICULTY2);
+			    else if(missingHeroicQuest)
+                    GetSession()->SendAreaTriggerMessage(ar->heroicQuestFailedText.c_str());
+                else if(missingQuest)
+                    GetSession()->SendAreaTriggerMessage(ar->questFailedText.c_str());
+                else if(LevelMin)
+                    GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED), LevelMin);
+            }
+            return false;
+        }
+    }
+    return true;
+}
+
 bool Player::_LoadHomeBind(QueryResult *result)
 {
     bool ok = false;
@@ -16365,7 +16429,7 @@ void Player::PetSpellInitialize()
         CharmInfo *charmInfo = pet->GetCharmInfo();
 
                                                             //16
-        data << (uint64)pet->GetGUID() << uint32(0x00000000) << uint8(charmInfo->GetReactState()) << uint8(charmInfo->GetCommandState()) << uint16(0);
+        data << (uint64)pet->GetGUID() << uint32(0x00000000) << uint8(pet->GetReactState()) << uint8(charmInfo->GetCommandState()) << uint16(0);
 
         for(uint32 i = 0; i < 10; i++)                      //40
         {
@@ -16474,7 +16538,7 @@ void Player::CharmSpellInitialize()
     data << (uint64)charm->GetGUID() << uint32(0x00000000);
 
     if(charm->GetTypeId() != TYPEID_PLAYER)
-        data << uint8(charmInfo->GetReactState()) << uint8(charmInfo->GetCommandState());
+        data << uint8(((Creature*)charm)->GetReactState()) << uint8(charmInfo->GetCommandState());
     else
         data << uint8(0) << uint8(0);
 
@@ -16721,19 +16785,7 @@ void Player::HandleStealthedUnitsDetection()
                 sLog.outDebug("Object %u (Type: %u) is detected in stealth by player %u. Distance = %f",(*i)->GetGUIDLow(),(*i)->GetTypeId(),GetGUIDLow(),GetDistance(*i));
             #endif
 
-            // target aura duration for caster show only if target exist at caster client
-            // send data at target visibility change (adding to client)
-            if((*i)!=this && (*i)->isType(TYPEMASK_UNIT))
-            {
-                SendAuraDurationsForTarget(*i);
-                //if(((Unit*)(*i))->isAlive()) //should be always alive
-                {
-                    if((*i)->GetTypeId()==TYPEID_UNIT)
-                        ((Creature*)(*i))->SendMonsterMoveWithSpeedToCurrentDestination(this);
-                    if(((Unit*)(*i))->getVictim())
-                        ((Unit*)(*i))->SendAttackStart(((Unit*)(*i))->getVictim());
-                }
-            }
+            SendInitialVisiblePackets(*i);
         }
     }
 }
@@ -17717,18 +17769,21 @@ void Player::UpdateVisibilityOf(WorldObject* target)
 
             // target aura duration for caster show only if target exist at caster client
             // send data at target visibility change (adding to client)
-            if(target!=this && target->isType(TYPEMASK_UNIT))
-            {
-                SendAuraDurationsForTarget((Unit*)target);
-                if(((Unit*)target)->isAlive())
-                {
-                    if(target->GetTypeId()==TYPEID_UNIT)
-                        ((Creature*)target)->SendMonsterMoveWithSpeedToCurrentDestination(this);
-                    if(((Unit*)target)->getVictim())
-                        ((Unit*)target)->SendAttackStart(((Unit*)target)->getVictim());
-                }
-            }
+            if(target->isType(TYPEMASK_UNIT))
+                SendInitialVisiblePackets((Unit*)target);
         }
+    }
+}
+
+void Player::SendInitialVisiblePackets(Unit* target)
+{
+    SendAuraDurationsForTarget(target);
+    if(target->isAlive())
+    {
+        if(target->GetMotionMaster()->GetCurrentMovementGeneratorType() != IDLE_MOTION_TYPE)
+            target->SendMonsterMoveWithSpeedToCurrentDestination(this);
+        if(target->hasUnitState(UNIT_STAT_MELEE_ATTACKING) && target->getVictim())
+            target->SendAttackStart(target->getVictim());
     }
 }
 
@@ -17778,7 +17833,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, UpdateDataMapType& 
     }
 }
 
-template<>
+/*template<>
 void Player::UpdateVisibilityOf<Creature>(Creature* target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow)
 {
     if(HaveAtClient(target))
@@ -17811,10 +17866,10 @@ void Player::UpdateVisibilityOf<Creature>(Creature* target, UpdateData& data, Up
             #endif
         }
     }
-}
+}*/
 
 template void Player::UpdateVisibilityOf(Player*        target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);
-//template void Player::UpdateVisibilityOf(Creature*      target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);
+template void Player::UpdateVisibilityOf(Creature*      target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);
 template void Player::UpdateVisibilityOf(Corpse*        target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);
 template void Player::UpdateVisibilityOf(GameObject*    target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);
 template void Player::UpdateVisibilityOf(DynamicObject* target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);

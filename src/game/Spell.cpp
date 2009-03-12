@@ -1212,10 +1212,10 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         }
     }
 
-    if(unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->AI())
+    if(unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->IsAIEnabled)
         ((Creature*)unit)->AI()->SpellHit(m_caster, m_spellInfo);
 
-    if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->AI())
+    if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->IsAIEnabled)
         ((Creature*)m_caster)->AI()->SpellHitTarget(unit, m_spellInfo);
 
     for(ChanceTriggerSpells::const_iterator i = m_ChanceTriggerSpells.begin(); i != m_ChanceTriggerSpells.end(); ++i)
@@ -2048,9 +2048,18 @@ void Spell::prepare(SpellCastTargets * targets, Aura* triggeredByAura)
         return;
     }
 
-    if(m_caster->GetTypeId() == TYPEID_PLAYER || (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isPet()))
+    if(m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         if(objmgr.IsPlayerSpellDisabled(m_spellInfo->Id))
+        {
+            SendCastResult(SPELL_FAILED_SPELL_UNAVAILABLE);
+            finish(false);
+            return;
+        }
+    }
+    else if (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isPet())
+    {
+        if(objmgr.IsPetSpellDisabled(m_spellInfo->Id))
         {
             SendCastResult(SPELL_FAILED_SPELL_UNAVAILABLE);
             finish(false);
@@ -2116,8 +2125,11 @@ void Spell::cancel()
     if(m_spellState == SPELL_STATE_FINISHED)
         return;
 
+    uint32 oldState = m_spellState;
+    m_spellState = SPELL_STATE_FINISHED;
+
     m_autoRepeat = false;
-    switch (m_spellState)
+    switch (oldState)
     {
         case SPELL_STATE_PREPARING:
         case SPELL_STATE_DELAYED:
@@ -2149,10 +2161,13 @@ void Spell::cancel()
         } break;
     }
 
-    finish(false);
-
     m_caster->RemoveDynObject(m_spellInfo->Id);
     m_caster->RemoveGameObject(m_spellInfo->Id,true);
+
+    //set state back so finish will be processed
+    m_spellState = oldState;
+
+    finish(false);
 }
 
 void Spell::cast(bool skipCheck)
@@ -4027,10 +4042,8 @@ uint8 Spell::CanCast(bool strict)
                     InstanceTemplate const* instance = ObjectMgr::GetInstanceTemplate(m_caster->GetMapId());
                     if(!instance)
                         return SPELL_FAILED_TARGET_NOT_IN_INSTANCE;
-                    if ( instance->levelMin > target->getLevel() )
-                        return SPELL_FAILED_LOWLEVEL;
-                    if ( instance->levelMax && instance->levelMax < target->getLevel() )
-                        return SPELL_FAILED_HIGHLEVEL;
+                    if(!target->Satisfy(objmgr.GetAccessRequirement(instance->access_id), m_caster->GetMapId()))
+                        return SPELL_FAILED_BAD_TARGETS;
                 }
                 break;
             }

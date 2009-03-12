@@ -908,11 +908,6 @@ void Aura::_AddAura()
 
 void Aura::_RemoveAura()
 {
-    // Remove all triggered by aura spells vs unlimited duration
-    // except same aura replace case
-    if(m_removeMode!=AURA_REMOVE_BY_STACK)
-        CleanupTriggeredSpells();
-
     Unit* caster = GetCaster();
 
     if(caster && IsPersistent())
@@ -2873,11 +2868,14 @@ void Aura::HandleModPossessPet(bool apply, bool Real)
     Unit* caster = GetCaster();
     if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
         return;
-    if(caster->GetPet() != m_target)
-        return;
 
     if(apply)
+    {
+        if(caster->GetPet() != m_target)
+            return;
+
         m_target->SetCharmedOrPossessedBy(caster, true);
+    }
     else
     {
         m_target->RemoveCharmedOrPossessedBy(caster);

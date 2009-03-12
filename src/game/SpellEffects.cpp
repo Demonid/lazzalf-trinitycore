@@ -339,14 +339,6 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         }
                         break;
                     }
-                    case 43648: //Electrical Storm
-                    {
-                        if(unitTarget && unitTarget->HasAura(44007, 0)) // Immune Aura
-                        {
-                            damage = 0;
-                        }
-                        break;
-                    }
                     // percent from health with min
                     case 25599:                             // Thundercrash
                     {
@@ -1154,7 +1146,7 @@ void Spell::EffectDummy(uint32 i)
 
                     pCreature->SetHealth(health);
 
-                    if(pCreature->AI())
+                    if(pCreature->IsAIEnabled)
                         pCreature->AI()->AttackStart(m_caster);
 
                     return;
@@ -1186,7 +1178,7 @@ void Spell::EffectDummy(uint32 i)
                     pCreature->SetHealth(health);
                     ((Player*)m_caster)->KilledMonster(16992,pCreature->GetGUID());
 
-                    if (pCreature->AI())
+                    if (pCreature->IsAIEnabled)
                         pCreature->AI()->AttackStart(m_caster);
 
                     return;
@@ -1234,7 +1226,7 @@ void Spell::EffectDummy(uint32 i)
 
                     m_caster->CastSpell(m_caster, 30452, true, NULL);
                     return;
-                }
+                }                
             }
 
             //All IconID Check in there
@@ -2428,13 +2420,6 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
                 sLog.outError("Target(GUID:" I64FMTD ") has aurastate AURA_STATE_SWIFTMEND but no matching aura.", unitTarget->GetGUID());
                 return;
             }
-            int idx = 0;
-            while(idx < 3)
-            {
-                if(targetAura->GetSpellProto()->EffectApplyAuraName[idx] == SPELL_AURA_PERIODIC_HEAL)
-                    break;
-                idx++;
-            }
 
             int32 tickheal = targetAura->GetModifierValuePerStack();
             if(Unit* auraCaster = targetAura->GetCaster())
@@ -2442,7 +2427,15 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
             //int32 tickheal = targetAura->GetSpellProto()->EffectBasePoints[idx] + 1;
             //It is said that talent bonus should not be included
             //int32 tickheal = targetAura->GetModifierValue();
-            int32 tickcount = GetSpellDuration(targetAura->GetSpellProto()) / targetAura->GetSpellProto()->EffectAmplitude[idx];
+            int32 tickcount = 0;
+            if(targetAura->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID)
+            {
+                switch(targetAura->GetSpellProto()->SpellFamilyFlags)//TODO: proper spellfamily for 3.0.x
+                {
+                    case 0x10:  tickcount = 4;  break; // Rejuvenation
+                    case 0x40:  tickcount = 6;  break; // Regrowth
+                }
+            }
             addhealth += tickheal * tickcount;
             unitTarget->RemoveAurasDueToCasterSpell(targetAura->GetId(), targetAura->GetCasterGUID());
 
@@ -2634,33 +2627,7 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
 
         // we succeeded in creating at least one item, so a levelup is possible
         player->UpdateCraftSkill(m_spellInfo->Id);
-    }
-
-    // for battleground marks send by mail if not add all expected
-    if(no_space > 0 )
-    {
-        BattleGroundTypeId bgType;
-        switch(m_spellInfo->Id)
-        {
-            case SPELL_AV_MARK_WINNER:
-            case SPELL_AV_MARK_LOSER:
-                bgType = BATTLEGROUND_AV;
-                break;
-            case SPELL_WS_MARK_WINNER:
-            case SPELL_WS_MARK_LOSER:
-                bgType = BATTLEGROUND_WS;
-                break;
-            case SPELL_AB_MARK_WINNER:
-            case SPELL_AB_MARK_LOSER:
-                bgType = BATTLEGROUND_AB;
-                break;
-            default:
-                return;
-        }
-
-        if(BattleGround* bg = sBattleGroundMgr.GetBattleGroundTemplate(bgType))
-            bg->SendRewardMarkByMail(player,newitemid,no_space);
-    }
+    }       
 }
 
 void Spell::EffectCreateItem(uint32 i)
@@ -2858,6 +2825,10 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
                 // triggering linked GO
                 if(uint32 trapEntry = gameObjTarget->GetGOInfo()->goober.linkedTrapId)
                     gameObjTarget->TriggeringLinkedGameObject(trapEntry,m_caster);
+
+                // activate GO scripts
+                Script->GOHello(player, gameObjTarget);
+                sWorld.ScriptsStart(sGameObjectScripts, gameObjTarget->GetDBTableGUIDLow(), player, gameObjTarget);
 
                 return;
 
@@ -3247,7 +3218,7 @@ void Spell::EffectSummon(uint32 i)
     name.append(petTypeSuffix[spawnCreature->getPetType()]);
     spawnCreature->SetName( name );
 
-    spawnCreature->GetCharmInfo()->SetReactState( REACT_DEFENSIVE );
+    spawnCreature->SetReactState( REACT_DEFENSIVE );
 }
 
 void Spell::EffectLearnSpell(uint32 i)
@@ -3474,7 +3445,7 @@ void Spell::EffectPickPocket(uint32 /*i*/)
         {
             // Reveal action + get attack
             m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
-            if (((Creature*)unitTarget)->AI())
+            if (((Creature*)unitTarget)->IsAIEnabled)
                 ((Creature*)unitTarget)->AI()->AttackStart(m_caster);
         }
     }
@@ -3488,7 +3459,7 @@ void Spell::EffectAddFarsight(uint32 i)
     float radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
     int32 duration = GetSpellDuration(m_spellInfo);
     DynamicObject* dynObj = new DynamicObject;
-    if(!dynObj->Create(objmgr.GenerateLowGuid(HIGHGUID_DYNAMICOBJECT), m_caster, m_spellInfo->Id, i, m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, duration, radius))
+    if(!dynObj->Create(objmgr.GenerateLowGuid(HIGHGUID_DYNAMICOBJECT), m_caster, m_spellInfo->Id, 4, m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, duration, radius))
     {
         delete dynObj;
         return;
@@ -4025,9 +3996,9 @@ void Spell::EffectSummonPet(uint32 i)
     if(m_caster->GetTypeId() == TYPEID_UNIT)
     {
         if ( ((Creature*)m_caster)->isTotem() )
-            pet->GetCharmInfo()->SetReactState(REACT_AGGRESSIVE);
+            pet->SetReactState(REACT_AGGRESSIVE);
         else
-            pet->GetCharmInfo()->SetReactState(REACT_DEFENSIVE);
+            pet->SetReactState(REACT_DEFENSIVE);
     }
 
     pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);

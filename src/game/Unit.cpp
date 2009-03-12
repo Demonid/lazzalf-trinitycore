@@ -149,7 +149,7 @@ bool IsPassiveStackableSpell( uint32 spellId )
 
 Unit::Unit()
 : WorldObject(), i_motionMaster(this), m_ThreatManager(this), m_HostilRefManager(this)
-, m_IsInNotifyList(false), m_Notified(false), m_AI_enabled(false)
+, m_IsInNotifyList(false), m_Notified(false), IsAIEnabled(false)
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -627,7 +627,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
     }
 
     //Script Event damage taken
-    if( pVictim->GetTypeId()== TYPEID_UNIT && ((Creature *)pVictim)->AI() )
+    if( pVictim->GetTypeId()== TYPEID_UNIT && ((Creature *)pVictim)->IsAIEnabled )
     {
         ((Creature *)pVictim)->AI()->DamageTaken(this, damage);
 
@@ -778,7 +778,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             if(!getVictim())
             /*{
                 // if have target and damage pVictim just call AI reaction
-                if(pVictim != getVictim() && pVictim->GetTypeId()==TYPEID_UNIT && ((Creature*)pVictim)->AI())
+                if(pVictim != getVictim() && pVictim->GetTypeId()==TYPEID_UNIT && ((Creature*)pVictim)->IsAIEnabled)
                     ((Creature*)pVictim)->AI()->AttackedBy(this);
             }
             else*/
@@ -4154,59 +4154,49 @@ bool Unit::AddAura(Aura *Aur)
     SpellEntry const* aurSpellInfo = Aur->GetSpellProto();
 
     spellEffectPair spair = spellEffectPair(Aur->GetId(), Aur->GetEffIndex());
-    AuraMap::iterator i = m_Auras.find( spair );
 
-    // take out same spell
-    if (i != m_Auras.end())
+    bool stackModified=false;
+    // passive and persistent auras can stack with themselves any number of times
+    if (!Aur->IsPassive() && !Aur->IsPersistent())
     {
-        // passive and persistent auras can stack with themselves any number of times
-        if (!Aur->IsPassive() && !Aur->IsPersistent())
+        for(AuraMap::iterator i2 = m_Auras.lower_bound(spair); i2 != m_Auras.upper_bound(spair);)
         {
-            // replace aura if next will > spell StackAmount
-            if(aurSpellInfo->StackAmount)
+            if(i2->second->GetCasterGUID()==Aur->GetCasterGUID())
             {
-                Aur->SetStackAmount(i->second->GetStackAmount());
-                if(Aur->GetStackAmount() < aurSpellInfo->StackAmount)
-                    Aur->SetStackAmount(Aur->GetStackAmount()+1);
-                RemoveAura(i,AURA_REMOVE_BY_STACK);
-            }
-            // if StackAmount==0 not allow auras from same caster
-            else
-            {
-                for(AuraMap::iterator i2 = m_Auras.lower_bound(spair); i2 != m_Auras.upper_bound(spair); ++i2)
+                if (!stackModified)
                 {
-                    if(i2->second->GetCasterGUID()==Aur->GetCasterGUID())
+                // replace aura if next will > spell StackAmount
+                    if(aurSpellInfo->StackAmount)
                     {
-                        // can be only single (this check done at _each_ aura add
-                        RemoveAura(i2,AURA_REMOVE_BY_STACK);
-                        break;
+                        // prevent adding stack more than once
+                        stackModified=true;
+                        Aur->SetStackAmount(i2->second->GetStackAmount());
+                        if(Aur->GetStackAmount() < aurSpellInfo->StackAmount)
+                            Aur->SetStackAmount(Aur->GetStackAmount()+1);
                     }
-
-                    bool stop = false;
-                    switch(aurSpellInfo->EffectApplyAuraName[Aur->GetEffIndex()])
-                    {
-                        // DoT/HoT/etc
-                        case SPELL_AURA_PERIODIC_DAMAGE:    // allow stack
-                        case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
-                        case SPELL_AURA_PERIODIC_LEECH:
-                        case SPELL_AURA_PERIODIC_HEAL:
-                        case SPELL_AURA_OBS_MOD_HEALTH:
-                        case SPELL_AURA_PERIODIC_MANA_LEECH:
-                        case SPELL_AURA_PERIODIC_ENERGIZE:
-                        case SPELL_AURA_OBS_MOD_MANA:
-                        case SPELL_AURA_POWER_BURN_MANA:
-                            break;
-                        default:                            // not allow
-                            // can be only single (this check done at _each_ aura add
-                            RemoveAura(i2,AURA_REMOVE_BY_STACK);
-                            stop = true;
-                            break;
-                    }
-
-                    if(stop)
-                        break;
+                    RemoveAura(i2,AURA_REMOVE_BY_STACK);
+                    i2=m_Auras.lower_bound(spair);
+                    continue;
                 }
             }
+            switch(aurSpellInfo->EffectApplyAuraName[Aur->GetEffIndex()])
+            {
+                // DOT or HOT from different casters will stack
+                case SPELL_AURA_PERIODIC_DAMAGE:
+                case SPELL_AURA_PERIODIC_HEAL:
+                case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+                case SPELL_AURA_PERIODIC_ENERGIZE:
+                case SPELL_AURA_PERIODIC_MANA_LEECH:
+                case SPELL_AURA_PERIODIC_LEECH:
+                case SPELL_AURA_POWER_BURN_MANA:
+                case SPELL_AURA_OBS_MOD_MANA:
+                case SPELL_AURA_OBS_MOD_HEALTH:
+                    ++i2;
+                    continue;
+            }
+            RemoveAura(i2,AURA_REMOVE_BY_STACK);
+            i2=m_Auras.lower_bound(spair);
+            continue;
         }
     }
 
@@ -4347,6 +4337,9 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
 
         uint32 i_spellId = i_spellProto->Id;
 
+        if (spellId==i_spellId)
+            continue;
+
         if(IsPassiveSpell(i_spellId))
         {
             if(IsPassiveStackableSpell(i_spellId))
@@ -4358,8 +4351,6 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
         }
 
         uint32 i_effIndex = (*i).second->GetEffIndex();
-
-        if(i_spellId == spellId) continue;
 
         bool is_triggered_by_spell = false;
         // prevent triggered aura of removing aura that triggered it
@@ -4417,7 +4408,23 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
                     sLog.outError("Aura (Spell %u Effect %u) is in process but attempt removed at aura (Spell %u Effect %u) adding, need add stack rule for Unit::RemoveNoStackAurasDueToAura", i->second->GetId(), i->second->GetEffIndex(),Aur->GetId(), Aur->GetEffIndex());
                     continue;
                 }
-                RemoveAurasDueToSpell(i_spellId);
+
+            uint64 caster = (*i).second->GetCasterGUID();
+            // Remove all auras by aura caster
+            for (uint8 a=0;a<3;++a)
+            {
+                spellEffectPair spair = spellEffectPair(i_spellId, a);
+                for(AuraMap::iterator iter = m_Auras.lower_bound(spair); iter != m_Auras.upper_bound(spair);)
+                {
+                    if(iter->second->GetCasterGUID()==caster)
+                    {
+                        RemoveAura(iter, AURA_REMOVE_BY_STACK);
+                        iter = m_Auras.lower_bound(spair);
+                    }
+                    else
+                        ++iter;
+                }
+            }
 
                 if( m_Auras.empty() )
                     break;
@@ -4706,13 +4713,10 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
         if(!caster)                                         // can be already located for IsSingleTargetSpell case
             caster = Aur->GetCaster();
 
-        if(caster)
+        if(caster && caster->isAlive())
         {
-            if(caster->GetTypeId()==TYPEID_UNIT && ((Creature*)caster)->isTotem() && ((Totem*)caster)->GetTotemType()==TOTEM_STATUE)
-                statue = ((Totem*)caster);
-
             // stop caster chanelling state
-            else if(caster->m_currentSpells[CURRENT_CHANNELED_SPELL]
+            if(caster->m_currentSpells[CURRENT_CHANNELED_SPELL]
                 //prevent recurential call
                 && caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->getState() != SPELL_STATE_FINISHED)
             {
@@ -4727,6 +4731,9 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
                         caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel();
                     }
                 }
+
+                if(caster->GetTypeId()==TYPEID_UNIT && ((Creature*)caster)->isTotem() && ((Totem*)caster)->GetTotemType()==TOTEM_STATUE)
+                    statue = ((Totem*)caster);
             }
 
             // Unsummon summon as possessed creatures on spell cancel
@@ -4755,8 +4762,21 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
 
     Aur->_RemoveAura();
 
-    if(mode != AURA_REMOVE_BY_STACK)
+    bool stack = false;
+    spellEffectPair spair = spellEffectPair(Aur->GetId(), Aur->GetEffIndex());
+    for(AuraMap::const_iterator itr = GetAuras().lower_bound(spair); itr != GetAuras().upper_bound(spair); ++itr)
     {
+        if (itr->second->GetCasterGUID()==GetGUID())
+        {
+            stack = true;
+        }
+    }
+    if (!stack)
+    {
+        // Remove all triggered by aura spells vs unlimited duration
+        Aur->CleanupTriggeredSpells();
+
+        // Remove Linked Auras
         uint32 id = Aur->GetId();
         if(spellmgr.GetSpellCustomAttr(id) & SPELL_ATTR_CU_LINK_REMOVE)
         {
@@ -6464,6 +6484,30 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 return true;
             }
             break;
+        }
+        case SPELLFAMILY_POTION:
+        {
+            if (dummySpell->Id == 17619)
+            {
+                if (procSpell->SpellFamilyName == SPELLFAMILY_POTION)
+                {
+                    for (uint8 i=0;i<3;i++)
+                    {
+                        if (procSpell->Effect[i]==SPELL_EFFECT_HEAL)
+                        {
+                            triggered_spell_id = 21399;
+                        }
+                        else if (procSpell->Effect[i]==SPELL_EFFECT_ENERGIZE)
+                        {
+                            triggered_spell_id = 21400;
+                        }
+                        else continue;
+					    basepoints0 = CalculateSpellDamage(procSpell,i,procSpell->EffectBasePoints[i],this) * 0.4f;
+                        CastCustomSpell(this,triggered_spell_id,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
+                    }
+                    return true;
+                }
+            }
         }
         default:
             break;
@@ -8259,7 +8303,7 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
     m_attacking = victim;
     m_attacking->_addAttacker(this);
 
-    //if(m_attacking->GetTypeId()==TYPEID_UNIT && ((Creature*)m_attacking)->AI())
+    //if(m_attacking->GetTypeId()==TYPEID_UNIT && ((Creature*)m_attacking)->IsAIEnabled)
     //    ((Creature*)m_attacking)->AI()->AttackedBy(this);
 
     if(GetTypeId()==TYPEID_UNIT)
@@ -8318,7 +8362,7 @@ bool Unit::AttackStop()
 
 void Unit::CombatStop(bool cast)
 {
-    if(cast& IsNonMeleeSpellCasted(false))
+    if(cast && IsNonMeleeSpellCasted(false))
         InterruptNonMeleeSpells(false);
 
     AttackStop();
@@ -8502,19 +8546,23 @@ void Unit::SetCharm(Unit* pet)
 
 void Unit::AddPlayerToVision(Player* plr)
 {
-    setActive(true);
     if(m_sharedVision.empty())
+    {
+        setActive(true);
         SetWorldObject(true);
+    }
     m_sharedVision.push_back(plr);
     plr->SetFarsightTarget(this);
 }
 
 void Unit::RemovePlayerFromVision(Player* plr)
 {
-    setActive(false);
     m_sharedVision.remove(plr);
     if(m_sharedVision.empty())
+    {
+        setActive(false);
         SetWorldObject(false);
+    }
     plr->ClearFarsight();
 }
 
@@ -8675,6 +8723,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         }
     }
 
+    bool hasmangle=false;
     // .. taken pct: dummy auras
     AuraList const& mDummyAuras = pVictim->GetAurasByType(SPELL_AURA_DUMMY);
     for(AuraList::const_iterator i = mDummyAuras.begin(); i != mDummyAuras.end(); ++i)
@@ -8697,6 +8746,10 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             //Mangle
             case 2312:
             case 44955:
+                // don't apply mod twice
+                if (hasmangle)
+                    break;
+                hasmangle=true;
                 for(int j=0;j<3;j++)
                 {
                     if(GetEffectMechanic(spellProto, j)==MECHANIC_BLEED)
@@ -9172,7 +9225,8 @@ uint32 Unit::SpellHealingBonus(SpellEntry const *spellProto, uint32 healamount, 
         spellProto->Id == 33778 || spellProto->Id == 379   ||
         spellProto->Id == 38395 || spellProto->Id == 40972 ||
         spellProto->Id == 22845 || spellProto->Id == 33504 ||
-        spellProto->Id == 34299)
+        spellProto->Id == 34299 || spellProto->Id == 27813 ||
+        spellProto->Id == 27817 || spellProto->Id == 27818)
         return healamount;
 
     int32 AdvertisedBenefit = SpellBaseHealingBonus(GetSpellSchoolMask(spellProto));
@@ -9802,7 +9856,7 @@ void Unit::CombatStart(Unit* target)
         target->SetStandState(PLAYER_STATE_NONE);
 
     if(!target->isInCombat() && target->GetTypeId() != TYPEID_PLAYER
-        && !((Creature*)target)->HasReactState(REACT_PASSIVE) && ((Creature*)target)->AI())
+        && !((Creature*)target)->HasReactState(REACT_PASSIVE) && ((Creature*)target)->IsAIEnabled)
         ((Creature*)target)->AI()->AttackStart(this);
 
     SetInCombatWith(target);
@@ -10425,7 +10479,7 @@ void Unit::TauntApply(Unit* taunter)
         return;
 
     SetInFront(taunter);
-    if (((Creature*)this)->AI())
+    if (((Creature*)this)->IsAIEnabled)
         ((Creature*)this)->AI()->AttackStart(taunter);
 
     m_ThreatManager.tauntApply(taunter);
@@ -10449,7 +10503,7 @@ void Unit::TauntFadeOut(Unit *taunter)
 
     if(m_ThreatManager.isThreatListEmpty())
     {
-        if(((Creature*)this)->AI())
+        if(((Creature*)this)->IsAIEnabled)
             ((Creature*)this)->AI()->EnterEvadeMode();
         return;
     }
@@ -10460,7 +10514,7 @@ void Unit::TauntFadeOut(Unit *taunter)
     if (target && target != taunter)
     {
         SetInFront(target);
-        if (((Creature*)this)->AI())
+        if (((Creature*)this)->IsAIEnabled)
             ((Creature*)this)->AI()->AttackStart(target);
     }
 }
@@ -10584,7 +10638,7 @@ int32 Unit::CalculateSpellDamage(SpellEntry const* spellProto, uint8 effect_inde
         }
     }
 
-    if(spellProto->Attributes & SPELL_ATTR_LEVEL_DAMAGE_CALCULATION && spellProto->spellLevel &&
+    if(!basePointsPerLevel && (spellProto->Attributes & SPELL_ATTR_LEVEL_DAMAGE_CALCULATION && spellProto->spellLevel) &&
             spellProto->Effect[effect_index] != SPELL_EFFECT_WEAPON_PERCENT_DAMAGE &&
             spellProto->Effect[effect_index] != SPELL_EFFECT_KNOCK_BACK)
             //there are many more: slow speed, -healing pct
@@ -11196,20 +11250,42 @@ void Unit::CleanupsBeforeDelete()
     RemoveFromWorld();
 }
 
-CharmInfo* Unit::InitCharmInfo(Unit *charm)
+CharmInfo* Unit::InitCharmInfo()
 {
     if(!m_charmInfo)
-        m_charmInfo = new CharmInfo(charm);
+        m_charmInfo = new CharmInfo(this);
     return m_charmInfo;
 }
 
+void Unit::DeleteCharmInfo()
+{
+    if(!m_charmInfo)
+        return;
+
+    delete m_charmInfo;
+    m_charmInfo = NULL;
+}
+
 CharmInfo::CharmInfo(Unit* unit)
-: m_unit(unit), m_CommandState(COMMAND_FOLLOW), m_reactState(REACT_PASSIVE), m_petnumber(0), m_barInit(false)
+: m_unit(unit), m_CommandState(COMMAND_FOLLOW), m_petnumber(0), m_barInit(false)
 {
     for(int i =0; i<4; ++i)
     {
         m_charmspells[i].spellId = 0;
         m_charmspells[i].active = ACT_DISABLED;
+    }
+    if(m_unit->GetTypeId() == TYPEID_UNIT)
+    {
+        m_oldReactState = ((Creature*)m_unit)->GetReactState();
+        ((Creature*)m_unit)->SetReactState(REACT_PASSIVE);
+    }
+}
+
+CharmInfo::~CharmInfo()
+{
+    if(m_unit->GetTypeId() == TYPEID_UNIT)
+    {
+        ((Creature*)m_unit)->SetReactState(m_oldReactState);
     }
 }
 
@@ -12055,7 +12131,7 @@ void Unit::SetFeared(bool apply, uint64 casterGUID, uint32 spellID)
 
             // attack caster if can
             Unit* caster = ObjectAccessor::GetObjectInWorld(casterGUID, (Unit*)NULL);
-            if(caster && caster != getVictim() && ((Creature*)this)->AI())
+            if(caster && caster != getVictim() && ((Creature*)this)->IsAIEnabled)
                 ((Creature*)this)->AI()->AttackStart(caster);
         }
     }
@@ -12739,7 +12815,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
             ((Player*)pVictim)->GetSession()->SendPacket(&data);
         }
         // Call KilledUnit for creatures
-        if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
+        if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->IsAIEnabled)
             ((Creature*)this)->AI()->KilledUnit(pVictim);
 
         // last damage from non duel opponent or opponent controlled creature
@@ -12762,11 +12838,11 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         }
 
         // Call KilledUnit for creatures, this needs to be called after the lootable flag is set
-        if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->AI())
+        if (GetTypeId() == TYPEID_UNIT && ((Creature*)this)->IsAIEnabled)
             ((Creature*)this)->AI()->KilledUnit(pVictim);
 
         // Call creature just died function
-        if (cVictim->AI())
+        if (cVictim->IsAIEnabled)
             cVictim->AI()->JustDied(this);
 
         // Dungeon specific stuff, only applies to players killing creatures
@@ -13030,7 +13106,7 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
 
     if(GetTypeId() == TYPEID_UNIT)
     {
-        ((Creature*)this)->InitPossessedAI();
+        ((Creature*)this)->AI()->OnCharmed(true);
         StopMoving();
         GetMotionMaster()->Clear(false);
         GetMotionMaster()->MoveIdle();
@@ -13045,8 +13121,7 @@ void Unit::SetCharmedOrPossessedBy(Unit* charmer, bool possess)
     // Pets already have a properly initialized CharmInfo, don't overwrite it.
     if(GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT && !((Creature*)this)->isPet())
     {
-        CharmInfo *charmInfo = InitCharmInfo(this);
-        charmInfo->SetReactState(REACT_DEFENSIVE);
+        CharmInfo *charmInfo = InitCharmInfo();
         if(possess)
             charmInfo->InitPossessCreateSpells();
         else
@@ -13116,8 +13191,8 @@ void Unit::RemoveCharmedOrPossessedBy(Unit *charmer)
         if(!((Creature*)this)->isPet())
             RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
 
-        ((Creature*)this)->DisablePossessedAI();
-        if(isAlive() && ((Creature*)this)->AI())
+        ((Creature*)this)->AI()->OnCharmed(false);
+        if(isAlive() && ((Creature*)this)->IsAIEnabled)
         {
             if(charmer && !IsFriendlyTo(charmer))
             {
@@ -13161,6 +13236,11 @@ void Unit::RemoveCharmedOrPossessedBy(Unit *charmer)
             else
                 sLog.outError("Aura::HandleModCharm: target="I64FMTD" with typeid=%d has a charm aura but no charm info!", GetGUID(), GetTypeId());
         }
+    }
+
+    if(GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT && !((Creature*)this)->isPet())
+    {
+        DeleteCharmInfo();
     }
 
     if(possess || charmer->GetTypeId() == TYPEID_PLAYER)

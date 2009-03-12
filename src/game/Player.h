@@ -830,6 +830,20 @@ struct InstancePlayerBind
     InstancePlayerBind() : save(NULL), perm(false) {}
 };
 
+struct AccessRequirement
+{
+    uint8  levelMin;
+    uint8  levelMax;
+    uint32 item;
+    uint32 item2;
+    uint32 heroicKey;
+    uint32 heroicKey2;
+    uint32 quest;
+    std::string questFailedText;
+	uint32 heroicQuest;
+    std::string heroicQuestFailedText;
+ };
+
 class TRINITY_DLL_SPEC PlayerTaxi
 {
     public:
@@ -2010,6 +2024,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         bool IsVisibleGloballyFor(Player* pl) const;
 
         void UpdateVisibilityOf(WorldObject* target);
+        void SendInitialVisiblePackets(Unit* target);
 
         template<class T>
             void UpdateVisibilityOf(T* target, UpdateData& data, UpdateDataMapType& data_updates, std::set<WorldObject*>& visibleNow);
@@ -2052,6 +2067,7 @@ class TRINITY_DLL_SPEC Player : public Unit
         void SendRaidInfo();
         void SendSavedInstances();
         static void ConvertInstancesToGroup(Player *player, Group *group = NULL, uint64 player_guid = 0);
+        bool Satisfy(AccessRequirement const*, uint32 target_map, bool report = false);
 
         /*********************************************************/
         /***                   GROUP SYSTEM                    ***/
