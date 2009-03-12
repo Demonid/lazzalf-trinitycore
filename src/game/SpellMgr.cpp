@@ -751,6 +751,7 @@ bool IsSingleTargetSpells(SpellEntry const *spellInfo1, SpellEntry const *spellI
     switch(spec1)
     {
         case SPELL_JUDGEMENT:
+        case SPELL_MAGE_POLYMORPH:
             if(GetSpellSpecific(spellInfo2->Id) == spec1)
                 return true;
             break;
@@ -1399,6 +1400,9 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2, bool
                     case SPELL_AURA_PERIODIC_ENERGIZE:
                     case SPELL_AURA_PERIODIC_MANA_LEECH:
                     case SPELL_AURA_PERIODIC_LEECH:
+                    case SPELL_AURA_POWER_BURN_MANA:
+                    case SPELL_AURA_OBS_MOD_MANA:
+                    case SPELL_AURA_OBS_MOD_HEALTH:
                         return false;
                     default:
                         break;
@@ -2223,6 +2227,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 38296: //Spitfire Totem
         case 37676: //Insidious Whisper
         case 46009: //Negative Energy
+        case 45641: //Fire Bloom
             spellInfo->MaxAffectedTargets = 5;
             break;
         case 40827: //Sinful Beam

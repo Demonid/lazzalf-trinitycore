@@ -257,7 +257,7 @@ template<>
 void Map::AddToGrid(Creature* obj, NGridType *grid, Cell const& cell)
 {
     // add to world object registry in grid
-    if(obj->isPet() || obj->HasSharedVision())
+    if(obj->isPet() || obj->IsTempWorldObject)
     {
         (*grid)(cell.CellX(), cell.CellY()).AddWorldObject<Creature>(obj, obj->GetGUID());
     }
@@ -309,7 +309,7 @@ template<>
 void Map::RemoveFromGrid(Creature* obj, NGridType *grid, Cell const& cell)
 {
     // remove from world object registry in grid
-    if(obj->isPet() || obj->HasSharedVision())
+    if(obj->isPet() || obj->IsTempWorldObject)
     {
         (*grid)(cell.CellX(), cell.CellY()).RemoveWorldObject<Creature>(obj, obj->GetGUID());
     }
@@ -339,20 +339,25 @@ void Map::SwitchGridContainers(T* obj, bool on)
 
     if(on)
     {
-        if(!grid.RemoveGridObject<T>(obj, obj->GetGUID())
+        grid.RemoveGridObject<T>(obj, obj->GetGUID());
+        grid.AddWorldObject<T>(obj, obj->GetGUID());
+        /*if(!grid.RemoveGridObject<T>(obj, obj->GetGUID())
             || !grid.AddWorldObject<T>(obj, obj->GetGUID()))
         {
             assert(false);
-        }
+        }*/
     }
     else
     {
-        if(!grid.RemoveWorldObject<T>(obj, obj->GetGUID())
+        grid.RemoveWorldObject<T>(obj, obj->GetGUID());
+        grid.AddGridObject<T>(obj, obj->GetGUID());
+        /*if(!grid.RemoveWorldObject<T>(obj, obj->GetGUID())
             || !grid.AddGridObject<T>(obj, obj->GetGUID()))
         {
             assert(false);
-        }
+        }*/
     }
+    obj->IsTempWorldObject = on;
 }
 
 template void Map::SwitchGridContainers(Creature *, bool);
@@ -619,33 +624,14 @@ void Map::RelocationNotify()
 
         if(unit->GetTypeId() == TYPEID_PLAYER)
         {
-            //UpdatePlayerVisibility((Player*)unit, cell, val);
-            //Trinity::PlayerNotifier pl_notifier(*player);
-            //VisitWorld(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), pl_notifier);
-
-            //UpdateObjectsVisibilityFor((Player*)unit, cell, val);
-            Trinity::VisibleNotifier ob_notifier(*((Player*)unit));
-            VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), ob_notifier);
-            ob_notifier.Notify();
-
             Trinity::PlayerRelocationNotifier notifier(*((Player*)unit));
             VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
+            notifier.Notify();
         }
         else
         {
             Trinity::CreatureRelocationNotifier notifier(*((Creature*)unit));
             VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
-        }
-
-        // Update visibility back to player who is controlling the unit
-        if(unit->GetSharedVisionList().size())
-        {
-            for(SharedVisionList::const_iterator it = unit->GetSharedVisionList().begin(); it != unit->GetSharedVisionList().end(); ++it)
-            {
-                Trinity::VisibleNotifier ob_notifier(**it);
-                VisitAll(unit->GetPositionX(), unit->GetPositionY(), World::GetMaxVisibleDistance(), ob_notifier);
-                ob_notifier.Notify();
-            }
         }
     }
 
@@ -762,6 +748,28 @@ void Map::Update(const uint32 &t_diff)
                         cell_lock->Visit(cell_lock, world_object_update, *this);
                     }
                 }
+            }
+
+            // Update bindsight players
+            if(obj->isType(TYPEMASK_UNIT))
+            {
+                if(!((Unit*)obj)->GetSharedVisionList().empty())
+                    for(SharedVisionList::const_iterator itr = ((Unit*)obj)->GetSharedVisionList().begin(); itr != ((Unit*)obj)->GetSharedVisionList().end(); ++itr)
+                    {
+                        Trinity::PlayerVisibilityNotifier notifier(**itr);
+                        VisitAll(obj->GetPositionX(), obj->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
+                        notifier.Notify();
+                    }
+            }
+            else if(obj->GetTypeId() == TYPEID_DYNAMICOBJECT)
+            {
+                if(Unit *caster = ((DynamicObject*)obj)->GetCaster())
+                    if(caster->GetTypeId() == TYPEID_PLAYER && caster->GetUInt64Value(PLAYER_FARSIGHT) == obj->GetGUID())
+                    {
+                        Trinity::PlayerVisibilityNotifier notifier(*((Player*)caster));
+                        VisitAll(obj->GetPositionX(), obj->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
+                        notifier.Notify();
+                    }
             }
         }
     }
@@ -1010,7 +1018,6 @@ bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
 
             RemoveFromGrid(c,getNGrid(old_cell.GridX(), old_cell.GridY()),old_cell);
             AddToGrid(c,getNGrid(new_cell.GridX(), new_cell.GridY()),new_cell);
-            c->SetCurrentCell(new_cell);
         }
         else
         {
@@ -1048,10 +1055,8 @@ bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
         #endif
 
         RemoveFromGrid(c,getNGrid(old_cell.GridX(), old_cell.GridY()),old_cell);
-        {
-            EnsureGridCreated(GridPair(new_cell.GridX(), new_cell.GridY()));
-            AddToGrid(c,getNGrid(new_cell.GridX(), new_cell.GridY()),new_cell);
-        }
+        EnsureGridCreated(GridPair(new_cell.GridX(), new_cell.GridY()));
+        AddToGrid(c,getNGrid(new_cell.GridX(), new_cell.GridY()),new_cell);
 
         return true;
     }
@@ -1709,7 +1714,7 @@ void Map::AddToActive( Creature* c )
     AddToActiveHelper(c);
 
     // also not allow unloading spawn grid to prevent creating creature clone at load
-    if(c->GetDBTableGUIDLow())
+    if(!c->isPet() && c->GetDBTableGUIDLow())
     {
         float x,y,z;
         c->GetRespawnCoord(x,y,z);
@@ -1730,7 +1735,7 @@ void Map::RemoveFromActive( Creature* c )
     RemoveFromActiveHelper(c);
 
     // also allow unloading spawn grid
-    if(c->GetDBTableGUIDLow())
+    if(!c->isPet() && c->GetDBTableGUIDLow())
     {
         float x,y,z;
         c->GetRespawnCoord(x,y,z);

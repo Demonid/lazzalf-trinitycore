@@ -98,11 +98,10 @@ struct CreatureMover
 struct InstanceTemplate
 {
     uint32 map;
-    uint32 parent;
-    uint32 levelMin;
-    uint32 levelMax;
+    uint32 parent;    
     uint32 maxPlayers;
     uint32 reset_delay;
+    uint32 access_id;
     float startLocX;
     float startLocY;
     float startLocZ;
@@ -372,6 +371,8 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
             if(m_activeNonPlayersIter != m_activeNonPlayers.end())
             {
                 ActiveNonPlayers::iterator itr = m_activeNonPlayers.find(obj);
+                if(itr == m_activeNonPlayers.end())
+                    return;
                 if(itr==m_activeNonPlayersIter)
                     ++m_activeNonPlayersIter;
                 m_activeNonPlayers.erase(itr);

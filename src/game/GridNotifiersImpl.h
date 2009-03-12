@@ -29,17 +29,6 @@
 #include "CreatureAI.h"
 #include "SpellAuras.h"
 
-template<class T>
-inline void
-Trinity::VisibleNotifier::Visit(GridRefManager<T> &m)
-{
-    for(typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
-    {
-        i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_data_updates,i_visibleNow);
-        i_clientGUIDs.erase(iter->getSource()->GetGUID());
-    }
-}
-
 inline void
 Trinity::ObjectUpdater::Visit(CreatureMapType &m)
 {
@@ -48,33 +37,15 @@ Trinity::ObjectUpdater::Visit(CreatureMapType &m)
             iter->getSource()->Update(i_timeDiff);
 }
 
-inline void
-Trinity::PlayerRelocationNotifier::Visit(PlayerMapType &m)
-{
-    for(PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
-    {
-        if(&i_player==iter->getSource())
-            continue;
-
-        // visibility for players updated by ObjectAccessor::UpdateVisibilityFor calls in appropriate places
-
-        // Cancel Trade
-        if(i_player.GetTrader()==iter->getSource())
-                                                            // iteraction distance
-            if(!i_player.IsWithinDistInMap(iter->getSource(), 5))
-                i_player.GetSession()->SendCancelTrade();   // will clode both side trade windows
-    }
-}
-
 inline void PlayerCreatureRelocationWorker(Player* pl, Creature* c)
 {
-    // update creature visibility at player/creature move
-    pl->UpdateVisibilityOf(c);
+    if(!pl->isAlive() || !c->isAlive() || pl->isInFlight())
+        return;
 
     // Creature AI reaction
     if(c->HasReactState(REACT_AGGRESSIVE) && !c->hasUnitState(UNIT_STAT_SIGHTLESS))
     {
-        if( c->AI() && c->IsWithinSightDist(pl) && !c->IsInEvadeMode() )
+        if( c->IsAIEnabled && c->IsWithinSightDist(pl) && !c->IsInEvadeMode() )
             c->AI()->MoveInLineOfSight(pl);
     }
 }
@@ -83,38 +54,83 @@ inline void CreatureCreatureRelocationWorker(Creature* c1, Creature* c2)
 {
     if(c1->HasReactState(REACT_AGGRESSIVE) && !c1->hasUnitState(UNIT_STAT_SIGHTLESS))
     {
-        if( c1->AI() && c1->IsWithinSightDist(c2) && !c1->IsInEvadeMode() )
+        if( c1->IsAIEnabled && c1->IsWithinSightDist(c2) && !c1->IsInEvadeMode() )
             c1->AI()->MoveInLineOfSight(c2);
     }
 
     if(c2->HasReactState(REACT_AGGRESSIVE) && !c2->hasUnitState(UNIT_STAT_SIGHTLESS))
     {
-        if( c2->AI() && c1->IsWithinSightDist(c2) && !c2->IsInEvadeMode() )
+        if( c2->IsAIEnabled && c1->IsWithinSightDist(c2) && !c2->IsInEvadeMode() )
             c2->AI()->MoveInLineOfSight(c1);
     }
 }
 
+template<class T>
+inline void
+Trinity::PlayerVisibilityNotifier::Visit(GridRefManager<T> &m)
+{
+    for(typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_data_updates,i_visibleNow);
+        i_clientGUIDs.erase(iter->getSource()->GetGUID());
+    }
+}
+
+template<>
+inline void
+Trinity::PlayerRelocationNotifier::Visit(PlayerMapType &m)
+{
+    for(PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        i_clientGUIDs.erase(iter->getSource()->GetGUID());
+
+        if(iter->getSource()->m_Notified) //self is also skipped in this check
+            continue;
+
+        i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_data_updates,i_visibleNow);
+        iter->getSource()->UpdateVisibilityOf(&i_player);
+
+        //if (!i_player.GetSharedVisionList().empty())
+        //    for (SharedVisionList::const_iterator it = i_player.GetSharedVisionList().begin(); it != i_player.GetSharedVisionList().end(); ++it)
+        //        (*it)->UpdateVisibilityOf(iter->getSource());
+
+        // Cancel Trade
+        if(i_player.GetTrader()==iter->getSource())
+            if(!i_player.IsWithinDistInMap(iter->getSource(), 5)) // iteraction distance
+                i_player.GetSession()->SendCancelTrade();   // will clode both side trade windows
+    }
+}
+
+template<>
 inline void
 Trinity::PlayerRelocationNotifier::Visit(CreatureMapType &m)
 {
-    if(!i_player.isAlive() || i_player.isInFlight())
-        return;
+    for(CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        i_clientGUIDs.erase(iter->getSource()->GetGUID());
 
-    for(CreatureMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
-        if( !iter->getSource()->m_Notified && iter->getSource()->isAlive())
-            PlayerCreatureRelocationWorker(&i_player,iter->getSource());
+        if(iter->getSource()->m_Notified)
+            continue;
+
+        i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_data_updates,i_visibleNow);
+
+        PlayerCreatureRelocationWorker(&i_player, iter->getSource());
+    }
 }
 
 template<>
 inline void
 Trinity::CreatureRelocationNotifier::Visit(PlayerMapType &m)
 {
-    if(!i_creature.isAlive())
-        return;
+    for(PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    {
+        if(iter->getSource()->m_Notified)
+            continue;
 
-    for(PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
-        if( !iter->getSource()->m_Notified && iter->getSource()->isAlive() && !iter->getSource()->isInFlight())
-            PlayerCreatureRelocationWorker(iter->getSource(), &i_creature);
+        iter->getSource()->UpdateVisibilityOf(&i_creature);
+        
+        PlayerCreatureRelocationWorker(iter->getSource(), &i_creature);
+    }
 }
 
 template<>
@@ -124,11 +140,15 @@ Trinity::CreatureRelocationNotifier::Visit(CreatureMapType &m)
     if(!i_creature.isAlive())
         return;
 
-    for(CreatureMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
+    for(CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
-        Creature* c = iter->getSource();
-        if( !iter->getSource()->m_Notified && c != &i_creature && c->isAlive())
-            CreatureCreatureRelocationWorker(c, &i_creature);
+        if(iter->getSource()->m_Notified)
+            continue;
+        
+        if(!iter->getSource()->isAlive())
+            continue;
+
+        CreatureCreatureRelocationWorker(iter->getSource(), &i_creature);
     }
 }
 

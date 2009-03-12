@@ -222,6 +222,7 @@ class ChatHandler
         bool HandleReloadWpScriptsCommand(const char* args);
         bool HandleReloadAreaTriggerTavernCommand(const char* args);
         bool HandleReloadAreaTriggerTeleportCommand(const char* args);
+        bool HandleReloadAccessRequirementCommand(const char* args);
         bool HandleReloadEventScriptsCommand(const char* args);
         bool HandleReloadCommandCommand(const char* args);
         bool HandleReloadCreatureQuestRelationsCommand(const char* args);
@@ -274,6 +275,7 @@ class ChatHandler
         bool HandleReloadLocalesNpcTextCommand(const char* args);
         bool HandleReloadLocalesPageTextCommand(const char* args);
         bool HandleReloadLocalesQuestCommand(const char* args);
+        bool HandleReloadAuctionsCommand(const char* args);
 
         bool HandleInstanceListBindsCommand(const char* args);
         bool HandleInstanceUnbindCommand(const char* args);
