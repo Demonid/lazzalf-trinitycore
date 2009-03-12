@@ -679,6 +679,13 @@ void Map::Update(const uint32 &t_diff)
                 }
             }
         }
+
+        if(plr->m_seer != plr)
+        {
+            Trinity::PlayerVisibilityNotifier notifier(*plr);
+            VisitAll(plr->m_seer->GetPositionX(), plr->m_seer->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
+            notifier.Notify();
+        }
     }
 
     // non-player active objects
@@ -727,28 +734,6 @@ void Map::Update(const uint32 &t_diff)
                         cell_lock->Visit(cell_lock, world_object_update, *this);
                     }
                 }
-            }
-
-            // Update bindsight players
-            if(obj->isType(TYPEMASK_UNIT))
-            {
-                if(!((Unit*)obj)->GetSharedVisionList().empty())
-                    for(SharedVisionList::const_iterator itr = ((Unit*)obj)->GetSharedVisionList().begin(); itr != ((Unit*)obj)->GetSharedVisionList().end(); ++itr)
-                    {
-                        Trinity::PlayerVisibilityNotifier notifier(**itr);
-                        VisitAll(obj->GetPositionX(), obj->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
-                        notifier.Notify();
-                    }
-            }
-            else if(obj->GetTypeId() == TYPEID_DYNAMICOBJECT)
-            {
-                if(Unit *caster = ((DynamicObject*)obj)->GetCaster())
-                    if(caster->GetTypeId() == TYPEID_PLAYER && caster->GetUInt64Value(PLAYER_FARSIGHT) == obj->GetGUID())
-                    {
-                        Trinity::PlayerVisibilityNotifier notifier(*((Player*)caster));
-                        VisitAll(obj->GetPositionX(), obj->GetPositionY(), World::GetMaxVisibleDistance(), notifier);
-                        notifier.Notify();
-                    }
             }
         }
     }
@@ -1802,7 +1787,7 @@ float Map::GetWaterLevel(float x, float y ) const
         return 0;
 }
 
-uint32 Map::GetAreaId(uint16 areaflag,uint32 map_id)
+uint32 Map::GetAreaIdByAreaFlag(uint16 areaflag,uint32 map_id)
 {
     AreaTableEntry const *entry = GetAreaEntryByAreaFlagAndMap(areaflag,map_id);
 
@@ -1812,7 +1797,7 @@ uint32 Map::GetAreaId(uint16 areaflag,uint32 map_id)
         return 0;
 }
 
-uint32 Map::GetZoneId(uint16 areaflag,uint32 map_id)
+uint32 Map::GetZoneIdByAreaFlag(uint16 areaflag,uint32 map_id)
 {
     AreaTableEntry const *entry = GetAreaEntryByAreaFlagAndMap(areaflag,map_id);
 
@@ -1820,6 +1805,14 @@ uint32 Map::GetZoneId(uint16 areaflag,uint32 map_id)
         return ( entry->zone != 0 ) ? entry->zone : entry->ID;
     else
         return 0;
+}
+
+void Map::GetZoneAndAreaIdByAreaFlag(uint32& zoneid, uint32& areaid, uint16 areaflag,uint32 map_id)
+{
+    AreaTableEntry const *entry = GetAreaEntryByAreaFlagAndMap(areaflag,map_id);
+
+    areaid = entry ? entry->ID : 0;
+    zoneid = entry ? (( entry->zone != 0 ) ? entry->zone : entry->ID) : 0;
 }
 
 bool Map::IsInWater(float x, float y, float pZ) const
@@ -2308,7 +2301,6 @@ bool InstanceMap::Add(Player *player)
         // first player enters (no players yet)
         SetResetSchedule(false);
 
-        player->SendInitWorldStates();
         sLog.outDetail("MAP: Player '%s' entered the instance '%u' of map '%s'", player->GetName(), GetInstanceId(), GetMapName());
         // initialize unload state
         m_unloadTimer = 0;
