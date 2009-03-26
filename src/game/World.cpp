@@ -835,7 +835,7 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_LOGDB_CLEARINTERVAL] = sConfig.GetIntDefault("LogDB.Opt.ClearInterval", 10);
     if(int32(m_configs[CONFIG_LOGDB_CLEARINTERVAL]) <= 0)
     {
-        sLog.outError("LogDB.Opt.ClearInternval (%i) must be > 0, set to default 10.", m_configs[CONFIG_LOGDB_CLEARINTERVAL]);
+        sLog.outError("LogDB.Opt.ClearInterval (%i) must be > 0, set to default 10.", m_configs[CONFIG_LOGDB_CLEARINTERVAL]);
         m_configs[CONFIG_LOGDB_CLEARINTERVAL] = 10;
     }
     if(reload)
@@ -1111,6 +1111,7 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_CHATLOG_GUILD] = sConfig.GetBoolDefault("ChatLogs.Guild", false);
     m_configs[CONFIG_CHATLOG_PUBLIC] = sConfig.GetBoolDefault("ChatLogs.Public", false);
     m_configs[CONFIG_CHATLOG_ADDON] = sConfig.GetBoolDefault("ChatLogs.Addon", false);
+    m_configs[CONFIG_CHATLOG_BGROUND] = sConfig.GetBoolDefault("ChatLogs.BattleGround", false);
 }
 
 /// Initialize the World
@@ -1721,7 +1722,7 @@ void World::Update(uint32 diff)
             uint32 maxClientsNum = sWorld.GetMaxActiveSessionCount();
 
             m_timers[WUPDATE_CLEANDB].Reset();
-            LoginDatabase.PExecute("DELETE FROM logs WHERE (time + %u) < %u;",
+            LoginDatabase.PExecute("DELETE FROM logs WHERE (time + %u) < "I64FMTD";",
                 sWorld.getConfig(CONFIG_LOGDB_CLEARTIME), uint64(time(0)));
         }
     }
