@@ -466,25 +466,13 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
         return;
 
     // interrupt auras
-    AuraList::iterator iter, next;
-    for (iter = m_interruptableAuras.begin(); iter != m_interruptableAuras.end(); iter = next)
+    for (AuraList::iterator iter = m_interruptableAuras.begin(); iter != m_interruptableAuras.end();)
     {
-        next = iter;
-        ++next;
-
-        //sLog.outDetail("auraflag:%u flag:%u = %u",(*iter)->GetSpellProto()->AuraInterruptFlags,flag,(*iter)->GetSpellProto()->AuraInterruptFlags & flag);
-        if(*iter && ((*iter)->GetSpellProto()->AuraInterruptFlags & flag))
+        Aura * aur = *iter;
+        ++iter;
+        if ((aur->GetSpellProto()->AuraInterruptFlags & flag) && (!except || aur->GetId() != except))
         {
-            if((*iter)->IsInUse())
-                sLog.outError("Aura %u is trying to remove itself! Flag %u. May cause crash!", (*iter)->GetId(), flag);
-            else if(!except || (*iter)->GetId() != except)
-            {
-                RemoveAurasDueToSpell((*iter)->GetId(), NULL, AURA_REMOVE_BY_CANCEL);
-                if (!m_interruptableAuras.empty())
-                    next = m_interruptableAuras.begin();
-                else
-                    break;
-            }
+            RemoveAura(aur);
         }
     }
 
@@ -518,19 +506,14 @@ void Unit::RemoveSpellbyDamageTaken(uint32 damage, uint32 spell)
     uint32 max_dmg = getLevel() > 8 ? 25 * getLevel() - 150 : 50;
     float chance = float(damage) / max_dmg * 100.0f;
 
-    AuraList::iterator i, next;
-    for(i = m_ccAuras.begin(); i != m_ccAuras.end(); i = next)
+    // interrupt auras
+    for (AuraList::iterator iter = m_ccAuras.begin(); iter != m_ccAuras.end();)
     {
-        next = i;
-        ++next;
-
-        if(*i && (!spell || (*i)->GetId() != spell) && roll_chance_f(chance))
+        Aura * aur = *iter;
+        ++iter;
+        if ((!spell || aur->GetId() != spell) && roll_chance_f(chance))
         {
-            RemoveAurasDueToSpell((*i)->GetId());
-            if (!m_ccAuras.empty())
-                next = m_ccAuras.begin();
-            else
-                return;
+            RemoveAura(aur);
         }
     }
 }
@@ -2095,13 +2078,13 @@ void Unit::CalcAbsorbResist(Unit *pVictim,SpellSchoolMask schoolMask, DamageEffe
     {
         for(AuraEffectList::const_iterator i = vSchoolAbsorb.begin(); i != vSchoolAbsorb.end();)
         {
-            if ((*i)->GetAmount()<=0)
+            Aura *aura=(*i)->GetParentAura();
+            AuraEffect *auraeff =(*i);
+            ++i;
+            if (auraeff->GetAmount()<=0)
             {
-                pVictim->RemoveAurasDueToSpell((*i)->GetId(), (*i)->GetCasterGUID(), AURA_REMOVE_BY_ENEMY_SPELL);
-                i = vSchoolAbsorb.begin();
+                pVictim->RemoveAura(aura);
             }
-            else
-                ++i;
         }
     }
     // Cast back reflect damage spell
@@ -3172,7 +3155,7 @@ uint32 Unit::GetWeaponSkillValue (WeaponAttackType attType, Unit const* target) 
         if(attType != BASE_ATTACK && !item )
         {
             if(attType == RANGED_ATTACK && getClass() == CLASS_PALADIN) //hammer
-                return GetMaxSkillValueForLevel(); 
+                return GetMaxSkillValueForLevel();
             return 0;
         }
 
@@ -3249,7 +3232,7 @@ void Unit::_UpdateSpells( uint32 time )
         if ((*i).second)
         {
             if ( !(*i).second->GetAuraDuration() && !((*i).second->IsPermanent() || ((*i).second->IsPassive())) )
-            { 
+            {
                 RemoveAura(i, AURA_REMOVE_BY_EXPIRE);
             }
             else
@@ -3778,7 +3761,7 @@ bool Unit::AddAura(Aura *Aur)
         m_interruptableAuras.push_back(Aur);
         AddInterruptMask(Aur->GetSpellProto()->AuraInterruptFlags);
     }
-    if((Aur->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE 
+    if((Aur->GetSpellProto()->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE
         && !Aur->IsAuraType(SPELL_AURA_MOD_POSSESS)) //only dummy aura is breakable
         || (Aur->GetSpellProto()->Mechanic==MECHANIC_KNOCKOUT && Aur->IsAuraType(SPELL_AURA_MOD_STUN)))
     {
@@ -3871,6 +3854,7 @@ bool Unit::RemoveNoStackAurasDueToAura(Aura *Aur)
 
         // Remove all auras by aura caster
         RemoveAura(i, AURA_REMOVE_BY_STACK);
+        next=i;
     }
     return true;
 }
@@ -3882,6 +3866,26 @@ void Unit::RemoveAura(uint32 spellId, uint64 caster ,AuraRemoveMode removeMode)
         if (!caster || iter->second->GetCasterGUID()==caster)
         {
             RemoveAura(iter, removeMode);
+            return;
+        }
+        else
+            ++iter;
+    }
+}
+
+void Unit::RemoveAura(Aura * aur ,AuraRemoveMode mode)
+{
+    if (aur->IsInUse())
+    {
+        if (!aur->GetRemoveMode())
+            aur->RemoveAura(mode);
+        return;
+    }
+    for(AuraMap::iterator iter = m_Auras.lower_bound(aur->GetId()); iter != m_Auras.upper_bound(aur->GetId());)
+    {
+        if (aur == iter->second)
+        {
+            RemoveAura(iter, mode);
             return;
         }
         else
@@ -4002,11 +4006,11 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, Aura * except
     if (auraType >= TOTAL_AURAS) return;
     for (AuraEffectList::iterator iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end();)
     {
-        Aura const * aur = (*iter)->GetParentAura();
+        Aura * aur = (*iter)->GetParentAura();
         ++iter;
         if (aur != except && (!casterGUID || aur->GetCasterGUID()==casterGUID))
         {
-            RemoveAura(aur->GetId(), aur->GetCasterGUID(), AURA_REMOVE_BY_ENEMY_SPELL);
+            RemoveAura(aur);
         }
     }
 }
@@ -4016,11 +4020,11 @@ void Unit::RemoveAurasByTypeWithDispel(AuraType auraType, Spell * spell)
     if (auraType >= TOTAL_AURAS) return;
     for (AuraEffectList::iterator iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end();)
     {
-        Aura const* aur = (*iter)->GetParentAura();
+        Aura * aur = (*iter)->GetParentAura();
         ++iter;
         if (GetDispelChance(spell, aur->GetCaster(), aur->GetId()))
         {
-            RemoveAura(aur->GetId(), aur->GetCasterGUID(), AURA_REMOVE_BY_ENEMY_SPELL);
+            RemoveAura(aur, AURA_REMOVE_BY_ENEMY_SPELL);
         }
     }
 }
@@ -4057,7 +4061,8 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
     //aura can be during update when removing, set it to remove at next update
     if (Aur->IsInUse())
     {
-        Aur->RemoveAura();
+        if (!Aur->GetRemoveMode())
+            Aur->RemoveAura(mode);
         i++;
         return;
     }
@@ -4111,7 +4116,6 @@ void Unit::RemoveAura(AuraMap::iterator &i, AuraRemoveMode mode)
                         {
                             caster->m_currentSpells[CURRENT_CHANNELED_SPELL]->cancel();
                             caster->m_currentSpells[CURRENT_CHANNELED_SPELL]=NULL;
-			
                         }
                     }
 
@@ -6068,7 +6072,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     return false;
                 }
                 // Totemic Power (The Earthshatterer set)
-                case 28823: 
+                case 28823:
                 {
                     if( !pVictim )
                         return false;
@@ -6434,7 +6438,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 Unit::AuraEffectList const& decSpeedList = pVictim->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
                 for(Unit::AuraEffectList::const_iterator iter = decSpeedList.begin(); iter != decSpeedList.end(); ++iter)
                 {
-                    if((*iter)->GetSpellProto()->SpellFamilyName==SPELLFAMILY_DEATHKNIGHT 
+                    if((*iter)->GetSpellProto()->SpellFamilyName==SPELLFAMILY_DEATHKNIGHT
                         && (*iter)->GetCasterGUID() == GetGUID()
                         && (*iter)->GetSpellProto()->Dispel == DISPEL_DISEASE)
                     {
@@ -8088,7 +8092,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
 
         if(!charm->RemoveUInt64Value(UNIT_FIELD_CHARMEDBY, GetGUID()))
             sLog.outCrash("Unit %u is being uncharmed, but it has another charmer %u", charm->GetEntry(), charm->GetCharmerGUID());
-            
+
         m_Controlled.erase(charm);
     }
 }
@@ -8119,11 +8123,11 @@ void Unit::RemoveAllControlled()
         {
             target->RemoveCharmAuras();
         }
-        else if(target->GetOwnerGUID() == GetGUID() 
+        else if(target->GetOwnerGUID() == GetGUID()
             && target->GetTypeId() == TYPEID_UNIT
             && ((Creature*)target)->HasSummonMask(SUMMON_MASK_SUMMON))
         {
-            
+
             if(!((TempSummon*)target)->isPet())
                 ((TempSummon*)target)->UnSummon();
         }
@@ -11498,6 +11502,10 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
             if (!i->triggeringAura[j])
                 continue;
 
+            // possible for stacked auras from same caster, skip then
+            if (parentAura->GetPartAura(j)!=i->triggeringAura[j]->triggeredByAura)
+                continue;
+
             SpellProcEventEntry const *spellProcEvent = i->triggeringAura[j]->spellProcEvent;
             AuraEffect *triggeredByAura =triggeredByAura = i->triggeringAura[j]->triggeredByAura;
 
@@ -11520,7 +11528,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
                 }
                 case SPELL_AURA_PROC_TRIGGER_DAMAGE:
                 {
-                    sLog.outDebug("ProcDamageAndSpell: doing %u damage from spell id %u (triggered by %s aura of spell %u)", spellInfo->Id, (isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
+                    sLog.outDebug("ProcDamageAndSpell: doing %u damage from spell id %u (triggered by %s aura of spell %u)", triggeredByAura->GetAmount() , spellInfo->Id, (isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
                     SpellNonMeleeDamage damageInfo(this, pTarget, spellInfo->Id, spellInfo->SchoolMask);
                     uint32 damage = SpellDamageBonus(pTarget, spellInfo, triggeredByAura->GetAmount(), SPELL_DIRECT_DAMAGE);
                     CalculateSpellDamageTaken(&damageInfo, damage, spellInfo);
@@ -11620,11 +11628,17 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
         }
         if (!inuse)
             parentAura->SetInUse(false);
-        // Remove charge (aura can be removed by triggers)
-        if(useCharges && takeCharges)
+
+        if ( !parentAura->GetAuraDuration() && !(parentAura->IsPermanent() || (parentAura->IsPassive())) )
+            RemoveAura(parentAura);
+        else
         {
-            if (parentAura->DropAuraCharge())
-                RemoveAura(parentAura->GetId(),parentAura->GetCasterGUID());
+            // Remove charge (aura can be removed by triggers)
+            if(useCharges && takeCharges)
+            {
+                if (parentAura->DropAuraCharge())
+                    RemoveAura(parentAura->GetId(),parentAura->GetCasterGUID());
+            }
         }
     }
 }

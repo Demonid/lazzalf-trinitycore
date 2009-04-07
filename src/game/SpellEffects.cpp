@@ -2050,7 +2050,7 @@ void Spell::EffectTriggerSpell(uint32 i)
         {
             uint32 dispelMask = GetDispellMask(DISPEL_ALL);
             Unit::AuraMap& Auras = m_caster->GetAuras();
-            for(Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end(); ++iter)
+            for(Unit::AuraMap::iterator iter = Auras.begin(); iter != Auras.end();)
             {
                 // remove all harmful spells on you...
                 SpellEntry const* spell = iter->second->GetSpellProto();
@@ -2059,9 +2059,10 @@ void Spell::EffectTriggerSpell(uint32 i)
                     // ignore positive and passive auras
                     && !iter->second->IsPositive() && !iter->second->IsPassive())
                 {
-                    m_caster->RemoveAurasDueToSpell(spell->Id);
-                    iter = Auras.begin();
+                    m_caster->RemoveAura(iter);
                 }
+                else
+                    iter++;
             }
             return;
         }
@@ -2717,7 +2718,7 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
 
         // we succeeded in creating at least one item, so a levelup is possible
         player->UpdateCraftSkill(m_spellInfo->Id);
-    }       
+    }
 }
 
 void Spell::EffectCreateItem(uint32 i)
@@ -3921,7 +3922,7 @@ void Spell::EffectSummonPet(uint32 i)
     Pet* pet = owner->SummonPet(petentry, x, y, z, owner->GetOrientation(), SUMMON_PET, 0);
     if(!pet)
         return;
-        
+
     if(m_caster->GetTypeId() == TYPEID_UNIT)
     {
         if ( ((Creature*)m_caster)->isTotem() )
@@ -4533,23 +4534,21 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     // Removes snares and roots.
                     uint32 mechanic_mask = (1<<MECHANIC_ROOT) | (1<<MECHANIC_SNARE);
                     Unit::AuraMap& Auras = unitTarget->GetAuras();
-                    for(Unit::AuraMap::iterator iter = Auras.begin(), next; iter != Auras.end(); iter = next)
+                    for(Unit::AuraMap::iterator iter = Auras.begin(), next; iter != Auras.end();)
                     {
-                        next = iter;
-                        ++next;
                         Aura *aur = iter->second;
                         if (!aur->IsPositive())             //only remove negative spells
                         {
                             // check for mechanic mask
                             if(GetAllSpellMechanicMask(aur->GetSpellProto()) & mechanic_mask)
                             {
-                                unitTarget->RemoveAurasDueToSpell(aur->GetId());
-                                if(Auras.empty())
-                                    break;
-                                else
-                                    next = Auras.begin();
+                                unitTarget->RemoveAura(iter);
                             }
+                            else
+                                iter++;
                         }
+                        else
+                            iter++;
                     }
                     break;
                 }
@@ -4575,7 +4574,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                 if(!unitTarget)
                         return;
-                
+
                     switch(((Player*)unitTarget)->GetBaseSkillValue(762))
                     {
                     case 75: unitTarget->CastSpell(unitTarget, 51621, true); break;;
@@ -4610,7 +4609,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     int bag=19;
                     int slot=0;
                     Item* item = NULL;
-                    
+
                     while (bag < 256)
                     {
                         item = ((Player*)m_caster)->GetItemByPos(bag,slot);
