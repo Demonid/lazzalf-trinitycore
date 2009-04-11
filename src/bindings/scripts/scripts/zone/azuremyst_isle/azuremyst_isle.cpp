@@ -125,7 +125,7 @@ struct TRINITY_DLL_DECL npc_draenei_survivorAI : public ScriptedAI
             {
                 m_creature->RemoveAurasDueToSpell(SPELL_IRRIDATION);
 
-                if (Player *pPlayer = (Player*)Unit::GetUnit(*m_creature,pCaster))
+                if (Player *pPlayer = Unit::GetPlayer(pCaster))
                 {
                     if (pPlayer->GetTypeId() != TYPEID_PLAYER)
                         return;
@@ -316,7 +316,7 @@ struct TRINITY_DLL_DECL npc_magwinAI : public npc_escortAI
 
     void WaypointReached(uint32 i)
     {
-        Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+        Player* player = Unit::GetPlayer(PlayerGUID);
 
         if (!player)
             return;
@@ -356,7 +356,7 @@ struct TRINITY_DLL_DECL npc_magwinAI : public npc_escortAI
     {
         if (PlayerGUID)
         {
-            Unit* player = Unit::GetUnit((*m_creature), PlayerGUID);
+            Player* player = Unit::GetPlayer(PlayerGUID);
             if (player)
                 ((Player*)player)->FailQuest(QUEST_A_CRY_FOR_SAY_HELP);
         }
