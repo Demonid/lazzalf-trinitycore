@@ -2425,7 +2425,9 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst (const Unit *pVictim, WeaponAttack
     if (tmp > 0 && roll < (sum += tmp))
     {
         DEBUG_LOG ("RollMeleeOutcomeAgainst: CRIT <%d, %d)", sum-tmp, sum);
-        if(GetTypeId()!=TYPEID_PLAYER && !(((Creature*)this)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_CRIT))
+        if(GetTypeId() == TYPEID_UNIT && (((Creature*)this)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_CRIT))
+            DEBUG_LOG ("RollMeleeOutcomeAgainst: CRIT DISABLED)");
+        else
             return MELEE_HIT_CRIT;
     }
 
@@ -9537,21 +9539,7 @@ void Unit::Mount(uint32 mount)
 
     // unsummon pet
     if(GetTypeId() == TYPEID_PLAYER)
-    {
-        Pet* pet = ((Player*)this)->GetPet();
-        if(pet)
-        {
-            if(pet->isControlled())
-            {
-                ((Player*)this)->SetTemporaryUnsummonedPetNumber(pet->GetCharmInfo()->GetPetNumber());
-                ((Player*)this)->SetOldPetSpell(pet->GetUInt32Value(UNIT_CREATED_BY_SPELL));
-            }
-
-            ((Player*)this)->RemovePet(NULL,PET_SAVE_NOT_IN_SLOT);
-        }
-        else
-            ((Player*)this)->SetTemporaryUnsummonedPetNumber(0);
-    }
+        ((Player*)this)->UnsummonPetTemporaryIfAny();
 }
 
 void Unit::Unmount()
@@ -9567,14 +9555,8 @@ void Unit::Unmount()
     // only resummon old pet if the player is already added to a map
     // this prevents adding a pet to a not created map which would otherwise cause a crash
     // (it could probably happen when logging in after a previous crash)
-    if(GetTypeId() == TYPEID_PLAYER && IsInWorld() && ((Player*)this)->GetTemporaryUnsummonedPetNumber() && isAlive())
-    {
-        Pet* NewPet = new Pet((Player*)this);
-        if(!NewPet->LoadPetFromDB((Player*)this, 0, ((Player*)this)->GetTemporaryUnsummonedPetNumber(), true))
-            delete NewPet;
-
-        ((Player*)this)->SetTemporaryUnsummonedPetNumber(0);
-    }
+    if(GetTypeId() == TYPEID_PLAYER)
+        ((Player*)this)->ResummonPetTemporaryUnSummonedIfAny();
 }
 
 void Unit::SetInCombatWith(Unit* enemy)
@@ -10653,6 +10635,16 @@ uint32 Unit::GetSpellRadiusForTarget(Unit* target,const SpellRadiusEntry * radiu
 Unit* Unit::GetUnit(WorldObject& object, uint64 guid)
 {
     return ObjectAccessor::GetUnit(object,guid);
+}
+
+Player* Unit::GetPlayer(uint64 guid)
+{
+    return ObjectAccessor::FindPlayer(guid);
+}
+
+Creature* Unit::GetCreature(WorldObject& object, uint64 guid)
+{
+    return ObjectAccessor::GetCreature(object, guid);
 }
 
 bool Unit::isVisibleForInState( Player const* u, bool inVisibleList ) const
