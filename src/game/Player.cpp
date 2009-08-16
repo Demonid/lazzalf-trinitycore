@@ -15257,8 +15257,6 @@ bool Player::isAllowedToLoot(Creature* creature)
 
 void Player::_LoadActions(QueryResult *result)
 {
-    m_actionButtons.clear();
-    
     if(result)
     {
         do
@@ -21854,6 +21852,7 @@ void Player::ActivateSpec(uint8 spec)
     m_usedTalentCount = spentTalents;
     InitTalentForLevel();
 
+    m_actionButtons.clear();
     QueryResult *result = CharacterDatabase.PQuery("SELECT button,action,type FROM character_action WHERE guid = '%u' AND spec = '%u' ORDER BY button", GetGUIDLow(), m_activeSpec);
     if (result)    
     {
@@ -21864,3 +21863,4 @@ void Player::ActivateSpec(uint8 spec)
     SendActionButtons(1);
     SetPower(getPowerType(), 0);
 }
+
