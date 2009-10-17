@@ -3,7 +3,9 @@
 // $Id: Mutex.inl 80826 2008-03-04 14:51:23Z wotte $
 
 #include "ace/OS_NS_sys_mman.h"
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 ACE_INLINE int
 ACE_Mutex::acquire_read (void)
 {
@@ -14,6 +16,7 @@ ACE_Mutex::acquire_read (void)
 #endif /* ACE_HAS_PTHREADS || ACE_HAS_STHREADS */
   return ACE_OS::mutex_lock (&this->lock_);
 }
+
 ACE_INLINE int
 ACE_Mutex::acquire_write (void)
 {
@@ -24,6 +27,7 @@ ACE_Mutex::acquire_write (void)
 #endif /* ACE_HAS_PTHREADS || ACE_HAS_STHREADS */
   return ACE_OS::mutex_lock (&this->lock_);
 }
+
 ACE_INLINE int
 ACE_Mutex::tryacquire_read (void)
 {
@@ -34,6 +38,7 @@ ACE_Mutex::tryacquire_read (void)
 #endif /* ACE_HAS_PTHREADS || ACE_HAS_STHREADS */
   return ACE_OS::mutex_trylock (&this->lock_);
 }
+
 ACE_INLINE const ACE_mutex_t &
 ACE_Mutex::lock (void) const
 {
@@ -44,6 +49,7 @@ ACE_Mutex::lock (void) const
 #endif /* ACE_HAS_PTHREADS || ACE_HAS_STHREADS */
   return this->lock_;
 }
+
 ACE_INLINE int
 ACE_Mutex::tryacquire_write (void)
 {
@@ -54,12 +60,14 @@ ACE_Mutex::tryacquire_write (void)
 #endif /* ACE_HAS_PTHREADS || ACE_HAS_STHREADS */
   return ACE_OS::mutex_trylock (&this->lock_);
 }
+
 ACE_INLINE int
 ACE_Mutex::tryacquire_write_upgrade (void)
 {
 // ACE_TRACE ("ACE_Mutex::tryacquire_write_upgrade");
   return 0;
 }
+
 ACE_INLINE int
 ACE_Mutex::acquire (void)
 {
@@ -70,6 +78,7 @@ ACE_Mutex::acquire (void)
 #endif /* ACE_HAS_PTHREADS || ACE_HAS_STHREADS */
   return ACE_OS::mutex_lock (&this->lock_);
 }
+
 ACE_INLINE int
 ACE_Mutex::acquire (ACE_Time_Value &tv)
 {
@@ -80,6 +89,7 @@ ACE_Mutex::acquire (ACE_Time_Value &tv)
 #endif /* ACE_HAS_PTHREADS || ACE_HAS_STHREADS*/
   return ACE_OS::mutex_lock (&this->lock_, tv);
 }
+
 ACE_INLINE int
 ACE_Mutex::acquire (ACE_Time_Value *tv)
 {
@@ -89,6 +99,7 @@ ACE_Mutex::acquire (ACE_Time_Value *tv)
 #endif /* ACE_HAS_PTHREADS || ACE_HAS_STHREADS*/
   return ACE_OS::mutex_lock (&this->lock_, tv);
 }
+
 ACE_INLINE int
 ACE_Mutex::tryacquire (void)
 {
@@ -99,6 +110,7 @@ ACE_Mutex::tryacquire (void)
 #endif /* ACE_HAS_PTHREADS || ACE_HAS_STHREADS */
   return ACE_OS::mutex_trylock (&this->lock_);
 }
+
 ACE_INLINE int
 ACE_Mutex::release (void)
 {
@@ -109,6 +121,7 @@ ACE_Mutex::release (void)
 #endif /* ACE_HAS_PTHREADS || ACE_HAS_STHREADS */
   return ACE_OS::mutex_unlock (&this->lock_);
 }
+
 ACE_INLINE int
 ACE_Mutex::remove (void)
 {
@@ -157,4 +170,5 @@ ACE_Mutex::remove (void)
 #endif /* ACE_HAS_PTHREADS || ACE_HAS_STHREADS */
   return result;
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL

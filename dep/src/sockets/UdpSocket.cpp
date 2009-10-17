@@ -4,20 +4,25 @@
 **/
 /*
 Copyright (C) 2004-2007  Anders Hedstrom
+
 This library is made available under the terms of the GNU GPL.
+
 If you would like to use this library in a closed-source application,
 a separate license agreement is available. For information about
 the closed-source license agreement for the C++ sockets library,
 please visit http://www.alhem.net/Sockets/license.html and/or
 email license@alhem.net.
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -30,6 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #else
 #include <errno.h>
 #endif
+
 #include "ISocketHandler.h"
 #include "UdpSocket.h"
 #include "Utility.h"
@@ -367,12 +373,15 @@ int UdpSocket::ReadTS(char *ioBuf, int inBufSize, struct sockaddr *from, socklen
     } cmsg_un;
     struct cmsghdr *cmsg;
     struct timeval *tv;
+
     vec[0].iov_base = ioBuf;
     vec[0].iov_len = inBufSize;
+
     memset(&msg, 0, sizeof(msg));
     memset(from, 0, fromlen);
     memset(ioBuf, 0, inBufSize);
     memset(&cmsg_un, 0, sizeof(cmsg_un));
+
     msg.msg_name = (caddr_t)from;
     msg.msg_namelen = fromlen;
     msg.msg_iov = vec;
@@ -380,10 +389,14 @@ int UdpSocket::ReadTS(char *ioBuf, int inBufSize, struct sockaddr *from, socklen
     msg.msg_control = cmsg_un.data;
     msg.msg_controllen = sizeof(cmsg_un.data);
     msg.msg_flags = 0;
+
     // Original version - for reference only
     //int n = recvfrom(GetSocket(), m_ibuf, m_ibufsz, 0, (struct sockaddr *)&sa, &sa_len);
+
     int n = recvmsg(GetSocket(), &msg, MSG_DONTWAIT);
+
     // now ioBuf will contain the data, as if we used recvfrom
+
     // Now get the time
     if(n != -1 && msg.msg_controllen >= sizeof(struct cmsghdr) && !(msg.msg_flags & MSG_CTRUNC))
     {
@@ -521,6 +534,7 @@ void UdpSocket::SetBroadcast(bool b)
 {
     int one = 1;
     int zero = 0;
+
     if (GetSocket() == INVALID_SOCKET)
     {
         CreateConnection();
@@ -545,6 +559,7 @@ bool UdpSocket::IsBroadcast()
 {
     int is_broadcast = 0;
     socklen_t size;
+
     if (GetSocket() == INVALID_SOCKET)
     {
         CreateConnection();
@@ -572,6 +587,7 @@ int UdpSocket::GetMulticastTTL()
 {
     int ttl = 0;
     socklen_t size = sizeof(int);
+
     if (GetSocket() == INVALID_SOCKET)
     {
         CreateConnection();

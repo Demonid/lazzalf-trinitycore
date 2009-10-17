@@ -1,7 +1,9 @@
 // -*- C++ -*-
 //
 // $Id: NT_Service.inl 80826 2008-03-04 14:51:23Z wotte $
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 ACE_INLINE
 ACE_NT_Service::ACE_NT_Service (DWORD start_timeout,
                                 DWORD service_type,
@@ -55,22 +57,26 @@ ACE_NT_Service::name (void) const
 {
   return name_;
 }
+
 ACE_INLINE
 const ACE_TCHAR *
 ACE_NT_Service::desc (void) const
 {
   return desc_;
 }
+
 ACE_INLINE
 const ACE_TCHAR *
 ACE_NT_Service::host (void) const
 {
   return host_;
 }
+
 ACE_INLINE void
 ACE_NT_Service::svc_handle(const SERVICE_STATUS_HANDLE new_svc_handle)
 {
   this->svc_handle_ = new_svc_handle;
   return;
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL

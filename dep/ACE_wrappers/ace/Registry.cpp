@@ -1,11 +1,16 @@
 // $Id: Registry.cpp 82435 2008-07-28 11:53:42Z johnnyw $
+
 #include "ace/Registry.h"
+
 ACE_RCSID (ace,
            Registry,
            "$Id: Registry.cpp 82435 2008-07-28 11:53:42Z johnnyw $")
+
 #if defined (ACE_WIN32) && !defined (ACE_LACKS_WIN32_REGISTRY)
+
 #  include "ace/os_include/os_netdb.h"
 #  include "ace/OS_NS_unistd.h"
+
 // Funky macro to deal with strange error passing semantics
 // of Win32 Reg*() functions
 #define ACE_REGISTRY_CALL_RETURN(X) \
@@ -20,7 +25,9 @@ ACE_RCSID (ace,
     } while (0)
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 ACE_TCHAR const ACE_Registry::STRING_SEPARATOR[] = ACE_TEXT ("\\");
+
 bool
 ACE_Registry::Name_Component::operator== (const Name_Component &rhs) const
 {
@@ -28,11 +35,13 @@ ACE_Registry::Name_Component::operator== (const Name_Component &rhs) const
     rhs.id_ == this->id_ &&
     rhs.kind_ == this->kind_;
 }
+
 bool
 ACE_Registry::Name_Component::operator!= (const Name_Component &rhs) const
 {
   return !this->operator== (rhs);
 }
+
 // Simple binding constructor
 ACE_Registry::Binding::Binding ()
   : name_ (),
@@ -65,11 +74,13 @@ ACE_Registry::Binding::operator== (const Binding &rhs) const
     rhs.name_ == this->name_ &&
     rhs.type_ == this->type_;
 }
+
 bool
 ACE_Registry::Binding::operator!= (const Binding &rhs) const
 {
   return !this->operator== (rhs);
 }
+
 // Name accessor
 // (Name version)
 void
@@ -110,6 +121,7 @@ ACE_Registry::Object::Object (void *data,
     type_ (type)
 {
 }
+
 // Object accessors and set methods
 void
 ACE_Registry::Object::data (void *data)
@@ -177,6 +189,7 @@ const ACE_Registry::Naming_Context &
 ACE_Registry::Naming_Context::operator= (const Naming_Context &rhs)
 {
         ACE_UNUSED_ARG(rhs);
+
         // Not implemented
         return *this;
 }
@@ -281,6 +294,7 @@ ACE_Registry::Naming_Context::resolve (const ACE_TString &name,
   u_long type;
   void *data = object.data ();
   u_long size = object.size ();
+
   long result = ACE_TEXT_RegQueryValueEx (this->key_,
                                           name.c_str (),
                                           0,
@@ -294,6 +308,7 @@ ACE_Registry::Naming_Context::resolve (const ACE_TString &name,
       object.type (type);
       object.size (size);
     }
+
   ACE_REGISTRY_CALL_RETURN (result);
 }
 
@@ -312,6 +327,7 @@ ACE_Registry::Naming_Context::unbind (const ACE_TString &name)
 {
   long result = ACE_TEXT_RegDeleteValue (this->key_,
                                          name.c_str ());
+
   ACE_REGISTRY_CALL_RETURN (result);
 }
 
@@ -350,6 +366,7 @@ ACE_Registry::Naming_Context::bind_new_context (const ACE_TString &name,
                                                 LPSECURITY_ATTRIBUTES security_attributes)
 {
   u_long reason;
+
   long result = ACE_TEXT_RegCreateKeyEx (this->key_,
                                          name.c_str (),
                                          0,
@@ -382,6 +399,7 @@ ACE_Registry::Naming_Context::bind_new_context (const ACE_TString &name,
           naming_context.key_ = (HKEY) 0;
         }
     }
+
   ACE_REGISTRY_CALL_RETURN (result);
 }
 
@@ -411,6 +429,7 @@ ACE_Registry::Naming_Context::bind_context (const ACE_TString &name,
                                             LPSECURITY_ATTRIBUTES security_attributes)
 {
   u_long reason;
+
   long result = ACE_TEXT_RegCreateKeyEx (this->key_,
                                          name.c_str (),
                                          0,
@@ -427,6 +446,7 @@ ACE_Registry::Naming_Context::bind_context (const ACE_TString &name,
       // Set the correct name
       naming_context.name (name);
     }
+
   ACE_REGISTRY_CALL_RETURN (result);
 }
 
@@ -480,6 +500,7 @@ ACE_Registry::Naming_Context::unbind_context (const ACE_TString &name)
 {
   long result = ACE_TEXT_RegDeleteKey (this->key_,
                                                        name.c_str ());
+
   ACE_REGISTRY_CALL_RETURN (result);
 }
 
@@ -514,6 +535,7 @@ ACE_Registry::Naming_Context::resolve_context (const ACE_TString &name,
       // set the correct name
       naming_context.name (name);
     }
+
   ACE_REGISTRY_CALL_RETURN (result);
 }
 
@@ -524,6 +546,7 @@ ACE_Registry::Naming_Context::destroy (void)
   // hopefully the parent_key_ is still open
   long result = ACE_TEXT_RegDeleteKey (this->parent_key_,
                                                        this->name_.c_str ());
+
   ACE_REGISTRY_CALL_RETURN (result);
 }
 
@@ -549,6 +572,7 @@ ACE_Registry::make_string (const Name &const_name)
 {
   ACE_TString string;
   Name &name = const_cast<Name &> (const_name);
+
   // Iterator through the components of name
   for (Name::iterator iterator = name.begin ();
        iterator != name.end ();
@@ -561,6 +585,7 @@ ACE_Registry::make_string (const Name &const_name)
       // Add to string
       string += component.id_;
     }
+
   return string;
 }
 
@@ -571,6 +596,7 @@ ACE_Registry::make_name (const ACE_TString &string)
   ACE_TString::size_type new_position = 0;
   ACE_TString::size_type last_position = 0;
   Name name;
+
   // Rememeber: NPOS is -1
   while (new_position != ACE_TString::npos)
     {
@@ -597,6 +623,7 @@ ACE_Registry::make_name (const ACE_TString &string)
       // Insert component into name
       name.insert (component);
     }
+
   return name;
 }
 
@@ -667,8 +694,10 @@ ACE_Registry::Naming_Context::name (ACE_TString &name)
 {
   name = this->name_;
 }
+
 // Empty list
 static const ACE_Registry::Binding_List ace_binding_empty_list;
+
 // listing function: iterator creator
 // This is useful when there are many objects and contexts
 // in <this> context and you only want to look at a few entries
@@ -680,12 +709,16 @@ ACE_Registry::Naming_Context::list (u_long how_many,
 {
   // Make sure that the list is empty
   list = ace_binding_empty_list;
+
   // Correctly initalize the iterator
   iter.reset ();
+
   // Make sure that the iterator uses <this> naming context
   iter.naming_context (*this);
+
   // Start iterations from the objects
   iter.current_enumeration (iter.object_iteration_);
+
   // Get the next <how_many> values
   return iter.next_n (how_many, list);
 }
@@ -697,12 +730,16 @@ ACE_Registry::Naming_Context::list (Binding_List &list)
 {
   // Make sure that the list is empty
   list = ace_binding_empty_list;
+
   // Create an iterator
   ACE_Registry::Binding_Iterator iterator;
+
   // Make sure that the iterator uses <this> naming context
   iterator.naming_context (*this);
+
   // Start iterations from the objects
   iterator.current_enumeration (iterator.object_iteration_);
+
   long result = 0;
   while (1)
     {
@@ -757,11 +794,14 @@ ACE_Registry::Binding_Iterator::next_one (Binding &binding)
 {
   u_long how_many = 1;
   Binding_List list;
+
   // Get next n (where n is one)
   long result = this->next_n (how_many, list);
+
   if (result == 0)
     // Success
     binding = (*list.begin ());
+
   return result;
 }
 
@@ -772,6 +812,7 @@ ACE_Registry::Binding_Iterator::next_n (u_long how_many,
 {
   // Make sure that the list is empty
   list = ace_binding_empty_list;
+
   return this->current_enumeration_->next_n (how_many, list);
 }
 
@@ -815,6 +856,7 @@ ACE_Registry::Binding_Iterator::Object_Iteration::next_n (u_long how_many,
 {
   // Make a copy
   u_long requested = how_many;
+
   // While there are more entries to be added to the list
   while (how_many > 0)
     {
@@ -836,6 +878,7 @@ ACE_Registry::Binding_Iterator::Object_Iteration::next_n (u_long how_many,
             // Readjust counters
             this->index_++;
             how_many--;
+
             // Add to list
             // Create binding
             Binding binding (string, OBJECT);
@@ -844,10 +887,12 @@ ACE_Registry::Binding_Iterator::Object_Iteration::next_n (u_long how_many,
           }
         // Continue to add to list
         break;
+
         case ERROR_NO_MORE_ITEMS:
           // Enumeration of objects complete
           // Reset index
           this->index_ = 0;
+
           // Current enumeration will become CONTEXTS
           this->parent_->current_enumeration (this->parent_->context_iteration_);
           result = this->parent_->current_enumeration ().next_n (how_many,
@@ -857,6 +902,7 @@ ACE_Registry::Binding_Iterator::Object_Iteration::next_n (u_long how_many,
             return 0;
           else
             return result;
+
         default:
           // Strange error
           // Reset index
@@ -879,6 +925,7 @@ ACE_Registry::Binding_Iterator::Context_Iteration::next_n (u_long how_many,
 {
   // Make a copy
   u_long requested = how_many;
+
   // While there are more entries to be added to the list
   while (how_many > 0)
     {
@@ -900,6 +947,7 @@ ACE_Registry::Binding_Iterator::Context_Iteration::next_n (u_long how_many,
             // Readjust counters
             this->index_++;
             how_many--;
+
             // Add to list
             // Create binding
             Binding binding (string, CONTEXT);
@@ -908,15 +956,20 @@ ACE_Registry::Binding_Iterator::Context_Iteration::next_n (u_long how_many,
           }
         // Continue to add to list
         break;
+
         case ERROR_NO_MORE_ITEMS:
           // Enumeration of objects complete
+
           /* FALL THROUGH */
+
         default:
           // Strange error
+
           // Reset index
           this->index_ = 0;
           // Current enumeration will become CONTEXTS
           this->parent_->current_enumeration (this->parent_->iteration_complete_);
+
           // If we were able to add contexts
           if (requested != how_many)
             return 0;
@@ -936,6 +989,7 @@ ACE_Registry::Binding_Iterator::Iteration_Complete::next_n (u_long how_many,
 {
         ACE_UNUSED_ARG(list);
         ACE_UNUSED_ARG(how_many);
+
         // No more values
         return -1;
 }
@@ -954,8 +1008,10 @@ ACE_Predefined_Naming_Contexts::connect (ACE_Registry::Naming_Context &naming_co
   return -1;
 #else
   long result = -1;
+
   if (machine_name != 0 && ACE_OS::strcmp (ACE_TEXT ("localhost"), machine_name) == 0)
     machine_name = 0;
+
   if (predefined == HKEY_LOCAL_MACHINE || predefined == HKEY_USERS)
     result =
       ACE_TEXT_RegConnectRegistry (const_cast<ACE_TCHAR *> (machine_name),
@@ -971,9 +1027,11 @@ ACE_Predefined_Naming_Contexts::connect (ACE_Registry::Naming_Context &naming_co
       }
     else
       result = -1;
+
   ACE_REGISTRY_CALL_RETURN (result);
 #endif  // ACE_HAS_WINCE
 }
+
 // Check if <machine_name> is the local host
 /* static */
 int
@@ -987,6 +1045,8 @@ ACE_Predefined_Naming_Contexts::is_local_host (const ACE_TCHAR *machine_name)
     result = 0;
   return result;
 }
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #endif /* ACE_WIN32 && !ACE_LACKS_WIN32_REGISTRY */
 

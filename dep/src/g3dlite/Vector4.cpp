@@ -1,9 +1,12 @@
 /**
  @file Vector4.cpp
+
  @maintainer Morgan McGuire, matrix@graphics3d.com
+
  @created 2001-07-09
  @edited  2003-09-29
  */
+
 #include <stdlib.h>
 #include <limits>
 #include "G3D/Vector4.h"
@@ -11,14 +14,18 @@
 #include "G3D/g3dmath.h"
 #include "G3D/format.h"
 #include "G3D/stringutils.h"
+
 namespace G3D {
+
 unsigned int Vector4::hashCode() const {
     unsigned int xhash = (*(int*)(void*)(&x));
     unsigned int yhash = (*(int*)(void*)(&y));
     unsigned int zhash = (*(int*)(void*)(&z));
     unsigned int whash = (*(int*)(void*)(&w));
+
     return xhash + (yhash * 37) + (zhash * 101) + (whash * 241);
 }
+
 #if 0
 Vector4::Vector4(const class Color4& c) {
     x = c.r;
@@ -41,9 +48,12 @@ Vector4::Vector4(const Vector2& v1, float fz, float fw) {
     z = fz;
     w = fw;
 }
+
 //----------------------------------------------------------------------------
+
 Vector4 Vector4::operator/ (float fScalar) const {
     Vector4 kQuot;
+
     if ( fScalar != 0.0 ) {
         float fInvScalar = 1.0f / fScalar;
         kQuot.x = fInvScalar * x;
@@ -55,6 +65,7 @@ Vector4 Vector4::operator/ (float fScalar) const {
         return Vector4::inf();
     }
 }
+
 //----------------------------------------------------------------------------
 Vector4& Vector4::operator/= (float fScalar) {
     if (fScalar != 0.0f) {
@@ -66,14 +77,17 @@ Vector4& Vector4::operator/= (float fScalar) {
     } else {
         *this = Vector4::inf();
     }
+
     return *this;
 }
 
 //----------------------------------------------------------------------------
+
 std::string Vector4::toString() const {
     return G3D::format("(%g, %g, %g, %g)", x, y, z, w);
 }
 // 2-char swizzles
+
 Vector2 Vector4::xx() const  { return Vector2       (x, x); }
 Vector2 Vector4::yx() const  { return Vector2       (y, x); }
 Vector2 Vector4::zx() const  { return Vector2       (z, x); }
@@ -90,7 +104,9 @@ Vector2 Vector4::xw() const  { return Vector2       (x, w); }
 Vector2 Vector4::yw() const  { return Vector2       (y, w); }
 Vector2 Vector4::zw() const  { return Vector2       (z, w); }
 Vector2 Vector4::ww() const  { return Vector2       (w, w); }
+
 // 3-char swizzles
+
 Vector3 Vector4::xxx() const  { return Vector3       (x, x, x); }
 Vector3 Vector4::yxx() const  { return Vector3       (y, x, x); }
 Vector3 Vector4::zxx() const  { return Vector3       (z, x, x); }
@@ -155,7 +171,9 @@ Vector3 Vector4::xww() const  { return Vector3       (x, w, w); }
 Vector3 Vector4::yww() const  { return Vector3       (y, w, w); }
 Vector3 Vector4::zww() const  { return Vector3       (z, w, w); }
 Vector3 Vector4::www() const  { return Vector3       (w, w, w); }
+
 // 4-char swizzles
+
 Vector4 Vector4::xxxx() const  { return Vector4       (x, x, x, x); }
 Vector4 Vector4::yxxx() const  { return Vector4       (y, x, x, x); }
 Vector4 Vector4::zxxx() const  { return Vector4       (z, x, x, x); }
