@@ -4,20 +4,25 @@
 **/
 /*
 Copyright (C) 2004-2007  Anders Hedstrom
+
 This library is made available under the terms of the GNU GPL.
+
 If you would like to use this library in a closed-source application,
 a separate license agreement is available. For information about
 the closed-source license agreement for the C++ sockets library,
 please visit http://www.alhem.net/Sockets/license.html and/or
 email license@alhem.net.
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -31,6 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdio.h>
 #include <errno.h>
 #include <cstdio>
+
 #include "SocketHandler.h"
 #include "UdpSocket.h"
 #include "ResolvSocket.h"
@@ -39,6 +45,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Mutex.h"
 #include "Utility.h"
 #include "SocketAddress.h"
+
 #ifdef SOCKETS_NAMESPACE
 namespace SOCKETS_NAMESPACE {
 #endif
@@ -136,6 +143,7 @@ DEB(                fprintf(stderr, "  fd closed %d\n", p -> GetSocket());)
 //              p -> OnDelete(); // hey, I turn this back on. what's the worst that could happen??!!
                 // MinionSocket breaks, calling MinderHandler methods in OnDelete -
                 // MinderHandler is already gone when that happens...
+
                 // only delete socket when controlled
                 // ie master sockethandler can delete non-detached sockets
                 // and a slave sockethandler can only delete a detach socket
@@ -505,6 +513,7 @@ DEB(            fprintf(stderr, "m_maxsock: %d\n", m_maxsock);
         } // m_fds loop
         m_preverror = -1;
     } // if (n > 0)
+
     // check CallOnConnect - EVENT
     if (!m_fds_callonconnect.empty())
     {
@@ -802,6 +811,7 @@ DEB(                            fprintf(stderr, "Close() before OnDelete\n");)
             }
         }
     }
+
     // check erased sockets
     bool check_max_fd = false;
     while (!m_fds_erase.empty())
@@ -1363,4 +1373,5 @@ void SocketHandler::Trigger(int id, Socket::TriggerData& data, bool erase)
 #ifdef SOCKETS_NAMESPACE
 }
 #endif
+
 

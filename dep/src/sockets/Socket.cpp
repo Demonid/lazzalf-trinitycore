@@ -4,20 +4,25 @@
 **/
 /*
 Copyright (C) 2004-2007  Anders Hedstrom
+
 This library is made available under the terms of the GNU GPL.
+
 If you would like to use this library in a closed-source application,
 a separate license agreement is available. For information about
 the closed-source license agreement for the C++ sockets library,
 please visit http://www.alhem.net/Sockets/license.html and/or
 email license@alhem.net.
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -34,19 +39,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 #include <ctype.h>
 #include <fcntl.h>
+
 #include "ISocketHandler.h"
 #include "Utility.h"
+
 #include "SocketAddress.h"
 #include "SocketHandler.h"
 #ifdef ENABLE_EXCEPTIONS
 #include "Exception.h"
 #endif
 #include "Ipv4Address.h"
+
 //#ifdef _DEBUG
 //#define DEB(x) x; fflush(stderr);
 //#else
 #define DEB(x)
 //#endif
+
 #ifdef SOCKETS_NAMESPACE
 namespace SOCKETS_NAMESPACE {
 #endif
@@ -175,6 +184,7 @@ SOCKET Socket::CreateSocket(int af,int type, const std::string& protocol)
 {
     struct protoent *p = NULL;
     SOCKET s;
+
 #ifdef ENABLE_POOL
     m_socket_type = type;
     m_socket_protocol = protocol;
@@ -193,6 +203,7 @@ SOCKET Socket::CreateSocket(int af,int type, const std::string& protocol)
         }
     }
     int protno = p ? p -> p_proto : 0;
+
     s = socket(af, type, protno);
     if (s == INVALID_SOCKET)
     {
@@ -614,6 +625,7 @@ void Socket::CopyConnection(Socket *sock)
 #endif
     SetSocketType( sock -> GetSocketType() );
     SetSocketProtocol( sock -> GetSocketProtocol() );
+
     SetClientRemoteAddress( *sock -> GetClientRemoteAddress() );
     SetRemoteAddress( *sock -> GetRemoteSocketAddress() );
 }
@@ -1710,4 +1722,5 @@ std::string Socket::GetSockAddress6()
 #ifdef SOCKETS_NAMESPACE
 }
 #endif
+
 

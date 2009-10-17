@@ -1,4 +1,5 @@
 #include "ace/Basic_Types.h"
+
 #if !defined (__ACE_INLINE__)
 # include "ace/Basic_Types.inl"
 #endif /* ! __ACE_INLINE__ */
@@ -15,7 +16,9 @@ ACE_RCSID (ace,
 // FUZZ: disable check_for_streams_include
 #  include "ace/streams.h"
 # endif /* ! ACE_LACKS_IOSTREAM_TOTALLY */
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+
 void
 ACE_U_LongLong::output (FILE *file) const
 {
@@ -89,6 +92,7 @@ ACE_U_LongLong::as_string (ACE_TCHAR *output,
                 {
                   ACE_OS::sprintf(output,
                                   (uppercase ? "%lX" : "%lx"), this->l_ ());
+
                 }
               break;
             }
@@ -100,6 +104,7 @@ ACE_U_LongLong::as_string (ACE_TCHAR *output,
             }
         }
     }
+
   return output;
 }
 
@@ -113,6 +118,7 @@ operator<< (ostream& os, const ACE_U_LongLong& ll)
   unsigned long flags = os.setf(0);
 #endif
   char buffer[32];
+
   if ((flags & ios::oct) != 0)
     os << ll.as_string (buffer, 8);
   else if ((flags & ios::hex) != 0)
@@ -122,6 +128,9 @@ operator<< (ostream& os, const ACE_U_LongLong& ll)
   return os;
 }
 # endif
+
 ACE_END_VERSIONED_NAMESPACE_DECL
+
 #endif /* ACE_LACKS_LONGLONG_T */
+
 

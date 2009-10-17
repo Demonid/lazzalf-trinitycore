@@ -4,20 +4,25 @@
 **/
 /*
 Copyright (C) 2004-2007  Anders Hedstrom
+
 This library is made available under the terms of the GNU GPL.
+
 If you would like to use this library in a closed-source application,
 a separate license agreement is available. For information about
 the closed-source license agreement for the C++ sockets library,
 please visit http://www.alhem.net/Sockets/license.html and/or
 email license@alhem.net.
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -41,12 +46,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 #include <map>
 #include <cstdio>
+
 #include "TcpSocket.h"
 #include "Utility.h"
 #include "Ipv4Address.h"
 #include "Ipv6Address.h"
 #include "Mutex.h"
 #include "IFile.h"
+
 #ifdef SOCKETS_NAMESPACE
 namespace SOCKETS_NAMESPACE {
 #endif
@@ -206,6 +213,7 @@ bool TcpSocket::Open(SocketAddress& ad,SocketAddress& bind_ad,bool skip_socks)
         {
             CopyConnection( pools );
             delete pools;
+
             SetIsClient();
             SetCallOnConnect(); // ISocketHandler must call OnConnect
             Handler().LogError(this, "SetCallOnConnect", 0, "Found pooled connection", LOG_LEVEL_INFO);
@@ -297,6 +305,7 @@ bool TcpSocket::Open(SocketAddress& ad,SocketAddress& bind_ad,bool skip_socks)
         Attach(s);
         SetCallOnConnect(); // ISocketHandler must call OnConnect
     }
+
     // 'true' means connected or connecting(not yet connected)
     // 'false' means something failed
     return true; //!Connecting();
@@ -606,6 +615,7 @@ void TcpSocket::OnWrite()
     if (Connecting())
     {
         int err = SoError();
+
         // don't reset connecting flag on error here, we want the OnConnectFailed timeout later on
         if (!err) // ok
         {
@@ -616,6 +626,7 @@ void TcpSocket::OnWrite()
         }
         Handler().LogError(this, "tcp: connect failed", err, StrError(err), LOG_LEVEL_FATAL);
         Set(false, false); // no more monitoring because connection failed
+
         // failed
 #ifdef ENABLE_SOCKS4
         if (Socks4())
@@ -643,6 +654,7 @@ void TcpSocket::OnWrite()
     // try send next block in buffer
     // if full block is sent, repeat
     // if all blocks are sent, reset m_wfds
+
     bool repeat = false;
     size_t sz = m_transfer_limit ? GetOutputLength() : 0;
     do
@@ -671,10 +683,12 @@ void TcpSocket::OnWrite()
             }
         }
     } while (repeat);
+
     if (m_transfer_limit && sz > m_transfer_limit && GetOutputLength() < m_transfer_limit)
     {
         OnTransferLimit();
     }
+
     // check output buffer set, set/reset m_wfds accordingly
     {
         bool br;
@@ -828,6 +842,7 @@ void TcpSocket::SendBuf(const char *buf,size_t len,int)
     // else
     // try_send
     // if any data is unsent, buffer it and set m_wfds
+
     // check output buffer set, set/reset m_wfds accordingly
     {
         bool br;
@@ -934,6 +949,7 @@ bool TcpSocket::OnSocks4Read()
         {
             ibuf.Read( (char *)&m_socks4_dstip, 4);
             SetSocks4(false);
+
             switch (m_socks4_cd)
             {
             case 90:
@@ -1201,11 +1217,13 @@ void TcpSocket::InitializeContext(const std::string& context,const std::string& 
     {
         m_ssl_ctx = server_contexts[context];
     }
+
     /* Load our keys and certificates*/
     if (!(SSL_CTX_use_certificate_file(m_ssl_ctx, keyfile.c_str(), SSL_FILETYPE_PEM)))
     {
         Handler().LogError(this, "TcpSocket InitializeContext", 0, "Couldn't read certificate file " + keyfile, LOG_LEVEL_FATAL);
     }
+
     m_password = password;
     SSL_CTX_set_default_passwd_cb(m_ssl_ctx, SSL_password_cb);
     SSL_CTX_set_default_passwd_cb_userdata(m_ssl_ctx, this);
@@ -1234,11 +1252,13 @@ void TcpSocket::InitializeContext(const std::string& context,const std::string& 
     {
         m_ssl_ctx = server_contexts[context];
     }
+
     /* Load our keys and certificates*/
     if (!(SSL_CTX_use_certificate_file(m_ssl_ctx, certfile.c_str(), SSL_FILETYPE_PEM)))
     {
         Handler().LogError(this, "TcpSocket InitializeContext", 0, "Couldn't read certificate file " + keyfile, LOG_LEVEL_FATAL);
     }
+
     m_password = password;
     SSL_CTX_set_default_passwd_cb(m_ssl_ctx, SSL_password_cb);
     SSL_CTX_set_default_passwd_cb_userdata(m_ssl_ctx, this);
@@ -1307,6 +1327,7 @@ SSL_CTX *TcpSocket::GetSslContext()
         Handler().LogError(this, "GetSslContext", 0, "SSL Context is NULL; check InitSSLServer/InitSSLClient", LOG_LEVEL_WARNING);
     return m_ssl_ctx;
 }
+
 SSL *TcpSocket::GetSsl()
 {
     if (!m_ssl)
@@ -1491,6 +1512,7 @@ bool TcpSocket::CircularBuffer::Read(char *s,size_t l)
     }
     return true;
 }
+
 bool TcpSocket::CircularBuffer::SoftRead(char *s, size_t l)
 {
     if (l > m_q)
@@ -1515,6 +1537,7 @@ bool TcpSocket::CircularBuffer::SoftRead(char *s, size_t l)
     }
     return true;
 }
+
 bool TcpSocket::CircularBuffer::Remove(size_t l)
 {
     return Read(NULL, l);
@@ -1654,4 +1677,5 @@ void TcpSocket::OnTransferLimit()
 #ifdef SOCKETS_NAMESPACE
 }
 #endif
+
 
