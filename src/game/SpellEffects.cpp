@@ -533,6 +533,17 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     if(back_damage < unitTarget->GetHealth())
                         m_caster->CastCustomSpell(m_caster, 32409, &back_damage, 0, 0, true);
                 }
+                // Mind Blast - applies Mind Trauma if:
+                else if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x2000))
+                {
+                    // We are in Shadow Form
+                    if (m_caster->m_form == FORM_SHADOW)
+                        // We have Improved Mind Blast
+                        if (AuraEffect * aurEff = m_caster->GetDummyAura(SPELLFAMILY_PRIEST,95,0))
+                            // Chance has been successfully rolled
+                            if (roll_chance_i(aurEff->GetSpellProto()->EffectBasePoints[1] + 1))
+                                m_caster->CastSpell(unitTarget, 48301, true);
+                }
                 // Smite
                 else if (m_spellInfo->SpellFamilyFlags[0] & 0x80)
                 {
@@ -688,8 +699,17 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
             }
             case SPELLFAMILY_PALADIN:
             {
+                // Hammer of Wrath
+                if (m_spellInfo->SpellFamilyFlags[1]&0x00000080)
+                {
+                    float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                    int32 holy = m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo)) +
+                                 m_caster->SpellBaseDamageBonusForVictim(GetSpellSchoolMask(m_spellInfo), unitTarget);
+
+                    damage += int32(ap * 0.15f) + int32(holy * 0.15f);
+                }
                 // Hammer of the Righteous
-                if (m_spellInfo->SpellFamilyFlags[1]&0x00040000)
+                else if (m_spellInfo->SpellFamilyFlags[1]&0x00040000)
                 {
                     // Add main hand dps * effect[2] amount
                     float average = (m_caster->GetFloatValue(UNIT_FIELD_MINDAMAGE) + m_caster->GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2;
@@ -1892,37 +1912,12 @@ void Spell::EffectDummy(uint32 i)
                 }
                 case 31789:                                 // Righteous Defense (step 1)
                 {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                    {
-                        SendCastResult(SPELL_FAILED_TARGET_AFFECTING_COMBAT);
-                        return;
-                    }
-
-                    // 31989 -> dummy effect (step 1) + dummy effect (step 2) -> 31709 (taunt like spell for each target)
-
-                    Unit* friendTarget = !unitTarget || unitTarget->IsFriendlyTo(m_caster) ? unitTarget : unitTarget->getVictim();
-                    if (friendTarget)
-                    {
-                        Player* player = friendTarget->GetCharmerOrOwnerPlayerOrPlayerItself();
-                        if (!player || !player->IsInSameRaidWith((Player*)m_caster))
-                            friendTarget = NULL;
-                    }
-
-                    // non-standard cast requirement check
-                    if (!friendTarget || friendTarget->getAttackers().empty())
-                    {
-                        ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id,true);
-                        SendCastResult(SPELL_FAILED_TARGET_AFFECTING_COMBAT);
-                        return;
-                    }
-
-                    // Righteous Defense (step 2) (in old version 31980 dummy effect)
                     // Clear targets for eff 1
                     for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                         ihit->effectMask &= ~(1<<1);
 
                     // not empty (checked), copy
-                    Unit::AttackerSet attackers = friendTarget->getAttackers();
+                    Unit::AttackerSet attackers = unitTarget->getAttackers();
 
                     // selected from list 3
                     for(int i = 0; i < std::min(size_t(3),attackers.size()); ++i)
