@@ -234,9 +234,19 @@ struct boss_twin_baseAI : public ScriptedAI
                     if (pPlayer->isAlive())
                     {
                         if (pSummoned->GetEntry() == NPC_LIGHT_ESSENCE)
-                            pPlayer->RemoveAurasDueToSpell(SPELL_LIGHT_ESSENCE);
+                        {
+                            pPlayer->RemoveAurasDueToSpell(65686);
+                            pPlayer->RemoveAurasDueToSpell(67222);
+                            pPlayer->RemoveAurasDueToSpell(67223);
+                            pPlayer->RemoveAurasDueToSpell(67224);
+                        }
                         if (pSummoned->GetEntry() == NPC_DARK_ESSENCE)
-                            pPlayer->RemoveAurasDueToSpell(SPELL_DARK_ESSENCE);
+                        {
+                            pPlayer->RemoveAurasDueToSpell(65684);
+                            pPlayer->RemoveAurasDueToSpell(67176);
+                            pPlayer->RemoveAurasDueToSpell(67177);
+                            pPlayer->RemoveAurasDueToSpell(67178);
+                        }
                     }
                 }
                 break;
@@ -567,12 +577,18 @@ public:
         switch (creature->GetEntry())
         {
             case NPC_LIGHT_ESSENCE:
-                player->RemoveAurasDueToSpell(SPELL_DARK_ESSENCE);
-                player->CastSpell(player, SPELL_LIGHT_ESSENCE, true);
+                player->RemoveAurasDueToSpell(65686);
+                player->RemoveAurasDueToSpell(67222);
+                player->RemoveAurasDueToSpell(67223);
+                player->RemoveAurasDueToSpell(67224);
+                player->CastSpell(player, 65686, true);
                 break;
             case NPC_DARK_ESSENCE:
-                player->RemoveAurasDueToSpell(SPELL_LIGHT_ESSENCE);
-                player->CastSpell(player, SPELL_DARK_ESSENCE, true);
+                player->RemoveAurasDueToSpell(65684);
+                player->RemoveAurasDueToSpell(67176);
+                player->RemoveAurasDueToSpell(67177);
+                player->RemoveAurasDueToSpell(67178);
+                player->CastSpell(player, 65684, true);
                 break;
             default:
                 break;
