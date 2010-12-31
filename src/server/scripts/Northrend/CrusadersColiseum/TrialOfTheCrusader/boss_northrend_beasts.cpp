@@ -156,6 +156,8 @@ public:
         {
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_DONE);
+
+            Summons.DespawnAll();
         }
 
         void JustReachedHome()
@@ -191,6 +193,7 @@ public:
             if (summon->GetEntry() == NPC_SNOBOLD_VASSAL)
                 if (summon->isAlive())
                     ++m_uiSummonCount;
+            Summons.Despawn(summon);
         }
 
         void UpdateAI(const uint32 uiDiff)
