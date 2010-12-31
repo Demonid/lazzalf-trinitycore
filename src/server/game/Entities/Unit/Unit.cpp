@@ -6609,8 +6609,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     triggered_spell_id = 58597;
                     
                 target = this;
-                else
-                    return false;
                 break;
             }
             // Righteous Vengeance
