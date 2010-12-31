@@ -35,7 +35,7 @@ Vehicle::Vehicle(Unit *unit, VehicleEntry const *vehInfo) : me(unit), m_vehicleI
             if (VehicleSeatEntry const *veSeat = sVehicleSeatStore.LookupEntry(seatId))
             {
                 m_Seats.insert(std::make_pair(i, VehicleSeat(veSeat)));
-                if (veSeat->IsUsableByPlayer())
+                if (veSeat->CanEnterOrExit())
                     ++m_usableSeatNum;
             }
     }
@@ -227,7 +227,7 @@ int8 Vehicle::GetNextEmptySeat(int8 seatId, bool next, bool byAura) const
     if (seat == m_Seats.end())
         return -1;
 
-    while (seat->second.passenger || (!byAura && !seat->second.seatInfo->IsUsableByPlayer()) || (byAura && !seat->second.seatInfo->IsUsableByAura()))
+    while (seat->second.passenger || (!byAura && !seat->second.seatInfo->CanEnterOrExit()) || (byAura && !seat->second.seatInfo->IsUsableByAura()))
     {
         sLog->outDebug("Vehicle::GetNextEmptySeat: m_flags: %u, m_flagsB:%u", seat->second.seatInfo->m_flags, seat->second.seatInfo->m_flagsB);
         if (next)
@@ -291,7 +291,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId, bool byAura)
     if (seatId < 0) // no specific seat requirement
     {
         for (seat = m_Seats.begin(); seat != m_Seats.end(); ++seat)
-            if (!seat->second.passenger && ((!(byAura && seat->second.seatInfo->IsUsableByPlayer()) || (byAura && seat->second.seatInfo->IsUsableByAura()))))
+            if (!seat->second.passenger && ((!(byAura && seat->second.seatInfo->CanEnterOrExit()) || (byAura && seat->second.seatInfo->IsUsableByAura()))))
                 break;
 
         if (seat == m_Seats.end()) // no available seat
@@ -312,7 +312,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId, bool byAura)
     sLog->outDebug("Unit %s enter vehicle entry %u id %u dbguid %u seat %d", unit->GetName(), me->GetEntry(), m_vehicleInfo->m_ID, me->GetGUIDLow(), (int32)seat->first);
 
     seat->second.passenger = unit;
-    if (seat->second.seatInfo->IsUsableByPlayer())
+    if (seat->second.seatInfo->CanEnterOrExit())
     {
         ASSERT(m_usableSeatNum);
         --m_usableSeatNum;
@@ -339,7 +339,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId, bool byAura)
         }
     }
 
-    unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+    unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_ROOT);
     VehicleSeatEntry const *veSeat = seat->second.seatInfo;
     unit->m_movementInfo.t_pos.m_positionX = veSeat->m_attachmentOffsetX;
     unit->m_movementInfo.t_pos.m_positionY = veSeat->m_attachmentOffsetY;
@@ -406,7 +406,7 @@ void Vehicle::RemovePassenger(Unit *unit)
     sLog->outDebug("Unit %s exit vehicle entry %u id %u dbguid %u seat %d", unit->GetName(), me->GetEntry(), m_vehicleInfo->m_ID, me->GetGUIDLow(), (int32)seat->first);
 
     seat->second.passenger = NULL;
-    if (seat->second.seatInfo->IsUsableByPlayer())
+    if (seat->second.seatInfo->CanEnterOrExit())
     {
         if (!m_usableSeatNum)
         {
@@ -454,6 +454,8 @@ void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
     for (SeatMap::const_iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
         if (Unit *passenger = itr->second.passenger)
         {
+            ASSERT(passenger->IsInWorld());
+
             float px = x + passenger->m_movementInfo.t_pos.m_positionX;
             float py = y + passenger->m_movementInfo.t_pos.m_positionY;
             float pz = z + passenger->m_movementInfo.t_pos.m_positionZ;
@@ -470,4 +472,34 @@ void Vehicle::Dismiss()
     me->SendObjectDeSpawnAnim(me->GetGUID());
     me->CombatStop();
     me->AddObjectToRemoveList();
+}
+
+uint16 Vehicle::GetExtraMovementFlagsForBase() const
+{
+    uint16 movementMask = MOVEMENTFLAG2_NONE;
+    uint32 vehicleFlags = GetVehicleInfo()->m_flags;
+
+    if (vehicleFlags & VEHICLE_FLAG_NO_STRAFE)
+        movementMask |= MOVEMENTFLAG2_NO_STRAFE;
+    if (vehicleFlags & VEHICLE_FLAG_NO_JUMPING)
+        movementMask |= MOVEMENTFLAG2_NO_JUMPING;
+    if (vehicleFlags & VEHICLE_FLAG_FULLSPEEDTURNING)
+        movementMask |= MOVEMENTFLAG2_FULL_SPEED_TURNING;
+    if (vehicleFlags & VEHICLE_FLAG_ALLOW_PITCHING)
+        movementMask |= MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING;
+    if (vehicleFlags & VEHICLE_FLAG_FULLSPEEDPITCHING)
+        movementMask |= MOVEMENTFLAG2_FULL_SPEED_PITCHING;
+
+    sLog->outDebug("Vehicle::GetExtraMovementFlagsForBase() returned %u", movementMask);
+    return movementMask;
+}
+
+VehicleSeatEntry const* Vehicle::GetSeatForPassenger(Unit* passenger)
+{
+    SeatMap::iterator itr;
+    for (itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+        if (itr->second.passenger = passenger)
+            return itr->second.seatInfo;
+
+    return NULL;
 }
