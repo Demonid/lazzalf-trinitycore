@@ -65,6 +65,11 @@ public:
         boss_toc_champion_controllerAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
         {
             m_pInstance = (InstanceScript *) pCreature->GetInstanceScript();
+            m_uiChampionsNotStarted = 0;
+            m_uiChampionsFailed = 0;
+            m_uiChampionsKilled = 0;
+            m_bInProgress = false;
+            Summons.clear();
         }
 
         InstanceScript* m_pInstance;
@@ -74,13 +79,23 @@ public:
         uint32 m_uiChampionsKilled;
         bool   m_bInProgress;
 
+        /*
+        void Inizialize()
+        {
+            m_uiChampionsNotStarted = 0;
+            m_uiChampionsFailed = 0;
+            m_uiChampionsKilled = 0;
+            m_bInProgress = false;
+            Summons.clear();
+        }
+        
         void Reset()
         {
             m_uiChampionsNotStarted = 0;
             m_uiChampionsFailed = 0;
             m_uiChampionsKilled = 0;
             m_bInProgress = false;
-        }
+        }*/
 
         std::vector<uint32> SelectChampions(Team playerTeam)
         {
@@ -212,6 +227,7 @@ public:
                     {
                         case FAIL:
                             m_uiChampionsFailed++;
+                            sLog->outCheat("ToC Id: %u Debug info m_uiChampionsFailed: %u, summon size: %u, m_uiChampionsKilled: %u",me->GetInstanceId(),m_uiChampionsFailed, Summons.size(), m_uiChampionsKilled);
                             if (m_uiChampionsFailed + m_uiChampionsKilled >= Summons.size())
                             {
                                 m_pInstance->SetData(TYPE_CRUSADERS, FAIL);
@@ -232,6 +248,7 @@ public:
                             break;
                         case DONE:
                             m_uiChampionsKilled++;
+                            sLog->outCheat("ToC Id: %u Debug info m_uiChampionsKilled: %u, summon size: %u",me->GetInstanceId(),m_uiChampionsKilled, Summons.size());
                             if (m_uiChampionsKilled == 1)
                                 m_pInstance->SetData(TYPE_CRUSADERS, SPECIAL);
                             else if (m_uiChampionsKilled >= Summons.size())
@@ -277,6 +294,7 @@ struct boss_faction_championsAI : public ScriptedAI
         if (m_pInstance)
             if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, FAIL);
+        sLog->outCheat("ToC Id: %u Debug info Reset entry: %u", me->GetInstanceId(), me->GetEntry());                         
         me->ForcedDespawn();
     }
 
@@ -330,6 +348,7 @@ struct boss_faction_championsAI : public ScriptedAI
             if (m_pInstance)
                 if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
                     pChampionController->AI()->SetData(2, DONE);
+        sLog->outCheat("ToC Id: %u Debug info Die entry: %u", me->GetInstanceId(), me->GetEntry()); 
     }
 
     void EnterCombat(Unit* /*who*/)
