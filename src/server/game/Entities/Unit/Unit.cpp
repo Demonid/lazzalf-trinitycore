@@ -1555,12 +1555,14 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
     // Magic damage, check for resists
     if ((schoolMask & SPELL_SCHOOL_MASK_NORMAL) == 0)
     {
-        float baseVictimResistance = (float) pVictim->GetResistance(GetFirstSchoolInMask(schoolMask));
-        float ignoredResistance = (float) GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_TARGET_RESISTANCE, schoolMask);
+        float baseVictimResistance = float(pVictim->GetResistance(GetFirstSchoolInMask(schoolMask)));
+        float ignoredResistance = float(GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_TARGET_RESISTANCE, schoolMask));
+        if (Player* player = ToPlayer())
+            ignoredResistance += float(player->GetSpellPenetrationItemMod());
         float victimResistance = baseVictimResistance + ignoredResistance;
 
-        uint32 BOSS_LEVEL = 83;
-        float BOSS_RESISTANCE_CONSTANT = 510.0;
+        static const uint32 BOSS_LEVEL = 83;
+        static const float BOSS_RESISTANCE_CONSTANT = 510.0;
         uint32 level = getLevel();
         float resistanceConstant = 0.0f;
 
@@ -1571,7 +1573,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
 
         float averageResist = victimResistance / (victimResistance + resistanceConstant);
         float discreteResistProbability[11];
-        for (int i = 0; i < 11; i++)
+        for (uint32 i = 0; i < 11; ++i)
         {
             discreteResistProbability[i] = 0.5f - 2.5f * fabs(0.1f * i - averageResist);
             if (discreteResistProbability[i] < 0.0f)
@@ -1585,32 +1587,25 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
             discreteResistProbability[2] = 2.5f * averageResist;
         }
 
-        float r = (float)rand_norm();
-        int i = 0;
+        float r = float(rand_norm());
+        uint32 i = 0;
         float probabilitySum = discreteResistProbability[0];
 
         while (r >= probabilitySum && i < 10)
-        {
-            i++;
-            probabilitySum += discreteResistProbability[i];
-        }
+            probabilitySum += discreteResistProbability[++i];
 
         float damageResisted = float(damage * i / 10);
 
         AuraEffectList const &ResIgnoreAurasAb = GetAuraEffectsByType(SPELL_AURA_MOD_ABILITY_IGNORE_TARGET_RESIST);
         for (AuraEffectList::const_iterator j = ResIgnoreAurasAb.begin(); j != ResIgnoreAurasAb.end(); ++j)
-        {
-            if ((*j)->GetMiscValue() & schoolMask
-                && (*j)->IsAffectedOnSpell(spellInfo))
+            if (((*j)->GetMiscValue() & schoolMask) && (*j)->IsAffectedOnSpell(spellInfo))
                 AddPctN(damageResisted, -(*j)->GetAmount());
-        }
 
         AuraEffectList const &ResIgnoreAuras = GetAuraEffectsByType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST);
         for (AuraEffectList::const_iterator j = ResIgnoreAuras.begin(); j != ResIgnoreAuras.end(); ++j)
-        {
             if ((*j)->GetMiscValue() & schoolMask)
                 AddPctN(damageResisted, -(*j)->GetAmount());
-        }
+
         dmgInfo.ResistDamage(uint32(damageResisted));
     }
 
@@ -3431,7 +3426,7 @@ bool Unit::_IsNoStackAuraDueToAura(Aura * appliedAura, Aura * existingAura) cons
     return true;
 }
 
-void Unit::_HandleAuraEffect(AuraEffect * aurEff, bool apply)
+void Unit::_RegisterAuraEffect(AuraEffect * aurEff, bool apply)
 {
     if (apply)
         m_modAuras[aurEff->GetAuraType()].push_back(aurEff);
@@ -14435,6 +14430,40 @@ void Unit::SetDisplayId(uint32 modelId)
     }
 }
 
+void Unit::RestoreDisplayId()
+{
+    AuraEffect* handledAura = NULL;
+    // try to receive model from transform auras
+    Unit::AuraEffectList const& transforms = GetAuraEffectsByType(SPELL_AURA_TRANSFORM);
+    if (!transforms.empty())
+    {
+        // iterate over already applied transform auras - from newest to oldest
+        for (Unit::AuraEffectList::const_reverse_iterator i = transforms.rbegin(); i != transforms.rend(); ++i)
+        {
+            if (AuraApplication const * aurApp = (*i)->GetBase()->GetApplicationOfTarget(GetGUID()))
+            {
+                if (aurApp->IsPositive())
+                    handledAura = (*i);
+                // prefer negative auras
+                else
+                {
+                    handledAura = (*i);
+                    break;
+                }
+            }
+        }
+    }
+    // transform aura was found
+    if (handledAura)
+        handledAura->HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true);
+    // we've found shapeshift
+    else if (uint32 modelId = GetModelForForm(GetShapeshiftForm()))
+        SetDisplayId(modelId);
+    // no auras found - set modelid to default
+    else
+        SetDisplayId(GetNativeDisplayId());
+}
+
 void Unit::ClearComboPointHolders()
 {
     while (!m_ComboPointHolders.empty())
@@ -15498,7 +15527,7 @@ void Unit::SetConfused(bool apply)
         this->ToPlayer()->SetClientControl(this, !apply);
 }
 
-bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
+bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const * aurApp)
 {
     if (!charmer)
         return false;
@@ -15559,6 +15588,11 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
         return false;
     }
 
+    // charm is set by aura, and aura effect remove handler was called during apply handler execution
+    // prevent undefined behaviour
+    if (aurApp && aurApp->GetRemoveMode())
+        return false;
+
     // Set charmed
     Map* pMap = GetMap();
     if (!IsVehicle() || (IsVehicle() && pMap && !pMap->IsBattleground()))
@@ -15577,6 +15611,11 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
             this->ToPlayer()->ToggleAFK();
         this->ToPlayer()->SetClientControl(this, 0);
     }
+
+    // charm is set by aura, and aura effect remove handler was called during apply handler execution
+    // prevent undefined behaviour
+    if (aurApp && aurApp->GetRemoveMode())
+        return false;
 
     // Pets already have a properly initialized CharmInfo, don't overwrite it.
     if (type != CHARM_TYPE_VEHICLE && !GetCharmInfo())
@@ -16537,7 +16576,7 @@ bool Unit::CheckPlayerCondition(Player* pPlayer)
     }
 }
 
-void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId, bool byAura)
+void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId, AuraApplication const * aurApp)
 {
     if (!isAlive() || GetVehicleKit() == vehicle)
         return;
@@ -16549,7 +16588,7 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId, bool byAura)
             if (seatId >= 0 && seatId != GetTransSeat())
             {
                 sLog->outDebug("EnterVehicle: %u leave vehicle %u seat %d and enter %d.", GetEntry(), m_vehicle->GetBase()->GetEntry(), GetTransSeat(), seatId);
-                ChangeSeat(seatId, byAura);
+                ChangeSeat(seatId, aurApp != NULL);
             }
             return;
         }
@@ -16576,9 +16615,14 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId, bool byAura)
             bg->EventPlayerDroppedFlag(plr);
     }
 
+    // vehicle is applied by aura, and aura effect remove handler was called during apply handler execution
+    // prevent undefined behaviour
+    if (aurApp && aurApp->GetRemoveMode())
+        return;
+
     ASSERT(!m_vehicle);
     m_vehicle = vehicle;
-    if (!m_vehicle->AddPassenger(this, seatId, byAura))
+    if (!m_vehicle->AddPassenger(this, seatId, aurApp != NULL))
     {
         m_vehicle = NULL;
         return;
@@ -16952,7 +16996,7 @@ void Unit::OutDebugInfo() const
     {
         sLog->outStringInLine("Passenger List: ");
         for (SeatMap::iterator itr = GetVehicleKit()->m_Seats.begin(); itr != GetVehicleKit()->m_Seats.end(); ++itr)
-            if (Unit *passenger = itr->second.passenger)
+            if (Unit* passenger = ObjectAccessor::GetUnit(*GetVehicleBase(), itr->second.passenger))
                 sLog->outStringInLine(UI64FMTD", ", passenger->GetGUID());
         sLog->outString();
     }
