@@ -295,12 +295,17 @@ public:
                 domo_summoned = true;
             }
 
-            if (InstanceScript::GetBossState(BOSS_RAGNAROS) != DONE)
-                if (InstanceScript::GetBossState(BOSS_MAJORDOMO) == DONE && !rag_summoned)
+            if (InstanceScript::GetBossState(BOSS_MAJORDOMO) == DONE)
+            {
+                if (GameObject *pFirelordCache = instance->GetGameObject(m_uiFirelordCacheGUID))
+                    pFirelordCache->SetRespawnTime(pFirelordCache->GetRespawnDelay());
+
+                if (!rag_summoned && InstanceScript::GetBossState(BOSS_RAGNAROS) != DONE)
                 {
                     rag_summoned = true;
                     instance->SummonCreature(ID_RAGNAROS, Pos[9]);
                 }
+            }
             /*
             if (id == DATA_MAJORDOMO && state == DONE)
             {
@@ -326,12 +331,6 @@ public:
                     ++rag_ele_counter;
                 else if (data == 0)
                     rag_ele_counter = 0;
-            }
-
-            if (type == BOSS_MAJORDOMO && data == DONE)
-            {
-                if (GameObject *pFirelordCache = instance->GetGameObject(m_uiFirelordCacheGUID))
-                        pFirelordCache->SetRespawnTime(pFirelordCache->GetRespawnDelay());
             }
         }
 
