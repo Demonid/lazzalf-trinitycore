@@ -259,7 +259,10 @@ public:
                         }
                     
                         if (!bIsWaterElementsAlive)
+                        {
+                            DespawnWaterElements();
                             DoExplodeCompleted();
+                        }
                         else if (uiForceBubble <= uiDiff)
                         {                        
                             DespawnWaterElements();
@@ -326,13 +329,12 @@ public:
             }
         }
 
-
         void SummonedCreatureDespawn(Creature *pSummoned)
         {
             if (pSummoned)
             {
                 m_waterElements.remove(pSummoned->GetGUID());
-                pInstance->SetData64(DATA_DEL_TRASH_MOB,pSummoned->GetGUID());
+                pInstance->SetData64(DATA_DEL_TRASH_MOB, pSummoned->GetGUID());
             }
         }
 

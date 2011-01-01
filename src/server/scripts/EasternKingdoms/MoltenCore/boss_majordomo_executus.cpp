@@ -111,6 +111,7 @@ public:
 
         void Reset()
         {
+            _Reset();
             MagicReflection_Timer =  30000;                     //Damage reflection first so we alternate
             DamageReflection_Timer = 15000;
             Blastwave_Timer = 10000;
@@ -129,6 +130,12 @@ public:
         void EnterCombat(Unit * /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
+            _EnterCombat();
+        }
+
+        void JustDied(Unit */*victim*/)
+        {
+            _JustDied();
         }
 
         void UpdateAI(const uint32 diff)
