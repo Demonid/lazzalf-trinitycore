@@ -681,6 +681,12 @@ void OutdoorPvPWG::ProcessEvent(GameObject *obj, uint32 eventId, Player* player)
                     }
                     break;
             }
+
+            // Hack for destroy the tower
+            if (obj->GetEntry()==190356 || obj->GetEntry()==190357 || obj->GetEntry()==190358)
+            {
+                obj->TakenDamage(25000);
+            }
         }
         else if (eventId == obj->GetGOInfo()->building.destroyedEvent)
         {
@@ -1164,18 +1170,22 @@ void OutdoorPvPWG::RebuildAllBuildings()
 
     for (BuildingStateMap::const_iterator itr = m_buildingStates.begin(); itr != m_buildingStates.end(); ++itr)
     {
-        if (itr->second->building && itr->second->building->GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
+        if (itr->second->building)
         {
             UpdateGameObjectInfo(itr->second->building);
             itr->second->building->Rebuild();
-            itr->second->health = itr->second->building->GetGOValue()->building.health;
-            itr->second->damageState = DAMAGE_INTACT;
+            itr->second->health = itr->second->building->GetGOValue()->building.health;            
         }
         else
             itr->second->health = 0;
 
-        if (itr->second->type == BUILDING_WORKSHOP)
-            ModifyWorkshopCount(itr->second->GetTeamId(), true);
+        if (itr->second->damageState == DAMAGE_DESTROYED)
+        {
+            if (itr->second->type == BUILDING_WORKSHOP)
+                ModifyWorkshopCount(itr->second->GetTeamId(), true);
+        }
+
+        itr->second->damageState = DAMAGE_INTACT;
 
         // itr->second->damageState = DAMAGE_INTACT;
         itr->second->SetTeam(getDefenderTeamId() == TEAM_ALLIANCE ? OTHER_TEAM(itr->second->defaultTeam) : itr->second->defaultTeam);
