@@ -1072,7 +1072,7 @@ void OutdoorPvPWG::OnGameObjectRemove(GameObject *go)
 {
     OutdoorPvP::OnGameObjectRemove(go);
 
-    switch(go->GetEntry())
+    /*switch(go->GetEntry())
     {
         case WG_GO_KEEP_DOOR01_COLLISION:
             m_gate_collision1 = const_cast<GameObject*>(go);
@@ -1080,26 +1080,16 @@ void OutdoorPvPWG::OnGameObjectRemove(GameObject *go)
         case WG_GO_KEEP_COLLISION_WALL:
             m_gate_collision2 = const_cast<GameObject*>(go);
             break;
-    }
+    }*/
 
     if (UpdateGameObjectInfo(go))
-    {
         m_gobjects.erase(go);
-    }
-    //do we need to store building?
     else if (go->GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
     {
         BuildingStateMap::const_iterator itr = m_buildingStates.find(go->GetDBTableGUIDLow());
         if (itr != m_buildingStates.end())
-        {
             itr->second->building = NULL;
-
-            if (go->GetGOInfo()->displayId == WG_GO_DISPLAY_KEEP_TOWER || go->GetGOInfo()->displayId == WG_GO_DISPLAY_TOWER)
-                itr->second->type = BUILDING_TOWER;
-            
-            itr->second->health = go->GetGOValue()->building.health;
-        }
-    }
+    }   
 }
 
 void OutdoorPvPWG::OnGameObjectCreate(GameObject *go)
@@ -1174,11 +1164,12 @@ void OutdoorPvPWG::RebuildAllBuildings()
 
     for (BuildingStateMap::const_iterator itr = m_buildingStates.begin(); itr != m_buildingStates.end(); ++itr)
     {
-        if (itr->second->building)
+        if (itr->second->building && itr->second->building->GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
         {
             UpdateGameObjectInfo(itr->second->building);
             itr->second->building->Rebuild();
             itr->second->health = itr->second->building->GetGOValue()->building.health;
+            itr->second->damageState = DAMAGE_INTACT;
         }
         else
             itr->second->health = 0;
@@ -1186,7 +1177,7 @@ void OutdoorPvPWG::RebuildAllBuildings()
         if (itr->second->type == BUILDING_WORKSHOP)
             ModifyWorkshopCount(itr->second->GetTeamId(), true);
 
-        itr->second->damageState = DAMAGE_INTACT;
+        // itr->second->damageState = DAMAGE_INTACT;
         itr->second->SetTeam(getDefenderTeamId() == TEAM_ALLIANCE ? OTHER_TEAM(itr->second->defaultTeam) : itr->second->defaultTeam);
     }
     m_towerDamagedCount[TEAM_ALLIANCE] = 0;
