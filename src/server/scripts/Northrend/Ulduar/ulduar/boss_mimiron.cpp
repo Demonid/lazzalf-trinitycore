@@ -666,7 +666,7 @@ class boss_mimiron : public CreatureScript
                 return;
      
             for(std::list<Creature*>::iterator iter = m_pCreatures.begin(); iter != m_pCreatures.end(); ++iter)
-                (*iter)->ForcedDespawn();
+                (*iter)->DespawnOrUnsummon();
         }
     };
 
@@ -1579,7 +1579,7 @@ class mob_emergency_bot : public CreatureScript
                     GetCreatureListWithEntryInGrid(m_pCreatures, me, npc, 12);
                     if (!m_pCreatures.empty())
                         for(std::list<Creature*>::iterator iter = m_pCreatures.begin(); iter != m_pCreatures.end(); ++iter)
-                            (*iter)->ForcedDespawn();
+                            (*iter)->DespawnOrUnsummon();
                 }
                 uiSprayTimer = 5000;
             }
@@ -1642,7 +1642,7 @@ class mob_mimiron_flame : public CreatureScript
 
             /*if (uiDespawnTimer <= diff)
             {
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
                 return;
             }
             else uiDespawnTimer -= diff;*/
@@ -1678,13 +1678,13 @@ class mob_mimiron_flame_spread : public CreatureScript
         {
             /*if (uiDespawnTimer <= diff)
             {
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
                 return;
             }
             else uiDespawnTimer -= diff;*/          
 
             if (pInstance && pInstance->GetBossState(BOSS_MIMIRON) != IN_PROGRESS)
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
         }
     };
 

@@ -78,7 +78,7 @@ class boss_toravon : public CreatureScript
             for (std::list<Creature*>::iterator iter = OrbList.begin(); iter != OrbList.end(); ++iter)
             {
                 if (Creature* pOrb = *iter)
-                    pOrb->ForcedDespawn();
+                    pOrb->DespawnOrUnsummon();
             }
 
             events.Reset();

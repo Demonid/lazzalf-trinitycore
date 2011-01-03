@@ -902,7 +902,7 @@ class thorim_phase_trigger : public CreatureScript
                                     if (Creature* pThorim = Unit::GetCreature(*me, pInstance->GetData64(DATA_THORIM)))
                                     if (pThorim->AI())
                                     pThorim->AI()->DoAction(ACTION_CHANGE_PHASE);
-                                    me->ForcedDespawn();
+                                    me->DespawnOrUnsummon();
                                 }
             ScriptedAI::MoveInLineOfSight(who);
         }

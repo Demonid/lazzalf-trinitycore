@@ -325,7 +325,7 @@ class boss_sartharion : public CreatureScript
                 return;
 
             for(std::list<Creature*>::iterator iter = m_pCreatures.begin(); iter != m_pCreatures.end(); ++iter)
-                (*iter)->ForcedDespawn();
+                (*iter)->DespawnOrUnsummon();
         }
 
         void JustDied(Unit* pKiller)

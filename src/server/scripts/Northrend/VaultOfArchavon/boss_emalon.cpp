@@ -306,7 +306,7 @@ class mob_tempest_minion : public CreatureScript
                                 DoScriptText(EMOTE_MINION_RESPAWN, me);
                             }
                         }
-                        me->ForcedDespawn();
+                        me->DespawnOrUnsummon();
                     }
                 }
             }

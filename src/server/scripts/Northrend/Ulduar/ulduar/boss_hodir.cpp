@@ -554,7 +554,7 @@ class mob_snowpacked_icicle : public CreatureScript
             {
                 if (GameObject *pSnowdrift = me->FindNearestGameObject(194173, 2))
                     me->RemoveGameObject(pSnowdrift, true);
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
             }
             else DespawnTimer -= diff;
         }
@@ -867,7 +867,7 @@ class toasty_fire : public CreatureScript
             {
                 if (GameObject *pFire = me->FindNearestGameObject(194300, 2))
                     me->RemoveGameObject(pFire, true);
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
             }
         }
         
