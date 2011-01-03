@@ -533,7 +533,7 @@ class mob_xt002_heart : public CreatureScript
                     if (pXT002->AI())
                         pXT002->AI()->DoAction(ACTION_ENTER_HARD_MODE);
 
-            me->ForcedDespawn();
+            me->DespawnOrUnsummon();
         }
         
         void UpdateAI(const uint32 diff)

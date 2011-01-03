@@ -657,7 +657,7 @@ class boss_sara : public CreatureScript
                                 {
                                     Creature* pTarget = *itr;
                                     if (pTarget)
-                                        pTarget->ForcedDespawn();
+                                        pTarget->DespawnOrUnsummon();
                                 }
                             }
                             JumpToNextStep(5000);
@@ -1315,7 +1315,7 @@ class npc_guardian_yoggsaron : public CreatureScript
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
 
             if (uiDarkVolleyTimer <= 0)
             {
@@ -1454,7 +1454,7 @@ class npc_descend_into_madness : public CreatureScript
             if (param == EVENT_SPELLCLICK)
             {
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
             }
         }
     };

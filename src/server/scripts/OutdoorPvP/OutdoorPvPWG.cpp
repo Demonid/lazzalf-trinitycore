@@ -1026,7 +1026,7 @@ void OutdoorPvPWG::OnCreatureCreate(Creature *creature)
                     else
                     {
                         creature->SetRespawnTime(DAY);
-                        creature->ForcedDespawn();
+                        creature->DespawnOrUnsummon();
                         break;
                     }
                 }
@@ -1187,7 +1187,6 @@ void OutdoorPvPWG::RebuildAllBuildings()
 
         itr->second->damageState = DAMAGE_INTACT;
 
-        // itr->second->damageState = DAMAGE_INTACT;
         itr->second->SetTeam(getDefenderTeamId() == TEAM_ALLIANCE ? OTHER_TEAM(itr->second->defaultTeam) : itr->second->defaultTeam);
     }
     m_towerDamagedCount[TEAM_ALLIANCE] = 0;
@@ -1315,7 +1314,7 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
         case CREATURE_ENGINEER:
             return false;
         case CREATURE_SIEGE_VEHICLE:
-            creature->ForcedDespawn();
+            creature->DespawnOrUnsummon();
             return false;
         case CREATURE_GUARD:
         case CREATURE_SPECIAL:
@@ -1824,7 +1823,7 @@ bool OutdoorPvPWG::Update(uint32 diff)
                                         New->SetRespawnTime(Old->GetRespawnTime());
                                         Old->GetVehicleKit()->Uninstall();
                                         Old->SetVisible(true);
-                                        Old->ForcedDespawn();
+                                        Old->DespawnOrUnsummon();
                                         Vehicle *vehicle = New->GetVehicleKit();
                                         Driver->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
 								        Driver->EnterVehicle(vehicle, 0);
@@ -1873,7 +1872,7 @@ bool OutdoorPvPWG::Update(uint32 diff)
                                         New->SetRespawnTime(Old->GetRespawnTime());
                                         Old->GetVehicleKit()->Uninstall();
                                         Old->SetVisible(true);
-                                        Old->ForcedDespawn();
+                                        Old->DespawnOrUnsummon();
                                         Vehicle *vehicle = New->GetVehicleKit();
                                         Driver->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
 								        Driver->EnterVehicle(vehicle, 0);
@@ -1928,7 +1927,7 @@ bool OutdoorPvPWG::Update(uint32 diff)
                                         New->SetRespawnTime(Old->GetRespawnTime());
                                         Old->GetVehicleKit()->Uninstall();
                                         Old->SetVisible(true);
-                                        Old->ForcedDespawn();
+                                        Old->DespawnOrUnsummon();
                                         Vehicle *vehicle = New->GetVehicleKit();
                                         Driver->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
 							            Driver->EnterVehicle(vehicle, 0);
@@ -1977,7 +1976,7 @@ bool OutdoorPvPWG::Update(uint32 diff)
                                         New->SetRespawnTime(Old->GetRespawnTime());
                                         Old->GetVehicleKit()->Uninstall();
                                         Old->SetVisible(true);
-                                        Old->ForcedDespawn();
+                                        Old->DespawnOrUnsummon();
                                         Vehicle *vehicle = New->GetVehicleKit();
                                         Driver->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
 								        Driver->EnterVehicle(vehicle, 0);
@@ -2164,13 +2163,13 @@ void OutdoorPvPWG::StartBattle()
         {
             Creature *veh = *m_vehicles[team].begin();
             m_vehicles[team].erase(m_vehicles[team].begin());
-            veh->ForcedDespawn();
+            veh->DespawnOrUnsummon();
         }
         while(!m_turrets[team].empty())
         {
             Creature *veh = *m_turrets[team].begin();
             m_turrets[team].erase(m_turrets[team].begin());
-            veh->ForcedDespawn();
+            veh->DespawnOrUnsummon();
         }
     }
 
@@ -2262,13 +2261,13 @@ void OutdoorPvPWG::EndBattle()
         {
             Creature *veh = *m_vehicles[team].begin();
             m_vehicles[team].erase(m_vehicles[team].begin());
-            veh->ForcedDespawn();
+            veh->DespawnOrUnsummon();
         }
         while(!m_turrets[team].empty())
         {
             Creature *veh = *m_turrets[team].begin();
             m_turrets[team].erase(m_turrets[team].begin());
-            veh->ForcedDespawn();
+            veh->DespawnOrUnsummon();
         }
 
         if (m_players[team].empty())

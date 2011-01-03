@@ -323,7 +323,7 @@ class boss_malygos : public CreatureScript
             if(m_pInstance)
                 m_pInstance->SetData(TYPE_MALYGOS, NOT_STARTED);
             else
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
 
             me->SetFlying(true);
             me->setActive(true);
@@ -614,7 +614,7 @@ class boss_malygos : public CreatureScript
                     Creature* pVortex = GetClosestCreatureWithEntry(me, NPC_VORTEX, 100.0f);
                     if(pVortex)
                     {
-                        pVortex->ForcedDespawn();
+                        pVortex->DespawnOrUnsummon();
                     }
                    
                     m_uiSubPhase = 0;
@@ -765,7 +765,7 @@ class boss_malygos : public CreatureScript
                     Creature* pDisk = ObjectAccessor::GetCreatureOrPetOrVehicle(*me,*iter);
                     if(pDisk)
                     {
-                        pDisk->ForcedDespawn();
+                        pDisk->DespawnOrUnsummon();
                     }
                 }
                    
@@ -780,7 +780,7 @@ class boss_malygos : public CreatureScript
                 return;
      
             for(std::list<Creature*>::iterator iter = m_pCreatures.begin(); iter != m_pCreatures.end(); ++iter)
-                (*iter)->ForcedDespawn();
+                (*iter)->DespawnOrUnsummon();
      
         }
         //Spell not in DBC, but on retail client recieve its opcode, so..
@@ -921,7 +921,7 @@ class boss_malygos : public CreatureScript
                             Creature* pTrigger = GetClosestCreatureWithEntry(me, 30494, 100.0f);
                             if(pTrigger)
                             {
-                                pTrigger->ForcedDespawn();
+                                pTrigger->DespawnOrUnsummon();
                             }
                             me->AI()->EnterEvadeMode();
                         }
@@ -1465,14 +1465,14 @@ class mob_power_spark : public CreatureScript
                 {
                     if(!pMalygos->isAlive())
                     {
-                        me->ForcedDespawn();
+                        me->DespawnOrUnsummon();
                         return;
                     }
 
                     if(me->IsWithinDist3d(pMalygos->GetPositionX(), pMalygos->GetPositionY(), pMalygos->GetPositionZ(), 5.0f))
                     {
                         pMalygos->AddAura(SPELL_POWER_SPARK, pMalygos);
-                        me->ForcedDespawn();
+                        me->DespawnOrUnsummon();
                     }else
                     {
                         me->GetMotionMaster()->MoveChase(pMalygos, 1.0f, 0.0f);
@@ -1574,7 +1574,7 @@ class mob_scion_of_eternity : public CreatureScript
             if(m_uiMoveTimer <= uiDiff)
             {
                 if(m_pInstance->GetData(TYPE_MALYGOS) == NOT_STARTED)
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
 
                 m_uiMoveTimer = 10000;
                 DoNextMovement();
@@ -1723,7 +1723,7 @@ class mob_nexus_lord : public CreatureScript
                 return;
 
             if(m_pInstance->GetData(TYPE_MALYGOS) == NOT_STARTED)
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
            
             if(m_uiArcaneShockTimer <= uiDiff)
             {

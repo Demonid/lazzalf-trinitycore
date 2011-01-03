@@ -398,11 +398,11 @@ class mob_feral_defender : public CreatureScript
                     me->AI()->AttackStart(pTarget);
                 }
                 else
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
             }
                 
             if (pInstance && pInstance->GetBossState(BOSS_AURIAYA) != IN_PROGRESS)
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
 
             if (PounceTimer <= int32(uiDiff))
             {
@@ -501,7 +501,7 @@ class seeping_trigger : public CreatureScript
         void UpdateAI(const uint32 uiDiff)
         {
             if (pInstance && pInstance->GetBossState(BOSS_AURIAYA) != IN_PROGRESS)
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
         }
     };
 
