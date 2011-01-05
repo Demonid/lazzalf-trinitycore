@@ -328,7 +328,7 @@ class boss_kologarn : public CreatureScript
                 case EVENT_EYEBEAM:
                     {
                         Unit* pTarget = NULL;
-                        if (!(pTarget = CheckPlayersInRange(RAID(2,4), 10.0f, 100.f)))
+                        if (!(pTarget = CheckPlayersInRange(RAID_MODE(2,4), 10.0f, 100.f)))
                             pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true); 
                         if (pTarget)
                         {
