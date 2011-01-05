@@ -71,7 +71,7 @@ public:
             uiSpawnTimer = 0;
 
             me->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
-            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
+            // me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
 
             if (pInstance)
             {
