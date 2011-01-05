@@ -326,20 +326,25 @@ class boss_kologarn : public CreatureScript
                     events.RescheduleEvent(EVENT_SHOCKWAVE, urand(15000, 25000));
                     break;
                 case EVENT_EYEBEAM:
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                     {
-                        if (EyeBeam[0] = me->SummonCreature(NPC_EYEBEAM_1, pTarget->GetPositionX(), pTarget->GetPositionY() + 3, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                        Unit* pTarget = NULL;
+                        if (!(pTarget = CheckPlayersInRange(RAID(2,4), 10.0f, 100.f)))
+                            pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true); 
+                        if (pTarget)
                         {
-                            EyeBeam[0]->CastSpell(me, SPELL_EYEBEAM_VISUAL_1, true);
-                            EyeBeam[0]->AI()->AttackStart(pTarget);
+                            if (EyeBeam[0] = me->SummonCreature(NPC_EYEBEAM_1, pTarget->GetPositionX(), pTarget->GetPositionY() + 3, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                            {
+                                EyeBeam[0]->CastSpell(me, SPELL_EYEBEAM_VISUAL_1, true);
+                                EyeBeam[0]->AI()->AttackStart(pTarget);
+                            }
+                            if (EyeBeam[1] = me->SummonCreature(NPC_EYEBEAM_2, pTarget->GetPositionX(), pTarget->GetPositionY() - 3, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                            {
+                                EyeBeam[1]->CastSpell(me, SPELL_EYEBEAM_VISUAL_2, true);
+                                EyeBeam[1]->AI()->AttackStart(pTarget);
+                            }
                         }
-                        if (EyeBeam[1] = me->SummonCreature(NPC_EYEBEAM_2, pTarget->GetPositionX(), pTarget->GetPositionY() - 3, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
-                        {
-                            EyeBeam[1]->CastSpell(me, SPELL_EYEBEAM_VISUAL_2, true);
-                            EyeBeam[1]->AI()->AttackStart(pTarget);
-                        }
+                        events.RescheduleEvent(EVENT_EYEBEAM, 20000);
                     }
-                    events.RescheduleEvent(EVENT_EYEBEAM, 20000);
                     break;
                 case EVENT_RIGHT:
                     if (RightArm = me->GetCreature(*me, pInstance->GetData64(DATA_RIGHT_ARM)))
@@ -408,6 +413,40 @@ class boss_kologarn : public CreatureScript
                     break;
             }
         }
+
+        Unit* CheckPlayersInRange(uint32 uiPlayersMin, float uiRangeMin, float uiRangeMax)
+        {
+            Map * pMap = me->GetMap();
+            if (pMap && pMap->IsDungeon())
+            {
+                std::list<Player*> PlayerList;
+                Map::PlayerList const &Players = pMap->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = Players.begin(); itr != Players.end(); ++itr)
+                {
+                    if (Player * pPlayer = itr->getSource())
+                    {
+                        float uiDistance = pPlayer->GetDistance(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                        if (uiRangeMin < uiDistance || uiDistance > uiRangeMax)
+                            continue;
+
+                        PlayerList.push_back(pPlayer);
+                    }
+                }
+
+                if (PlayerList.empty())
+                    return NULL;
+
+                size_t size = PlayerList.size();
+                if (size < uiPlayersMin)
+                    return NULL;
+
+                std::list<Player*>::const_iterator itr = PlayerList.begin();
+                std::advance(itr, urand(0, size - 1));
+                return *itr;
+            }
+            else
+                return NULL;
+        };
     };
 
     CreatureAI* GetAI(Creature* pCreature) const
