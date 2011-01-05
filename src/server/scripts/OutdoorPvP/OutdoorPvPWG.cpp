@@ -681,12 +681,6 @@ void OutdoorPvPWG::ProcessEvent(GameObject *obj, uint32 eventId, Player* player)
                     }
                     break;
             }
-
-            // Hack for destroy the tower
-            if (obj->GetEntry()==190356 || obj->GetEntry()==190357 || obj->GetEntry()==190358)
-            {
-                obj->TakenDamage(25000);
-            }
         }
         else if (eventId == obj->GetGOInfo()->building.destroyedEvent)
         {
