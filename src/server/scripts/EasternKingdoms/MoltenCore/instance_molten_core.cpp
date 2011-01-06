@@ -79,6 +79,7 @@ public:
         uint8 rag_ele_counter;
 
         bool domo_summoned;
+        bool domo_done;
         bool rag_summoned;
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
@@ -113,6 +114,7 @@ public:
 
             domo_summoned = false;
             rag_summoned = false;
+            domo_done = false;
         }
 
         bool IsEncounterInProgress() const
@@ -262,7 +264,7 @@ public:
                     break;
 
                 case DATA_MAJORDOMOISDEAD:
-                    if (InstanceScript::GetBossState(BOSS_MAJORDOMO) == DONE)
+                    if ((InstanceScript::GetBossState(BOSS_MAJORDOMO) == DONE) || domo_done)
                         return 1;
                     break;
                 case DATA_RAG_ELE_COUNTER:
@@ -297,9 +299,6 @@ public:
 
             if (InstanceScript::GetBossState(BOSS_MAJORDOMO) == DONE)
             {
-                if (GameObject *pFirelordCache = instance->GetGameObject(m_uiFirelordCacheGUID))
-                    pFirelordCache->SetRespawnTime(pFirelordCache->GetRespawnDelay());
-
                 if (!rag_summoned && InstanceScript::GetBossState(BOSS_RAGNAROS) != DONE)
                 {
                     rag_summoned = true;
@@ -319,11 +318,18 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            /*if (type == DATA_RAGNAROS && !rag_summoned)
+            if (type == DATA_RAGNAROS && !rag_summoned)
             {
                 rag_summoned = true;
                 instance->SummonCreature(ID_RAGNAROS, Pos[9]);
-            }*/
+            }
+
+            if (type == DATA_MAJORDOMO)
+            {
+                domo_done = true;                
+                if (GameObject *pFirelordCache = instance->GetGameObject(m_uiFirelordCacheGUID))
+                    pFirelordCache->SetRespawnTime(pFirelordCache->GetRespawnDelay());
+            }
 
             if (type == DATA_RAG_ELE_COUNTER)
             {
