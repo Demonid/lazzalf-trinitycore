@@ -18,9 +18,8 @@
 
 /* ScriptData
 SDName: Boss_Majordomo_Executus
-SDAuthor: Sokie
-SD%Complete: 90
-SDComment: Ragnaros Summon spell not working
+SD%Complete: 30
+SDComment: Correct spawning and Event NYI
 SDCategory: Molten Core
 EndScriptData */
 
@@ -85,8 +84,8 @@ public:
 
         BossAI* pBossAI = CAST_AI(boss_majordomoAI, pCreature->AI());
 
-        if(/*pInstance && */pBossAI)
-        {
+        if (/*pInstance && */pBossAI)
+        {  
             pPlayer->CLOSE_GOSSIP_MENU();
             CAST_AI(boss_majordomoAI, pCreature->AI())->StartRagsEvent(); 
         }
@@ -99,7 +98,6 @@ public:
         {
             m_pInstance = pCreature->GetInstanceScript(); 
         }
-
         InstanceScript* m_pInstance;
 
         uint32 MagicReflection_Timer;
@@ -111,7 +109,6 @@ public:
 
         void Reset()
         {
-            _Reset();
             MagicReflection_Timer =  30000;                     //Damage reflection first so we alternate
             DamageReflection_Timer = 15000;
             Blastwave_Timer = 10000;
@@ -130,12 +127,6 @@ public:
         void EnterCombat(Unit * /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
-            _EnterCombat();
-        }
-
-        void JustDied(Unit */*victim*/)
-        {
-            _JustDied();
         }
 
         void UpdateAI(const uint32 diff)
@@ -145,53 +136,47 @@ public:
                 if (!UpdateVictim())
                     return;
 
-                if(((!me->FindNearestCreature(ENTRY_FLAMEWALKER_HEALER,100.0f)) || (!me->FindNearestCreature(ENTRY_FLAMEWALKER_HEALER,100.0f))) && (!m_pInstance->GetData(DATA_MAJORDOMOISDEAD)))
-                {
+                 if (((!me->FindNearestCreature(ENTRY_FLAMEWALKER_HEALER,100.0f)) && (!me->FindNearestCreature(ENTRY_FLAMEWALKER_ELITE,100.0f))) && (!m_pInstance->GetData(DATA_MAJORDOMOISDEAD)))
+                 {		
                     me->setFaction(35);
                     me->AI()->EnterEvadeMode();
                     DoScriptText(SAY_DEFEAT, me);
-                    //DoCast(SPELL_SUMMON_RAGNAROS); Not working atm ,doing workaround                    
+                    //DoCast(SPELL_SUMMON_RAGNAROS); Not working atm ,doing workaround
                     if (m_pInstance)
                     {
                         m_pInstance->SetData(DATA_MAJORDOMO, DONE);
                     }
-
                     Phase_Timer = 32000;
                     Phase = 1;
-                }
+                 }
 
                 //Cast Ageis if less than 50% hp
                 if (HealthBelowPct(50))
-                {
                     DoCast(me, SPELL_AEGIS);
-                }
 
-                //MagicReflection_Timer
                 if (MagicReflection_Timer <= diff)
                 {
                     DoCast(me, SPELL_MAGIC_REFLECTION);
                     MagicReflection_Timer = 30000;
-                } else MagicReflection_Timer -= diff;
+                    } else MagicReflection_Timer -= diff;
 
-                //DamageReflection_Timer
                 if (DamageReflection_Timer <= diff)
                 {
                     DoCast(me, SPELL_DAMAGE_REFLECTION);
                     DamageReflection_Timer = 30000;
-                } else DamageReflection_Timer -= diff;
+                    } else DamageReflection_Timer -= diff;
 
                 //Blastwave_Timer
                 if (Blastwave_Timer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_BLASTWAVE);
                     Blastwave_Timer = 10000;
-                } else Blastwave_Timer -= diff;
+                   } else Blastwave_Timer -= diff;
 
                 if (Teleport_Timer <= diff)
                 {
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1))
-                        DoCast(pTarget, SPELL_TELEPORT);
-                
+                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1)) 
+                         DoCast(pTarget, SPELL_TELEPORT); 
                     Teleport_Timer = 20000;
                 } else Teleport_Timer -= diff;
 
@@ -214,8 +199,8 @@ public:
                     {
                         if (m_pInstance)
                         {
-                            m_pInstance->SetData(DATA_RAGNAROS, true);                            
-                            m_pInstance->SetBossState(BOSS_MAJORDOMO, DONE);
+                            m_pInstance->SetData(DATA_RAGNAROS, true);
+                            m_pInstance->SetBossState(DATA_MAJORDOMO, DONE);
                         }
                         Phase = 4;
                         Phase_Timer = 16000; 
