@@ -143,8 +143,9 @@ public:
                     DoScriptText(SAY_DEFEAT, me);
                     //DoCast(SPELL_SUMMON_RAGNAROS); Not working atm ,doing workaround
                     if (m_pInstance)
+                    {
                         m_pInstance->SetData(DATA_MAJORDOMO, DONE);
-                        //m_pInstance->SetBossState(DATA_MAJORDOMO, DONE);
+                    }
                     Phase_Timer = 32000;
                     Phase = 1;
                  }
@@ -197,7 +198,10 @@ public:
                     if (Phase_Timer <= diff)
                     {
                         if (m_pInstance)
+                        {
                             m_pInstance->SetData(DATA_RAGNAROS, true);
+                            m_pInstance->SetBossState(DATA_MAJORDOMO, DONE);
+                        }
                         Phase = 4;
                         Phase_Timer = 16000; 
                     } else Phase_Timer -= diff;

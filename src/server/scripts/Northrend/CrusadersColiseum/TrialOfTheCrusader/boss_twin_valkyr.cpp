@@ -83,8 +83,6 @@ enum BossSpells
     SPELL_DARK_TOUCH            = 67282,
 
     SPELL_TWIN_POWER            = 65916,
-    SPELL_LIGHT_ESSENCE         = 65686,
-    SPELL_DARK_ESSENCE          = 65684,
     SPELL_BERSERK               = 64238,
     SPELL_NONE                  = 0,
 
@@ -103,6 +101,12 @@ enum Actions
 };
 
 
+#define SPELL_LIGHT_ESSENCE       RAID_MODE(65686,67222,67223,67224)
+#define SPELL_DARK_ESSENCE        RAID_MODE(65684,67176,67177,67178)
+
+#define ACHIEVEMENT_SALT_AND_PEPPER RAID_MODE(3799, 3815)
+#define SALT_AND_PEPPER_MAX_TIMER 3 * MINUTE * IN_MILLISECONDS
+
 /*######
 ## boss_twin_base
 ######*/
@@ -112,6 +116,8 @@ struct boss_twin_baseAI : public ScriptedAI
     boss_twin_baseAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
     {
         m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+        me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+        me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
     }
 
     InstanceScript* m_pInstance;
@@ -154,7 +160,7 @@ struct boss_twin_baseAI : public ScriptedAI
 
         m_uiWaveCount = 1;
         m_uiColorballsTimer = 15*IN_MILLISECONDS;
-        m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
+        m_uiSpecialAbilityTimer = urand(45,50)*IN_MILLISECONDS;
         m_uiSpikeTimer = 20*IN_MILLISECONDS;
         m_uiTouchTimer = urand(10, 15)*IN_MILLISECONDS;
         m_uiBerserkTimer = IsHeroic() ? 6*MINUTE*IN_MILLISECONDS : 10*MINUTE*IN_MILLISECONDS;
@@ -223,12 +229,25 @@ struct boss_twin_baseAI : public ScriptedAI
                 for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
                 {
                     Unit* pPlayer = itr->getSource();
-                    if (!pPlayer) continue;
+                    if (!pPlayer) 
+                        continue;
                     if (pPlayer->isAlive())
+                    {
                         if (pSummoned->GetEntry() == NPC_LIGHT_ESSENCE)
-                            pPlayer->RemoveAurasDueToSpell(SPELL_LIGHT_ESSENCE);
+                        {
+                            pPlayer->RemoveAurasDueToSpell(65686);
+                            pPlayer->RemoveAurasDueToSpell(67222);
+                            pPlayer->RemoveAurasDueToSpell(67223);
+                            pPlayer->RemoveAurasDueToSpell(67224);
+                        }
                         if (pSummoned->GetEntry() == NPC_DARK_ESSENCE)
-                            pPlayer->RemoveAurasDueToSpell(SPELL_DARK_ESSENCE);
+                        {
+                            pPlayer->RemoveAurasDueToSpell(65684);
+                            pPlayer->RemoveAurasDueToSpell(67176);
+                            pPlayer->RemoveAurasDueToSpell(67177);
+                            pPlayer->RemoveAurasDueToSpell(67178);
+                        }
+                    }
                 }
                 break;
         }
@@ -294,7 +313,11 @@ struct boss_twin_baseAI : public ScriptedAI
                     m_pInstance->SetData(TYPE_VALKIRIES, DONE);
                     Summons.DespawnAll();
                 }
-                else m_pInstance->SetData(TYPE_VALKIRIES, SPECIAL);
+                else 
+                {
+                    m_pInstance->SetData(TYPE_VALKIRIES, SPECIAL);
+                    me->Kill(pSister);
+                }                    
             }
         }
         Summons.DespawnAll();
@@ -360,7 +383,7 @@ struct boss_twin_baseAI : public ScriptedAI
                     DoScriptText(m_uiVortexSay, me);
                     DoCastAOE(m_uiVortexSpellId);
                     m_uiStage = 0;
-                    m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
+                    m_uiSpecialAbilityTimer = urand(45,50)*IN_MILLISECONDS;
                 }
                 else
                     m_uiSpecialAbilityTimer -= uiDiff;
@@ -375,7 +398,7 @@ struct boss_twin_baseAI : public ScriptedAI
                     DoCast(me, m_uiShieldSpellId);
                     DoCast(me, m_uiTwinPactSpellId);
                     m_uiStage = 0;
-                    m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
+                    m_uiSpecialAbilityTimer = urand(45,50)*IN_MILLISECONDS;
                 }
                 else
                     m_uiSpecialAbilityTimer -= uiDiff;
@@ -449,6 +472,8 @@ public:
     {
         boss_fjolaAI(Creature* pCreature) : boss_twin_baseAI(pCreature) {}
 
+        uint32 saltAndPepperTimer;
+
         void Reset() {
             boss_twin_baseAI::Reset();
             SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_OFFHAND_1, EQUIP_RANGED_1);
@@ -472,19 +497,36 @@ public:
             EssenceLocation[0] = TwinValkyrsLoc[2];
             EssenceLocation[1] = TwinValkyrsLoc[3];
 
-            if (m_pInstance)
+            saltAndPepperTimer = 0;
+
+            /*if (m_pInstance)
             {
                 m_pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
-            }
+            }*/
         }
 
         void EnterCombat(Unit* pWho)
         {
+            saltAndPepperTimer = 0;
             boss_twin_baseAI::EnterCombat(pWho);
-            if (m_pInstance)
+            /*if (m_pInstance)
             {
                 m_pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
-            }
+            }*/
+        }
+
+        void JustDied(Unit* pKiller)
+        {
+            if (saltAndPepperTimer <= SALT_AND_PEPPER_MAX_TIMER)
+                m_pInstance->DoCompleteAchievement(ACHIEVEMENT_SALT_AND_PEPPER);
+            
+            boss_twin_baseAI::JustDied(pKiller);
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            saltAndPepperTimer += uiDiff;
+            boss_twin_baseAI::UpdateAI(uiDiff);
         }
     };
 
@@ -547,12 +589,18 @@ public:
         switch (creature->GetEntry())
         {
             case NPC_LIGHT_ESSENCE:
-                player->RemoveAura(SPELL_DARK_ESSENCE);
-                player->CastSpell(player, SPELL_LIGHT_ESSENCE, true);
+                player->RemoveAurasDueToSpell(65686);
+                player->RemoveAurasDueToSpell(67222);
+                player->RemoveAurasDueToSpell(67223);
+                player->RemoveAurasDueToSpell(67224);
+                player->CastSpell(player, 65686, true);
                 break;
             case NPC_DARK_ESSENCE:
-                player->RemoveAura(SPELL_LIGHT_ESSENCE);
-                player->CastSpell(player, SPELL_DARK_ESSENCE, true);
+                player->RemoveAurasDueToSpell(65684);
+                player->RemoveAurasDueToSpell(67176);
+                player->RemoveAurasDueToSpell(67177);
+                player->RemoveAurasDueToSpell(67178);
+                player->CastSpell(player, 65684, true);
                 break;
             default:
                 break;
