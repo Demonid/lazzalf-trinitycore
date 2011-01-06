@@ -1173,11 +1173,8 @@ void OutdoorPvPWG::RebuildAllBuildings()
         else
             itr->second->health = 0;
 
-        if (itr->second->damageState == DAMAGE_DESTROYED)
-        {
-            if (itr->second->type == BUILDING_WORKSHOP)
-                ModifyWorkshopCount(itr->second->GetTeamId(), true);
-        }
+        if (itr->second->type == BUILDING_WORKSHOP)
+            ModifyWorkshopCount(itr->second->GetTeamId(), true);
 
         itr->second->damageState = DAMAGE_INTACT;
 
