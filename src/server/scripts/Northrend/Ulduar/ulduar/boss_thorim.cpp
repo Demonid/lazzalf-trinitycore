@@ -610,8 +610,9 @@ class mob_arena_phase : public CreatureScript
             if (me->HasUnitState(UNIT_STAT_CASTING))
                 return;
 
-            if (!me->IsWithinLOSInMap(me->getVictim()))
-                me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
+            if (me->getVictim())
+                if (!me->IsWithinLOSInMap(me->getVictim()))
+                    me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
                 
             if (PrimaryTimer <= int32(uiDiff))
             {
