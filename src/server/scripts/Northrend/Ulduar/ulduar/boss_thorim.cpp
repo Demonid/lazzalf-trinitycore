@@ -593,14 +593,15 @@ class mob_arena_phase : public CreatureScript
             if (id == DARK_RUNE_WARBRINGER)
                 DoCast(me, SPELL_AURA_OF_CELERITY);
 
-            if (!me->IsWithinLOSInMap(me->getVictim()))
-            {
-                if (Unit* pTarget = me->SelectNearestTarget(45))
+            if (me->getVictim())
+                if (!me->IsWithinLOSInMap(me->getVictim()))
                 {
-                    me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
-                    me->AddThreat(pTarget, 100.0f);
+                    if (Unit* pTarget = me->SelectNearestTarget(45))
+                    {
+                        me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
+                        me->AddThreat(pTarget, 100.0f);
+                    }
                 }
-            }
                 
             DoZoneInCombat();
         }
