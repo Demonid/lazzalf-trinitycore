@@ -245,7 +245,8 @@ class boss_steelbreaker : public CreatureScript
 
         void EnterCombat(Unit *who)
         {
-            DoScriptText(SAY_STEELBREAKER_AGGRO, me);
+            DoScriptText(SAY_STEELBREAKER_AGGRO, me);            
+            me->RemoveAurasDueToSpell(SPELL_ELECTRICAL_CHARGE);
             DoZoneInCombat();
             CallBosses(pInstance, DATA_STEELBREAKER, who);
             DoCast(me, SPELL_HIGH_VOLTAGE);
