@@ -499,6 +499,7 @@ enum OutdoorPvPWGQuest
     H_VICTORY_IN_WG = 13183,
     CRE_PVP_KILL    = 31086, //Quest Objective - Fixme: this should be handled by DB
     CRE_PVP_KILL_V  = 31093, //Quest Objective - Fixme: this should be handled by DB
+    TOWER_PVP_DESTROYED                          = 35074, //Quest Objective - Toppling the Towers & Southern Sabotage
 };
 
 // To be deleted soon!
