@@ -17,6 +17,9 @@ class npc_demolisher_engineerer : public CreatureScript
         npc_demolisher_engineererAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             me->SetReactState(REACT_PASSIVE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->AddUnitState(UNIT_STAT_ROOT);
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
         }
     };
 
