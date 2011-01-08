@@ -73,6 +73,7 @@ class boss_emalon : public CreatureScript
         boss_emalonAI(Creature *c) : BossAI(c, DATA_EMALON_EVENT) 
         {
             pInstance = c->GetInstanceScript();
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
         }
 
         uint32 checktimer;
