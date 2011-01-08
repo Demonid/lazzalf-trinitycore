@@ -101,8 +101,8 @@ enum Actions
 };
 
 
-#define SPELL_LIGHT_ESSENCE       RAID_MODE(65686,67222,67223,67224)
-#define SPELL_DARK_ESSENCE        RAID_MODE(65684,67176,67177,67178)
+#define SPELL_LIGHT_ESSENCE       65686
+#define SPELL_DARK_ESSENCE        65684
 
 #define ACHIEVEMENT_SALT_AND_PEPPER RAID_MODE(3799, 3815)
 #define SALT_AND_PEPPER_MAX_TIMER 3 * MINUTE * IN_MILLISECONDS
@@ -589,18 +589,18 @@ public:
         switch (creature->GetEntry())
         {
             case NPC_LIGHT_ESSENCE:
-                player->RemoveAurasDueToSpell(65686);
-                player->RemoveAurasDueToSpell(67222);
-                player->RemoveAurasDueToSpell(67223);
-                player->RemoveAurasDueToSpell(67224);
-                player->CastSpell(player, 65686, true);
-                break;
-            case NPC_DARK_ESSENCE:
                 player->RemoveAurasDueToSpell(65684);
                 player->RemoveAurasDueToSpell(67176);
                 player->RemoveAurasDueToSpell(67177);
                 player->RemoveAurasDueToSpell(67178);
-                player->CastSpell(player, 65684, true);
+                player->CastSpell(player, SPELL_LIGHT_ESSENCE, true);
+                break;
+            case NPC_DARK_ESSENCE:                
+                player->RemoveAurasDueToSpell(65686);
+                player->RemoveAurasDueToSpell(67222);
+                player->RemoveAurasDueToSpell(67223);
+                player->RemoveAurasDueToSpell(67224);
+                player->CastSpell(player, SPELL_DARK_ESSENCE, true);
                 break;
             default:
                 break;
