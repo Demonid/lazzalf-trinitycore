@@ -642,7 +642,11 @@ void OutdoorPvPWG::ProcessEvent(GameObject *obj, uint32 eventId, Player* player)
                         }
                         else 
                             TeamIDsound = OutdoorPvP_WG_SOUND_KEEP_ASSAULTED_ALLIANCE;  //Horde Worn Sound
-                        (*itr)->PlayDirectSound(TeamIDsound, (*itr)) ; // Wintergrasp Fortress under Siege
+                        (*itr)->PlayDirectSound(TeamIDsound, (*itr)) ; // Wintergrasp Fortress under Siege                        
+
+                        // Add Support of Quests Toppling the Towers & Southern Sabotage
+                        if (obj->GetEntry()==190356 || obj->GetEntry()==190357 || obj->GetEntry()==190358)
+                            (*itr)->RewardPlayerAndGroupAtEvent(TOWER_PVP_DESTROYED, obj);
                     }
                     for (PlayerSet::iterator itr = m_players[getAttackerTeamId()].begin(); itr != m_players[getAttackerTeamId()].end(); ++itr)
                     {
