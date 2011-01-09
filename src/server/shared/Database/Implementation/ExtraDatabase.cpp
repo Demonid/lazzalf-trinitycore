@@ -30,7 +30,13 @@ bool ExtraDatabaseConnection::Open()
         ##################################
     */
 
-    PrepareStatement(EXTRA_ADD_ITEMSTAT, "INSERT INTO item_stats (guid, item, state) VALUES (?, ?, ?)");
+    for (uint32 index = 0; index < MAX_EXTRADATABASE_STATEMENTS; ++index)
+    {
+        PreparedStatementTable const& pst = ExtraDatabasePreparedStatements[index];        
+        PrepareStatement(pst.index, pst.query, pst.type);
+    }
+
+    m_statementTable = ExtraDatabasePreparedStatements;
 
     return true;
 }
