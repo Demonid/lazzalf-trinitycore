@@ -30,6 +30,7 @@ bool CharacterDatabaseConnection::Open()
         PreparedStatementTable const& pst = CharacterDatabasePreparedStatements[index];        
         PrepareStatement(pst.index, pst.query, pst.type);
     }
+    PrepareStatement(CHAR_DEL_GUILD_GUILDHOUSE, "DELETE FROM gh_guildadd WHERE guildId = ?"); // 0: uint32
 
     m_statementTable = CharacterDatabasePreparedStatements;
 
