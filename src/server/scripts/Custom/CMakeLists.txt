@@ -3,6 +3,7 @@ set(scripts_STAT_SRCS
   Custom/GuildHouse_npc.cpp
   Custom/npc_teleport.cpp
   Custom/boss_dummy.cpp
+  Custom/npc_porting.cpp
 )
 
 message("  -> Prepared: Custom")

@@ -176,6 +176,23 @@ class boss_kologarn : public CreatureScript
             // With Open Arms
             if (RubbleCount == 0)
                 pInstance->DoCompleteAchievement(ACHIEVEMENT_WITH_OPEN_ARMS);
+
+            // Remove Stone Grip from players
+            Map::PlayerList const &players = instance->instance->GetPlayers();
+            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            {
+                Player* pPlayer = itr->getSource();
+
+                if (!pPlayer)
+                    continue;
+
+                if (pPlayer->HasAura(SPELL_STONE_GRIP_STUN))
+                {
+                    pPlayer->RemoveAurasDueToSpell(RAID_MODE(64290, 64292));
+                    pPlayer->RemoveAurasDueToSpell(SPELL_STONE_GRIP_STUN);
+                    pPlayer->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
+                }
+            }
                     
             DoScriptText(SAY_DEATH, me);
             _JustDied();
@@ -184,7 +201,7 @@ class boss_kologarn : public CreatureScript
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->setFaction(35);
 
-            while (Unit* pTarget = me->FindNearestCreature(NPC_RUBBLE,50.0f))
+            while (Unit* pTarget = me->FindNearestCreature(NPC_RUBBLE, 50.0f))
                 pTarget->RemoveFromWorld();
 
             // Chest spawn
@@ -193,11 +210,11 @@ class boss_kologarn : public CreatureScript
 
         void PassengerBoarded(Unit *who, int8 seatId, bool apply)
         {
-            if(who->GetTypeId() == TYPEID_UNIT)
+            if (who->GetTypeId() == TYPEID_UNIT)
             {
-                if(who->GetEntry() == NPC_LEFT_ARM)
+                if (who->GetEntry() == NPC_LEFT_ARM)
                     left = apply;
-                else if(who->GetEntry() == NPC_RIGHT_ARM)
+                else if (who->GetEntry() == NPC_RIGHT_ARM)
                     right = apply;
                 who->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
                 CAST_CRE(who)->SetReactState(REACT_AGGRESSIVE);
@@ -296,19 +313,19 @@ class boss_kologarn : public CreatureScript
                     events.RescheduleEvent(EVENT_SWEEP, 15000);
                     break;
                 case EVENT_GRIP:
-                    if (right)
+                    if (right && pInstance)
                     {
-                        me->MonsterTextEmote(EMOTE_STONE, 0, true);
-                        DoScriptText(SAY_GRAB_PLAYER, me);
-
-                        for (int32 n = 0; n < RAID_MODE(1, 2); ++n)
+                        if (Unit* RightArm = vehicle->GetPassenger(1))
                         {
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
-                                GripTargetGUID[n] = pTarget->GetGUID();
-                        }
+                            me->MonsterTextEmote(EMOTE_STONE, 0, true);
+                            DoScriptText(SAY_GRAB_PLAYER, me);
 
-                        if (pInstance)
-                        {
+                            for (int32 n = 0; n < RAID_MODE(1, 2); ++n)
+                            {
+                                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                                    GripTargetGUID[n] = pTarget->GetGUID();
+                            }
+
                             if (Creature* RightArm = me->GetCreature(*me, pInstance->GetData64(DATA_RIGHT_ARM)))
                                 if (RightArm->AI())
                                     RightArm->AI()->DoAction(ACTION_GRIP);

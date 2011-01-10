@@ -31,6 +31,9 @@ void AddSC_npc_teleport();
 //Guild House
 void AddSC_guildhouse_npcs();
 
+//Porting
+void AddSC_npc_porting();
+
 // spells
 void AddSC_deathknight_spell_scripts();
 void AddSC_druid_spell_scripts();
@@ -687,6 +690,8 @@ void AddWorldScripts()
     AddSC_npc_teleport();
     //Guild House
     AddSC_guildhouse_npcs(); 
+    //Porting
+    AddSC_npc_porting();
 #endif
 }
 
