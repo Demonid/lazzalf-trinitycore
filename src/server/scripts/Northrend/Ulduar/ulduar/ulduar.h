@@ -40,7 +40,6 @@ enum Encounter
 
 enum Data
 {
-    DATA_COLOSSUS,
     DATA_LEVIATHAN,
     DATA_NORGANNON,
     DATA_IGNIS,

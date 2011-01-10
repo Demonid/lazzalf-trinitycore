@@ -133,7 +133,6 @@ class instance_ulduar : public InstanceMapScript
         uint64 uiYoggSaronBrain;
         uint64 uiYoggSaron;
 
-        uint32 uiEncounterColossus;
         uint64 uiLeviathanGateGUID;
         uint64 uiLeviathanDoor[7];
         uint8  flag;
@@ -174,7 +173,6 @@ class instance_ulduar : public InstanceMapScript
             achievementComingOut  = 0;
             uiLeviathanGateGUID   = 0;
             flag                  = 0;
-            uiEncounterColossus   = 0;
             memset(&uiLeviathanDoor, 0, sizeof(uiLeviathanDoor));
         }
 
@@ -359,8 +357,6 @@ class instance_ulduar : public InstanceMapScript
         {
             switch(id)
             {
-                case DATA_COLOSSUS:
-                    return uiEncounterColossus;
                 case DATA_LEVIATHAN:
                     return uiLeviathanGUID;
                 case DATA_NORGANNON:
@@ -433,17 +429,6 @@ class instance_ulduar : public InstanceMapScript
         {
             switch(id)
             {
-                case DATA_COLOSSUS:
-                    uiEncounterColossus = value;
-                    if (value == 2)
-                    {
-                        if (Creature* pBoss = instance->GetCreature(uiLeviathanGUID))
-                            pBoss->AI()->DoAction(10);
-                        if (GameObject* pGate = instance->GetGameObject(uiLeviathanGateGUID))
-                            pGate->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-                        SaveToDB();
-                    }
-                    break;
                 case DATA_LEVIATHAN_DOOR:
                     if (pLeviathanDoor)
                         pLeviathanDoor->SetGoState(GOState(value));
