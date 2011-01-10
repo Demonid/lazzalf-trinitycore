@@ -201,6 +201,14 @@ const Position PosDemolisher[5] =
     {-798.01f,-227.24f,429.84f,1.446f},
 };
 
+const Position PosColossus[2] =
+{
+    {367.031f, 12.784f,409.886f,3.263f},
+    {368.768f,-46.847f,409.886f,3.036f}
+};
+
+#define MOB_COLOSSUS 33237
+
 class boss_flame_leviathan : public CreatureScript
 {
 public:
@@ -228,6 +236,11 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); //deathgrip
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
             me->SetReactState(REACT_PASSIVE);
+
+            // Summon Ulduar Colossus
+            if (me->isAlive())
+                for(uint32 i = 0; i < 2; ++i)
+                    DoSummon(MOB_COLOSSUS, PosColossus[i], 7000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
         }
 
         Vehicle* vehicle;
