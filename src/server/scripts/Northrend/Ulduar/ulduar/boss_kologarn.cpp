@@ -185,7 +185,7 @@ public:
                         pPlayer->RemoveAurasDueToSpell(RAID_MODE(64290, 64292));
                         pPlayer->RemoveAurasDueToSpell(SPELL_STONE_GRIP_STUN);
                         //pPlayer->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
-                        playerGripTarget->TeleportTo(pGripTarget->GetMapId(), 1767.80f, -18.38f, 449.0f, 6.27f); 
+                        pPlayer->TeleportTo(pPlayer->GetMapId(), 1767.80f, -18.38f, 449.0f, 6.27f); 
                     }
                 }
             }
@@ -524,11 +524,11 @@ public:
 
         void KilledUnit(Unit* Victim)
         {
-            if (Victim)
+            if (Victim && Victim->ToPlayer())
             {
                 Victim->ExitVehicle();
                 //Victim->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
-                Victim->TeleportTo(pGripTarget->GetMapId(), 1767.80f, -18.38f, 449.0f, 6.27f);                    
+                Victim->ToPlayer()->TeleportTo(Victim->GetMapId(), 1767.80f, -18.38f, 449.0f, 6.27f);                    
             }
         }
 
@@ -595,7 +595,8 @@ public:
                             pGripTarget->RemoveAurasDueToSpell(SPELL_STONE_GRIP_STUN);
                             pGripTarget->ExitVehicle();
                             //pGripTarget->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
-                            pGripTarget->TeleportTo(pGripTarget->GetMapId(), 1767.80f, -18.38f, 449.0f, 6.27f); 
+                            if (pGripTarget->ToPlayer())
+                                pGripTarget->ToPlayer()->TeleportTo(pGripTarget->GetMapId(), 1767.80f, -18.38f, 449.0f, 6.27f); 
                         }
                     }
                     Gripped = false;
