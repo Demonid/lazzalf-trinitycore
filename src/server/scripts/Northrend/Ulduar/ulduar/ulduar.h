@@ -38,8 +38,9 @@ enum Encounter
     MAX_BOSS_NUMBER
 };
 
-enum Data64
+enum Data
 {
+    DATA_COLOSSUS,
     DATA_LEVIATHAN,
     DATA_NORGANNON,
     DATA_IGNIS,
@@ -71,11 +72,8 @@ enum Data64
     DATA_YS_MIMIRON,
     DATA_YS_HODIR,
     DATA_YOGGSARON_BRAIN,
-    DATA_YOGGSARON
-};
+    DATA_YOGGSARON,
 
-enum Data
-{
     DATA_LEVIATHAN_DOOR,
     DATA_RUNIC_DOOR,
     DATA_STONE_DOOR,
@@ -92,7 +90,7 @@ enum Data
     DATA_LUMBERJACKED_COUNT,
     DATA_CONSPEEDATORY,
     DATA_COMING_OUT_START,
-    DATA_COMING_OUT_COUNT
+    DATA_COMING_OUT_COUNT    
 };
 
 enum AchievementControl
@@ -104,5 +102,13 @@ enum AchievementControl
     ACHI_FAILED,
     ACHI_RESET,
     ACHI_INCREASE,
+};
+
+enum eTowerEvents
+{
+    EVENT_TOWER_OF_STORM_DESTROYED     = 21031,
+    EVENT_TOWER_OF_FROST_DESTROYED     = 21032,
+    EVENT_TOWER_OF_FLAMES_DESTROYED    = 21033,
+    EVENT_TOWER_OF_LIFE_DESTROYED      = 21030
 };
 #endif
