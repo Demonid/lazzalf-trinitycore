@@ -63,6 +63,9 @@ enum Spells
     AURA_DUMMY_GREEN                            = 63295,
     AURA_DUMMY_YELLOW                           = 63292,
     SPELL_LIQUID_PYRITE                         = 62494,
+
+    // Ulduar Colossus spell
+    SPELL_GROUND_SLAM                           = 62625,
 };
 
 enum Creatures
@@ -171,7 +174,13 @@ enum eAchievementData
 
 static Position Center[]=
 {
-    {354.8771f, -12.90240f, 409.803650f, 0.0f},
+    {367.031f, -12.90240f, 409.803650f, 0.0f},
+};
+
+const Position PosColossus[2] =
+{
+    {367.031f, 12.784f,409.886f,3.263f},
+    {368.768f,-46.847f,409.886f,3.036f}
 };
 
 const Position PosSiege[5] =
@@ -201,12 +210,6 @@ const Position PosDemolisher[5] =
     {-798.01f,-227.24f,429.84f,1.446f},
 };
 
-const Position PosColossus[2] =
-{
-    {367.031f, 12.784f,409.886f,3.263f},
-    {368.768f,-46.847f,409.886f,3.036f}
-};
-
 #define MOB_COLOSSUS 33237
 
 class boss_flame_leviathan : public CreatureScript
@@ -224,6 +227,9 @@ public:
         boss_flame_leviathanAI(Creature* pCreature) : BossAI(pCreature, BOSS_LEVIATHAN), vehicle(pCreature->GetVehicleKit())
         {
             assert(vehicle);
+            pInstance = pCreature->GetInstanceScript();
+
+            ColossusCount = 0;
             uiActiveTowers = 4;
             uiShutdown = 0;
             ActiveTowers = false;
@@ -243,7 +249,10 @@ public:
                     DoSummon(MOB_COLOSSUS, PosColossus[i], 7000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
         }
 
+        InstanceScript* pInstance;
+
         Vehicle* vehicle;
+        uint32 ColossusCount;
         uint8 uiActiveTowers;
         uint8 uiShutdown;
         bool ActiveTowers;
@@ -539,11 +548,21 @@ public:
             // Start encounter
             if (uiAction == 10)
             {
-                me->SetHomePosition(354.8771f, -12.90240f, 409.803f, 0);
-                me->GetMotionMaster()->MoveCharge(354.8771f, -12.90240f, 409.803f); //position center
-                me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
-                return;
+                ++ColossusCount;
+                
+                if (ColossusCount >= 2)
+                {
+                    // Event starts
+                    if (pInstance)
+                        pInstance->SetData(DATA_LEVIATHAN_DOOR, GO_STATE_ACTIVE_ALTERNATIVE);
+                        
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->SetHomePosition(318.74f, -13.75f, 409.803f, 3.12723f); // new Home Position
+                    me->GetMotionMaster()->MoveTargetedHome();
+                    DoZoneInCombat();
+                    return;
+                }
             }
 
             if (uiAction && uiAction <= 4) // Tower destruction, debuff leviathan loot and reduce active tower
@@ -939,17 +958,32 @@ public:
         }
 
         InstanceScript *instance;
+        uint32 uiGroundSlamTimer;
+
+        void Reset()
+        {
+            uiGroundSlamTimer = 12000;
+        }
 
         void JustDied(Unit* /*Who*/)
         {
             if (me->GetHomePosition().IsInDist(Center,50.f))
-                instance->SetData(DATA_COLOSSUS, instance->GetData(DATA_COLOSSUS)+1);
+                if (Creature* pLeviathan = Unit::GetCreature(*me, instance->GetData64(DATA_LEVIATHAN)))
+                    if (pLeviathan->AI())
+                        pLeviathan->AI()->DoAction(10);
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
                 return;
+
+            if (uiGroundSlamTimer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_GROUND_SLAM);
+                uiGroundSlamTimer = 12000;
+            } else uiGroundSlamTimer -= diff;
+
             DoMeleeAttackIfReady() ;
         }
     };
