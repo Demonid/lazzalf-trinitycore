@@ -592,7 +592,7 @@ public:
                         if (pGripTarget && pGripTarget->isAlive())
                         {
                             pGripTarget->RemoveAurasDueToSpell(SPELL_STONE_GRIP);
-                            pGripTarget->RemoveAurasDueToSpell(SPELL_STONE_aGRIP_STUN);
+                            pGripTarget->RemoveAurasDueToSpell(SPELL_STONE_GRIP_STUN);
                             pGripTarget->ExitVehicle();
                             //pGripTarget->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
                             if (pGripTarget->ToPlayer())
