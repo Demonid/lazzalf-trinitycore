@@ -15,6 +15,7 @@ INSERT INTO `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `
 (33370, 5, 240.208, 1.10346, 409.802, 0, '0'),
 (33370, 6, 337.199, 11.7051, 409.802, 0, '0');
 
+UPDATE `creature_template` SET `ScriptName`='npc_colossus' WHERE `entry`=33237;
 UPDATE `creature_template` SET `ScriptName` = 'npc_thorims_hammer' WHERE `entry` =33365;
 UPDATE `creature_template` SET `MovementType` =2, `ScriptName` = 'npc_mimirons_inferno' WHERE `entry` =33370;
 UPDATE `creature_template` SET `ScriptName` = 'npc_hodirs_fury' WHERE `entry` =33312;

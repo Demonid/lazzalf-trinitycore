@@ -929,8 +929,8 @@ public:
 
         void JustDied(Unit* /*Who*/)
         {
-            //if (me->GetHomePosition().IsInDist(Center,50.f))
-                //instance->SetData(TYPE_COLOSSUS,instance->GetData(TYPE_COLOSSUS)+1);
+            if (me->GetHomePosition().IsInDist(Center,50.f))
+                instance->SetData(DATA_COLOSSUS, instance->GetData(DATA_COLOSSUS)+1);
         }
 
         void UpdateAI(const uint32 /*diff*/)
@@ -1183,7 +1183,7 @@ public:
 class npc_lorekeeper : public CreatureScript
 {
 public:
-    npc_lorekeeper() : CreatureScript("npc_lorekeeper") { }
+    npc_lorekeeper() : CreatureScript("npc_lorekeeper") {}   
 
     bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
@@ -1207,9 +1207,8 @@ public:
                 pPlayer->CLOSE_GOSSIP_MENU();
 
             if (Creature* pLeviathan = instance->instance->GetCreature(instance->GetData64(BOSS_LEVIATHAN)))
-            {
-                CAST_AI(boss_flame_leviathan::boss_flame_leviathanAI, (pLeviathan->AI()))->DoAction(0); //enable hard mode activating the 4 additional events spawning additional vehicles
-                pCreature->SetVisible(false);
+            {                
+                // pCreature->SetVisible(false);
                 pCreature->AI()->DoAction(0); // spawn the vehicles
                 if (Creature* Delorah = pCreature->FindNearestCreature(NPC_DELORAH, 1000, true))
                 {
@@ -1245,18 +1244,34 @@ public:
 
     struct npc_lorekeeperAI : public ScriptedAI
     {
-        npc_lorekeeperAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_lorekeeperAI(Creature* pCreature) : ScriptedAI(pCreature), summons(me)
         {
             instance = pCreature->GetInstanceScript();
+            bSpawned = true;
         }
 
         InstanceScript* instance;
+        SummonList summons;
+        bool bSpawned;
+
+        void JustSummoned(Creature *summon)
+        {
+            summons.Summon(summon);
+        }
 
         void DoAction(const int32 uiAction)
         {
+            if (bSpawned)
+            {
+                if (Creature* pLeviathan = instance->instance->GetCreature(instance->GetData64(DATA_LEVIATHAN)))
+                    CAST_AI(boss_flame_leviathan::boss_flame_leviathanAI, (pLeviathan->AI()))->DoAction(0); //enable hard mode activating the 4 additional events spawning additional vehicles
+                bSpawned = false;
+            }
+
             // Start encounter
             if (uiAction == 0)
             {
+                summons.DespawnAll();
                 instance->SetData(DATA_ACHI_UNBROKEN, 0);
                 for (int32 i = 0; i < RAID_MODE(2, 5); ++i)
                     DoSummon(VEHICLE_SIEGE, PosSiege[i], 3000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);

@@ -41,7 +41,8 @@ const DoorData doorData[] =
 
 enum eGameObjects
 {
-    GO_Leviathan_DOOR        = 194630,
+    GO_LEVIATHAN_DOOR        = 194905,
+    GO_LEVIATHAN_GATE        = 194630,
     GO_Kologarn_CHEST_HERO   = 195047,
     GO_Kologarn_CHEST        = 195046,
     GO_Kologarn_BRIDGE       = 194232,
@@ -90,21 +91,10 @@ class instance_ulduar : public InstanceMapScript
         instance_ulduar_InstanceMapScript (Map* pMap) : InstanceScript(pMap)
         {
             SetBossNumber(MAX_BOSS_NUMBER);
-            LoadDoorData(doorData);
-            vehicleRepaired = false;
-            steelforgedDefendersCount = 0;
-            dwarfageddonTimer = 0;
-            achievementDwarfageddon = 0;
-            eldersCount = 0;
-            lumberjackedTimer = 0;
-            achievementLumberjacked = 0;
-            conspeedatoryTimer = 0;
-            guardiansCount = 0;
-            comingOutTimer = 0;
-            achievementComingOut = 0;
+            LoadDoorData(doorData);            
         }
 
-        uint64 uiLeviathan;
+        uint64 uiLeviathanGUID;
         uint64 uiNorgannon;
         uint64 uiIgnis;
         uint64 uiRazorscale;
@@ -142,6 +132,11 @@ class instance_ulduar : public InstanceMapScript
         uint64 uiHodirYS;
         uint64 uiYoggSaronBrain;
         uint64 uiYoggSaron;
+
+        uint32 uiEncounterColossus;
+        uint64 uiLeviathanGateGUID;
+        uint64 uiLeviathanDoor[7];
+        uint8  flag;
         
         // Achievements
         // Unbroken
@@ -164,14 +159,42 @@ class instance_ulduar : public InstanceMapScript
         GameObject* pLeviathanDoor, /* *KologarnChest,*/ *HodirChest, *HodirRareChest, *ThorimChest, *ThorimRareChest, *pRunicDoor, *pStoneDoor, *pThorimLever,
             *MimironTram, *MimironElevator;
 
+        void Initialize()
+        {
+            vehicleRepaired = false;
+            steelforgedDefendersCount = 0;
+            dwarfageddonTimer = 0;
+            achievementDwarfageddon = 0;
+            eldersCount = 0;
+            lumberjackedTimer = 0;
+            achievementLumberjacked = 0;
+            conspeedatoryTimer = 0;
+            guardiansCount = 0;
+            comingOutTimer = 0;
+            achievementComingOut  = 0;
+            uiLeviathanGateGUID   = 0;
+            flag                  = 0;
+            uiEncounterColossus   = 0;
+            memset(&uiLeviathanDoor, 0, sizeof(uiLeviathanDoor));
+        }
+
         void OnGameObjectCreate(GameObject* pGo)
         {
             AddDoor(pGo, true);
 
             switch(pGo->GetEntry())
             {
-                case GO_Leviathan_DOOR: 
-                    pLeviathanDoor = pGo; 
+                case GO_LEVIATHAN_DOOR:                    
+                    uiLeviathanDoor[flag] = pGo->GetGUID();
+                    HandleGameObject(NULL, true, pGo);
+                    flag++;
+                    if (flag == 7)
+                        flag =0;
+                    break;
+                case GO_LEVIATHAN_GATE:
+                    uiLeviathanGateGUID = pGo->GetGUID();
+                    pLeviathanDoor = pGo;
+                    HandleGameObject(NULL, false, pGo);
                     break;
                 //case GO_Kologarn_CHEST_HERO: KologarnChest = add ? pGo : NULL; break;
                 //case GO_Kologarn_CHEST: KologarnChest = add ? pGo : NULL; break;
@@ -247,7 +270,7 @@ class instance_ulduar : public InstanceMapScript
             
             switch(pCreature->GetEntry())
             {
-                case 33113: uiLeviathan = pCreature->GetGUID(); return;
+                case 33113: uiLeviathanGUID = pCreature->GetGUID(); return;
                 case 33686: uiNorgannon = pCreature->GetGUID(); return;
                 case 33118: uiIgnis = pCreature->GetGUID(); return;
                 case 33186: uiRazorscale = pCreature->GetGUID(); return;
@@ -336,8 +359,10 @@ class instance_ulduar : public InstanceMapScript
         {
             switch(id)
             {
+                case DATA_COLOSSUS:
+                    return uiEncounterColossus;
                 case DATA_LEVIATHAN:
-                    return uiLeviathan;
+                    return uiLeviathanGUID;
                 case DATA_NORGANNON:
                     return uiNorgannon;
                 case DATA_IGNIS:
@@ -408,6 +433,17 @@ class instance_ulduar : public InstanceMapScript
         {
             switch(id)
             {
+                case DATA_COLOSSUS:
+                    uiEncounterColossus = value;
+                    if (value == 2)
+                    {
+                        if (Creature* pBoss = instance->GetCreature(uiLeviathanGUID))
+                            pBoss->AI()->DoAction(10);
+                        if (GameObject* pGate = instance->GetGameObject(uiLeviathanGateGUID))
+                            pGate->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                        SaveToDB();
+                    }
+                    break;
                 case DATA_LEVIATHAN_DOOR:
                     if (pLeviathanDoor)
                         pLeviathanDoor->SetGoState(GOState(value));
@@ -553,6 +589,29 @@ class instance_ulduar : public InstanceMapScript
             }
         }
 
+        void ProcessEvent(GameObject* /*go*/, uint32 uiEventId)
+        {
+            // Flame Leviathan's Tower Event triggers
+           Creature* pFlameLeviathan = instance->GetCreature(uiLeviathanGUID);
+
+            if (pFlameLeviathan && pFlameLeviathan->isAlive()) //No leviathan, no event triggering ;)
+                switch(uiEventId)
+                {
+                    case EVENT_TOWER_OF_STORM_DESTROYED:
+                        pFlameLeviathan->AI()->DoAction(1);
+                        break;
+                    case EVENT_TOWER_OF_FROST_DESTROYED:
+                        pFlameLeviathan->AI()->DoAction(2);
+                        break;
+                    case EVENT_TOWER_OF_FLAMES_DESTROYED:
+                        pFlameLeviathan->AI()->DoAction(3);
+                        break;
+                    case EVENT_TOWER_OF_LIFE_DESTROYED:
+                        pFlameLeviathan->AI()->DoAction(4);
+                        break;
+                }
+        }
+
         bool SetBossState(uint32 id, EncounterState state)
         {
             if (!InstanceScript::SetBossState(id, state))
@@ -691,6 +750,51 @@ class instance_ulduar : public InstanceMapScript
                     SetData(DATA_COMING_OUT_START, ACHI_RESET);
                 else comingOutTimer -= diff;
             }
+        }
+
+        std::string GetSaveData()
+        {
+            OUT_SAVE_INST_DATA;
+
+            std::ostringstream saveStream;
+            saveStream << "U U " << GetBossSaveData() << GetData(DATA_COLOSSUS);
+
+            OUT_SAVE_INST_DATA_COMPLETE;
+            return saveStream.str();
+        }
+
+        void Load(const char* strIn)
+        {
+            if (!strIn)
+            {
+                OUT_LOAD_INST_DATA_FAIL;
+                return;
+            }
+
+            OUT_LOAD_INST_DATA(strIn);
+
+            char dataHead1, dataHead2;
+
+            std::istringstream loadStream(strIn);
+            loadStream >> dataHead1 >> dataHead2;
+
+            if (dataHead1 == 'U' && dataHead2 == 'U')
+            {
+                for (uint8 i = 0; i < MAX_BOSS_NUMBER; ++i)
+                {
+                    uint32 tmpState;
+                    loadStream >> tmpState;
+                    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                        tmpState = NOT_STARTED;
+
+                    if (i == DATA_COLOSSUS)
+                        SetData(i, tmpState);
+                    else
+                        SetBossState(i, EncounterState(tmpState));
+                }
+            }
+
+            OUT_LOAD_INST_DATA_COMPLETE;
         }
     };
 };
