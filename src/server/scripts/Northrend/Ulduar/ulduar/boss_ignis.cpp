@@ -250,7 +250,7 @@ class boss_ignis : public CreatureScript
                         if (Unit* SlagPotTarget = Unit::GetUnit(*me, SlagPotGUID))
                         {
                             SlagPotTarget->AddAura(RAID_MODE(SPELL_SLAG_POT_10, SPELL_SLAG_POT_25), SlagPotTarget);
-                            SlagPotTarget->EnterVehicle(me, 1);
+                            SlagPotTarget->ChangeSeat(1);
                             events.CancelEvent(EVENT_CHANGE_POT);
                             events.ScheduleEvent(EVENT_END_POT, 10000);
                         }
@@ -260,14 +260,14 @@ class boss_ignis : public CreatureScript
                         {
                             SlagPotTarget->ExitVehicle();
                             SlagPotTarget->CastSpell(SlagPotTarget, RAID_MODE(SPELL_SLAG_IMBUED_10, SPELL_SLAG_IMBUED_25), true);
-
+                                
                             if (Player* pSlagPotPlayer = SlagPotTarget->ToPlayer())
                             {
                                 AchievementEntry const *AchievHotPocket = GetAchievementStore()->LookupEntry(ACHIEVEMENT_HOT_POCKET);
                                 if (AchievHotPocket)
                                     pSlagPotPlayer->CompletedAchievement(AchievHotPocket);
                             }
-
+                            SlagPotGUID = 0;
                             events.CancelEvent(EVENT_END_POT);
                         }
                         break;
