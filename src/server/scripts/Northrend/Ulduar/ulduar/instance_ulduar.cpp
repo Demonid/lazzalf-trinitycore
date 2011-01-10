@@ -751,51 +751,6 @@ class instance_ulduar : public InstanceMapScript
                 else comingOutTimer -= diff;
             }
         }
-
-        std::string GetSaveData()
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << "U U " << GetBossSaveData() << GetData(DATA_COLOSSUS);
-
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return saveStream.str();
-        }
-
-        void Load(const char* strIn)
-        {
-            if (!strIn)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
-            }
-
-            OUT_LOAD_INST_DATA(strIn);
-
-            char dataHead1, dataHead2;
-
-            std::istringstream loadStream(strIn);
-            loadStream >> dataHead1 >> dataHead2;
-
-            if (dataHead1 == 'U' && dataHead2 == 'U')
-            {
-                for (uint8 i = 0; i < MAX_BOSS_NUMBER; ++i)
-                {
-                    uint32 tmpState;
-                    loadStream >> tmpState;
-                    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                        tmpState = NOT_STARTED;
-
-                    if (i == DATA_COLOSSUS)
-                        SetData(i, tmpState);
-                    else
-                        SetBossState(i, EncounterState(tmpState));
-                }
-            }
-
-            OUT_LOAD_INST_DATA_COMPLETE;
-        }
     };
 };
 
