@@ -134,77 +134,6 @@ SummonLocation addLocations[]=
 #define NORMAL_COUNT 4
 #define RAID_COUNT 8
 
-class npc_flash_freeze_pre : public CreatureScript
-{
-    public:
-        npc_flash_freeze_pre(): CreatureScript("npc_flash_freeze_pre") {}
-
-    struct npc_flash_freeze_preAI : public ScriptedAI
-    {
-        npc_flash_freeze_preAI(Creature* pCreature) : ScriptedAI(pCreature)
-        {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-            me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true);  // Death Grip
-            targetGUID = 0;
-        }
-        
-        uint64 targetGUID;
-        int32 IceBlockTimer;
-        
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim() || me->getVictim()->GetTypeId() == TYPEID_PLAYER || me->getVictim()->HasAura(SPELL_BLOCK_OF_ICE_NPC))
-                return;
-
-            if (IceBlockTimer <= int32(diff))
-            {
-		        if (targetGUID)
-                    if (Creature *ptarget = Creature::GetCreature((*me), targetGUID))
-                        if (ptarget->isAlive())
-				DoCast(ptarget, SPELL_BLOCK_OF_ICE_NPC, true);
-                IceBlockTimer = 30000;
-            } 
-            else IceBlockTimer -= diff;
-        }
-
-        void SetTargetGuid(uint64 target)
-        {
-            targetGUID = target;
-        }
-        
-        void DamageTaken(Unit* pKiller, uint32 &damage)
-        {
-            if (pKiller && pKiller->GetTypeId() == TYPEID_PLAYER)
-                if (Creature* pHodir = me->FindNearestCreature(NPC_HODIR,60,true))
-                    if (!pHodir->isInCombat())
-                        pHodir->AI()->DoZoneInCombat();
-        }
-
-        void JustDied(Unit* pKiller)
-        {
-            if (targetGUID)
-                if (Creature *ptarget = Creature::GetCreature((*me), targetGUID))
-		        {
-                    ptarget->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
-                    /*if (Creature* pHodir = me->FindNearestCreature(NPC_HODIR,60,true))
-                    	ptarget->AddThreat(pHodir, 500000.0f);*/
-		        }
-        }
-        
-        void Reset()
-        {
-            IceBlockTimer = 30000;
-            targetGUID = 0;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new npc_flash_freeze_preAI(pCreature);
-    }
-};
-
 class boss_hodir : public CreatureScript
 {
     public:
@@ -218,8 +147,6 @@ class boss_hodir : public CreatureScript
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true);  // Death Grip
             //me->ApplySpellImmune(0, IMMUNITY_ID, 65280, true);  // Singed
-            //me->ApplySpellImmune(0, IMMUNITY_ID, 61990, true);  // Flash Freeze  
-            //me->ApplySpellImmune(0, IMMUNITY_ID, 61968, true);  // Flash Freeze
         }
         
         InstanceScript* pInstance;
@@ -244,12 +171,7 @@ class boss_hodir : public CreatureScript
                 if (Creature *pHelper = me->SummonCreature(addLocations[i].entry,addLocations[i].x,addLocations[i].y,addLocations[i].z,addLocations[i].o))
                     if (Creature *pIceBlock = pHelper->SummonCreature(NPC_FLASH_FREEZE_PRE,addLocations[i].x,addLocations[i].y,addLocations[i].z,addLocations[i].o))
                     {
-                        pHelperGUID[i] = pHelper->GetGUID();
-                        pIceBlock->AddThreat(pHelper, 500000.0f);
-                        CAST_AI(npc_flash_freeze_pre::npc_flash_freeze_preAI,pIceBlock->AI())->SetTargetGuid(pHelper->GetGUID());
-                        pIceBlock->CastSpell(pHelper, SPELL_BLOCK_OF_ICE_NPC, true);
-                        pHelper->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
-                        //pHelper->SetFlag(UNIT_FIELD_FLAGS, UNIT_STAT_ROOT);            
+                        pHelperGUID[i] = pHelper->GetGUID();           
                         pHelper->AddThreat(me, 500000.0f);
                         continue;
                     }
@@ -583,11 +505,12 @@ class mob_hodir_priest : public CreatureScript
             pInstance = pCreature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_ID, RAID_MODE(64392, 64679), true);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->setFaction(1665);
         }
 
         InstanceScript* pInstance;
-        int32 HealTimer;
-        int32 DispelTimer;
+        uint32 HealTimer;
+        uint32 DispelTimer;
 
         void Reset()
         {
@@ -602,20 +525,20 @@ class mob_hodir_priest : public CreatureScript
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_STUNNED))
                 return;
                 
             if (HealthBelowPct(35))
                 DoCastAOE(SPELL_GREATER_HEAL, true);
 
-            if (HealTimer <= int32(uiDiff))
+            if (HealTimer <= uiDiff)
             {
                 DoCastAOE(SPELL_GREATER_HEAL, true);
                 HealTimer = urand(12000, 14000);
             }
             else HealTimer -= uiDiff;
             
-            if (DispelTimer < int32(uiDiff))
+            if (DispelTimer < uiDiff)
             {
                 std::list<Player*> players;
                 Trinity::AnyPlayerInObjectRangeCheck checker(me, 30);
@@ -627,7 +550,7 @@ class mob_hodir_priest : public CreatureScript
                     {
                         if((*iter)->HasAura(SPELL_FREEZE))
                         {
-                            DoCast((*iter),SPELL_DISPEL_MAGIC, true);
+                            DoCast((*iter), SPELL_DISPEL_MAGIC, true);
                             DispelTimer = urand(25000,30000);
                             return;
                         }
@@ -667,10 +590,11 @@ class mob_hodir_shaman : public CreatureScript
             pInstance = pCreature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_ID, RAID_MODE(64392, 64679), true);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->setFaction(1665);
         }
 
         InstanceScript* pInstance;
-        int32 StormTimer;
+        uint32 StormTimer;
 
         void Reset()
         {
@@ -684,10 +608,10 @@ class mob_hodir_shaman : public CreatureScript
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_STUNNED))
                 return;
                 
-            if (StormTimer <= int32(uiDiff))
+            if (StormTimer <= uiDiff)
             {
                 std::list<Player*> players;
                 Trinity::AnyPlayerInObjectRangeCheck checker(me, 30);
@@ -732,10 +656,11 @@ class mob_hodir_druid : public CreatureScript
             pInstance = pCreature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_ID, RAID_MODE(64392, 64679), true);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->setFaction(1665);
         }
 
         InstanceScript* pInstance;
-        int32 StarlightTimer;
+        uint32 StarlightTimer;
 
         void Reset()
         {
@@ -749,10 +674,10 @@ class mob_hodir_druid : public CreatureScript
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_STUNNED))
                 return;
                 
-            if (StarlightTimer <= int32(uiDiff))
+            if (StarlightTimer <= uiDiff)
             {
                 DoCast(me, SPELL_STARLIGHT, true);
                 StarlightTimer = urand(20000, 25000);
@@ -789,11 +714,12 @@ class mob_hodir_mage : public CreatureScript
             pInstance = pCreature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_ID, RAID_MODE(64392, 64679), true);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->setFaction(1665);
         }
 
         InstanceScript* pInstance;
-        int32 FireTimer;
-        int32 MeltIceTimer;
+        uint32 FireTimer;
+        uint32 MeltIceTimer;
 
         void Reset()
         {
@@ -808,17 +734,17 @@ class mob_hodir_mage : public CreatureScript
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_STUNNED) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED))
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_STUNNED))
                 return;
                 
-            if (FireTimer <= int32(uiDiff))
+            if (FireTimer <= uiDiff)
             {
                 DoCast(me, SPELL_CONJURE_FIRE, true);
                 FireTimer = urand(25000, 30000);
             }
             else FireTimer -= uiDiff;
             
-            if (MeltIceTimer < int32(uiDiff))
+            if (MeltIceTimer < uiDiff)
             {
                 if (Creature *pShard = me->FindNearestCreature(NPC_FLASH_FREEZE,50,true))
                 {
@@ -850,14 +776,21 @@ class mob_hodir_mage : public CreatureScript
 class toasty_fire : public CreatureScript
 {
     public:
-        toasty_fire(): CreatureScript("toasty_fire") {}
-            
-    struct toasty_fireAI : public ScriptedAI
+        toasty_fire(): CreatureScript("toasty_fire") {}    
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        toasty_fireAI(Creature* pCreature) : ScriptedAI(pCreature)
+        return new toasty_fireAI(pCreature);
+    };
+            
+    struct toasty_fireAI : public Scripted_NoMovementAI
+    {
+        toasty_fireAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             me->SetReactState(REACT_PASSIVE);
+            me->SetDisplayId(15880);
         }
         
         void SpellHit(Unit* caster, const SpellEntry *spell) 
@@ -875,14 +808,87 @@ class toasty_fire : public CreatureScript
         {
             DoCast(me, SPELL_SINGED, true);
         }
-    };
 
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new toasty_fireAI(pCreature);
+        void JustDied(Unit * /*victim*/)
+        {
+            if (GameObject *pFire = me->FindNearestGameObject(194300, 4))
+                me->RemoveGameObject(pFire, true);
+        }
     };
 };
 
+class npc_flash_freeze : public CreatureScript
+{
+public:
+    npc_flash_freeze() : CreatureScript("npc_flash_freeze") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_flash_freezeAI (pCreature);
+    }
+
+    struct npc_flash_freezeAI : public Scripted_NoMovementAI
+    {
+        npc_flash_freezeAI(Creature *pCreature) : Scripted_NoMovementAI(pCreature)
+        {
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+            me->setFaction(25865);
+            me->setFaction(14);
+        }
+
+        void Reset()
+        {
+            if (me->ToTempSummon()->GetSummoner())
+            {
+                if (me->GetEntry() == NPC_FLASH_FREEZE_PRE)
+                    DoCast(SPELL_BLOCK_OF_ICE_NPC);
+                else
+                    DoCast(SPELL_BLOCK_OF_ICE);
+
+                me->ToTempSummon()->GetSummoner()->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!me->ToTempSummon()->GetSummoner())
+            {
+                me->DisappearAndDie();
+                return;
+            }
+
+            if (me->ToTempSummon()->GetSummoner()->isDead())
+            {
+                me->ToTempSummon()->GetSummoner()->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, false);
+                me->DisappearAndDie();
+                return;
+            }
+
+            if (me->GetEntry() == NPC_FLASH_FREEZE_PRE && !me->ToTempSummon()->GetSummoner()->HasAura(SPELL_BLOCK_OF_ICE_NPC))
+                DoCast(SPELL_BLOCK_OF_ICE_NPC);
+        }
+
+        void DamageTaken(Unit* pKiller, uint32 &damage)
+        {
+            if (me->GetEntry() == NPC_FLASH_FREEZE_PRE)
+            {
+                if (pKiller && pKiller->GetTypeId() == TYPEID_PLAYER)
+                    if (Creature* pHodir = me->FindNearestCreature(NPC_HODIR, 40, true))
+                        if (!pHodir->isInCombat())
+                            pHodir->AI()->DoZoneInCombat();
+            }
+        }
+
+        void JustDied(Unit * /*victim*/)
+        {
+            if (me->ToTempSummon()->GetSummoner())
+                me->ToTempSummon()->GetSummoner()->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, false);
+        }
+    };
+
+};
 
 void AddSC_boss_hodir()
 {
@@ -895,5 +901,5 @@ void AddSC_boss_hodir()
     new mob_hodir_druid();
     new mob_hodir_mage();
     new toasty_fire();
-    new npc_flash_freeze_pre();
+    new npc_flash_freeze();
 }
