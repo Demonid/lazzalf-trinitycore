@@ -15,8 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
- 
- /* ScriptData
+/* ScriptData
 SDName: Kologarn
 SDAuthor: PrinceCreed
 SD%Complete: 100%
@@ -27,27 +26,30 @@ EndScriptData */
 #include "ulduar.h"
 #include "Vehicle.h"
 
-#define SPELL_ARM_DEAD_DAMAGE   RAID_MODE(63629,63979)
-#define SPELL_TWO_ARM_SMASH     RAID_MODE(63356,64003)
-#define SPELL_ONE_ARM_SMASH     RAID_MODE(63573,64006)
-#define SPELL_STONE_SHOUT       RAID_MODE(63716,64005)
-#define SPELL_PETRIFY_BREATH    RAID_MODE(62030,63980)
-#define SPELL_SHOCKWAVE         RAID_MODE(63783,63982)
-
-#define SPELL_STONE_GRIP        RAID_MODE(64290,64292)
-#define SPELL_STONE_GRIP_STUN   RAID_MODE(62056,63985)
-#define SPELL_ARM_SWEEP         RAID_MODE(63766,63983)
-#define SPELL_FOCUSED_EYEBEAM   RAID_MODE(63347,63977)
-#define SPELL_EYEBEAM_VISUAL_1  63676
-#define SPELL_EYEBEAM_VISUAL_2  63702
-#define SPELL_EYEBEAM_IMMUNITY  64722
-#define SPELL_ARM_RESPAWN       64753
-#define SPELL_SHOCKWAVE_VISUAL  63788
-#define ARM_DEAD_DAMAGE         RAID_MODE(543855,2300925)
+enum Spells
+{
+    // Kologarn
+    SPELL_ARM_DEAD_DAMAGE                       = 63629,
+    SPELL_TWO_ARM_SMASH                         = 63356,
+    SPELL_ONE_ARM_SMASH                         = 63573,
+    SPELL_ARM_SWEEP                             = 63766,
+    SPELL_STONE_SHOUT                           = 63716,
+    SPELL_PETRIFY_BREATH                        = 62030,
+    SPELL_SHOCKWAVE                             = 63783,
+    SPELL_SHOCKWAVE_VISUAL                      = 63788,
+    
+    SPELL_STONE_GRIP                            = 64290,
+    SPELL_STONE_GRIP_STUN                       = 62056,
+    SPELL_FOCUSED_EYEBEAM                       = 63347,
+    SPELL_EYEBEAM_VISUAL_1                      = 63676,
+    SPELL_EYEBEAM_VISUAL_2                      = 63702,
+    SPELL_EYEBEAM_IMMUNITY                      = 64722,
+    SPELL_ARM_RESPAWN                           = 64753
+};
 
 enum Events
 {
-    EVENT_NONE = 0,
+    EVENT_NONE,
     EVENT_SMASH,
     EVENT_GRIP,
     EVENT_SWEEP,
@@ -60,9 +62,9 @@ enum Events
 
 enum Actions
 {
-    ACTION_RESPAWN_RIGHT                        = 0,
-    ACTION_RESPAWN_LEFT                         = 1,
-    ACTION_GRIP                                 = 2
+    ACTION_RESPAWN_RIGHT,
+    ACTION_RESPAWN_LEFT,
+    ACTION_GRIP
 };
 
 enum Npcs
@@ -84,131 +86,125 @@ enum Yells
     SAY_SHOCKWAVE                               = -1603235,
     SAY_GRAB_PLAYER                             = -1603236,
     SAY_DEATH                                   = -1603237,
-    SAY_BERSERK                                 = -1603238,
+    SAY_BERSERK                                 = -1603238
 };
 
-#define EMOTE_RIGHT      "The Right Arm has regrown!"
-#define EMOTE_LEFT       "The Left Arm has regrown!"
-#define EMOTE_STONE      "Kologarn casts Stone Grip!"
+#define EMOTE_LEFT                              "The Left Arm has regrown!"
+#define EMOTE_RIGHT                             "The Right Arm has regrown!"
+#define EMOTE_STONE                             "Kologarn casts Stone Grip!"
 
 // Achievements
-#define ACHIEVEMENT_DISARMED                  RAID_MODE(2953, 2954) // TODO
-#define ACHIEVEMENT_LOOKS_COULD_KILL          RAID_MODE(2955, 2956) // TODO
-#define ACHIEVEMENT_RUBBLE_AND_ROLL           RAID_MODE(2959, 2960)
-#define ACHIEVEMENT_WITH_OPEN_ARMS            RAID_MODE(2951, 2952)
-#define MAX_DISARMED_TIME                     12000
+#define ACHIEVEMENT_LOOKS_COULD_KILL            RAID_MODE(2955, 2956) // TODO
+#define ACHIEVEMENT_RUBBLE_AND_ROLL             RAID_MODE(2959, 2960)
+#define ACHIEVEMENT_WITH_OPEN_ARMS              RAID_MODE(2951, 2952)
+#define ACHIEV_DISARMED_START_EVENT             21687
 
-uint64 GripTargetGUID[3];
+uint32 GripTargetGUID[3];
 
-// Positiones
-const Position RubbleRight = {1781.814f, -3.716f, 448.808f, 4.211f};
-const Position RubbleLeft  = {1781.814f, -45.07f, 448.808f, 2.260f};
+const Position RubbleLeft   = {1781.814f, -45.07f, 448.808f, 2.260f};
+const Position RubbleRight  = {1781.814f, -3.716f, 448.808f, 4.211f};
 
 enum KologarnChests
 {
-    CACHE_OF_LIVING_STONE_10                        = 195046,
-    CACHE_OF_LIVING_STONE_25                        = 195047
+    CACHE_OF_LIVING_STONE_10                    = 195046,
+    CACHE_OF_LIVING_STONE_25                    = 195047
 };
 
 class boss_kologarn : public CreatureScript
 {
-    public:
-        boss_kologarn(): CreatureScript("boss_kologarn") {}
+public:
+    boss_kologarn() : CreatureScript("boss_kologarn") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new boss_kologarnAI (pCreature);
+    }
 
     struct boss_kologarnAI : public BossAI
     {
-        boss_kologarnAI(Creature *pCreature) : BossAI(pCreature, BOSS_KOLOGARN), vehicle(me->GetVehicleKit()),
+        boss_kologarnAI(Creature *pCreature) : BossAI(pCreature, BOSS_KOLOGARN), vehicle(pCreature->GetVehicleKit()),
             left(false), right(false)
         {
-            assert(vehicle);
-            pInstance = pCreature->GetInstanceScript();
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
             me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-            me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+            me->SetFlying(true);
             emerged = false;
         }
 
-        InstanceScript* pInstance;
-
         Vehicle *vehicle;
+
         bool left, right;
         bool Gripped;
         bool emerged;
-        
-        Creature* EyeBeam[2];
-        Creature* RightArm;
-        Creature* LeftArm;
-        
         uint32 RubbleCount;
 
-        //achievement Disarmed
-        uint32 DisarmedTimer;
-        bool disarmed;
-        bool leftkilled, rightkilled;
+        void MoveInLineOfSight(Unit* who)
+        {
+            // Birth animation
+            if (!emerged && me->IsWithinDistInMap(who, 40.0f) && who->GetTypeId() == TYPEID_PLAYER && !who->ToPlayer()->isGameMaster())
+            {
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
+                emerged = true;
+            }
+        }
 
         void AttackStart(Unit *who)
         {
             me->Attack(who, true);
         }
-        
-        void MoveInLineOfSight(Unit *who)
-        {
-            // Birth animation
-            if (!emerged && me->IsWithinDistInMap(who, 35.0f) && who->GetTypeId() == TYPEID_PLAYER)
-            {
-                me->SetStandState(UNIT_STAND_STATE_STAND);
-                me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                emerged = true;
-            }
-            ScriptedAI::MoveInLineOfSight(who);
-        }
 
-        void JustDied(Unit *victim)
-        {
-            // Disarmed
-            if (leftkilled && rightkilled && disarmed && DisarmedTimer <= MAX_DISARMED_TIME)
-                 pInstance->DoCompleteAchievement(ACHIEVEMENT_DISARMED);
-            // Rubble and Roll
-            if (RubbleCount >= 5)
-                pInstance->DoCompleteAchievement(ACHIEVEMENT_RUBBLE_AND_ROLL);
-            // With Open Arms
-            if (RubbleCount == 0)
-                pInstance->DoCompleteAchievement(ACHIEVEMENT_WITH_OPEN_ARMS);
-
-            // Remove Stone Grip from players
-            Map::PlayerList const &players = instance->instance->GetPlayers();
-            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            {
-                Player* pPlayer = itr->getSource();
-
-                if (!pPlayer)
-                    continue;
-
-                if (pPlayer->HasAura(SPELL_STONE_GRIP_STUN))
-                {
-                    pPlayer->RemoveAurasDueToSpell(RAID_MODE(64290, 64292));
-                    pPlayer->RemoveAurasDueToSpell(SPELL_STONE_GRIP_STUN);
-                    pPlayer->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
-                }
-            }
-                    
+        void JustDied(Unit* /*victim*/)
+        {                
             DoScriptText(SAY_DEATH, me);
             _JustDied();
+
+            if (instance)
+            {
+                // Rubble and Roll
+                if (RubbleCount > 4)
+                    instance->DoCompleteAchievement(ACHIEVEMENT_RUBBLE_AND_ROLL);
+                // With Open Arms
+                if (RubbleCount == 0)
+                    instance->DoCompleteAchievement(ACHIEVEMENT_WITH_OPEN_ARMS);
+
+                // Remove Stone Grip from players
+                Map::PlayerList const &players = instance->instance->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                {
+                    Player* pPlayer = itr->getSource();
+ 
+                    if (!pPlayer)
+                        continue;
+ 
+                    if (pPlayer->HasAura(SPELL_STONE_GRIP_STUN))
+                    {
+                        pPlayer->RemoveAurasDueToSpell(RAID_MODE(64290, 64292));
+                        pPlayer->RemoveAurasDueToSpell(SPELL_STONE_GRIP_STUN);
+                        //pPlayer->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
+                        playerGripTarget->TeleportTo(pGripTarget->GetMapId(), 1767.80f, -18.38f, 449.0f, 6.27f); 
+                    }
+                }
+            }
+
             // Hack to disable corpse fall
             me->GetMotionMaster()->MoveTargetedHome();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->setFaction(35);
-
-            while (Unit* pTarget = me->FindNearestCreature(NPC_RUBBLE, 50.0f))
-                pTarget->RemoveFromWorld();
-
             // Chest spawn
-            me->SummonGameObject(RAID_MODE(CACHE_OF_LIVING_STONE_10, CACHE_OF_LIVING_STONE_25), 1836.52f, -36.1111f, 448.81f, 0.558504f, 0, 0, 0.7f, 0.7f, 604800);
+            me->SummonGameObject(RAID_MODE(CACHE_OF_LIVING_STONE_10, CACHE_OF_LIVING_STONE_25),1836.52f,-36.11f,448.81f,0.56f,0,0,1,1,604800);
         }
 
-        void PassengerBoarded(Unit *who, int8 seatId, bool apply)
+        void KilledUnit(Unit* /*who*/)
+        {
+            if (!(rand()%5))
+                DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+        }
+
+        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
         {
             if (who->GetTypeId() == TYPEID_UNIT)
             {
@@ -217,57 +213,44 @@ class boss_kologarn : public CreatureScript
                 else if (who->GetEntry() == NPC_RIGHT_ARM)
                     right = apply;
                 who->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
-                CAST_CRE(who)->SetReactState(REACT_AGGRESSIVE);
             }
         }
 
-        void EnterCombat(Unit *who)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
             _EnterCombat();
+        
             RubbleCount = 0;
-            for (int32 n = 0; n < RAID_MODE(1, 2); ++n)
-                GripTargetGUID[n] = NULL;
             Gripped = false;
-
-            DisarmedTimer = 0;
-            disarmed = false;
-            rightkilled = false;
-            leftkilled = false;
+            for (int32 n = 0; n < RAID_MODE(1, 3); ++n)
+                GripTargetGUID[n] = NULL;
             
-            if (Creature *LeftArm = CAST_CRE(me->GetVehicleKit()->GetPassenger(0)))
-                LeftArm->AI()->DoZoneInCombat();
-            if (Creature *RightArm = CAST_CRE(me->GetVehicleKit()->GetPassenger(1)))
-                RightArm->AI()->DoZoneInCombat();
-            
+            for (int32 n = 0; n < 2; ++n)
+            {
+                if (vehicle->GetPassenger(n))
+                    vehicle->GetPassenger(n)->ToCreature()->AI()->DoZoneInCombat();
+            }
             events.ScheduleEvent(EVENT_SMASH, 5000);
             events.ScheduleEvent(EVENT_SWEEP, 10000);
             events.ScheduleEvent(EVENT_EYEBEAM, 10000);
             events.ScheduleEvent(EVENT_SHOCKWAVE, 12000);
             events.ScheduleEvent(EVENT_GRIP, 40000);
         }
-        
-        void KilledUnit(Unit* Victim)
-        {
-            if (!(rand()%5))
-                DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
-        }
-        
+
         void Reset()
         {
-            if (RightArm = me->GetCreature(*me, pInstance->GetData64(DATA_RIGHT_ARM)))
-            {
-                RightArm->Respawn(true);
-                RightArm->EnterVehicle(vehicle, 1);
-            }
-            if (LeftArm = me->GetCreature(*me, pInstance->GetData64(DATA_LEFT_ARM)))
-            {
-                LeftArm->Respawn(true);
-                LeftArm->EnterVehicle(vehicle, 0);
-            }
             _Reset();
-        }
+            
+            if (instance)
+                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
         
+            if (Unit* LeftArm = me->SummonCreature(NPC_LEFT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
+                LeftArm->EnterVehicle(vehicle, 0);
+            if (Unit* RightArm = me->SummonCreature(NPC_RIGHT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
+                RightArm->EnterVehicle(vehicle, 1);
+        }
+
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
@@ -277,34 +260,27 @@ class boss_kologarn : public CreatureScript
 
             if (me->HasUnitState(UNIT_STAT_CASTING))
                 return;
-                            
-            if (events.GetTimer() > 15000 && !IsInRange())
-                DoCastAOE(SPELL_PETRIFY_BREATH, true);
             
+            if (events.GetTimer() > 15000 && !me->IsWithinMeleeRange(me->getVictim()))
+                DoCastAOE(SPELL_PETRIFY_BREATH, true);
+        
             if (!left && !right)
                 DoCast(me, SPELL_STONE_SHOUT, true);
-
-            if (disarmed)
-                DisarmedTimer += diff;
-            else
-                DisarmedTimer = 0;
-
-            if (DisarmedTimer > MAX_DISARMED_TIME)
-            {
-                disarmed = false;
-                DisarmedTimer = 0;
-            }
 
             switch(events.GetEvent())
             {
                 case EVENT_NONE: break;
                 case EVENT_SMASH:
                     if (left && right)
+                    {
                         if (me->IsWithinMeleeRange(me->getVictim()))
                             DoCastVictim(SPELL_TWO_ARM_SMASH, true);
-                    else if(left || right)
+                    }
+                    else if (left || right)
+                    {
                         if (me->IsWithinMeleeRange(me->getVictim()))
                             DoCastVictim(SPELL_ONE_ARM_SMASH, true);
+                    }
                     events.RescheduleEvent(EVENT_SMASH, 15000);
                     break;
                 case EVENT_SWEEP:
@@ -313,22 +289,19 @@ class boss_kologarn : public CreatureScript
                     events.RescheduleEvent(EVENT_SWEEP, 15000);
                     break;
                 case EVENT_GRIP:
-                    if (right && pInstance)
+                    if (right && instance)
                     {
                         if (Unit* RightArm = vehicle->GetPassenger(1))
                         {
                             me->MonsterTextEmote(EMOTE_STONE, 0, true);
                             DoScriptText(SAY_GRAB_PLAYER, me);
-
-                            for (int32 n = 0; n < RAID_MODE(1, 2); ++n)
+                            // Grip up to 3 players
+                            for (int32 n = 0; n < RAID_MODE(1, 3); ++n)
                             {
-                                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 40, true))
                                     GripTargetGUID[n] = pTarget->GetGUID();
                             }
-
-                            if (Creature* RightArm = me->GetCreature(*me, pInstance->GetData64(DATA_RIGHT_ARM)))
-                                if (RightArm->AI())
-                                    RightArm->AI()->DoAction(ACTION_GRIP);
+                            RightArm->ToCreature()->AI()->DoAction(ACTION_GRIP);
                         }
                     }
                     events.RescheduleEvent(EVENT_GRIP, 40000);
@@ -343,193 +316,186 @@ class boss_kologarn : public CreatureScript
                     events.RescheduleEvent(EVENT_SHOCKWAVE, urand(15000, 25000));
                     break;
                 case EVENT_EYEBEAM:
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0, 50, true))
                     {
-                        Unit* pTarget = NULL;
-                        if (!(pTarget = CheckPlayersInRange(RAID_MODE(2,4), 10.0f, 100.f)))
-                            pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true); 
-                        if (pTarget)
+                        if (Creature* EyeBeam = me->SummonCreature(NPC_EYEBEAM_1,pTarget->GetPositionX(),pTarget->GetPositionY()+3,pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000))
                         {
-                            if (EyeBeam[0] = me->SummonCreature(NPC_EYEBEAM_1, pTarget->GetPositionX(), pTarget->GetPositionY() + 3, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
-                            {
-                                EyeBeam[0]->CastSpell(me, SPELL_EYEBEAM_VISUAL_1, true);
-                                EyeBeam[0]->AI()->AttackStart(pTarget);
-                            }
-                            if (EyeBeam[1] = me->SummonCreature(NPC_EYEBEAM_2, pTarget->GetPositionX(), pTarget->GetPositionY() - 3, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
-                            {
-                                EyeBeam[1]->CastSpell(me, SPELL_EYEBEAM_VISUAL_2, true);
-                                EyeBeam[1]->AI()->AttackStart(pTarget);
-                            }
+                            EyeBeam->CastSpell(me, SPELL_EYEBEAM_VISUAL_1, true);
+                            EyeBeam->AI()->AttackStart(pTarget);
                         }
-                        events.RescheduleEvent(EVENT_EYEBEAM, 20000);
+                        if (Creature* EyeBeam = me->SummonCreature(NPC_EYEBEAM_2,pTarget->GetPositionX(),pTarget->GetPositionY()-3,pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000))
+                        {
+                            EyeBeam->CastSpell(me, SPELL_EYEBEAM_VISUAL_2, true);
+                            EyeBeam->AI()->AttackStart(pTarget);
+                        }
                     }
-                    break;
-                case EVENT_RIGHT:
-                    if (RightArm = me->GetCreature(*me, pInstance->GetData64(DATA_RIGHT_ARM)))
-                    {
-                        RightArm->Respawn(true);
-                        RightArm->EnterVehicle(vehicle, 1);
-                        DoCast(me, SPELL_ARM_RESPAWN, true);
-                        me->MonsterTextEmote(EMOTE_RIGHT, 0, true);
-                        rightkilled = false;
-                    }
-                    events.CancelEvent(EVENT_RIGHT);
+                    events.RescheduleEvent(EVENT_EYEBEAM, 20000);
                     break;
                 case EVENT_LEFT:
-                    if (LeftArm = me->GetCreature(*me, pInstance->GetData64(DATA_LEFT_ARM)))
+                    if (Unit* LeftArm = me->SummonCreature(NPC_LEFT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
                     {
-                        LeftArm->Respawn(true);
                         LeftArm->EnterVehicle(vehicle, 0);
                         DoCast(me, SPELL_ARM_RESPAWN, true);
                         me->MonsterTextEmote(EMOTE_LEFT, 0, true);
-                        leftkilled = false;
+                        if (instance)
+                            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
                     }
                     events.CancelEvent(EVENT_LEFT);
                     break;                
+                case EVENT_RIGHT:
+                    if (Unit* RightArm = me->SummonCreature(NPC_RIGHT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
+                    {
+                        RightArm->EnterVehicle(vehicle, 1);
+                        DoCast(me, SPELL_ARM_RESPAWN, true);
+                        me->MonsterTextEmote(EMOTE_RIGHT, 0, true);
+                        if (instance)
+                            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
+                    }
+                    events.CancelEvent(EVENT_RIGHT);
+                    break;
             }
 
             DoMeleeAttackIfReady();
         }
 
-        bool IsInRange()
-        {
-            std::list<HostileReference*> ThreatList = me->getThreatManager().getThreatList();
-            for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
-            {
-                Unit* pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                            
-                if (!pTarget)
-                    continue;
-                               
-                if (me->IsWithinMeleeRange(pTarget))
-                    return true;
-            }
-            return false;
-        }
-        
         void DoAction(const int32 action)
         {
             switch (action)
             {
-                case ACTION_RESPAWN_RIGHT:
-                    DoScriptText(SAY_RIGHT_ARM_GONE, me);
-                    rightkilled = true;
-                    if (!disarmed)
-                        disarmed = true;
-                    me->DealDamage(me, ARM_DEAD_DAMAGE); // decreases Kologarn's health by 15%
-                    ++RubbleCount;
-                    events.ScheduleEvent(EVENT_RIGHT, 30000);
-                    break;
                 case ACTION_RESPAWN_LEFT:
                     DoScriptText(SAY_LEFT_ARM_GONE, me);
-                    leftkilled = true;
-                    if (!disarmed)
-                        disarmed = true;
-                    me->DealDamage(me, ARM_DEAD_DAMAGE); // decreases Kologarn's health by 15%
+                    me->DealDamage(me, int32(me->GetMaxHealth() * 15 / 100)); // decreases Kologarn's health by 15%
                     ++RubbleCount;
+                    if (instance && right)
+                        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
                     events.ScheduleEvent(EVENT_LEFT, 30000);
                     break;
+                case ACTION_RESPAWN_RIGHT:
+                    DoScriptText(SAY_RIGHT_ARM_GONE, me);
+                    me->DealDamage(me, int32(me->GetMaxHealth() * 15 / 100));
+                    ++RubbleCount;
+                    if (instance && left)
+                        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
+                    events.ScheduleEvent(EVENT_RIGHT, 30000);
+                    break;
             }
-        }
-
-        Unit* CheckPlayersInRange(uint32 uiPlayersMin, float uiRangeMin, float uiRangeMax)
-        {
-            Map * pMap = me->GetMap();
-            if (pMap && pMap->IsDungeon())
-            {
-                std::list<Player*> PlayerList;
-                Map::PlayerList const &Players = pMap->GetPlayers();
-                for (Map::PlayerList::const_iterator itr = Players.begin(); itr != Players.end(); ++itr)
-                {
-                    if (Player * pPlayer = itr->getSource())
-                    {
-                        float uiDistance = pPlayer->GetDistance(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-                        if (uiRangeMin < uiDistance || uiDistance > uiRangeMax)
-                            continue;
-
-                        PlayerList.push_back(pPlayer);
-                    }
-                }
-
-                if (PlayerList.empty())
-                    return NULL;
-
-                size_t size = PlayerList.size();
-                if (size < uiPlayersMin)
-                    return NULL;
-
-                std::list<Player*>::const_iterator itr = PlayerList.begin();
-                std::advance(itr, urand(0, size - 1));
-                return *itr;
-            }
-            else
-                return NULL;
-        };
+        }    
     };
+
+};
+
+
+class npc_focused_eyebeam : public CreatureScript
+{
+public:
+    npc_focused_eyebeam() : CreatureScript("npc_focused_eyebeam") { }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new boss_kologarnAI (pCreature);
-    };
-};
+        return new npc_focused_eyebeamAI (pCreature);
+    }
 
-class mob_focused_eyebeam : public CreatureScript
-{
-    public:
-        mob_focused_eyebeam(): CreatureScript("mob_focused_eyebeam") {}
-
-    struct mob_focused_eyebeamAI : public ScriptedAI
+    struct npc_focused_eyebeamAI : public ScriptedAI
     {
-        mob_focused_eyebeamAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_focused_eyebeamAI(Creature *c) : ScriptedAI(c)
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             DoCast(me, SPELL_EYEBEAM_IMMUNITY);
             DoCast(me, SPELL_FOCUSED_EYEBEAM);
+            me->SetDisplayId(11686);
             checkTimer = 1500;
         }
-        
+
         uint32 checkTimer;
-        
+
         void UpdateAI(const uint32 diff)
         {
-            if(checkTimer <= diff)
+            if (checkTimer <= diff)
             {
                 if (me->getVictim() && me->getVictim()->isAlive())
-                    me->GetMotionMaster()->MovePoint(0, me->getVictim()->GetPositionX(), me->getVictim()->GetPositionY(), me->getVictim()->GetPositionZ());
-                
+                    me->GetMotionMaster()->MovePoint(0,me->getVictim()->GetPositionX(),me->getVictim()->GetPositionY(),me->getVictim()->GetPositionZ());
+            
                 checkTimer = 500;
             }
             else checkTimer -= diff;
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new mob_focused_eyebeamAI(pCreature);
-    };
 };
 
-// Right Arm
-class mob_right_arm : public CreatureScript
-{
-    public:
-        mob_right_arm(): CreatureScript("mob_right_arm") {}
 
-    struct mob_right_armAI : public ScriptedAI
+class npc_left_arm : public CreatureScript
+{
+public:
+    npc_left_arm() : CreatureScript("npc_left_arm") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        mob_right_armAI(Creature* pCreature) : ScriptedAI(pCreature)
+        return new npc_left_armAI (pCreature);
+    }
+
+    struct npc_left_armAI : public ScriptedAI
+    {
+        npc_left_armAI(Creature *c) : ScriptedAI(c)
         {
-            m_pInstance = me->GetInstanceScript();
-            me->ApplySpellImmune(0, IMMUNITY_ID, 64708, true);
+            pInstance = c->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-            me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+            me->SetReactState(REACT_PASSIVE);
         }
 
-        InstanceScript* m_pInstance;
-        
+        InstanceScript* pInstance;
+
+        void JustDied(Unit* /*victim*/)
+        {
+            for (uint8 i = 0; i < 5; ++i)
+                me->SummonCreature(NPC_RUBBLE, RubbleLeft, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
+            
+            if (pInstance)
+                if (Creature* pKologarn = me->GetCreature(*me, pInstance->GetData64(DATA_KOLOGARN)))
+                    pKologarn->AI()->DoAction(ACTION_RESPAWN_LEFT);
+                    
+            // Hack to disable corpse fall
+            me->GetMotionMaster()->MoveTargetedHome();
+        }
+    
+        void JustSummoned(Creature *summon)
+        {
+            summon->AI()->DoZoneInCombat();
+        }
+    };
+
+};
+
+
+class npc_right_arm : public CreatureScript
+{
+public:
+    npc_right_arm() : CreatureScript("npc_right_arm") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_right_armAI (pCreature);
+    }
+
+    struct npc_right_armAI : public ScriptedAI
+    {
+        npc_right_armAI(Creature *c) : ScriptedAI(c)
+        {
+            pInstance = c->GetInstanceScript();
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+            me->ApplySpellImmune(0, IMMUNITY_ID, 64708, true);
+            me->SetReactState(REACT_PASSIVE);
+        }
+
+        InstanceScript* pInstance;
+
         bool Gripped;
-        uint32 ArmDamage;
-        int32 SqueezeTimer;
+        int32 ArmDamage;
+        uint32 SqueezeTimer;
 
         void Reset()
         {
@@ -537,7 +503,35 @@ class mob_right_arm : public CreatureScript
             ArmDamage = 0;
             SqueezeTimer = 0;
         }
-        
+
+        void JustDied(Unit* /*victim*/)
+        {
+            for (uint8 i = 0; i < 5; ++i)
+                me->SummonCreature(NPC_RUBBLE, RubbleRight, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
+            
+            if (pInstance)
+                if (Creature* pKologarn = me->GetCreature(*me, pInstance->GetData64(DATA_KOLOGARN)))
+                    pKologarn->AI()->DoAction(ACTION_RESPAWN_RIGHT);
+                    
+            // Hack to disable corpse fall
+            me->GetMotionMaster()->MoveTargetedHome();
+        }
+    
+        void JustSummoned(Creature *summon)
+        {
+            summon->AI()->DoZoneInCombat();
+        }
+
+        void KilledUnit(Unit* Victim)
+        {
+            if (Victim)
+            {
+                Victim->ExitVehicle();
+                //Victim->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
+                Victim->TeleportTo(pGripTarget->GetMapId(), 1767.80f, -18.38f, 449.0f, 6.27f);                    
+            }
+        }
+
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
@@ -545,9 +539,9 @@ class mob_right_arm : public CreatureScript
 
             if (Gripped)
             {
-                if (SqueezeTimer <= int32(diff))
+                if (SqueezeTimer <= diff)
                 {
-                    for (int32 n = 0; n < RAID_MODE(1, 2); ++n)
+                    for (uint8 n = 0; n < RAID_MODE(1, 3); ++n)
                     {
                         if (me->GetVehicleKit()->GetPassenger(n) && me->GetVehicleKit()->GetPassenger(n)->isAlive())
                             me->Kill(me->GetVehicleKit()->GetPassenger(n), true);
@@ -557,63 +551,13 @@ class mob_right_arm : public CreatureScript
                 else SqueezeTimer -= diff;
             }
         }
-        
-        void KilledUnit(Unit* Victim)
-        {
-            if (Victim)
-            {
-                Victim->ExitVehicle();
-                Victim->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 450.808f, 10, 10);
-                //Victim->TeleportTo(pGripTarget->GetMapId(), 1767.80f, -18.38f, 450.808f, 6.27f);
-            }
-        }
-        
-        void JustDied(Unit *victim)
-        {
-            for (uint8 i = 0; i < 5; ++i)
-                me->SummonCreature(NPC_RUBBLE, RubbleRight, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
-                
-            if (m_pInstance)
-                if (Creature* pKologarn = me->GetCreature(*me, m_pInstance->GetData64(DATA_KOLOGARN)))
-                    if (pKologarn->AI())
-                        pKologarn->AI()->DoAction(ACTION_RESPAWN_RIGHT);
 
-            if (Gripped)
-            {
-                for (int32 n = 0; n < RAID_MODE(1, 2); ++n)
-                {
-                    Unit* pGripTarget = me->GetVehicleKit()->GetPassenger(n);
-                    if (pGripTarget && pGripTarget->isAlive())
-                    {
-                        if (Player* playerGripTarget = pGripTarget->ToPlayer())
-                        {
-                            pGripTarget->RemoveAurasDueToSpell(SPELL_STONE_GRIP);
-                            pGripTarget->RemoveAurasDueToSpell(SPELL_STONE_GRIP_STUN);
-                            pGripTarget->ExitVehicle();
-                            //pGripTarget->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 450.808f, 10, 10);
-                            playerGripTarget->TeleportTo(pGripTarget->GetMapId(), 1767.80f, -18.38f, 450.808f, 6.27f); 
-                        }
-                    }
-                }
-                Gripped = false;
-            }
-                        
-            // Hack to disable corpse fall
-            me->GetMotionMaster()->MoveTargetedHome();
-        }
-        
-        void JustSummoned(Creature *summon)
-        {
-            summon->AI()->DoAction(0);
-            summon->AI()->DoZoneInCombat();
-        }
-        
         void DoAction(const int32 action)
         {
             switch (action)
             {
                 case ACTION_GRIP:
-                    for (int32 n = 0; n < RAID_MODE(1, 2); ++n)
+                    for (uint8 n = 0; n < RAID_MODE(1, 3); ++n)
                     {
                         if (Unit* GripTarget = Unit::GetUnit(*me, GripTargetGUID[n]))
                         {
@@ -632,29 +576,26 @@ class mob_right_arm : public CreatureScript
                     break;
             }
         }
-        
+    
         void DamageTaken(Unit* pKiller, uint32 &damage)
         {
             if (Gripped)
             {
                 ArmDamage += damage;
-                int dmg = RAID_MODE(100000, 480000);
-                
-                if (ArmDamage >= uint32(dmg) || damage >= me->GetHealth())
+                int32 dmg = RAID_MODE(100000, 480000);
+            
+                if (ArmDamage >= dmg || damage >= me->GetHealth())
                 {
-                    for (int32 n = 0; n < RAID_MODE(1, 2); ++n)
+                    for (uint8 n = 0; n < RAID_MODE(1, 3); ++n)
                     {
                         Unit* pGripTarget = me->GetVehicleKit()->GetPassenger(n);
                         if (pGripTarget && pGripTarget->isAlive())
                         {
-                            if (Player* playerGripTarget = pGripTarget->ToPlayer())
-                            {
-                                pGripTarget->RemoveAurasDueToSpell(SPELL_STONE_GRIP);
-                                pGripTarget->RemoveAurasDueToSpell(SPELL_STONE_GRIP_STUN);
-                                pGripTarget->ExitVehicle();
-                                //pGripTarget->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 450.808f, 10, 10);
-                                playerGripTarget->TeleportTo(pGripTarget->GetMapId(), 1767.80f, -18.38f, 450.808f, 6.27f); 
-                            }
+                            pGripTarget->RemoveAurasDueToSpell(SPELL_STONE_GRIP);
+                            pGripTarget->RemoveAurasDueToSpell(SPELL_STONE_GRIP_STUN);
+                            pGripTarget->ExitVehicle();
+                            //pGripTarget->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
+                            pGripTarget->TeleportTo(pGripTarget->GetMapId(), 1767.80f, -18.38f, 449.0f, 6.27f); 
                         }
                     }
                     Gripped = false;
@@ -663,66 +604,14 @@ class mob_right_arm : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new mob_right_armAI(pCreature);
-    };
 };
 
-// Left Arm
-class mob_left_arm : public CreatureScript
-{
-    public:
-        mob_left_arm(): CreatureScript("mob_left_arm") {}
-
-    struct mob_left_armAI : public ScriptedAI
-    {
-        mob_left_armAI(Creature* pCreature) : ScriptedAI(pCreature)
-        {
-            m_pInstance = me->GetInstanceScript();
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-            me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip
-        }
-
-        InstanceScript* m_pInstance;
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-        }
-        
-        void JustDied(Unit *victim)
-        {
-            for (uint8 i = 0; i < 5; ++i)
-                me->SummonCreature(NPC_RUBBLE, RubbleLeft, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
-                
-            if (m_pInstance)
-                if (Creature* pKologarn = me->GetCreature(*me, m_pInstance->GetData64(DATA_KOLOGARN)))
-                    if (pKologarn->AI())
-                        pKologarn->AI()->DoAction(ACTION_RESPAWN_LEFT);
-                        
-            // Hack to disable corpse fall
-            me->GetMotionMaster()->MoveTargetedHome();
-        }
-        
-        void JustSummoned(Creature *summon)
-        {
-            summon->AI()->DoAction(0);
-            summon->AI()->DoZoneInCombat();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new mob_left_armAI(pCreature);
-    };
-};
 
 void AddSC_boss_kologarn()
 {
     new boss_kologarn();
-    new mob_focused_eyebeam();
-    new mob_right_arm();
-    new mob_left_arm();    
+    new npc_focused_eyebeam();
+    new npc_left_arm();
+    new npc_right_arm();
 }
+

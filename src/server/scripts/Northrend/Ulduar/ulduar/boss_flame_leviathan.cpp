@@ -860,7 +860,7 @@ public:
         {
             if (MoveTimer <= diff)
             {
-                if (me->GetVehicleKit()->HasEmptySeat(-1))
+                if (me->GetVehicleKit() && me->GetVehicleKit()->HasEmptySeat(-1))
                 {
                     Creature* pContainer = me->FindNearestCreature(MOB_CONTAINER, 50, true);
                     if (pContainer && !pContainer->GetVehicle())
