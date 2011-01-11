@@ -4131,6 +4131,12 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_MASTER;
             count++;
             break;
+        case 62909: // Mimiron Inferno
+        case 62533: // Hodir Fury
+        case 62911: // Thorim Hammer
+            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_AREA_ENEMY_SRC;
+            count++;
+            break;
         case 71413: // Green Ooze Summon
         case 71414: // Orange Ooze Summon
             spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_DEST;

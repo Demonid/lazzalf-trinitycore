@@ -45,7 +45,7 @@ enum Spells
     SPELL_NAPALM                                = 63666,
     //TOWER Additional SPELLS
     SPELL_THORIM_S_HAMMER                       = 62911, // Tower of Storms
-    SPELL_MIMIRON_S_INFERNO                     = 62909, // Tower of Flames
+    SPELL_MIMIRON_S_INFERNO                     = 62910, //62909, // Tower of Flames
     SPELL_HODIR_S_FURY                          = 62533, // Tower of Frost
     SPELL_FREYA_S_WARD                          = 62906, // Tower of Nature
     SPELL_FREYA_SUMMONS                         = 62947, // Tower of Nature
@@ -1071,11 +1071,12 @@ public:
             }
             else
             {
-                if(infernoTimer <= diff)
+                if (infernoTimer <= diff)
                 {
                     if (Creature* pTrigger = DoSummonFlyer(NPC_MIMIRON_TARGET_BEACON, me, 20, 0, 1000, TEMPSUMMON_TIMED_DESPAWN))
                     {
                         pTrigger->CastSpell(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(), SPELL_MIMIRON_S_INFERNO, true);
+                        // pTrigger->CastSpell(SelectTarget(SELECT_TARGET_RANDOM), SPELL_MIMIRON_S_INFERNO, true);
                         infernoTimer = 2000;
                     }
                 }
