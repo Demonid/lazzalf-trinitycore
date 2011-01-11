@@ -4206,6 +4206,12 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
             count++;
             break;
+        case 17118: // Subtlety 1
+        case 17119: // Subtlety 2
+        case 17120: // Subtlety 3
+            spellInfo->EffectSpellClassMask[1] = flag96(0x00240152, 0x0C2C1014, 0x00001000);
+            count++;
+            break;
         case 71340: // Pact of the Darkfallen
             spellInfo->DurationIndex = 21;
             count++;
