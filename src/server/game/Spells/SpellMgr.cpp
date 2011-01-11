@@ -4130,11 +4130,16 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
             spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_MASTER;
             count++;
+            break;            
+        case 62910: // Mimiron Inferno
+            spellInfo->DurationIndex = 10;
+            count++;
             break;
         case 62909: // Mimiron Inferno
         case 62533: // Hodir Fury
         case 62911: // Thorim Hammer
-            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_AREA_ENEMY_SRC;
+        case 62906: // Freya Ward
+            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_AREA_ENEMY_DST;
             count++;
             break;
         case 71413: // Green Ooze Summon
