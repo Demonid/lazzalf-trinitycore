@@ -1399,16 +1399,16 @@ public:
         switch(pGO->GetEntry())
         {
             case GO_TOWER_OF_STORMS:
-                //instance->ProcessEvent(pGO, EVENT_TOWER_OF_STORM_DESTROYED);
+                instance->ProcessEvent(pGO, EVENT_TOWER_OF_STORM_DESTROYED);
                 break;
             case GO_TOWER_OF_FLAMES:
-                //instance->ProcessEvent(pGO, EVENT_TOWER_OF_FLAMES_DESTROYED);
+                instance->ProcessEvent(pGO, EVENT_TOWER_OF_FLAMES_DESTROYED);
                 break;
             case GO_TOWER_OF_FROST:
-                //instance->ProcessEvent(pGO, EVENT_TOWER_OF_FROST_DESTROYED);
+                instance->ProcessEvent(pGO, EVENT_TOWER_OF_FROST_DESTROYED);
                 break;
             case GO_TOWER_OF_LIFE:
-                //instance->ProcessEvent(pGO, EVENT_TOWER_OF_LIFE_DESTROYED);
+                instance->ProcessEvent(pGO, EVENT_TOWER_OF_LIFE_DESTROYED);
                 break;
         }
 
