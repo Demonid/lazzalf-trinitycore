@@ -316,7 +316,7 @@ public:
                     events.RescheduleEvent(EVENT_SHOCKWAVE, urand(15000, 25000));
                     break;
                 case EVENT_EYEBEAM:
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0, 50, true))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 1, 70, true))
                     {
                         if (Creature* EyeBeam = me->SummonCreature(NPC_EYEBEAM_1,pTarget->GetPositionX(),pTarget->GetPositionY()+3,pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000))
                         {
@@ -527,8 +527,8 @@ public:
             if (Victim && Victim->ToPlayer())
             {
                 Victim->ExitVehicle();
-                //Victim->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
-                Victim->ToPlayer()->TeleportTo(Victim->GetMapId(), 1767.80f, -18.38f, 449.0f, 6.27f);                    
+                Victim->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.810f, 10, 10);
+                //Victim->ToPlayer()->TeleportTo(Victim->GetMapId(), 1767.80f, -18.38f, 449.0f, 0);                    
             }
         }
 
