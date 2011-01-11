@@ -210,7 +210,7 @@ const Position PosDemolisher[5] =
     {-798.01f,-227.24f,429.84f,1.446f},
 };
 
-#define MOB_COLOSSUS 33237
+#define MOB_COLOSSUS 33240
 
 class boss_flame_leviathan : public CreatureScript
 {
