@@ -501,8 +501,10 @@ public:
             case EVENT_THORIM_S_HAMMER: // Tower of Storms
                 for (uint8 i = 0; i < 7; ++i)
                 {
-                    if (Creature* pThorim = DoSummon(MOB_THORIM_BEACON, me, float(urand(20,60)), 20000, TEMPSUMMON_TIMED_DESPAWN))
-                        pThorim->GetMotionMaster()->MoveRandom(100);
+                    if (Creature* pThorim = DoSummon(MOB_THORIM_BEACON, me, float(urand(20,80)), 20000, TEMPSUMMON_TIMED_DESPAWN))
+                    {
+                        //pThorim->GetMotionMaster()->MoveRandom(100);
+                    }
                 }
                 DoScriptText(SAY_TOWER_STORM, me);
                 events.CancelEvent(EVENT_THORIM_S_HAMMER);
@@ -594,12 +596,15 @@ public:
             switch (uiAction)
             {
             case 0:  // Activate hard-mode setting counter to 4 towers, enable all towers apply buffs on levithian
-                ActiveTowers = true;
-                towerOfStorms = true;
-                towerOfLife = true;
-                towerOfFlames = true;
-                towerOfFrost = true;
-                me->SetLootMode(31);
+                if (!ActiveTowers)
+                {
+                    ActiveTowers = true;
+                    towerOfStorms = true;
+                    towerOfLife = true;
+                    towerOfFlames = true;
+                    towerOfFrost = true;
+                    me->SetLootMode(31);
+                }
                 break;
             case 1:  // Tower of Storms destroyed
                 towerOfStorms = false;
@@ -1007,6 +1012,7 @@ public:
         npc_thorims_hammerAI(Creature* pCreature) : ScriptedAI (pCreature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetReactState(REACT_PASSIVE);
             me->AddAura(AURA_DUMMY_BLUE, me);
         }
 
@@ -1107,6 +1113,7 @@ public:
         npc_hodirs_furyAI(Creature* pCreature) : ScriptedAI (pCreature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetReactState(REACT_PASSIVE);
             me->AddAura(AURA_DUMMY_GREEN, me);
         }
 
@@ -1145,7 +1152,9 @@ public:
     {
         npc_freyas_wardAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            me->AddAura(AURA_DUMMY_GREEN, me);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetReactState(REACT_PASSIVE);
+            me->AddAura(AURA_DUMMY_GREEN, me);           
         }
 
         uint32 summonTimer ;
@@ -1158,15 +1167,17 @@ public:
         void JustSummoned(Creature *summon)
         {
             if (summon->AI())
-                summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
+                summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_NEAREST));
         }
 
         void UpdateAI(const uint32 diff)
         {
             if (summonTimer <= diff)
             {
-                DoCast(SPELL_FREYA_S_WARD_EFFECT_1) ;
-                DoCast(SPELL_FREYA_S_WARD_EFFECT_2) ;
+                DoSummon(33387, me, 2.0f, 10000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
+                DoSummon(34275, me, 2.0f, 10000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
+                // DoCast(SPELL_FREYA_S_WARD_EFFECT_1) ;
+                // DoCast(SPELL_FREYA_S_WARD_EFFECT_2) ;
                 summonTimer = 20000 ;
             }
             else
@@ -1226,7 +1237,8 @@ public:
 };
 
 //npc lore keeper
-#define GOSSIP_ITEM_1  "Activate secondary defensive systems"
+#define GOSSIP_ITEM_3  "Attack the siege (NORMAL)"
+#define GOSSIP_ITEM_1  "Activate secondary defensive systems (HM)"
 #define GOSSIP_ITEM_2  "Confirmed"
 class npc_lorekeeper : public CreatureScript
 {
@@ -1245,7 +1257,6 @@ public:
                 pPlayer->PrepareGossipMenu(pCreature);
                 instance->instance->LoadGrid(364,-16); //make sure leviathan is loaded
 
-
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_2,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
                 pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
             }
@@ -1255,7 +1266,9 @@ public:
                 pPlayer->CLOSE_GOSSIP_MENU();
 
             if (Creature* pLeviathan = instance->instance->GetCreature(instance->GetData64(BOSS_LEVIATHAN)))
-            {                
+            {    
+                CAST_AI(boss_flame_leviathan::boss_flame_leviathanAI, (pLeviathan->AI()))->DoAction(0); //enable hard mode activating the 4 additional events spawning additional vehicles
+               
                 // pCreature->SetVisible(false);
                 pCreature->AI()->DoAction(0); // spawn the vehicles
                 if (Creature* Delorah = pCreature->FindNearestCreature(NPC_DELORAH, 1000, true))
@@ -1268,6 +1281,12 @@ public:
                 }
             }
             break;
+        case GOSSIP_ACTION_INFO_DEF+3:
+            if (pPlayer)
+                pPlayer->CLOSE_GOSSIP_MENU();
+
+            pCreature->AI()->DoAction(0); // spawn the vehicles
+            break;
         }
         return true;
     }
@@ -1278,8 +1297,9 @@ public:
         if (instance && instance->GetData(BOSS_LEVIATHAN) !=DONE && pPlayer)
         {
             pPlayer->PrepareGossipMenu(pCreature);
-
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_1,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_3,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+3);
+            if (pPlayer->isGameMaster())
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_1,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);            
             pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
         }
         return true;
@@ -1295,12 +1315,10 @@ public:
         npc_lorekeeperAI(Creature* pCreature) : ScriptedAI(pCreature), summons(me)
         {
             instance = pCreature->GetInstanceScript();
-            bSpawned = true;
         }
 
         InstanceScript* instance;
         SummonList summons;
-        bool bSpawned;
 
         void JustSummoned(Creature *summon)
         {
@@ -1309,13 +1327,6 @@ public:
 
         void DoAction(const int32 uiAction)
         {
-            if (bSpawned)
-            {
-                if (Creature* pLeviathan = instance->instance->GetCreature(instance->GetData64(DATA_LEVIATHAN)))
-                    CAST_AI(boss_flame_leviathan::boss_flame_leviathanAI, (pLeviathan->AI()))->DoAction(0); //enable hard mode activating the 4 additional events spawning additional vehicles
-                bSpawned = false;
-            }
-
             // Start encounter
             if (uiAction == 0)
             {
