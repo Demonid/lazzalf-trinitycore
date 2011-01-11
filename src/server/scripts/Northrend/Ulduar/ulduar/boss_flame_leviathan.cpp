@@ -1012,15 +1012,11 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (who->GetTypeId() == TYPEID_PLAYER && who->IsVehicle() && me->IsInRange(who,0,10,false))
+            if (who->IsVehicle() && who->GetCharmerOrOwner() && me->IsInRange(who,0,10,false))
             {
                 if (Creature* pTrigger = DoSummonFlyer(NPC_THORIM_TARGET_BEACON, me, 20, 0, 1000, TEMPSUMMON_TIMED_DESPAWN))
                     pTrigger->CastSpell(who, SPELL_THORIM_S_HAMMER, true);
             }
-        }
-
-        void Reset ()
-        {
         }
 
         void UpdateAI(const uint32 /*diff*/)
@@ -1115,15 +1111,11 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (who->GetTypeId() == TYPEID_PLAYER && who->IsVehicle() && me->IsInRange(who,0,5,false))
+            if (who->IsVehicle() && who->GetCharmerOrOwner() && me->IsInRange(who,0,5,false))
             {
                 if (Creature* pTrigger = DoSummonFlyer(NPC_HODIR_TARGET_BEACON, me, 20, 0, 1000, TEMPSUMMON_TIMED_DESPAWN))
                     pTrigger->CastSpell(who, SPELL_HODIR_S_FURY, true);
             }
-        }
-
-        void Reset()
-        {
         }
 
         void UpdateAI(const uint32 /*diff*/)
@@ -1162,9 +1154,15 @@ public:
             summonTimer = 5000 ;
         }
 
+        void JustSummoned(Creature *summon)
+        {
+            if (summon->AI())
+                summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
+        }
+
         void UpdateAI(const uint32 diff)
         {
-            if(summonTimer <= diff)
+            if (summonTimer <= diff)
             {
                 DoCast(SPELL_FREYA_S_WARD_EFFECT_1) ;
                 DoCast(SPELL_FREYA_S_WARD_EFFECT_2) ;
@@ -1212,7 +1210,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if(lashTimer <= diff)
+            if (lashTimer <= diff)
             {
                 DoCast(SPELL_LASH);
                 lashTimer = 20000;
