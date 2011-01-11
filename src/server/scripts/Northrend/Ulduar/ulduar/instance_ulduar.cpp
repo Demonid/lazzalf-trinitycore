@@ -574,7 +574,7 @@ class instance_ulduar : public InstanceMapScript
             }
         }
 
-        void ProcessEvent(GameObject* /*go*/, uint32 uiEventId)
+        void ProcessEvent(GameObject* /*go*/, uint32 uiEventId, Player* = NULL)
         {
             // Flame Leviathan's Tower Event triggers
            Creature* pFlameLeviathan = instance->GetCreature(uiLeviathanGUID);
