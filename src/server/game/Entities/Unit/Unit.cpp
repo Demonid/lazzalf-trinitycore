@@ -432,9 +432,9 @@ void Unit::SendMonsterMoveTransport(Unit *vehicleOwner)
     data << uint32(SPLINEFLAG_TRANSPORT);
     data << uint32(GetTransTime());         // move time
     data << uint32(1);                      // amount of waypoints
-    data << GetTransOffsetX();
-    data << GetTransOffsetY();
-    data << GetTransOffsetZ();
+    data << uint32(GetTransOffsetX());
+    data << uint32(GetTransOffsetY());
+    data << uint32(GetTransOffsetZ());
     SendMessageToSet(&data, true);
 }
 
@@ -11858,9 +11858,9 @@ void Unit::Unmount()
     SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 0);
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_MOUNT);
 
-    WorldPacket data(SMSG_DISMOUNT, 8);
-    data.appendPackGUID(GetGUID());
-    SendMessageToSet(&data, true);
+    //WorldPacket data(SMSG_DISMOUNT, 8);
+    //data.appendPackGUID(GetGUID());
+    //SendMessageToSet(&data, true);
 
     // only resummon old pet if the player is already added to a map
     // this prevents adding a pet to a not created map which would otherwise cause a crash
