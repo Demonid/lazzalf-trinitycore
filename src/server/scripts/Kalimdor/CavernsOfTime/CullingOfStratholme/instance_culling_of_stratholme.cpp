@@ -54,10 +54,11 @@ public:
         uint64 uiMalGanisGate2;
         uint64 uiExitGate;
         uint64 uiMalGanisChest;
+
+        uint32 LastTimer;
         uint32 Minute;
         uint32 tMinutes;
-
-        bool m_started;
+        uint32 EventTimer;
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;
@@ -78,9 +79,10 @@ public:
             DoUpdateWorldState(WORLD_STATE_CRATES, 0);
             DoUpdateWorldState(WORLD_STATE_CRATES_2, 0);
 
+            EventTimer = 1500000;
+            LastTimer = 1500000;
             Minute = 60000;
             tMinutes = 0;
-            m_started = false;
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -176,9 +178,6 @@ public:
                         DoUpdateWorldState(WORLD_STATE_TIME_COUNTER, 0);
                     }
                     break;
-                case DATA_INFINITE_EVENT_START:
-                    m_started = true;
-                    break;
             }
 
             if (data == DONE)
@@ -229,18 +228,15 @@ public:
                }
                DoUpdateWorldState(WORLD_STATE_TIMER, 0);             
            }
-
-           if (m_started)
+           if (Minute <= diff)
            {
-               if (Minute <= diff)
-               {
-                  tMinutes++;
-                  DoUpdateWorldState(WORLD_STATE_TIME_COUNTER, 25 - tMinutes);
-                  Minute = 60000;
-               }
-               else 
-                   Minute -= diff;
+              LastTimer = EventTimer;
+              tMinutes++;
+              DoUpdateWorldState(WORLD_STATE_TIME_COUNTER, 25 - tMinutes);
+              Minute = 60000;
            }
+           else 
+               Minute -= diff;
            return;
         }
 

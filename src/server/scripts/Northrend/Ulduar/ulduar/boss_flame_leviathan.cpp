@@ -277,6 +277,7 @@ public:
             events.ScheduleEvent(EVENT_VENT, 20*IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_SPEED, 15*IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_SUMMON, 1*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SHUTDOWN, 90*IN_MILLISECONDS);
             ActiveTower(false); //void ActiveTower
             InstallAdds(false);
         }
@@ -488,7 +489,8 @@ public:
                 me->MonsterTextEmote(EMOTE_OVERLOAD, 0, true);
                 me->AddAura(SPELL_SYSTEMS_SHUTDOWN, me);
                 me->RemoveAurasDueToSpell(SPELL_GATHERING_SPEED);
-                events.CancelEvent(EVENT_SHUTDOWN);
+                //events.CancelEvent(EVENT_SHUTDOWN);
+                events.RescheduleEvent(EVENT_SHUTDOWN,90000);
                 break;
             case EVENT_REPAIR:
                 me->MonsterTextEmote(EMOTE_REPAIR, 0, true);
