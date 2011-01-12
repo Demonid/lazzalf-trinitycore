@@ -1228,7 +1228,8 @@ public:
             phase = PHASE_NULL;
             events.SetPhase(PHASE_NULL);
             summons.DespawnAll();
-            DespawnCreatures(NPC_EMERGENCY_BOT, 150.0f);
+            while (Creature* pTarget = me->FindNearestCreature(NPC_EMERGENCY_BOT, 150.0f))
+                    pTarget->DespawnOrUnsummon();
             spawnedAdds = 0;
         }
 
