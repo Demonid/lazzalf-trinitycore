@@ -267,8 +267,20 @@ public:
 
         bool bActiveTowers;
 
+        std::vector<uint64> FreyaUnitList;
+
         void Reset()
         {
+            if (!FreyaUnitList.empty())
+                for (std::vector<uint64>::const_iterator iter = FreyaUnitList.begin(); iter != FreyaUnitList.end(); ++iter)
+                {
+                    if (instance)
+                        if (Creature* pTarget = instance->instance->GetCreature(*iter))
+                            if (pTarget->GetAI())
+                                pTarget->GetAI()->DoAction(1);
+                }
+
+            FreyaUnitList.clear();
             _Reset();
             me->SetReactState(REACT_DEFENSIVE);
             InstallAdds(false);
@@ -314,7 +326,7 @@ public:
                 {
                     ++towerCount;
                     me->AddAura(SPELL_BUFF_TOWER_OF_FROST, me);
-                    events.ScheduleEvent(EVENT_HODIR_S_FURY, 5000);
+                    events.ScheduleEvent(EVENT_HODIR_S_FURY, 12000);
                 }
 
                 if (towerOfLife)
@@ -533,7 +545,8 @@ public:
                     case EVENT_FREYA_S_WARD:        // Tower of Life
                         DoScriptText(SAY_TOWER_NATURE, me);
                         for (uint32 i = 0; i < 4; ++i)
-                            DoSummon(NPC_FREYA_BEACON, PosFreyasWard[i]);
+                            if (Creature* summon = me->SummonCreature(NPC_FREYA_BEACON, PosFreyasWard[i]))
+                                FreyaUnitList.push_back(summon->GetGUID());
                         events.CancelEvent(EVENT_FREYA_S_WARD);
                         break;
                 }
@@ -1157,6 +1170,16 @@ public:
                 summonTimer = 20000 ;
             }
             else summonTimer -= diff ;
+        }
+
+        void DoAction(const int32 action)
+        {
+            if (action == 0)
+            {
+                // Ward of Life
+                while (Creature* pTarget = me->FindNearestCreature(34275, 150.0f))
+                    pTarget->DespawnOrUnsummon();
+            }
         }
     };
 
