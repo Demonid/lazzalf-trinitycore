@@ -95,7 +95,7 @@ public:
 
         uint32 uiBubbleCheckerTimer;
         uint32 uiWaterBoltVolleyTimer;
-        uint32 uiForceBubble;
+        uint32 uiSpawn;
 
         InstanceScript* pInstance;
 
@@ -108,7 +108,7 @@ public:
             bAchievement = true;
             uiBubbleCheckerTimer = 1000;
             uiWaterBoltVolleyTimer = urand(10000, 15000);
-            uiForceBubble = 30000;
+            uiSpawn = 0;
 
             me->SetVisible(true);
             DespawnWaterElements();
@@ -172,11 +172,15 @@ public:
 
                     bAchievement = false;
                     break;
-                /*case ACTION_WATER_ELEMENT_KILLED:
-                    uint32 damage = me->CountPctFromMaxHealth(3);
-                    me->ModifyHealth(-int32(damage));
-                    me->LowerPlayerDamageReq(damage);
-                    break;*/
+                case ACTION_WATER_ELEMENT_KILLED:
+                    uiSpawn--;
+                    if (bIsExploded)
+                        if (uiSpawn<= 0)
+                        {
+                            DespawnWaterElements();
+                            DoExplodeCompleted();
+                        }
+                    break;
             }
         }
 
@@ -226,7 +230,7 @@ public:
                     {
                         if (!me->HasAura(SPELL_PROTECTIVE_BUBBLE, 0))
                         {
-                            DoScriptText(SAY_SHATTER, me);
+                            DoScriptText(SAY_SHATTER, me);                            
                             DoCast(me->getVictim(), SPELL_WATER_BLAST);
                             DoCast(me, SPELL_DRAINED);
                             uint32 damage = me->CountPctFromMaxHealth(30);
@@ -236,12 +240,13 @@ public:
                             me->AttackStop();
                             //me->SetVisible(false);
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            uiSpawn = 0;
                             for (uint8 i = 0; i < 10; i++)
                             {
                                 int tmp = urand(0, MAX_SPAWN_LOC-1);
                                 me->SummonCreature(NPC_ICHOR_GLOBULE, SpawnLoc[tmp], TEMPSUMMON_CORPSE_DESPAWN);
+                                uiSpawn++;
                             }
-                            uiForceBubble = 30000;
                         }
                     }
                     else
@@ -263,12 +268,6 @@ public:
                             DespawnWaterElements();
                             DoExplodeCompleted();
                         }
-                        else if (uiForceBubble <= uiDiff)
-                        {                        
-                            DespawnWaterElements();
-                            DoExplodeCompleted();
-                        }
-                        else uiForceBubble -= uiDiff;
                     }
                     uiBubbleCheckerTimer = 1000;
                 }
@@ -405,9 +404,9 @@ public:
         void JustDied(Unit* /*pKiller*/)
         {
             DoCast(me, SPELL_SPLASH);
-            /*if (Creature* pIchoron = Unit::GetCreature(*me, pInstance->GetData64(DATA_ICHORON)))
+            if (Creature* pIchoron = Unit::GetCreature(*me, pInstance->GetData64(DATA_ICHORON)))
                 if (pIchoron->AI())
-                    pIchoron->AI()->DoAction(ACTION_WATER_ELEMENT_KILLED);*/
+                    pIchoron->AI()->DoAction(ACTION_WATER_ELEMENT_KILLED);
         }
     };
 
