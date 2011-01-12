@@ -155,7 +155,7 @@ class npc_porting : public CreatureScript
                     {
                         Field *fields = result->Fetch();
                         for (int j = 0; j < 3; j++)
-                            if (EquipVct[fields[j].GetUInt32())
+                            if (EquipVct[fields[j].GetUInt32()].item[0])
                                 for (int i = 1; EquipVct[fields[j].GetUInt32()].item[i] != 0; i++)
                                 {
                                     pPlayer->AddItem(EquipVct[fields[j].GetUInt32()].item[i], 1);
