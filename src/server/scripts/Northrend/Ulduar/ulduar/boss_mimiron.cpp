@@ -1442,17 +1442,10 @@ public:
             DoCast(SPELL_MAGNETIC_CORE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             me->ForcedDespawn(21000);
-            //if (Creature *pAerialUnit = me->FindNearestCreature(NPC_AERIAL_UNIT, 20, true))
-            //    pAerialUnit->AI()->DoAction(DO_DISABLE_AERIAL);
-            if (pInstance = pCreature->GetInstanceScript())            
-                if (Creature *pAerialUnit = Creature::GetCreature((*me), pInstance->GetData64(DATA_AERIAL_UNIT)))
-                    if (pAerialUnit->isAlive())
-                            pAerialUnit->AI()->DoAction(DO_DISABLE_AERIAL);
+            if (Creature *pAerialUnit = me->FindNearestCreature(NPC_AERIAL_UNIT, 20, true))
+                pAerialUnit->AI()->DoAction(DO_DISABLE_AERIAL);
         }
-
-        InstanceScript *pInstance;
     };
-
 };
 
 class npc_assault_bot : public CreatureScript
