@@ -32,6 +32,7 @@ struct Elem
 
 static Elem EquipVct[] = 
 {
+    {0},
     {1,2,3,0}, // Warrior Fury
     {4,8,2,4,0}, // Warrior Arms
     {0}
@@ -149,14 +150,17 @@ class npc_porting : public CreatureScript
                 break;
             case GOSSIP_ACTION_INFO_DEF+3: // Bags
                 {
-                    QueryResult result = ExtraDatabase.PQuery("SELECT id_equip FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());               
+                    QueryResult result = ExtraDatabase.PQuery("SELECT id_equip_1, id_equip_2, id_equip_3 FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());               
                     if (result)
                     {
                         Field *fields = result->Fetch();
-                        for (int i = 0; EquipVct[fields[0].GetUInt32()].item[i] != 0; i++)
-                        {
-                            pPlayer->AddItem(EquipVct[fields[0].GetUInt32()].item[i], 1);
-                        }
+                        for (int j = 0; j < 3; j++)
+                            if (EquipVct[fields[j].GetUInt32())
+                                for (int i = 1; EquipVct[fields[j].GetUInt32()].item[i] != 0; i++)
+                                {
+                                    pPlayer->AddItem(EquipVct[fields[j].GetUInt32()].item[i], 1);
+                                }
+
                     }
                     std::string msg = "Porting concluso!";
                     pCreature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
