@@ -896,6 +896,7 @@ public:
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             uiNapalmShell = urand(4000, 8000);
         }
 
@@ -1227,6 +1228,7 @@ public:
             phase = PHASE_NULL;
             events.SetPhase(PHASE_NULL);
             summons.DespawnAll();
+            DespawnCreatures(NPC_EMERGENCY_BOT, 150.0f);
             spawnedAdds = 0;
         }
 
