@@ -517,6 +517,9 @@ class mob_xt002_heart : public CreatureScript
         {
             m_pInstance = pCreature->GetInstanceScript();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED);
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+            me->SetReactState(REACT_PASSIVE);
             me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         }
 
@@ -856,4 +859,7 @@ void AddSC_boss_xt002()
     new mob_boombot();
     new mob_void_zone();
     new mob_life_spark();
+
+    if (VehicleSeatEntry* vehSeat = const_cast<VehicleSeatEntry*>(sVehicleSeatStore.LookupEntry(3004)))
+        vehSeat->m_flags |= 0x400;
 }
