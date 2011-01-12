@@ -3926,9 +3926,13 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectBasePoints[2] += 30000;
             count++;
             break;
-        // some dummy spell only has dest, should push caster in this case
         case 62324: // Throw Passenger
-            spellInfo->Targets |= TARGET_FLAG_UNIT_CASTER;
+            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
+            count++;
+            break;
+        case 62907: // Freya's Ward
+        case 62947:
+            spellInfo->DurationIndex = 0;
             count++;
             break;
         case 16834: // Natural shapeshifter
@@ -4129,17 +4133,6 @@ void SpellMgr::LoadSpellCustomAttr()
         case 70893: // Culling The Herd
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
             spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_MASTER;
-            count++;
-            break;            
-        case 62910: // Mimiron Inferno
-            spellInfo->DurationIndex = 10;
-            count++;
-            break;
-        case 62909: // Mimiron Inferno
-        case 62533: // Hodir Fury
-        case 62911: // Thorim Hammer
-        case 62906: // Freya Ward
-            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_AREA_ENEMY_DST;
             count++;
             break;
         case 71413: // Green Ooze Summon

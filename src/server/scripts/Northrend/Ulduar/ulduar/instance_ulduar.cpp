@@ -433,6 +433,30 @@ class instance_ulduar : public InstanceMapScript
                     if (pLeviathanDoor)
                         pLeviathanDoor->SetGoState(GOState(value));
                     break;
+                case DATA_TOWER_DESTROYED:
+                    {
+                        if (Creature* pLeviathan = instance->GetCreature(uiLeviathanGUID))
+                        {
+                            switch(value)
+                            {
+                                case 1: // Tower of Storms
+                                    pLeviathan->AI()->DoAction(1);
+                                    break;
+                                case 2: // Tower of Flames
+                                    pLeviathan->AI()->DoAction(2);
+                                    break;
+                                case 3: // Tower of Frost
+                                    pLeviathan->AI()->DoAction(3);
+                                    break;
+                                case 4: // Tower of Nature
+                                    pLeviathan->AI()->DoAction(4);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                    break;
                 case DATA_RUNIC_DOOR:
                     if (pRunicDoor)
                         pRunicDoor->SetGoState(GOState(value));
@@ -574,8 +598,8 @@ class instance_ulduar : public InstanceMapScript
             }
         }
 
-        void ProcessEvent(GameObject* /*go*/, uint32 uiEventId, Player* /*player*/)
-        {
+        //void ProcessEvent(GameObject* /*go*/, uint32 uiEventId, Player* /*player*/)
+        /*{
             // Flame Leviathan's Tower Event triggers
            Creature* pFlameLeviathan = instance->GetCreature(uiLeviathanGUID);
 
@@ -595,7 +619,7 @@ class instance_ulduar : public InstanceMapScript
                         pFlameLeviathan->AI()->DoAction(4);
                         break;
                 }
-        }
+        }*/
 
         bool SetBossState(uint32 id, EncounterState state)
         {
