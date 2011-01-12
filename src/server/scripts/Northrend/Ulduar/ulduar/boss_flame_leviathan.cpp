@@ -248,7 +248,7 @@ public:
             towerOfFlames = false;
             towerOfFrost = false;
 
-            ActiveTowers = false;
+            bActiveTowers = false;
             
             // Summon Ulduar Colossus
             if (me->isAlive())
@@ -265,7 +265,7 @@ public:
         bool towerOfFlames;
         bool towerOfFrost;
 
-        bool ActiveTowers;
+        bool bActiveTowers;
 
         void Reset()
         {
@@ -548,14 +548,13 @@ public:
             switch(action)
             {
                 case 0:  // Activate hard-mode setting counter to 4 towers, enable all towers apply buffs on levithian
-                    if (!ActiveTowers)
+                    if (!bActiveTowers)
                     {
-                        ActiveTowers = true;
+                        bActiveTowers = true;
                         towerOfStorms = true;
                         towerOfLife = true;
                         towerOfFlames = true;
                         towerOfFrost = true;
-                        me->SetLootMode(31);
                     }
                     break;
                 case ACTION_TOWER_OF_STORMS:
