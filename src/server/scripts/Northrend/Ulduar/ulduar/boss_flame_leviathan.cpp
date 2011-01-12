@@ -1425,6 +1425,8 @@ class mob_flameleviathan_loot : public CreatureScript
     };
 };
 
+#define ACHI_UNBROKEN             RAID_MODE(2905,2906)
+
 class mob_steelforged_defender : public CreatureScript //33236
 {
     public:
