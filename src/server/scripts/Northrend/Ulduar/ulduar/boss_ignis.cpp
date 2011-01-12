@@ -45,14 +45,14 @@ enum Spells
     SPELL_FLAME_JETS_25                         = 63472,
     SPELL_SCORCH_10                             = 62546,
     SPELL_SCORCH_25                             = 63474,
-    SPELL_SLAG_POT_10                           = 62717,
-    SPELL_SLAG_POT_25                           = 63477,
-    SPELL_SLAG_IMBUED_10                        = 62836,
-    SPELL_SLAG_IMBUED_25                        = 63536,
+    SPELL_SLAG_POT                              = 62717,
+    SPELL_SLAG_IMBUED                           = 62836,
+    SPELL_SLAG_POT_DAMAGE                       = 65722,
     SPELL_ACTIVATE_CONSTRUCT                    = 62488,
     SPELL_STRENGHT                              = 64473,
     SPELL_GRAB                                  = 62707,
     SPELL_BERSERK                               = 47008
+
 };
 
 
@@ -242,16 +242,14 @@ class boss_ignis : public CreatureScript
                         if (Unit* SlagPotTarget = Unit::GetUnit(*me, SlagPotGUID))
                         {
                             SlagPotTarget->EnterVehicle(me, 0);
-                            events.CancelEvent(EVENT_GRAB_POT);
                             events.ScheduleEvent(EVENT_CHANGE_POT, 1000);
                         }
                         break;
                     case EVENT_CHANGE_POT:
                         if (Unit* SlagPotTarget = Unit::GetUnit(*me, SlagPotGUID))
                         {
-                            SlagPotTarget->AddAura(RAID_MODE(SPELL_SLAG_POT_10, SPELL_SLAG_POT_25), SlagPotTarget);
+                            SlagPotTarget->AddAura(SPELL_SLAG_POT, SlagPotTarget);
                             SlagPotTarget->ChangeSeat(1);
-                            events.CancelEvent(EVENT_CHANGE_POT);
                             events.ScheduleEvent(EVENT_END_POT, 10000);
                         }
                         break;
@@ -259,16 +257,16 @@ class boss_ignis : public CreatureScript
                         if (Unit* SlagPotTarget = Unit::GetUnit(*me, SlagPotGUID))
                         {
                             SlagPotTarget->ExitVehicle();
-                            SlagPotTarget->CastSpell(SlagPotTarget, RAID_MODE(SPELL_SLAG_IMBUED_10, SPELL_SLAG_IMBUED_25), true);
-                                
+
                             if (Player* pSlagPotPlayer = SlagPotTarget->ToPlayer())
                             {
                                 AchievementEntry const *AchievHotPocket = GetAchievementStore()->LookupEntry(ACHIEVEMENT_HOT_POCKET);
                                 if (AchievHotPocket)
                                     pSlagPotPlayer->CompletedAchievement(AchievHotPocket);
                             }
-                            SlagPotGUID = 0;
-                            events.CancelEvent(EVENT_END_POT);
+
+                            SlagPotTarget = NULL;
+                            SlagPotGUID = NULL;
                         }
                         break;
                     case EVENT_SCORCH:
@@ -441,6 +439,7 @@ class mob_scorch_ground : public CreatureScript
         mob_scorch_groundAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
+            me->SetDisplayId(16925);
         }
 
         void Reset()
@@ -455,48 +454,56 @@ class mob_scorch_ground : public CreatureScript
     };
 };
 
-/*struct mob_scorch_groundAI : public ScriptedAI
+class spell_ignis_slag_pot : public SpellScriptLoader
 {
-    mob_scorch_groundAI(Creature* pCreature) : ScriptedAI(pCreature)
-    {
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-    }
-
-    uint32 heat_Timer;
-    std::list<Creature*> m_pCreatures;
-
-    void Reset()
-    {
-        DoCast(me, RAID_MODE(SPELL_GROUND_10, SPELL_GROUND_25));
-        heat_Timer = 1000;
-    }
-
-    void UpdateAI(const uint32 uiDiff)
-    {
-        if (heat_Timer <= uiDiff)
+    public:
+        spell_ignis_slag_pot() : SpellScriptLoader("spell_ignis_slag_pot") { }
+ 
+        class spell_ignis_slag_pot_AuraScript : public AuraScript
         {
-            m_pCreatures.clear();
+            PrepareAuraScript(spell_ignis_slag_pot_AuraScript)
+            bool Validate(SpellEntry const * /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_SLAG_POT_DAMAGE))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_SLAG_POT))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_SLAG_IMBUED))
+                    return false;
+                return true;
+            }
 
-            me->GetCreatureListWithEntryInGrid(m_pCreatures, MOB_IRON_CONSTRUCT, 15.0f);
+            void HandleEffectPeriodic(AuraEffect const * aurEff)
+            {
+                Unit* aurEffCaster = aurEff->GetCaster();
+                if (!aurEffCaster)
+                    return;
 
-            if (!m_pCreatures.empty())
-                for(std::list<Creature*>::iterator iter = m_pCreatures.begin(); iter != m_pCreatures.end(); ++iter)
-                    if ((*iter) && (*iter)->isAlive())
-                        me->CastSpell((*iter), SPELL_HEAT, true);
+                Unit * target = GetTarget();
+                aurEffCaster->CastSpell(target, SPELL_SLAG_POT_DAMAGE, true);
+                if (target->isAlive() && !GetDuration())
+                     target->CastSpell(target, SPELL_SLAG_IMBUED, true);
+            }
 
-            heat_Timer = 1000;           
-        } else heat_Timer -= uiDiff;       
-    }
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_ignis_slag_pot_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_ignis_slag_pot_AuraScript();
+        }
 };
-
-CreatureAI* GetAI(Creature* pCreature)
-{
-    return new mob_scorch_groundAI(pCreature);
-};*/
 
 void AddSC_boss_ignis()
 {
     new boss_ignis();
     new mob_iron_construct();
     new mob_scorch_ground();
+    // new spell_ignis_slag_pot();
+
+    if (VehicleSeatEntry* vehSeat = const_cast<VehicleSeatEntry*>(sVehicleSeatStore.LookupEntry(3206)))
+        vehSeat->m_flags |= 0x400;
 }

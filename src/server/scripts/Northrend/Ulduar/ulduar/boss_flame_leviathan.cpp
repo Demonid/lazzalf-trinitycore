@@ -1177,6 +1177,7 @@ public:
             if (action == 0)
             {
                 // Ward of Life
+                // DespawnCreatures(34275, 150.0f);
                 while (Creature* pTarget = me->FindNearestCreature(34275, 150.0f))
                     pTarget->DespawnOrUnsummon();
             }

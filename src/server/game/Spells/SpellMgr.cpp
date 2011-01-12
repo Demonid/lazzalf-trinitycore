@@ -758,13 +758,13 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                 case 34700: // Allergic Reaction
                 case 61987: // Avenging Wrath Marker
                 case 61988: // Divine Shield exclude aura
-                case 61248:                                         // Power of Tenebron
-                case 61251:                                         // Power of Vesperon
-                case 58105:                                         // Power of Shadron
-                case 63322:                                         // Saronite Vapors
+                case 61248: // Power of Tenebron
+                case 61251: // Power of Vesperon
+                case 58105: // Power of Shadron
+                case 63322: // Saronite Vapors
                     return false;
                 case 30877: // Tag Murloc
-                case 12042:                                         // Arcane Power
+                case 12042: // Arcane Power
                     return true;
                 default:
                     break;
@@ -4003,14 +4003,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectRadiusIndex[1] = 41;
             count++;
             break;
-        //case 62038:     // Biting Cold
-            //spellInfo->EffectRadiusIndex[0] = 82; // 300 yard
-            //count++;
-            //break;
-        //case 61990:
-        //    spellInfo->AttributesEx3 |= SPELL_ATTR_EX3_NO_INITIAL_AGGRO;
-        //    count++;
-        //    break;
         case 25771: // Forbearance - wrong mechanic immunity in DBC since 3.0.x
             spellInfo->EffectMiscValue[0] = MECHANIC_IMMUNE_SHIELD;
             count++;
