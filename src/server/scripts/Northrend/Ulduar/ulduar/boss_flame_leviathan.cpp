@@ -130,6 +130,8 @@ enum Vehicles
 #define EMOTE_OVERLOAD                          "Flame Leviathan's circuits overloaded."
 #define EMOTE_REPAIR                            "Automatic repair sequence initiated."
 
+#define ACHI_UNBROKEN             RAID_MODE(2905,2906)
+
 enum Actions
 {
     ACTION_NULL                                 = 0,
@@ -1339,10 +1341,15 @@ public:
     {
         if(Creature* vehicle = pPlayer->GetVehicleCreatureBase())
         {
-            if (!vehicle->HasAura(SPELL_AUTO_REPAIR) && !pPlayer->isInCombat())
+            if (!vehicle->HasAura(SPELL_AUTO_REPAIR) && (vehicle->GetHealth() != vehicle->GetMaxHealth() 
+                && !pPlayer->isInCombat())
             {
+                pPlayer->MonsterTextEmote(EMOTE_REPAIR, pPlayer->GetGUID(), true);
                 vehicle->SetFullHealth();
                 pPlayer->CastSpell(vehicle, SPELL_AUTO_REPAIR, true);
+                
+                if (InstanceScript *data = pPlayer->GetInstanceScript())
+                    data->SetData(DATA_ACHI_UNBROKEN, ACHI_FAILED);
             }
         }
         return true;
@@ -1424,8 +1431,6 @@ class mob_flameleviathan_loot : public CreatureScript
         return new mob_flameleviathan_lootAI(pCreature);
     };
 };
-
-#define ACHI_UNBROKEN             RAID_MODE(2905,2906)
 
 class mob_steelforged_defender : public CreatureScript //33236
 {
