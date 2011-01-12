@@ -243,10 +243,10 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
             me->SetReactState(REACT_PASSIVE);
             
-            towerOfStorms = true;
-            towerOfLife = true;
-            towerOfFlames = true;
-            towerOfFrost = true;
+            towerOfStorms = false;
+            towerOfLife = false;
+            towerOfFlames = false;
+            towerOfFrost = false;
 
             ActiveTowers = false;
             
