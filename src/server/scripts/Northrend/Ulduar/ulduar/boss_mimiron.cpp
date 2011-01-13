@@ -714,6 +714,10 @@ public:
             me->RemoveAllAuras();
             phase = PHASE_NULL;
             events.SetPhase(PHASE_NULL);
+        }
+
+        void JustReachedHome()
+        {
             if (Creature *turret = CAST_CRE(me->GetVehicleKit()->GetPassenger(3)))
             {
                 turret->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -1446,7 +1450,8 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             me->ForcedDespawn(21000);
             if (Creature *pAerialUnit = me->FindNearestCreature(NPC_AERIAL_UNIT, 20, true))
-                pAerialUnit->AI()->DoAction(DO_DISABLE_AERIAL);
+                if (!pAerialUnit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE) && pAerialUnit->IsFlying())
+                    pAerialUnit->AI()->DoAction(DO_DISABLE_AERIAL);
         }
     };
 };
