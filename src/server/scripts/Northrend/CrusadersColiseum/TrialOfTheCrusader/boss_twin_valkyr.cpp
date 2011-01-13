@@ -91,7 +91,8 @@ enum BossSpells
 
     SPELL_UNLEASHED_DARK        = 65808,
     SPELL_UNLEASHED_LIGHT       = 65795,
-    //PowerUp 67604
+
+    SPELL_POWERING_UP           = 67604,
 };
 
 enum Actions
@@ -682,6 +683,8 @@ public:
                     if (pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
                     {
                         DoCastAOE(SPELL_UNLEASHED_DARK);
+                        if (pTarget->GetAura(SPELL_DARK_ESSENCE))
+                            me->CastSpell(pTarget, SPELL_POWERING_UP, true);
                         me->GetMotionMaster()->MoveIdle();
                         me->DespawnOrUnsummon(500);
                     }
@@ -716,6 +719,8 @@ public:
                     if (pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
                     {
                         DoCastAOE(SPELL_UNLEASHED_LIGHT);
+                        if (pTarget->GetAura(SPELL_LIGHT_ESSENCE))
+                            me->CastSpell(pTarget, SPELL_POWERING_UP, true);
                         me->GetMotionMaster()->MoveIdle();
                         me->DespawnOrUnsummon(500);
                     }
@@ -727,6 +732,39 @@ public:
 
 };
 
+class spell_gen_powering_up : public SpellScriptLoader
+{
+    public:
+        spell_gen_powering_up() : SpellScriptLoader("spell_gen_powering_up") { }
+
+        class spell_gen_powering_upAuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_powering_upAuraScript);
+
+            void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                    if (GetStackAmount() >= 100)
+                    {
+                        if (target->GetAura(SPELL_LIGHT_ESSENCE))
+                            target->CastSpell(target, SPELL_EMPOWERED_LIGHT, true);                        
+                        else if (target->GetAura(SPELL_DARK_ESSENCE))
+                            target->CastSpell(target, SPELL_EMPOWERED_DARK, true); 
+                        Remove();
+                    }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_gen_powering_upAuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript *GetAuraScript() const
+        {
+            return new spell_gen_powering_upAuraScript();
+        }
+};
 
 void AddSC_boss_twin_valkyr()
 {
@@ -735,4 +773,5 @@ void AddSC_boss_twin_valkyr()
     new mob_unleashed_light();
     new mob_unleashed_dark();
     new mob_essence_of_twin();
+    new spell_gen_powering_up();
 }
