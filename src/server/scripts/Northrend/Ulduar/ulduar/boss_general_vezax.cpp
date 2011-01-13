@@ -218,7 +218,7 @@ class boss_general_vezax : public CreatureScript
                                 he will start casting it on players inside 15 yards melee and tank included.
                             */
                             if (!(pTarget = CheckPlayersInRange(RAID_MODE(4,9), 15.0f, 50.f)))
-                                pTarget = SelectTarget(SELECT_TARGET_RANDOM); 
+                                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100); 
                             DoCast(pTarget, SPELL_MARK_OF_THE_FACELESS);
                             events.ScheduleEvent(EVENT_MARK, urand(35000, 40000));
                         }
@@ -286,7 +286,8 @@ class boss_general_vezax : public CreatureScript
         {
             Map * pMap = me->GetMap();
             if (pMap && pMap->IsDungeon())
-            {
+            {                
+                uint32 uplayerfound = 0;
                 std::list<Player*> PlayerList;
                 Map::PlayerList const &Players = pMap->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = Players.begin(); itr != Players.end(); ++itr)
@@ -297,6 +298,11 @@ class boss_general_vezax : public CreatureScript
                         if (uiRangeMin < uiDistance || uiDistance > uiRangeMax)
                             continue;
 
+                        uplayerfound++;
+                        
+                        if (!pPlayer->isAlive())
+                            continue;
+
                         PlayerList.push_back(pPlayer);
                     }
                 }
@@ -305,7 +311,7 @@ class boss_general_vezax : public CreatureScript
                     return NULL;
 
                 size_t size = PlayerList.size();
-                if (size < uiPlayersMin)
+                if (uplayerfound < uiPlayersMin)
                     return NULL;
 
                 std::list<Player*>::const_iterator itr = PlayerList.begin();
