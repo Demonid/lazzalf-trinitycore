@@ -211,6 +211,11 @@ const Position PosCharge[7] =
 {2123.91f, -222.443f, 419.573f, 4.97419f}
 };
 
+#define POS_X_ARENA  2181.19f
+#define POS_Y_ARENA  -299.12f
+
+#define IN_ARENA(who) (who->GetPositionX() < POS_X_ARENA && who->GetPositionY() > POS_Y_ARENA)
+
 class boss_thorim : public CreatureScript
 {
     public:
@@ -345,6 +350,12 @@ class boss_thorim : public CreatureScript
         {
             if (!UpdateVictim())
                 return;
+            
+            if (phase == PHASE_2 && !IN_ARENA(me))
+            {
+                EnterEvadeMode();
+                return;
+            }
                 
             events.Update(diff);
             EncounterTime += diff;
@@ -360,7 +371,7 @@ class boss_thorim : public CreatureScript
                     {
                         case EVENT_STORMHAMMER:
                             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
-                                if (pTarget->isAlive() && pTarget->IsWithinLOSInMap(me))
+                                if (pTarget->isAlive() && IN_ARENA(pTarget))
                                     DoCast(pTarget, SPELL_STORMHAMMER);
                             events.ScheduleEvent(EVENT_STORMHAMMER, urand(15000, 20000), 0, PHASE_1);
                             break;
@@ -573,7 +584,9 @@ class mob_arena_phase : public CreatureScript
             id = ArenaAdds(0);
             for (uint8 i = 0; i < 6; ++i)
                 if (me->GetEntry() == ARENA_PHASE_ADD[i])
-                    id = ArenaAdds(i);                    
+                    id = ArenaAdds(i);
+                    
+            IsInArena = IN_ARENA(me);
         }
 
         ArenaAdds id;
@@ -581,6 +594,41 @@ class mob_arena_phase : public CreatureScript
         int32 PrimaryTimer;
         int32 SecondaryTimer;
         int32 ChargeTimer;
+        bool IsInArena;
+        
+        bool isOnSameSide(const Unit *pWho)
+        {
+            return (IsInArena == IN_ARENA(pWho));
+        }
+        
+        void DamageTaken(Unit *attacker, uint32 &damage)
+        {
+            if (!isOnSameSide(attacker))
+                damage = 0;
+        }
+        
+        void EnterEvadeMode()
+        {
+            Map* pMap = me->GetMap();
+            if (pMap->IsDungeon())
+            {
+                Map::PlayerList const &PlayerList = pMap->GetPlayers();
+                if (!PlayerList.isEmpty())
+                {
+                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                    {
+                        if (i->getSource() && i->getSource()->isAlive() && isOnSameSide(i->getSource()))
+                        {
+                            AttackStart(i->getSource());
+                            return;
+                        }
+                    }
+                }
+            }
+
+            me->StopMoving();
+            Reset();
+        }
 
         void Reset()
         {
@@ -593,28 +641,20 @@ class mob_arena_phase : public CreatureScript
         {
             if (id == DARK_RUNE_WARBRINGER)
                 DoCast(me, SPELL_AURA_OF_CELERITY);
-
-            if (me->getVictim())
-                if (!me->IsWithinLOSInMap(me->getVictim()))
-                {
-                    if (Unit* pTarget = me->SelectNearestTarget(45))
-                    {
-                        me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
-                        me->AddThreat(pTarget, 100.0f);
-                    }
-                }
                 
             DoZoneInCombat();
         }
         
         void UpdateAI(const uint32 uiDiff)
-        {                
+        {
+            if ((!isOnSameSide(me) || me->getVictim() && !isOnSameSide(me->getVictim())))
+            {
+                EnterEvadeMode();
+                return;
+            }
+                
             if (me->HasUnitState(UNIT_STAT_CASTING))
                 return;
-
-            if (me->getVictim())
-                if (!me->IsWithinLOSInMap(me->getVictim()))
-                    me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
                 
             if (PrimaryTimer <= int32(uiDiff))
             {
