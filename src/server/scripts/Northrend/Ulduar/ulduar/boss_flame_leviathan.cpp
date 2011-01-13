@@ -22,9 +22,10 @@ Author: PrinceCreed
 EndScriptData */
 
 #include "ScriptPCH.h"
-#include "ScriptedEscortAI.h"
 #include "ulduar.h"
 #include "Vehicle.h"
+
+#define ACHI_UNBROKEN             RAID_MODE(2905,2906)
 
 enum Spells
 {
@@ -108,7 +109,7 @@ enum Events
     EVENT_THORIM_S_HAMMER,      // Tower of Storms
     EVENT_MIMIRON_S_INFERNO,    // Tower of Flames
     EVENT_HODIR_S_FURY,         // Tower of Frost
-    EVENT_FREYA_S_WARD,         // Tower of Nature
+    EVENT_FREYA_S_WARD,         // Tower of Life
 };
 
 enum Seats
@@ -129,8 +130,6 @@ enum Vehicles
 #define EMOTE_PURSUE                            "Flame Leviathan pursues $N."
 #define EMOTE_OVERLOAD                          "Flame Leviathan's circuits overloaded."
 #define EMOTE_REPAIR                            "Automatic repair sequence initiated."
-
-#define ACHI_UNBROKEN             RAID_MODE(2905,2906)
 
 enum Actions
 {
@@ -247,7 +246,7 @@ public:
             towerOfLife = false;
             towerOfFlames = false;
             towerOfFrost = false;
-
+            
             bActiveTowers = false;
             
             // Summon Ulduar Colossus
@@ -264,23 +263,11 @@ public:
         bool towerOfLife;
         bool towerOfFlames;
         bool towerOfFrost;
-
+        
         bool bActiveTowers;
-
-        std::vector<uint64> FreyaUnitList;
 
         void Reset()
         {
-            if (!FreyaUnitList.empty())
-                for (std::vector<uint64>::const_iterator iter = FreyaUnitList.begin(); iter != FreyaUnitList.end(); ++iter)
-                {
-                    if (instance)
-                        if (Creature* pTarget = instance->instance->GetCreature(*iter))
-                            if (pTarget->GetAI())
-                                pTarget->GetAI()->DoAction(1);
-                }
-
-            FreyaUnitList.clear();
             _Reset();
             me->SetReactState(REACT_DEFENSIVE);
             InstallAdds(false);
@@ -326,7 +313,7 @@ public:
                 {
                     ++towerCount;
                     me->AddAura(SPELL_BUFF_TOWER_OF_FROST, me);
-                    events.ScheduleEvent(EVENT_HODIR_S_FURY, 12000);
+                    events.ScheduleEvent(EVENT_HODIR_S_FURY, 5000);
                 }
 
                 if (towerOfLife)
@@ -360,34 +347,32 @@ public:
         {
             if (apply)
             {
-                std::list<Creature*> lSeats;
-                me->GetCreatureListWithEntryInGrid(lSeats, NPC_SEAT, 20);
-                if (lSeats.empty())
-                    return;
-                for (std::list<Creature*>::const_iterator itr = lSeats.begin(); itr != lSeats.end(); itr++)
+                for (uint8 i = RAID_MODE(2,0); i < 4; ++i)
                 {
-                    Vehicle* pSeat = (*itr)->GetVehicleKit();
-                    if (Creature* pTurret = (me->SummonCreature(NPC_TURRET, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN)))
-                        pTurret->EnterVehicle(pSeat, SEAT_TURRET);
+                    if (vehicle->GetPassenger(i))
+                        if (Vehicle *pSeat = vehicle->GetPassenger(i)->GetVehicleKit())
+                        {
+                            if (Creature* pTurret = (me->SummonCreature(NPC_TURRET, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN)))
+                                pTurret->EnterVehicle(pSeat, SEAT_TURRET);
 
-                    if (Creature* pDevice = (me->SummonCreature(NPC_DEVICE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN)))
-                        pDevice->EnterVehicle(pSeat, SEAT_DEVICE);
+                            if (Creature* pDevice = (me->SummonCreature(NPC_DEVICE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN)))
+                                pDevice->EnterVehicle(pSeat, SEAT_DEVICE);
+                        }
                 }
             }
             else
             {
-                std::list<Creature*> lSeats;
-                me->GetCreatureListWithEntryInGrid(lSeats, NPC_SEAT, 20);
-                if (lSeats.empty())
-                    return;
-                for (std::list<Creature*>::const_iterator itr = lSeats.begin(); itr != lSeats.end(); itr++)
+                for (uint8 i = RAID_MODE(2,0); i < 4; ++i)
                 {
-                    Vehicle* pSeat = (*itr)->GetVehicleKit();
-                    if (Unit* pTurret = (pSeat->GetPassenger(SEAT_TURRET)))
-                        pTurret->RemoveFromWorld();
+                    if (vehicle->GetPassenger(i))
+                        if (Vehicle *pSeat = vehicle->GetPassenger(i)->GetVehicleKit())
+                        {
+                            if (Unit* pTurret = (pSeat->GetPassenger(SEAT_TURRET)))
+                                pTurret->RemoveFromWorld();
 
-                    if (Unit* pDevice = (pSeat->GetPassenger(SEAT_DEVICE)))
-                        pDevice->RemoveFromWorld();
+                            if (Unit* pDevice = (pSeat->GetPassenger(SEAT_DEVICE)))
+                                pDevice->RemoveFromWorld();
+                        }
                 }
             }
         }
@@ -545,8 +530,7 @@ public:
                     case EVENT_FREYA_S_WARD:        // Tower of Life
                         DoScriptText(SAY_TOWER_NATURE, me);
                         for (uint32 i = 0; i < 4; ++i)
-                            if (Creature* summon = me->SummonCreature(NPC_FREYA_BEACON, PosFreyasWard[i]))
-                                FreyaUnitList.push_back(summon->GetGUID());
+                            DoSummon(NPC_FREYA_BEACON, PosFreyasWard[i]);
                         events.CancelEvent(EVENT_FREYA_S_WARD);
                         break;
                 }
@@ -685,14 +669,14 @@ public:
 
     struct boss_flame_leviathan_defense_cannonAI : public ScriptedAI
     {
-        boss_flame_leviathan_defense_cannonAI(Creature* pCreature) : ScriptedAI(pCreature) { }
-
-        uint32 NapalmTimer;
-
-        void Reset ()
+        boss_flame_leviathan_defense_cannonAI(Creature* pCreature) : ScriptedAI(pCreature) 
         {
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             NapalmTimer = 5000;
         }
+
+        uint32 NapalmTimer;
 
         void UpdateAI(const uint32 diff)
         {
@@ -701,13 +685,12 @@ public:
 
             if (NapalmTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 50, true))
-                {
-                    DoCast(pTarget, SPELL_NAPALM, true);
-                }
-                NapalmTimer = 5000;
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (!me->IsWithinDist(pTarget, 20))
+                        DoCast(pTarget, SPELL_NAPALM);
+                NapalmTimer = urand(10000, 15000);
             }
-            else NapalmTimer-=diff;
+            else NapalmTimer -= diff;
         }
     };
 };
@@ -944,9 +927,8 @@ public:
         {
             if (me->isSummon())
             {
-                if (Creature* pLeviathan = Unit::GetCreature(*me, instance->GetData64(DATA_LEVIATHAN)))
-                    if (pLeviathan->AI())
-                        pLeviathan->AI()->DoAction(ACTION_COLOSSUS_COUNT);
+                if (Creature* pLeviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN)))
+                    pLeviathan->AI()->DoAction(ACTION_COLOSSUS_COUNT);
             }
         }
 
@@ -1155,7 +1137,7 @@ public:
             me->AddAura(GREEN_SKYBEAM, me);
             me->SetReactState(REACT_PASSIVE);
             me->SetDisplayId(11686);
-            summonTimer = 5000;
+            summonTimer = urand(15000, 20000);
         }
 
         uint32 summonTimer ;
@@ -1167,20 +1149,9 @@ public:
                 if (Creature* pTrigger = DoSummonFlyer(NPC_FREYA_TARGET_BEACON, me, 80, 0, 3000, TEMPSUMMON_TIMED_DESPAWN))
                     pTrigger->CastSpell(me, SPELL_FREYA_S_WARD, true);
 
-                summonTimer = 20000 ;
+                summonTimer = urand(25000, 35000);
             }
             else summonTimer -= diff ;
-        }
-
-        void DoAction(const int32 action)
-        {
-            if (action == 0)
-            {
-                // Ward of Life
-                // DespawnCreatures(34275, 150.0f);
-                while (Creature* pTarget = me->FindNearestCreature(34275, 150.0f))
-                    pTarget->DespawnOrUnsummon();
-            }
         }
     };
 
@@ -1202,18 +1173,23 @@ public:
         {
             //for (uint32 i = 0; i < 4; ++i)
                 //DoCast(me, SPELL_FREYA_SUMMONS, true);
-            me->GetMotionMaster()->MoveRandom(100);
+            pInstance = pCreature->GetInstanceScript();
+            me->GetMotionMaster()->MovePoint(0, 259.56f, -17.45f, 409.65f);
             lashTimer = 5000 ;
         }
 
+        InstanceScript* pInstance;
         uint32 lashTimer ;
 
         void UpdateAI(const uint32 diff)
         {
+            if (pInstance && pInstance->GetBossState(BOSS_LEVIATHAN) != IN_PROGRESS)
+                me->DespawnOrUnsummon();
+        
             if (!UpdateVictim())
                 return;
 
-            if(lashTimer <= diff)
+            if (lashTimer <= diff)
             {
                 DoCast(SPELL_LASH);
                 lashTimer = 5000;
@@ -1379,15 +1355,10 @@ public:
     {
         if(Creature* vehicle = pPlayer->GetVehicleCreatureBase())
         {
-            if (!vehicle->HasAura(SPELL_AUTO_REPAIR) && (vehicle->GetHealth() != vehicle->GetMaxHealth())
-                && !pPlayer->isInCombat())
+            if (!vehicle->HasAura(SPELL_AUTO_REPAIR) && !pPlayer->isInCombat())
             {
-                pPlayer->MonsterTextEmote(EMOTE_REPAIR, pPlayer->GetGUID(), true);
                 vehicle->SetFullHealth();
                 pPlayer->CastSpell(vehicle, SPELL_AUTO_REPAIR, true);
-                
-                if (InstanceScript *data = pPlayer->GetInstanceScript())
-                    data->SetData(DATA_ACHI_UNBROKEN, ACHI_FAILED);
             }
         }
         return true;
@@ -1503,6 +1474,7 @@ void AddSC_boss_flame_leviathan()
 {
     new boss_flame_leviathan();
     new boss_flame_leviathan_seat();
+    new boss_flame_leviathan_defense_cannon();
     new boss_flame_leviathan_defense_turret();
     new boss_flame_leviathan_overload_device();
     new boss_flame_leviathan_safety_container();
