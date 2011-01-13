@@ -439,7 +439,7 @@ class mob_scorch_ground : public CreatureScript
         mob_scorch_groundAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-            me->SetDisplayId(16925);
+            // me->SetDisplayId(16925);
         }
 
         void Reset()
