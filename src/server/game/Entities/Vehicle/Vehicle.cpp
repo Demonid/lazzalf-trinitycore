@@ -371,9 +371,12 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId, bool byAura)
         {
             Player *plr = unit->ToPlayer();
             float averageItemLevel = plr->GetAverageItemLevel();
-            if (averageItemLevel < scalingInfo->baseItemLevel)
-                averageItemLevel = scalingInfo->baseItemLevel;
-            averageItemLevel -= scalingInfo->baseItemLevel;
+            //if (averageItemLevel < scalingInfo->baseItemLevel)
+            //    averageItemLevel = scalingInfo->baseItemLevel;
+            // averageItemLevel -= scalingInfo->baseItemLevel;
+            if (averageItemLevel < (scalingInfo->baseItemLevel + 30.f))
+                averageItemLevel = scalingInfo->baseItemLevel + 30.f;
+            averageItemLevel = (averageItemLevel - (scalingInfo->baseItemLevel + 30.0f)) * 3.0f;            
 
             m_bonusHP = uint32(me->GetMaxHealth() * (averageItemLevel * scalingInfo->scalingFactor));
             me->SetMaxHealth(me->GetMaxHealth() + m_bonusHP);
