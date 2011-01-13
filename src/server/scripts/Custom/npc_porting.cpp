@@ -4,26 +4,44 @@
 
 struct SkillSpell
 {
-    uint32 skill, spell;
+    uint32 skill, spell, maxskill;
 };
 
 static SkillSpell SkillSpells[] =
 {
-    {393, 8613}, // Skinning
-    {165, 2108}, // Leatherworking
-    {164, 2018}, // Blacksmithing
-    {197, 3908}, // Tailoring
-    {333, 7411}, // Enchanting
-    {186, 2575}, // Mining
-    {202, 4036}, // Engineering
-    {171, 2259}, // Alchemy
-    {182, 2366}, // Herbalism
-    {755, 25229}, // Jewelcrafting
-    {773, 45357}, // Inscription
-    {129, 3273}, // First Aid
-    {185, 2550}, // Cooking
-    {356, 7620}, // Fishing
-    {95, 204}, // Defense
+    {393, 8613, 450}, // Skinning
+    {165, 2108, 450}, // Leatherworking
+    {164, 2018, 450}, // Blacksmithing
+    {197, 3908, 450}, // Tailoring
+    {333, 7411, 450}, // Enchanting
+    {186, 2575, 450}, // Mining
+    {202, 4036, 450}, // Engineering
+    {171, 2259, 450}, // Alchemy
+    {182, 2366, 450}, // Herbalism
+    {755, 25229, 450}, // Jewelcrafting
+    {773, 45357, 450}, // Inscription
+    {129, 3273, 450}, // First Aid
+    {185, 2550, 450}, // Cooking
+    {356, 7620, 450}, // Fishing
+    {95, 204, 400}, // Defense
+    {136, 227, 400}, // Staves
+    {173, 1180, 400}, // Daggers
+    {44, 196, 400}, // Axes
+    {43, 201, 400}, // Swords
+    {54, 198, 400}, // Maces
+    {162, 203, 400}, // Unarmed
+    {160, 199, 400}, // Two-Handed Maces
+    {55, 202, 400}, // Two-Handed Swords
+    {172, 197, 400}, // Two-Handed Axes
+    {228, 5009, 400}, // Wands
+    {473, 15590, 400}, // Fist Weapons
+    {45, 264, 400}, // Bows
+    {229, 200, 400}, // Polearms
+    {46, 266, 400}, // Guns
+    {176, 2567, 400}, // Thrown
+    {226, 5011, 400}, // Crossbows
+    {633, 1809, 400}, // Lockpicking
+    {762, 33388, 300}, // Riding
     {0, 0}
 };
 
@@ -126,9 +144,16 @@ class npc_porting : public CreatureScript
                                             pPlayer->CastSpell(pPlayer, SkillSpells[j].spell, true);
 
                                         if (!pPlayer->GetSkillValue(SkillSpells[j].skill))
-                                            continue;                                      
+                                            continue; 
 
-                                        uint32 max = uint32(fields[i+8].GetUInt32() / 75) * 75 ? uint32(fields[i+8].GetUInt32() / 75) * 75 : pPlayer->GetPureMaxSkillValue(SkillSpells[j].skill);
+                                        uint32 maxskill = 0;
+
+                                        if (SkillSpells[j].maxskill == 450 || SkillSpells[j].maxskill == 300)
+                                            maxskill = (uint32(fields[i+8].GetUInt32() / 75) + (fields[i+8].GetUInt32()%75 ? 1 : 0)) * 75 >= SkillSpells[j].maxskill ? SkillSpells[j].maxskill : (uint32(fields[i+8].GetUInt32() / 75) + (fields[i+8].GetUInt32()%75 ? 1 : 0)) * 75;
+                                        else if (SkillSpells[j].maxskill == 400)
+                                            maxskill = pPlayer->getLevel() * 5;
+
+                                        uint32 max =  maxskill ? maxskill : pPlayer->GetPureMaxSkillValue(SkillSpells[j].skill);
 
                                         if (fields[i+8].GetUInt32() <= 0 || fields[i+8].GetUInt32() > max || max <= 0)
                                             continue;
@@ -192,7 +217,7 @@ class npc_porting : public CreatureScript
                             GM_Ticket *ticket = sTicketMgr->GetGMTicketByPlayer(pPlayer->GetGUID());
                             if (ticket && ticket->closed == 0 && !ticket->completed)
                             {
-                                std::string ticketText = "";
+                                std::string ticketText = "Test";
                                 ticket->message = ticketText;
                                 sTicketMgr->AddOrUpdateGMTicket(*ticket, true);
                                 std::string msg = "Porting completato in parte! Ticket editato in automatico per completare il porting con un GM!";

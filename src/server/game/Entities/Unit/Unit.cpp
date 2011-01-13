@@ -1660,11 +1660,6 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
 
         absorbAurEff->GetBase()->CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, dmgInfo, absorb, defaultPrevented);
         currentAbsorb = absorb;
-                if (spellProto->Id == 64677) // Shield Generator
-                {
-                    currentAbsorb = 50000; //Hack, i don't know true value
-                    continue;
-                }
 
         if (defaultPrevented)
             continue;
