@@ -29,18 +29,28 @@ EndScriptData */
 enum Spells
 {
     // Kologarn
-    SPELL_ARM_DEAD_DAMAGE                       = 63629,
-    SPELL_TWO_ARM_SMASH                         = 63356,
-    SPELL_ONE_ARM_SMASH                         = 63573,
-    SPELL_ARM_SWEEP                             = 63766,
-    SPELL_STONE_SHOUT                           = 63716,
-    SPELL_PETRIFY_BREATH                        = 62030,
-    SPELL_SHOCKWAVE                             = 63783,
+    SPELL_ARM_DEAD_DAMAGE_10                    = 63629,
+    SPELL_ARM_DEAD_DAMAGE_25                    = 63979,
+    SPELL_TWO_ARM_SMASH_10                      = 63356,
+    SPELL_TWO_ARM_SMASH_25                      = 64003,
+    SPELL_ONE_ARM_SMASH_10                      = 63573,
+    SPELL_ONE_ARM_SMASH_25                      = 64006,
+    SPELL_ARM_SWEEP_10                          = 63766,
+    SPELL_ARM_SWEEP_25                          = 63983,
+    SPELL_STONE_SHOUT_10                        = 63716,
+    SPELL_STONE_SHOUT_25                        = 64005,
+    SPELL_PETRIFY_BREATH_10                     = 62030,
+    SPELL_PETRIFY_BREATH_25                     = 63980,
+    SPELL_SHOCKWAVE_10                          = 63783,
+    SPELL_SHOCKWAVE_25                          = 63982,
     SPELL_SHOCKWAVE_VISUAL                      = 63788,
     
-    SPELL_STONE_GRIP                            = 64290,
+    SPELL_STONE_GRIP_10                         = 64290,
+    SPELL_STONE_GRIP_25                         = 64292,
     SPELL_STONE_GRIP_STUN                       = 62056,
-    SPELL_FOCUSED_EYEBEAM                       = 63347,
+    //SPELL_STONE_GRIP_STUN_25                    = 63985,
+    SPELL_FOCUSED_EYEBEAM_10                    = 63347,
+    SPELL_FOCUSED_EYEBEAM_25                    = 63977,
     SPELL_EYEBEAM_VISUAL_1                      = 63676,
     SPELL_EYEBEAM_VISUAL_2                      = 63702,
     SPELL_EYEBEAM_IMMUNITY                      = 64722,
@@ -262,10 +272,10 @@ public:
                 return;
             
             if (events.GetTimer() > 15000 && !me->IsWithinMeleeRange(me->getVictim()))
-                DoCastAOE(SPELL_PETRIFY_BREATH, true);
+                DoCastAOE(RAID_MODE(SPELL_PETRIFY_BREATH_10,SPELL_PETRIFY_BREATH_25), true);
         
             if (!left && !right)
-                DoCast(me, SPELL_STONE_SHOUT, true);
+                DoCast(me, RAID_MODE(SPELL_STONE_SHOUT_10,SPELL_STONE_SHOUT_25), true);
 
             switch(events.GetEvent())
             {
@@ -274,18 +284,18 @@ public:
                     if (left && right)
                     {
                         if (me->IsWithinMeleeRange(me->getVictim()))
-                            DoCastVictim(SPELL_TWO_ARM_SMASH, true);
+                            DoCastVictim(RAID_MODE(SPELL_TWO_ARM_SMASH_10,SPELL_TWO_ARM_SMASH_25), true);
                     }
                     else if (left || right)
                     {
                         if (me->IsWithinMeleeRange(me->getVictim()))
-                            DoCastVictim(SPELL_ONE_ARM_SMASH, true);
+                            DoCastVictim(RAID_MODE(SPELL_ONE_ARM_SMASH_10,SPELL_ONE_ARM_SMASH_25), true);
                     }
                     events.RescheduleEvent(EVENT_SMASH, 15000);
                     break;
                 case EVENT_SWEEP:
                     if (left)
-                        DoCastAOE(SPELL_ARM_SWEEP, true);
+                        DoCastAOE(RAID_MODE(SPELL_ARM_SWEEP_10,SPELL_ARM_SWEEP_25), true);
                     events.RescheduleEvent(EVENT_SWEEP, 15000);
                     break;
                 case EVENT_GRIP:
@@ -310,7 +320,7 @@ public:
                     if (left)
                     {
                         DoScriptText(SAY_SHOCKWAVE, me);
-                        DoCastAOE(SPELL_SHOCKWAVE, true);
+                        DoCastAOE(RAID_MODE(SPELL_SHOCKWAVE_10,SPELL_SHOCKWAVE_25), true);
                         DoCastAOE(SPELL_SHOCKWAVE_VISUAL, true);
                     }
                     events.RescheduleEvent(EVENT_SHOCKWAVE, urand(15000, 25000));
@@ -402,7 +412,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             DoCast(me, SPELL_EYEBEAM_IMMUNITY);
-            DoCast(me, SPELL_FOCUSED_EYEBEAM);
+            DoCast(me, RAID_MODE(SPELL_FOCUSED_EYEBEAM_10,SPELL_FOCUSED_EYEBEAM_25));
             me->SetDisplayId(11686);
             checkTimer = 1500;
         }
@@ -564,7 +574,7 @@ public:
                             if (GripTarget && GripTarget->isAlive())
                             {
                                 GripTarget->EnterVehicle(me, n);
-                                me->AddAura(SPELL_STONE_GRIP, GripTarget);
+                                me->AddAura(RAID_MODE(SPELL_STONE_GRIP_10,SPELL_STONE_GRIP_25), GripTarget);
                                 me->AddAura(SPELL_STONE_GRIP_STUN, GripTarget);
                                 GripTargetGUID[n] = NULL;
                             }
@@ -591,7 +601,7 @@ public:
                         Unit* pGripTarget = me->GetVehicleKit()->GetPassenger(n);
                         if (pGripTarget && pGripTarget->isAlive())
                         {
-                            pGripTarget->RemoveAurasDueToSpell(SPELL_STONE_GRIP);
+                            pGripTarget->RemoveAurasDueToSpell(RAID_MODE(SPELL_STONE_GRIP_10,SPELL_STONE_GRIP_25));
                             pGripTarget->RemoveAurasDueToSpell(SPELL_STONE_GRIP_STUN);
                             pGripTarget->ExitVehicle();
                             //pGripTarget->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
