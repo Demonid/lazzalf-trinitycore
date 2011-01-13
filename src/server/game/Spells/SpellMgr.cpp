@@ -4219,9 +4219,6 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         default:
             break;
-
-        default:
-            break;
         }
 
         switch(spellInfo->SpellFamilyName)
