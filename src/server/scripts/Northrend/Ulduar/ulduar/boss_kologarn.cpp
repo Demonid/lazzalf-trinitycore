@@ -235,7 +235,7 @@ public:
             events.ScheduleEvent(EVENT_SWEEP, 10000);
             events.ScheduleEvent(EVENT_EYEBEAM, 10000);
             events.ScheduleEvent(EVENT_SHOCKWAVE, 12000);
-            events.ScheduleEvent(EVENT_GRIP, 40000);
+            // events.ScheduleEvent(EVENT_GRIP, 40000);
         }
 
         void Reset()
