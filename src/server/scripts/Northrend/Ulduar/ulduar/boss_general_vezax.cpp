@@ -218,7 +218,7 @@ class boss_general_vezax : public CreatureScript
                                 he will start casting it on players inside 15 yards melee and tank included.
                             */
                             if (!(pTarget = CheckPlayersInRange(RAID_MODE(4,9), 15.0f, 50.f)))
-                                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100); 
+                                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true); 
                             DoCast(pTarget, SPELL_MARK_OF_THE_FACELESS);
                             events.ScheduleEvent(EVENT_MARK, urand(35000, 40000));
                         }
