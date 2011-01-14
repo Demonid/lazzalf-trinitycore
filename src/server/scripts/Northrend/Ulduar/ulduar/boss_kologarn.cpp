@@ -604,7 +604,7 @@ public:
         {
             for (uint8 i = 0; i < N_GRIPPED; ++i)
             {
-                if (Unit* grabbed = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                if (Unit* grabbed = SelectTarget(SELECT_TARGET_RANDOM, 1, 50.0f, true))
                 {
                     DoCast(grabbed, SPELL_STONE_GRIP);
                     uiGrippedTargets[i] = grabbed->GetGUID();
