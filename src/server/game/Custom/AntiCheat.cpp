@@ -527,10 +527,12 @@ void AntiCheat::CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket
         uiDiffTime_packets = 1;
 
     // fClientRate = it is the player's rate calculated using the distance done by the player
-    fClientRate = (fDistance2d * 1000 / uiDiffTime_packets) /  plMover->GetSpeed(uiMoveType);
+    fClientRate = (fDistance2d * 1000 / uiDiffTime_packets) /  fSpeedRate;
 
     // fServerRate = it is the player's rate using the distance per second (core information)
-    fServerRate = plMover->GetSpeed(uiMoveType) * uiDiffTime_packets / 1000 + sWorld->getFloatConfig(CONFIG_AC_MAX_DISTANCE_DIFF_ALLOWED);
+    fServerRate = fSpeedRate * uiDiffTime_packets / 1000 + sWorld->getFloatConfig(CONFIG_AC_MAX_DISTANCE_DIFF_ALLOWED);
+
+    fServerDelta = fSpeedRate * uiDiffTime_packets / 1000 + sWorld->getFloatConfig(CONFIG_AC_MAX_DISTANCE_DIFF_ALLOWED);
 
     // Check if he have fly auras
 	fly_auras = CanFly(pNewPacket);
@@ -718,7 +720,7 @@ bool AntiCheat::CheckMistiming(Vehicle *vehMover, MovementInfo& pMovementInfo)
 		if (bMistimingModulo)
 		{
             ++(m_CheatList[CHEAT_MISTIMING]);		
-            cheat_find = true;
+            // cheat_find = true;
 			LogCheat(CHEAT_MISTIMING, pMovementInfo);
 		}
         if (map_block && sWorld->getIntConfig(CONFIG_AC_MISTIMING_BLOCK_COUNT) &&
@@ -856,6 +858,17 @@ bool AntiCheat::CheckAntiSpeed(Vehicle *vehMover, MovementInfo& pOldPacket, Move
     // the same reason for IsFalling, just in case...
     if (plMover->HasAuraType(SPELL_AURA_FEATHER_FALL) || plMover->HasAuraType(SPELL_AURA_SAFE_FALL))
         return true;
+    
+    // If we are under the Terrain, We are falling in Texture
+    if (const Map *map = plMover->GetMap())
+    {
+        float ground_z = map->GetHeight(plMover->GetPositionX(), plMover->GetPositionY(), MAX_HEIGHT);
+        float floor_z  = map->GetHeight(plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ());
+        float map_z    = ((floor_z <= (INVALID_HEIGHT+5.0f)) ? ground_z : floor_z);
+        if (map_z - 10.0f > plMover->GetPositionZ() && 
+            map_z > (INVALID_HEIGHT + 10.0f + 5.0f))
+            return true;
+    }
 
     // in my opinion this var must be constant in each check to avoid false reports
     if (GetLastSpeedRate() != fSpeedRate)
