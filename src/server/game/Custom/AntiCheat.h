@@ -82,6 +82,8 @@ class AntiCheat
         float fClientRate;
         float fServerRate;
         float fDistance2d;
+
+        float fServerDelta;
 		
 		void CalcDeltas(MovementInfo& pNewPacket, MovementInfo& pOldPacket);
 		void CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket, Unit* mover);
