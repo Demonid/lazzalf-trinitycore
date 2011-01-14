@@ -472,8 +472,7 @@ struct boss_jormungarAI : public ScriptedAI
                 if (slimePoolTimer <= uiDiff)
                 {
                     /* Spell summon has only 30s duration */
-                    //DoCast(SUMMON_SLIME_POOL);
-                    me->SummonCreature(NPC_SLIME_POOL, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
+                    DoCast(me, SUMMON_SLIME_POOL);
                     slimePoolTimer = 30*IN_MILLISECONDS;
                 } else slimePoolTimer -= uiDiff;
 
@@ -668,7 +667,6 @@ public:
         {
             casted = false;
             me->SetReactState(REACT_PASSIVE);
-            me->DespawnOrUnsummon(60*IN_MILLISECONDS);
         }
 
         void UpdateAI(const uint32 /*uiDiff*/)
