@@ -57,6 +57,9 @@ enum Spells
     SPELL_ARM_RESPAWN                           = 64753
 };
 
+#define SPELL_STONE_GRIP RAID_MODE(62166,63981)
+#define SPELL_STONE_GRIP_CANCEL 65594
+
 enum Events
 {
     EVENT_NONE,
@@ -102,6 +105,8 @@ enum Yells
 #define EMOTE_LEFT                              "The Left Arm has regrown!"
 #define EMOTE_RIGHT                             "The Right Arm has regrown!"
 #define EMOTE_STONE                             "Kologarn casts Stone Grip!"
+
+#define N_GRIPPED                               RAID_MODE(1, 2)
 
 // Achievements
 #define ACHIEVEMENT_LOOKS_COULD_KILL            RAID_MODE(2955, 2956) // TODO
@@ -233,7 +238,7 @@ public:
         
             RubbleCount = 0;
             Gripped = false;
-            for (int32 n = 0; n < RAID_MODE(1, 2); ++n)
+            for (int32 n = 0; n < N_GRIPPED; ++n)
                 GripTargetGUID[n] = NULL;
             
             for (int32 n = 0; n < 2; ++n)
@@ -306,7 +311,7 @@ public:
                             me->MonsterTextEmote(EMOTE_STONE, 0, true);
                             DoScriptText(SAY_GRAB_PLAYER, me);
                             // Grip up to 3 players
-                            for (int32 n = 0; n < RAID_MODE(1, 2); ++n)
+                            for (int32 n = 0; n < N_GRIPPED; ++n)
                             {
                                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 40, true))
                                     GripTargetGUID[n] = pTarget->GetGUID();
@@ -499,6 +504,8 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 64708, true);
             me->SetReactState(REACT_PASSIVE);
+
+            Reset();
         }
 
         InstanceScript* pInstance;
@@ -507,15 +514,25 @@ public:
         int32 ArmDamage;
         uint32 SqueezeTimer;
 
+        uint32 uiStoneGripTimer;
+        uint64 uiGrippedTargets[3];
+        uint32 uiPermittedDamage;
+
         void Reset()
         {
             Gripped = false;
             ArmDamage = 0;
             SqueezeTimer = 0;
+
+            memset(&uiGrippedTargets, 0, sizeof(uiGrippedTargets));
+            uiPermittedDamage = RAID_MODE(100000, 480000);
+            uiStoneGripTimer = 0;
         }
 
         void JustDied(Unit* /*victim*/)
         {
+            ReleaseGrabbedPlayers();
+
             for (uint8 i = 0; i < 5; ++i)
                 me->SummonCreature(NPC_RUBBLE, RubbleRight, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
             
@@ -532,6 +549,7 @@ public:
             summon->AI()->DoZoneInCombat();
         }
 
+        /*
         void KilledUnit(Unit* Victim)
         {
             if (Victim && Victim->ToPlayer())
@@ -541,17 +559,30 @@ public:
                 //Victim->ToPlayer()->TeleportTo(Victim->GetMapId(), 1767.80f, -18.38f, 449.0f, 0);                    
             }
         }
+        */
 
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
                 return;
 
-            if (Gripped)
+            if (uiStoneGripTimer <= diff)
+            {
+                GrabPlayers();
+                if (Creature* Kologarn = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_KOLOGARN) : 0))
+                    DoScriptText(SAY_GRAB_PLAYER, Kologarn);
+
+                uiStoneGripTimer = urand(30000, 35000);
+                uiPermittedDamage = RAID_MODE(100000, 480000);
+            }
+            else
+                uiStoneGripTimer -= diff;
+
+            /*if (Gripped)
             {
                 if (SqueezeTimer <= diff)
                 {
-                    for (uint8 n = 0; n < RAID_MODE(1, 2); ++n)
+                    for (uint8 n = 0; n < N_GRIPPED; ++n)
                     {
                         if (me->GetVehicleKit()->GetPassenger(n) && me->GetVehicleKit()->GetPassenger(n)->isAlive())
                             me->Kill(me->GetVehicleKit()->GetPassenger(n), true);
@@ -559,15 +590,35 @@ public:
                     Gripped = false;
                 }  
                 else SqueezeTimer -= diff;
+            }*/
+        }
+
+        void ReleaseGrabbedPlayers()
+        {
+             for (uint8 i = 0; i < N_GRIPPED; ++i)
+                if (Unit* grabbed = Unit::GetUnit(*me, uiGrippedTargets[i]))
+                    me->CastSpell(grabbed, SPELL_STONE_GRIP_CANCEL, false);
+        }
+
+        void GrabPlayers()
+        {
+            for (uint8 i = 0; i < N_GRIPPED; ++i)
+            {
+                if (Unit* grabbed = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                {
+                    DoCast(grabbed, SPELL_STONE_GRIP);
+                    uiGrippedTargets[i] = grabbed->GetGUID();
+                }
             }
         }
 
+        /*
         void DoAction(const int32 action)
         {
             switch (action)
             {
                 case ACTION_GRIP:
-                    for (uint8 n = 0; n < RAID_MODE(1, 2); ++n)
+                    for (uint8 n = 0; n < N_GRIPPED; ++n)
                     {
                         if (Unit* GripTarget = Unit::GetUnit(*me, GripTargetGUID[n]))
                         {
@@ -585,18 +636,28 @@ public:
                     Gripped = true;
                     break;
             }
-        }
+        }*/
     
         void DamageTaken(Unit* pKiller, uint32 &damage)
         {
-            if (Gripped)
+            if (uiGrippedTargets[0] == 0)
+                return;
+
+            if (damage > uiPermittedDamage)
+                uiPermittedDamage = 0;
+            else
+                uiPermittedDamage -= damage;
+
+            if (!uiPermittedDamage)
+                ReleaseGrabbedPlayers();
+            /*if (Gripped)
             {
                 ArmDamage += damage;
                 int32 dmg = RAID_MODE(100000, 480000);
             
                 if (ArmDamage >= dmg || damage >= me->GetHealth())
                 {
-                    for (uint8 n = 0; n < RAID_MODE(1, 2); ++n)
+                    for (uint8 n = 0; n < N_GRIPPED; ++n)
                     {
                         Unit* pGripTarget = me->GetVehicleKit()->GetPassenger(n);
                         if (pGripTarget && pGripTarget->isAlive())
@@ -611,7 +672,7 @@ public:
                     }
                     Gripped = false;
                 }
-            }
+            }*/
         }
     };
 

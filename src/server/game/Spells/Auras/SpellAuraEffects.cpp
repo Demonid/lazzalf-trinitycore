@@ -3363,7 +3363,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const * aurApp, uint8 m
             case FORM_FLIGHT:
             {
                 // AntiCheat
-                if (target->GetTypeId() == TYPEID_PLAYER))
+                if (target->GetTypeId() == TYPEID_PLAYER)
                     target->ToPlayer()->GetAntiCheat()->SetSleep(2000);
             } break;
             default:
