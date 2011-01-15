@@ -4073,6 +4073,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->CastingTimeIndex = 1;
             count++;
             break;
+        case 33206: // Pain Suppression
+            spellInfo->AttributesEx5 &= ~SPELL_ATTR5_USABLE_WHILE_STUNNED;
+            count++;
+            break;
         case 53241: // Marked for Death (Rank 1)
         case 53243: // Marked for Death (Rank 2)
         case 53244: // Marked for Death (Rank 3)
