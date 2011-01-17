@@ -102,8 +102,14 @@ enum Actions
 };
 
 
-#define SPELL_LIGHT_ESSENCE       65686
-#define SPELL_DARK_ESSENCE        65684
+#define SPELL_LIGHT_ESSENCE        65686 //RAID_MODE(65686,67222,67223,67224)
+#define SPELL_DARK_ESSENCE         65684 //RAID_MODE(65684,67176,67177,67178)
+#define SPELL_LIGHT_ESSENCE_25     67222
+#define SPELL_DARK_ESSENCE_25      67176
+#define SPELL_LIGHT_ESSENCE_10H    67223
+#define SPELL_DARK_ESSENCE_10H     67177
+#define SPELL_LIGHT_ESSENCE_25H    67224
+#define SPELL_DARK_ESSENCE_25H     67178
 
 #define ACHIEVEMENT_SALT_AND_PEPPER RAID_MODE(3799, 3815)
 #define SALT_AND_PEPPER_MAX_TIMER 3 * MINUTE * IN_MILLISECONDS
@@ -484,8 +490,8 @@ public:
             m_uiSisterNpcId = NPC_DARKBANE;
             m_uiColorballNpcId = NPC_UNLEASHED_LIGHT;
             m_uiEssenceNpcId = NPC_LIGHT_ESSENCE;
-            m_uiMyEssenceSpellId = SPELL_LIGHT_ESSENCE;
-            m_uiOtherEssenceSpellId = SPELL_DARK_ESSENCE;
+            m_uiMyEssenceSpellId = RAID_MODE(SPELL_LIGHT_ESSENCE,SPELL_LIGHT_ESSENCE_25,SPELL_LIGHT_ESSENCE_10H,SPELL_LIGHT_ESSENCE_25H);
+            m_uiOtherEssenceSpellId = RAID_MODE(SPELL_DARK_ESSENCE,SPELL_DARK_ESSENCE_25,SPELL_DARK_ESSENCE_10H,SPELL_DARK_ESSENCE_25H);
             m_uiEmpoweredWeaknessSpellId = SPELL_EMPOWERED_DARK;
             m_uiSurgeSpellId = SPELL_LIGHT_SURGE;
             m_uiVortexSpellId = SPELL_LIGHT_VORTEX;
@@ -561,8 +567,8 @@ public:
             m_uiSisterNpcId = NPC_LIGHTBANE;
             m_uiColorballNpcId = NPC_UNLEASHED_DARK;
             m_uiEssenceNpcId = NPC_DARK_ESSENCE;
-            m_uiMyEssenceSpellId = SPELL_DARK_ESSENCE;
-            m_uiOtherEssenceSpellId = SPELL_LIGHT_ESSENCE;
+            m_uiMyEssenceSpellId = RAID_MODE(SPELL_DARK_ESSENCE,SPELL_DARK_ESSENCE_25,SPELL_DARK_ESSENCE_10H,SPELL_DARK_ESSENCE_25H);
+            m_uiOtherEssenceSpellId = RAID_MODE(SPELL_LIGHT_ESSENCE,SPELL_LIGHT_ESSENCE_25,SPELL_LIGHT_ESSENCE_10H,SPELL_LIGHT_ESSENCE_25H);
             m_uiEmpoweredWeaknessSpellId = SPELL_EMPOWERED_LIGHT;
             m_uiSurgeSpellId = SPELL_DARK_SURGE;
             m_uiVortexSpellId = SPELL_DARK_VORTEX;
