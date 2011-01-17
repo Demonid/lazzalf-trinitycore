@@ -6124,13 +6124,11 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                         if (AuraEffect const * aurEff = GetBase()->GetEffect(1))
                         {
                             if (GetEffIndex() == 0) 
-                            {
+                            {   
                                 // backfire damage
-                                if (caster)
-                                {
-                                    int32 damage = caster->SpellDamageBonus(target, GetSpellProto(), aurEff->GetAmount(), DOT) * 3;
-                                    target->CastCustomSpell(target, 64085, &damage, NULL, NULL, true, NULL, NULL, GetCasterGUID());
-                                }
+                                int32 damage = aurEff->GetAmount() * 8;
+                                int32 dispelDamage = caster->SpellDamageBonus(caster, m_spellProto, damage, SPELL_DIRECT_DAMAGE);
+                                target->CastCustomSpell(target, 64085, &dispelDamage, NULL, NULL, true, NULL, NULL,GetCasterGUID());
                             }
                             else 
                             {
