@@ -566,7 +566,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (uiStoneGripTimer <= diff)
+            /*if (uiStoneGripTimer <= diff)
             {
                 GrabPlayers();
                 if (Creature* Kologarn = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_KOLOGARN) : 0))
@@ -576,7 +576,7 @@ public:
                 uiPermittedDamage = RAID_MODE(100000, 480000);
             }
             else
-                uiStoneGripTimer -= diff;
+                uiStoneGripTimer -= diff;*/
 
             /*if (Gripped)
             {

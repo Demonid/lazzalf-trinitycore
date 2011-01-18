@@ -140,6 +140,7 @@ static Elem EquipVct[] =
 #define MSG_GOSSIP_PORTING_1     "Attiva Porting Fase 1"
 #define MSG_GOSSIP_CLOSE         "Chiudi"
 #define MSG_GOSSIP_PORTING_2     "Attiva Porting Fase 2"
+#define MSG_GOSSIP_PORTING_3     "Portami a Dalaran"
 
 #define ITEM_BAG 21843
 #define ITEM_TITANIUM_ROD 44452
@@ -161,6 +162,8 @@ class npc_porting : public CreatureScript
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
             else if (fields[0].GetUInt32() == 1)
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+            else if (fields[0].GetUInt32() == 2)
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
        }
 
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_CLOSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
@@ -182,7 +185,7 @@ class npc_porting : public CreatureScript
             case GOSSIP_ACTION_INFO_DEF+1: // Close
                 pPlayer->CLOSE_GOSSIP_MENU();
                 break;
-            case GOSSIP_ACTION_INFO_DEF+2: // Bags
+            case GOSSIP_ACTION_INFO_DEF+2:
                 {
                     pPlayer->AddItem(ITEM_BAG, 4);
                     QueryResult result = ExtraDatabase.PQuery("SELECT level, gold, repu_1, repu_2, repu_3, level_repu_1, level_repu_2, level_repu_3, skill_1, skill_2, skill_3, skill_4, skill_5, skill_6, skill_7, skill_8, level_skill_1, level_skill_2, level_skill_3, level_skill_4 , level_skill_5, level_skill_6, level_skill_7, level_skill_8 FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());               
@@ -277,7 +280,7 @@ class npc_porting : public CreatureScript
                     pPlayer->CLOSE_GOSSIP_MENU();
                 }
                 break;
-            case GOSSIP_ACTION_INFO_DEF+3: // Bags
+            case GOSSIP_ACTION_INFO_DEF+3:
                 {
                     QueryResult result = ExtraDatabase.PQuery("SELECT id_equip_1, id_equip_2, id_equip_3 FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());               
                     if (result)
@@ -289,9 +292,16 @@ class npc_porting : public CreatureScript
                                 {
                                     pPlayer->AddItem(EquipVct[fields[j].GetUInt32()].item[i], 1);
                                 }
-
                     }
-
+                    QueryResult result = ExtraDatabase.PQuery("SELECT id_item_1, id_item_2, id_item_3, id_item_4, id_item_5 FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());               
+                    if (result)
+                    {
+                        Field *fields = result->Fetch();
+                        for (int j = 0; j < 5; j++)
+                            if (fields[j].GetUInt32())
+                                pPlayer->AddItem(fields[j].GetUInt32(), 1);
+                    }   
+    
                     result = ExtraDatabase.PQuery("SELECT `active` FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());
                     if (result)
                     {
@@ -334,6 +344,13 @@ class npc_porting : public CreatureScript
                         ExtraDatabase.PExecute("UPDATE `porting` SET `fase` = 2, `active` = 0 WHERE `guid` = %u", pPlayer->GetGUIDLow());                
                     }
                     pPlayer->CLOSE_GOSSIP_MENU();
+                }
+                break;
+            case GOSSIP_ACTION_INFO_DEF+4:
+                {
+                    ExtraDatabase.PExecute("UPDATE `porting` SET `fase` = 3, `active` = 0 WHERE `guid` = %u", pPlayer->GetGUIDLow());                
+                    pPlayer->CLOSE_GOSSIP_MENU();
+                    player->TeleportTo(571, 5804.15f, 624.77f, 647.8f, 1.64f);
                 }
                 break;
         }
