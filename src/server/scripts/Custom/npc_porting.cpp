@@ -293,7 +293,7 @@ class npc_porting : public CreatureScript
                                     pPlayer->AddItem(EquipVct[fields[j].GetUInt32()].item[i], 1);
                                 }
                     }
-                    QueryResult result = ExtraDatabase.PQuery("SELECT id_item_1, id_item_2, id_item_3, id_item_4, id_item_5 FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());               
+                    result = ExtraDatabase.PQuery("SELECT id_item_1, id_item_2, id_item_3, id_item_4, id_item_5 FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());               
                     if (result)
                     {
                         Field *fields = result->Fetch();
@@ -350,7 +350,7 @@ class npc_porting : public CreatureScript
                 {
                     ExtraDatabase.PExecute("UPDATE `porting` SET `fase` = 3, `active` = 0 WHERE `guid` = %u", pPlayer->GetGUIDLow());                
                     pPlayer->CLOSE_GOSSIP_MENU();
-                    player->TeleportTo(571, 5804.15f, 624.77f, 647.8f, 1.64f);
+                    pPlayer->TeleportTo(571, 5804.15f, 624.77f, 647.8f, 1.64f);
                 }
                 break;
         }
