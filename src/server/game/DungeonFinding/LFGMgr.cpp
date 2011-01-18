@@ -1812,7 +1812,7 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
     if (gDungeonId != dungeonId)
     {
         sLog->outDebug("LFGMgr::RewardDungeonDoneFor: [" UI64FMTD "] Finished dungeon %u but group queued for %u. Ignoring", guid, dungeonId, gDungeonId);
-        return;
+        // return; Lazzalf
     } 
 
     if (GetState(guid) == LFG_STATE_FINISHED_DUNGEON)
