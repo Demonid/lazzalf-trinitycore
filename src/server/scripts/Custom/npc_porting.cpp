@@ -185,7 +185,7 @@ class npc_porting : public CreatureScript
             case GOSSIP_ACTION_INFO_DEF+2: // Bags
                 {
                     pPlayer->AddItem(ITEM_BAG, 4);
-                    QueryResult result = ExtraDatabase.PQuery("SELECT livel, gold, repu_1, repu_2, repu_3, level_repu_1, level_repu_2, level_repu_3, skill_1, skill_2, skill_3, skill_4, skill_5, skill_6, skill_7, skill_8, level_skill_1, level_skill_2, level_skill_3, level_skill_4 , level_skill_5, level_skill_6, level_skill_7, level_skill_8 FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());               
+                    QueryResult result = ExtraDatabase.PQuery("SELECT level, gold, repu_1, repu_2, repu_3, level_repu_1, level_repu_2, level_repu_3, skill_1, skill_2, skill_3, skill_4, skill_5, skill_6, skill_7, skill_8, level_skill_1, level_skill_2, level_skill_3, level_skill_4 , level_skill_5, level_skill_6, level_skill_7, level_skill_8 FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());               
                     if (result)
                     {
                         Field *fields = result->Fetch();
@@ -220,7 +220,14 @@ class npc_porting : public CreatureScript
                                     if (SkillSpells[j].skill == fields[i].GetUInt32())
                                     {
                                         if (SkillSpells[j].spell)
-                                            pPlayer->CastSpell(pPlayer, SkillSpells[j].spell, true);
+                                        {
+                                            SpellEntry const* spellInfo = sSpellStore.LookupEntry(SkillSpells[j].spell);
+                                            if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo,pPlayer))
+                                                continue;
+                                            if (pPlayer->HasSpell(SkillSpells[j].spell))
+                                                continue;
+                                            pPlayer->learnSpell(SkillSpells[j].spell, false);
+                                        }
 
                                         if (!pPlayer->GetSkillValue(SkillSpells[j].skill))
                                             continue; 
@@ -228,7 +235,21 @@ class npc_porting : public CreatureScript
                                         uint32 maxskill = 0;
 
                                         if (SkillSpells[j].maxskill == 450 || SkillSpells[j].maxskill == 300)
+                                        {
                                             maxskill = (uint32(fields[i+8].GetUInt32() / 75) + (fields[i+8].GetUInt32()%75 ? 1 : 0)) * 75 >= SkillSpells[j].maxskill ? SkillSpells[j].maxskill : (uint32(fields[i+8].GetUInt32() / 75) + (fields[i+8].GetUInt32()%75 ? 1 : 0)) * 75;
+                                            if (SkillSpells[j].skill == 762) // Riding
+                                            {
+                                                if (maxskill >= 150)
+                                                    if (!pPlayer->HasSpell(33391))
+                                                        pPlayer->learnSpell(33391, false);
+                                                if (maxskill >= 225)
+                                                    if (!pPlayer->HasSpell(34090))
+                                                        pPlayer->learnSpell(34090, false);
+                                                if (maxskill >= 300)
+                                                    if (!pPlayer->HasSpell(34091))
+                                                        pPlayer->learnSpell(34091, false);
+                                            }
+                                        }
                                         else if (SkillSpells[j].maxskill == 400)
                                             maxskill = pPlayer->getLevel() * 5;
 
