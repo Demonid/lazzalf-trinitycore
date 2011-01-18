@@ -857,9 +857,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recv_data)
     _player->GetAntiCheat()->m_anti_Last_VSpeed = movementInfo.j_zspeed < 3.2f ? movementInfo.j_zspeed - 1.0f : 3.2f;
 
     const uint32 dt = (_player->GetAntiCheat()->m_anti_Last_VSpeed < 0) ? int(ceil(_player->GetAntiCheat()->m_anti_Last_VSpeed/-25)*1000) : int(ceil(_player->GetAntiCheat()->m_anti_Last_VSpeed/25)*1000);
-    _player->GetAntiCheat()->m_anti_LastSpeedChangeTime = movementInfo.time + dt + 1000;
-
-    _player->GetAntiCheat()->SetSleep(2000); //AntiCheat Sleep
+    _player->GetAntiCheat()->m_anti_LastSpeedChangeTime = movementInfo.time + dt + 1000;   
 }
 
 void WorldSession::HandleMoveHoverAck(WorldPacket& recv_data)

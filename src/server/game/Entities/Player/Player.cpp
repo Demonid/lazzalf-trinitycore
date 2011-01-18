@@ -1919,6 +1919,8 @@ void Player::TeleportOutOfMap(Map *oldMap)
 
 bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
 {
+    GetAntiCheat()->SetSleep(7000); //AntiCheat Sleep
+
     if (!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))
     {
         sLog->outError("TeleportTo: invalid map %d or absent instance template.", mapid);
