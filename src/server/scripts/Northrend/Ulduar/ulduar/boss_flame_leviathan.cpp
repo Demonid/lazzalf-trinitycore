@@ -287,6 +287,7 @@ public:
             events.ScheduleEvent(EVENT_VENT, 20000);
             events.ScheduleEvent(EVENT_SPEED, 15000);
             events.ScheduleEvent(EVENT_SUMMON, 1500);
+            events.ScheduleEvent(EVENT_SHUTDOWN, 90000);            
             InstallAdds(true);
             ActiveTowers();
         }
@@ -503,6 +504,7 @@ public:
                         me->SetReactState(REACT_PASSIVE);
                         me->StopMoving();
                         events.CancelEvent(EVENT_SHUTDOWN);
+                        events.ScheduleEvent(EVENT_REPAIR, 20000);
                         return;
                     case EVENT_REPAIR:
                         me->MonsterTextEmote(EMOTE_REPAIR, 0, true);
@@ -510,6 +512,7 @@ public:
                         me->ClearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
                         me->SetReactState(REACT_AGGRESSIVE);
                         events.CancelEvent(EVENT_REPAIR);
+                        events.ScheduleEvent(EVENT_SHUTDOWN, 90000);
                         break;
                     case EVENT_THORIM_S_HAMMER:     // Tower of Storms
                         DoScriptText(SAY_TOWER_STORM, me);
@@ -1346,6 +1349,8 @@ public:
     }
 };
 
+#define EMOTE_REPAIR          "Automatic repair sequence initiated."
+
 class at_RX_214_repair_o_matic_station : public AreaTriggerScript
 {
 public:
@@ -1353,12 +1358,16 @@ public:
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/)
     {
-        if(Creature* vehicle = pPlayer->GetVehicleCreatureBase())
+        if (Creature* vehicle = pPlayer->GetVehicleCreatureBase())
         {
-            if (!vehicle->HasAura(SPELL_AUTO_REPAIR) && !pPlayer->isInCombat())
+            if (!vehicle->HasAura(SPELL_AUTO_REPAIR) && (vehicle->GetHealth() != vehicle->GetMaxHealth()) &&
+                !pPlayer->isInCombat())
             {
-                vehicle->SetFullHealth();
+                pPlayer->MonsterTextEmote(EMOTE_REPAIR, pPlayer->GetGUID(), true);
+                vehicle->SetHealth(vehicle->GetMaxHealth()); // Correct spell not works
                 pPlayer->CastSpell(vehicle, SPELL_AUTO_REPAIR, true);
+                if (InstanceScript *data = pPlayer->GetInstanceScript())
+                    data->SetData(DATA_ACHI_UNBROKEN, ACHI_FAILED);
             }
         }
         return true;
@@ -1470,6 +1479,115 @@ class mob_steelforged_defender : public CreatureScript //33236
     };
 };
 
+class ulduar_repair_npc : public CreatureScript
+{
+    public:
+        ulduar_repair_npc(): CreatureScript("ulduar_repair_npc") {}
+
+    bool OnGossipHello(Player *player, Creature *_Creature)
+    {
+        if (!player)
+            return true;
+
+        player->ADD_GOSSIP_ITEM( 5, "Repair Chopper"         , GOSSIP_SENDER_MAIN, 1005);
+        player->ADD_GOSSIP_ITEM( 5, "Repair Siege"           , GOSSIP_SENDER_MAIN, 1010);
+        player->ADD_GOSSIP_ITEM( 5, "Repair Demolisher"      , GOSSIP_SENDER_MAIN, 1015);
+         
+        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,_Creature->GetGUID());
+
+        return true;
+    };
+
+    void SendDefaultMenu_ulduar_repair_npc(Player *player, Creature *_Creature, uint32 action)
+    {
+        if (!player)
+            return;
+
+        // Not allow in combat
+        if (!player->getAttackers().empty())
+        {
+            player->CLOSE_GOSSIP_MENU();
+            _Creature->MonsterSay("Sei in combat!", LANG_UNIVERSAL, 0);
+            return;
+        }
+
+        if (InstanceScript *data = player->GetInstanceScript())
+            if (data->GetBossState(BOSS_LEVIATHAN) == IN_PROGRESS)
+            {
+                player->CLOSE_GOSSIP_MENU();
+                _Creature->MonsterSay("Sei in combat con il leviathan!", LANG_UNIVERSAL, 0);
+                return;            
+            }
+        
+        switch(action)
+        {
+            case 1005: //Chopper
+                if (Creature* vehicle = _Creature->FindNearestCreature(VEHICLE_CHOPPER, 20))
+                {
+                    if (vehicle->GetHealth() != vehicle->GetMaxHealth())
+                    {
+                        vehicle->SetHealth(vehicle->GetMaxHealth());
+                        _Creature->MonsterSay("Chopper riparato!", LANG_UNIVERSAL, 0);
+                        if (InstanceScript *data = player->GetInstanceScript())
+                            data->SetData(DATA_ACHI_UNBROKEN, ACHI_FAILED);
+                    }
+                    else
+                        _Creature->MonsterSay("Il chopper non ha bisogno di riparazioni!", LANG_UNIVERSAL, 0);
+                }
+                else
+                    _Creature->MonsterSay("Non trovo un chopper nelle vicinanze", LANG_UNIVERSAL, 0);
+                player->CLOSE_GOSSIP_MENU();
+                break;
+            case 1010: //Siege
+                if (Creature* vehicle = _Creature->FindNearestCreature(VEHICLE_SIEGE, 20))
+                {
+                    if (vehicle->GetHealth() != vehicle->GetMaxHealth())
+                    {
+                        vehicle->SetHealth(vehicle->GetMaxHealth());
+                        _Creature->MonsterSay("Siege riparato!", LANG_UNIVERSAL, 0);
+                        if (InstanceScript *data = player->GetInstanceScript())
+                            data->SetData(DATA_ACHI_UNBROKEN, ACHI_FAILED);
+                    }
+                    else
+                        _Creature->MonsterSay("Il siege non ha bisogno di riparazioni!", LANG_UNIVERSAL, 0);
+                }
+                else
+                    _Creature->MonsterSay("Non trovo un siege nelle vicinanze", LANG_UNIVERSAL, 0);
+                player->CLOSE_GOSSIP_MENU();
+                break; 
+            case 1015: //Demolisher
+                if (Creature* vehicle = _Creature->FindNearestCreature(VEHICLE_DEMOLISHER, 20))
+                {
+                    if ((vehicle->GetHealth() != vehicle->GetMaxHealth()) || (vehicle->GetPower(POWER_ENERGY) != vehicle->GetMaxPower(POWER_ENERGY)))
+                    {
+                        vehicle->SetHealth(vehicle->GetMaxHealth());
+                        vehicle->SetPower(POWER_ENERGY,vehicle->GetMaxPower(POWER_ENERGY));
+                        _Creature->MonsterSay("Demolisher riparato!", LANG_UNIVERSAL, 0);
+                        if (InstanceScript *data = player->GetInstanceScript())
+                            data->SetData(DATA_ACHI_UNBROKEN, ACHI_FAILED);
+                    }
+                    else
+                        _Creature->MonsterSay("Il demolisher non ha bisogno di riparazioni!", LANG_UNIVERSAL, 0);
+                }
+                else
+                    _Creature->MonsterSay("Non trovo un demolisher nelle vicinanze", LANG_UNIVERSAL, 0);
+                player->CLOSE_GOSSIP_MENU();
+                break; 
+        }
+    };
+
+    bool OnGossipSelect(Player *pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+    {
+        pPlayer->PlayerTalkClass->ClearMenus();
+
+        // Main menu
+        if (sender == GOSSIP_SENDER_MAIN)
+            SendDefaultMenu_ulduar_repair_npc( pPlayer, _Creature, action );
+
+        return true;
+    };
+};
+
 void AddSC_boss_flame_leviathan()
 {
     new boss_flame_leviathan();
@@ -1491,4 +1609,5 @@ void AddSC_boss_flame_leviathan()
     new at_RX_214_repair_o_matic_station();
     new mob_flameleviathan_loot();
     new mob_steelforged_defender();
+    new ulduar_repair_npc();
 }
