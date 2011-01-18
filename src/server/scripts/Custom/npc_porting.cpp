@@ -195,6 +195,7 @@ class npc_porting : public CreatureScript
                         pPlayer->ModifyMoney(fields[1].GetUInt32() * 1000);
                         // Reputazioni
                         for (int i = 2; i < 5; i++)
+                        {
                             if (fields[i].GetUInt32())
                             {
                                 FactionEntry const *factionEntry = sFactionStore.LookupEntry(fields[i].GetUInt32());
@@ -207,8 +208,10 @@ class npc_porting : public CreatureScript
 
                                 pPlayer->GetReputationMgr().SetOneFactionReputation(factionEntry, fields[i+3].GetUInt32());
                             }
+                        }
                         // Skills
                         for (int i = 8; i < 16; i++)
+                        {
                             if (fields[i].GetUInt32())
                             {
                                 SkillLineEntry const *skillInfo = sSkillLineStore.LookupEntry(i);
@@ -222,15 +225,13 @@ class npc_porting : public CreatureScript
                                         if (SkillSpells[j].spell)
                                         {
                                             SpellEntry const* spellInfo = sSpellStore.LookupEntry(SkillSpells[j].spell);
-                                            if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo,pPlayer))
-                                                continue;
-                                            if (pPlayer->HasSpell(SkillSpells[j].spell))
-                                                continue;
-                                            pPlayer->learnSpell(SkillSpells[j].spell, false);
+                                            if (spellInfo && SpellMgr::IsSpellValid(spellInfo, pPlayer))
+                                                if (!pPlayer->HasSpell(SkillSpells[j].spell))
+                                                    pPlayer->learnSpell(SkillSpells[j].spell, false);
                                         }
 
                                         if (!pPlayer->GetSkillValue(SkillSpells[j].skill))
-                                            continue; 
+                                            break; 
 
                                         uint32 maxskill = 0;
 
@@ -239,13 +240,13 @@ class npc_porting : public CreatureScript
                                             maxskill = (uint32(fields[i+8].GetUInt32() / 75) + (fields[i+8].GetUInt32()%75 ? 1 : 0)) * 75 >= SkillSpells[j].maxskill ? SkillSpells[j].maxskill : (uint32(fields[i+8].GetUInt32() / 75) + (fields[i+8].GetUInt32()%75 ? 1 : 0)) * 75;
                                             if (SkillSpells[j].skill == 762) // Riding
                                             {
-                                                if (maxskill >= 150)
+                                                if (maxskill > 75)
                                                     if (!pPlayer->HasSpell(33391))
                                                         pPlayer->learnSpell(33391, false);
-                                                if (maxskill >= 225)
+                                                if (maxskill > 150)
                                                     if (!pPlayer->HasSpell(34090))
                                                         pPlayer->learnSpell(34090, false);
-                                                if (maxskill >= 300)
+                                                if (maxskill > 225)
                                                     if (!pPlayer->HasSpell(34091))
                                                         pPlayer->learnSpell(34091, false);
                                             }
@@ -256,7 +257,7 @@ class npc_porting : public CreatureScript
                                         uint32 max =  maxskill ? maxskill : pPlayer->GetPureMaxSkillValue(SkillSpells[j].skill);
 
                                         if (fields[i+8].GetUInt32() <= 0 || fields[i+8].GetUInt32() > max || max <= 0)
-                                            continue;
+                                            break;
 
                                         pPlayer->SetSkill(SkillSpells[j].skill, pPlayer->GetSkillStep(SkillSpells[j].skill), fields[i+8].GetUInt32(), max);
                                         
@@ -268,6 +269,7 @@ class npc_porting : public CreatureScript
                                     }
                                 }
                             }
+                        }
                         std::string msg = "Equipaggia le 4 bags e poi continua il porting";
                         pCreature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
                         ExtraDatabase.PExecute("UPDATE `porting` SET `fase` = 1 WHERE `guid` = %u", pPlayer->GetGUIDLow());
