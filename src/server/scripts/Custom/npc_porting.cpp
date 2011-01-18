@@ -214,7 +214,7 @@ class npc_porting : public CreatureScript
                         {
                             if (fields[i].GetUInt32())
                             {
-                                SkillLineEntry const *skillInfo = sSkillLineStore.LookupEntry(i);
+                                SkillLineEntry const *skillInfo = sSkillLineStore.LookupEntry(fields[i].GetUInt32());
                                 if (!skillInfo)
                                     continue;
 
