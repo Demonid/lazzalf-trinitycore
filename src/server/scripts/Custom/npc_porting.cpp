@@ -341,7 +341,7 @@ class npc_porting : public CreatureScript
                                 pCreature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
                             }
                         }
-                        ExtraDatabase.PExecute("UPDATE `porting` SET `fase` = 2, `active` = 0 WHERE `guid` = %u", pPlayer->GetGUIDLow());                
+                        ExtraDatabase.PExecute("UPDATE `porting` SET `fase` = 2 WHERE `guid` = %u", pPlayer->GetGUIDLow());                
                     }
                     pPlayer->CLOSE_GOSSIP_MENU();
                 }

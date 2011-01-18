@@ -79,7 +79,7 @@ class AntiCheat
 		float allowed_delta;
 		float JumpHeight;
 
-        float fClientRate;
+        float fClientSpeedRate;
         float fServerRate;
         float fDistance2d;
 
@@ -98,7 +98,7 @@ class AntiCheat
 		bool CheckAntiMountain(Vehicle* /*vehMover*/, MovementInfo& /*pMovementInfo*/);
 		bool CheckAntiFly(Vehicle* vehMover, MovementInfo& pOldPacket, MovementInfo& pNewPacket);
 		bool CheckAntiWaterwalk(Vehicle* vehMover, MovementInfo& pOldPacket, MovementInfo& pNewPacket);
-		bool CheckAntiTeleToPlane(Vehicle* /*vehMover*/, MovementInfo& /*pMovementInfo*/);
+		bool CheckAntiTeleToPlane(Vehicle* vehMover, MovementInfo& pOldPacket, MovementInfo& pNewPacket);
         void LogCheat(eCheat /*m_cheat*/, MovementInfo& /*pMovementInfo*/);
         bool AntiCheatPunisher(MovementInfo& /*pMovementInfo*/);
         inline bool ControllPunisher();
