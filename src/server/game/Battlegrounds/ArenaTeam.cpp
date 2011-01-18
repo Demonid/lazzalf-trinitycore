@@ -338,8 +338,8 @@ void ArenaTeam::DelMember(uint64 guid)
             player->SetArenaTeamInfoField(GetSlot(), ArenaTeamInfoType(i), 0);
         sLog->outArena("Player: %s [GUID: %u] left arena team type: %u [Id: %u].", player->GetName(), player->GetGUIDLow(), GetType(), GetId());
     }
-    CharacterDatabase.PExecute("UPDATE character_arena_stats SET personal_rating = '%u' WHERE guid = '%u' AND slot = '%u'", neWplPRating , GUID_LOPART(guid), GetSlot());
-    // CharacterDatabase.PExecute("DELETE FROM arena_team_member WHERE arenateamid = '%u' AND guid = '%u'", GetId(), GUID_LOPART(guid));
+    //CharacterDatabase.PExecute("UPDATE character_arena_stats SET personal_rating = '%u' WHERE guid = '%u' AND slot = '%u'", neWplPRating , GUID_LOPART(guid), GetSlot());
+    CharacterDatabase.PExecute("DELETE FROM arena_team_member WHERE arenateamid = '%u' AND guid = '%u'", GetId(), GUID_LOPART(guid));
 }
 
 void ArenaTeam::Disband(WorldSession *session)
