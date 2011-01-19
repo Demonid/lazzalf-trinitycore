@@ -81,13 +81,13 @@ class AntiCheat
 		float JumpHeight;
 
         float fClientSpeedRate;
-        float fServerRate;
+        // float fServerRate;
         float fDistance2d;
 
         uint32 uClientSpeedRate;
         uint32 uDistance2D;
 
-        float fServerDelta;
+        // float fServerDelta;
 		
 		void CalcDeltas(MovementInfo& pNewPacket, MovementInfo& pOldPacket);
 		void CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket, Unit* mover);
