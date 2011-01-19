@@ -436,10 +436,14 @@ public:
 
         void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
         {
-            if (spell->Id == RAID_MODE(SPELL_FOCUSED_EYEBEAM_10,SPELL_FOCUSED_EYEBEAM_25))
+            if (pTarget->GetTypeId() == TYPEID_PLAYER)
             {
-                if (Creature* pKologarn = me->GetCreature(*me, pInstance->GetData64(DATA_KOLOGARN)))
-                    CAST_AI(boss_kologarn::boss_kologarnAI,pKologarn->AI())->eyeBeamHit = true;
+                if (spell->Id == RAID_MODE(SPELL_FOCUSED_EYEBEAM_10,SPELL_FOCUSED_EYEBEAM_25))
+                {
+                     if (pInstance)
+                         if (Creature* pKologarn = me->GetCreature(*me, pInstance->GetData64(DATA_KOLOGARN)))
+                             CAST_AI(boss_kologarn::boss_kologarnAI,pKologarn->AI())->eyeBeamHit = true;
+                }
             }
         }
 
