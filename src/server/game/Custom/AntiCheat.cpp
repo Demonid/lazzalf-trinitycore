@@ -499,9 +499,8 @@ void AntiCheat::CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket
     uClientSpeedRate = uDistance2D * 1000 / uiDiffTime_packets;
 
     // fServerRate = it is the player's rate using the distance per second (core information)
-    fServerRate = fSpeedRate * uiDiffTime_packets / 1000 + sWorld->getFloatConfig(CONFIG_AC_MAX_DISTANCE_DIFF_ALLOWED);
-
-    fServerDelta = fSpeedRate * uiDiffTime_packets / 1000 + sWorld->getFloatConfig(CONFIG_AC_MAX_DISTANCE_DIFF_ALLOWED);
+    // fServerRate = fSpeedRate * uiDiffTime_packets / 1000 + sWorld->getFloatConfig(CONFIG_AC_MAX_DISTANCE_DIFF_ALLOWED);
+    // fServerDelta = fSpeedRate * uiDiffTime_packets / 1000 + sWorld->getFloatConfig(CONFIG_AC_MAX_DISTANCE_DIFF_ALLOWED);
 
     // Check if he have fly auras
 	fly_auras = CanFly(pNewPacket);
@@ -553,9 +552,7 @@ bool AntiCheat::CanFly(MovementInfo& pMovementInfo)
         plMover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) || 
         plMover->HasAuraType(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED) ||
         plMover->HasAuraType(SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_ALWAYS) || 
-        plMover->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK) ||
-        plMover->HasAuraType(SPELL_AURA_FEATHER_FALL) ||
-        plMover->HasAuraType(SPELL_AURA_SAFE_FALL))
+        plMover->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK))
         return true;
 
     if (Creature* pCreature = plMover->GetVehicleCreatureBase())
@@ -608,8 +605,8 @@ void AntiCheat::LogCheat(eCheat m_cheat, MovementInfo& pMovementInfo)
             if (difftime_log_file >= sWorld->getIntConfig(CONFIG_AC_DELTA_LOG_FILE))
 			{
 				m_logfile_time = cServerTime;  
-			    sLog->outCheat("AC-%s Map %u Area %u, X:%f Y:%f Z:%f, speed exception | cDelta=%f aDelta=%f | cSpeed=%f lSpeed=%f deltaTime=%f", plMover->GetName(), plMover->GetMapId(), 
-				    plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ(), plMover->GetAreaId(), fDistance2d, allowed_delta, fSpeedRate, m_anti_Last_HSpeed, client_time_delta);
+			    sLog->outCheat("AC-%s Map %u Area %u, X:%f Y:%f Z:%f, speed exception | cDeltaDistance=%f DeltaPacketTime=%u | sSpeed=%f cSpeed=%f", plMover->GetName(), plMover->GetMapId(), 
+				    plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ(), plMover->GetAreaId(), fDistance2d, uiDiffTime_packets, fSpeedRate, fClientSpeedRate);
             }	
             cheat_type = "Speed";
             break;
@@ -617,8 +614,8 @@ void AntiCheat::LogCheat(eCheat m_cheat, MovementInfo& pMovementInfo)
             if (difftime_log_file >= sWorld->getIntConfig(CONFIG_AC_DELTA_LOG_FILE))
 			{
 				m_logfile_time = cServerTime;  
-			    sLog->outCheat("AC-%s Map %u Area %u, X:%f Y:%f Z:%f, teleport exception | cDelta=%f aDelta=%f | cSpeed=%f lSpeed=%f deltaTime=%f", plMover->GetName(), plMover->GetMapId(), 
-				    plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ(), plMover->GetAreaId(), fDistance2d, allowed_delta, fSpeedRate, m_anti_Last_HSpeed, client_time_delta);
+			    sLog->outCheat("AC-%s Map %u Area %u, X:%f Y:%f Z:%f, teleport exception | cDeltaDistance=%f DeltaPacketTime=%u | sSpeed=%f cSpeed=%f", plMover->GetName(), plMover->GetMapId(), 
+				    plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ(), plMover->GetAreaId(), fDistance2d, uiDiffTime_packets, fSpeedRate, fClientSpeedRate);
             }
             cheat_type = "Teleport";
             break;
@@ -888,7 +885,7 @@ bool AntiCheat::CheckAntiMountain(MovementInfo& pMovementInfo)
 
 bool AntiCheat::CheckAntiFly(MovementInfo& pOldPacket, MovementInfo& pNewPacket)
 {
-    if (!pOldPacket.HasMovementFlag(MOVEMENTFLAG_FLYING))
+    if (!pOldPacket.HasMovementFlag(MOVEMENTFLAG_FLYING)) // is flying
         return true;
 
     if (plMover->HasAuraType(SPELL_AURA_FEATHER_FALL) || plMover->HasAuraType(SPELL_AURA_SAFE_FALL))
@@ -909,7 +906,7 @@ bool AntiCheat::CheckAntiFly(MovementInfo& pOldPacket, MovementInfo& pNewPacket)
     }
     */
 
-	if (!fly_auras && plMover->IsFlying())
+	if (!fly_auras)
 	{
         if (map_count)
             ++(m_CheatList[CHEAT_FLY]);
@@ -961,12 +958,10 @@ bool AntiCheat::CheckAntiWaterwalk(MovementInfo& pOldPacket, MovementInfo& pNewP
 
 	if (plMover->HasAuraType(SPELL_AURA_WATER_WALK) ||
         plMover->HasAuraType(SPELL_AURA_FEATHER_FALL) ||
-        plMover->HasAuraType(SPELL_AURA_SAFE_FALL) ||
-        plMover->HasAuraType(SPELL_AURA_GHOST))
+        plMover->HasAuraType(SPELL_AURA_SAFE_FALL))
         return true;
 
-	if (plMover->HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING) &&
-        !fly_auras && !plMover->IsFlying())
+	if (!fly_auras && !plMover->IsFlying())
 	{
         if (map_count)
             ++(m_CheatList[CHEAT_WATERWALK]);
