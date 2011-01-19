@@ -141,6 +141,7 @@ static Elem EquipVct[] =
 #define MSG_GOSSIP_CLOSE         "Chiudi"
 #define MSG_GOSSIP_PORTING_2     "Equipaggia le 4 bags e poi Continua"
 #define MSG_GOSSIP_PORTING_3     "Portami a Dalaran"
+#define MSG_GOSSIP_PORTING_4     "Porting Non Valido"
 
 #define ITEM_BAG 21843
 #define ITEM_TITANIUM_ROD 44452
@@ -158,12 +159,14 @@ class npc_porting : public CreatureScript
         if (result)
         {
             Field *fields = result->Fetch();
-            if (fields[0].GetUInt32() == 0)
+            if (fields[0].GetInt32() == 0)
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            else if (fields[0].GetUInt32() == 1)
+            else if (fields[0].GetInt32() == 1)
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-            else if (fields[0].GetUInt32() == 2)
+            else if (fields[0].GetInt32() == 2)
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+            else if (fields[0].GetInt32() == -1)
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
        }
 
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_CLOSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
@@ -314,7 +317,7 @@ class npc_porting : public CreatureScript
                     if (result)
                     {
                         Field *fields = result->Fetch();
-                        if (fields[0].GetUInt32() == 1)
+                        if (fields[0].GetInt32() == 1)
                         {
                             GM_Ticket *ticket = sTicketMgr->GetGMTicketByPlayer(pPlayer->GetGUID());
                             if (ticket && ticket->closed == 0 && !ticket->completed)
@@ -332,7 +335,7 @@ class npc_porting : public CreatureScript
                             std::string msg = "Porting concluso! Il Ticket è stato chiuso!";
                             pCreature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
                         }
-                        else if (fields[0].GetUInt32() == 2)
+                        else if (fields[0].GetInt32() == 2)
                         {
                             GM_Ticket *ticket = sTicketMgr->GetGMTicketByPlayer(pPlayer->GetGUID());
                             if (ticket && ticket->closed == 0 && !ticket->completed)
@@ -360,6 +363,17 @@ class npc_porting : public CreatureScript
                     ExtraDatabase.PExecute("UPDATE `porting` SET `fase` = 3, `active` = 0 WHERE `guid` = %u", pPlayer->GetGUIDLow());                
                     pPlayer->CLOSE_GOSSIP_MENU();
                     pPlayer->TeleportTo(571, 5804.15f, 624.77f, 647.8f, 1.64f);
+                }
+                break;
+            case GOSSIP_ACTION_INFO_DEF+5:
+                {
+                    QueryResult result = ExtraDatabase.PQuery("SELECT `ticket_txt` FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());
+                    if (result)
+                    {
+                        Field *fields = result->Fetch();
+                        pCreature->MonsterWhisper(fields[0].GetCString(), pPlayer->GetGUID());
+                    }                    
+                    pPlayer->CLOSE_GOSSIP_MENU();
                 }
                 break;
         }
