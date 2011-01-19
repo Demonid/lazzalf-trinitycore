@@ -310,7 +310,7 @@ class npc_porting : public CreatureScript
 		                }                                
                     }
     
-                    result = ExtraDatabase.PQuery("SELECT `active` FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());
+                    result = ExtraDatabase.PQuery("SELECT `active`, `ticket_txt` FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());
                     if (result)
                     {
                         Field *fields = result->Fetch();
@@ -337,7 +337,7 @@ class npc_porting : public CreatureScript
                             GM_Ticket *ticket = sTicketMgr->GetGMTicketByPlayer(pPlayer->GetGUID());
                             if (ticket && ticket->closed == 0 && !ticket->completed)
                             {
-                                std::string ticketText = "Test";
+                                std::string ticketText(fields[1].GetCString());
                                 ticket->message = ticketText;
                                 sTicketMgr->AddOrUpdateGMTicket(*ticket, true);
                                 std::string msg = "Porting completato in parte! Ticket editato in automatico per completare il porting con un GM!";
@@ -345,8 +345,9 @@ class npc_porting : public CreatureScript
                             }
                             else
                             {                            
-                                std::string msg = "Porting completato in parte! Edita eventualmente il ticket (per non perdere priorità) o apri ticket per completare il porting con un GM!";
+                                std::string msg = "Porting completato in parte! Edita eventualmente il ticket (per non perdere priorità) o apri ticket per completare il porting con un GM! Motivo del parziale completamento:";
                                 pCreature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
+                                pCreature->MonsterWhisper(fields[1].GetCString(), pPlayer->GetGUID());
                             }
                         }
                         ExtraDatabase.PExecute("UPDATE `porting` SET `fase` = 2 WHERE `guid` = %u", pPlayer->GetGUIDLow());                

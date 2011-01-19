@@ -31,6 +31,7 @@ CREATE TABLE `porting` (
   `level_skill_7` int(32) NOT NULL DEFAULT '0',
   `skill_8` int(32) NOT NULL DEFAULT '0',
   `level_skill_8` int(32) NOT NULL DEFAULT '0',
-  `id_items` longtext,
+  `id_item` longtext,
+  `ticket_txt` longtext,
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
