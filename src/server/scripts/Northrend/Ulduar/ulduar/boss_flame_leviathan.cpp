@@ -879,11 +879,12 @@ public:
         return new spell_pool_of_tarAI (pCreature);
     }
 
-    struct spell_pool_of_tarAI : public PassiveAI
+    struct spell_pool_of_tarAI : public TriggerAI
     {
-        spell_pool_of_tarAI(Creature* pCreature) : PassiveAI(pCreature)
+        spell_pool_of_tarAI(Creature* pCreature) : : TriggerAI(pCreature)
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetReactState(REACT_PASSIVE);
             me->AddAura(SPELL_TAR_PASSIVE, me);
         }
 
