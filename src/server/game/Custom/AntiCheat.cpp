@@ -114,10 +114,6 @@ void AntiCheat::SetDelta(int32 delta)
 
 void AntiCheat::SetSleep(int32 delta)
 {
-    // AntiCheat is in Alarm
-    if (ac_delta < 0)
-        return;
-
     if (ac_delta < delta)
         ac_delta = delta;
 
@@ -160,9 +156,9 @@ bool AntiCheat::DoAntiCheatCheck(Vehicle *vehMover, uint16 opcode, MovementInfo&
         return true;
     
     cheat_find = false;
-    map_count = true;
-    map_block = true;
-    map_puni = true;	
+    map_count = !sWorld->iIgnoreMapIds_ACCount.count(plMover->GetMapId());
+    map_block = !sWorld->iIgnoreMapIds_ACBlock.count(plMover->GetMapId());
+    map_puni = !sWorld->iIgnoreMapIds_ACPuni.count(plMover->GetMapId());
 
     // Clean player cheatlist only if we founded a cheat
     if (number_cheat_find)
@@ -193,14 +189,14 @@ bool AntiCheat::DoAntiCheatCheck(Vehicle *vehMover, uint16 opcode, MovementInfo&
 	    if (!curDest)
 	    { 	
 	        // Mistiming Cheat
-	        if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_MISTIMING))
-		        if (!CheckMistiming(vehMover, pMovementInfo))
-			        check_passed = false;
+	        //if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_MISTIMING))
+		    //    if (!CheckMistiming(vehMover, pMovementInfo))
+			//        check_passed = false;
 
             // Gravity Cheat
-		    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIGRAVITY))
-			    if (!CheckAntiGravity(vehMover, pMovementInfo))
-				    check_passed = false;
+		    //if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIGRAVITY))
+			//    if (!CheckAntiGravity(vehMover, pMovementInfo))
+			//	    check_passed = false;
 
             // MultiJump Cheat
 		    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIMULTIJUMP))
@@ -218,9 +214,9 @@ bool AntiCheat::DoAntiCheatCheck(Vehicle *vehMover, uint16 opcode, MovementInfo&
 			//	    check_passed = false;
 
             // Mountain Cheat
-		    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIMOUNTAIN))
-			    if (!CheckAntiMountain(vehMover, pMovementInfo))
-				    check_passed = false;
+		    //if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIMOUNTAIN))
+			//    if (!CheckAntiMountain(vehMover, pMovementInfo))
+			//	    check_passed = false;
 
             // Fly Cheat
 		    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIFLY))
@@ -272,7 +268,7 @@ bool AntiCheat::DoAntiCheatCheck(Vehicle *vehMover, uint16 opcode, MovementInfo&
 
     SaveLastPacket(pMovementInfo);
     SetLastOpcode(opcode);
-    SetLastSpeedRate(fSpeedRate);
+    SetLastSpeedRate(uSpeedRate);
 
 	return check_passed;
 }
@@ -443,17 +439,13 @@ void AntiCheat::CalcDeltas(MovementInfo& pNewPacket,  MovementInfo& pOldPacket)
 	    difftime_log_file = cServerTime - m_logfile_time;
     if (!m_logdb_time)
         difftime_log_db = cServerTime - m_logdb_time;
-
-    map_count = !sWorld->iIgnoreMapIds_ACCount.count(plMover->GetMapId());
-    map_block = !sWorld->iIgnoreMapIds_ACBlock.count(plMover->GetMapId());
-    map_puni = !sWorld->iIgnoreMapIds_ACPuni.count(plMover->GetMapId());
 }
 
 // Calc variables for next AntiCheat activation
 void AntiCheat::CalcVariablesSmall(MovementInfo& pNewPacket, Unit *mover)
 {
 	// calculating section
-    UnitMoveType uiMoveType;
+    uint8 uiMoveType = 0;
     if (plMover->HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING))
         uiMoveType = MOVE_SWIM;
     else if (plMover->IsFlying())
@@ -463,9 +455,10 @@ void AntiCheat::CalcVariablesSmall(MovementInfo& pNewPacket, Unit *mover)
     else
         uiMoveType = MOVE_RUN;
     
-	fSpeedRate = plMover->GetSpeed(uiMoveType) + pNewPacket.j_xyspeed;
+	fSpeedRate = plMover->GetSpeed(UnitMoveType(uiMoveType)) + pNewPacket.j_xyspeed;
+    uSpeedRate = (uint32)(plMover->GetSpeed(UnitMoveType(uiMoveType)) + pNewPacket.j_xyspeed);
 
-    if (fSpeedRate < m_anti_Last_HSpeed && m_anti_LastSpeedChangeTime == 0)
+    /*if (fSpeedRate < m_anti_Last_HSpeed && m_anti_LastSpeedChangeTime == 0)
 		m_anti_LastSpeedChangeTime = pNewPacket.time + uint32(floor(((m_anti_Last_HSpeed / fSpeedRate) * 1500)) + 100); // 100ms above for random fluctuation
 
 	if (pNewPacket.time > m_anti_LastSpeedChangeTime)
@@ -473,13 +466,13 @@ void AntiCheat::CalcVariablesSmall(MovementInfo& pNewPacket, Unit *mover)
 		m_anti_Last_HSpeed = fSpeedRate;                                    // store current speed
 		m_anti_Last_VSpeed = -2.3f;
 		m_anti_LastSpeedChangeTime = 0;
-	}
+	}*/
 }
 
 void AntiCheat::CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket, Unit *mover)
 {
 	// calculating section
-    UnitMoveType uiMoveType;
+    uint8 uiMoveType = 0;
     if (plMover->HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING))
         uiMoveType = MOVE_SWIM;
     else if (plMover->IsFlying())
@@ -489,20 +482,21 @@ void AntiCheat::CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket
     else
         uiMoveType = MOVE_RUN;
     
-	fSpeedRate = plMover->GetSpeed(uiMoveType) + pNewPacket.j_xyspeed;
+	fSpeedRate = plMover->GetSpeed(UnitMoveType(uiMoveType)) + pNewPacket.j_xyspeed;
+    uSpeedRate = (uint32)(plMover->GetSpeed(UnitMoveType(uiMoveType)) + pNewPacket.j_xyspeed);
 
-    // movement distance
 	delta_z = plMover->GetPositionZ() - pNewPacket.pos.GetPositionZ();
 	fDistance2d = pNewPacket.pos.GetExactDist2dSq(&pOldPacket.pos);
-	// end movement distance
+    uDistance2D = (uint32)pNewPacket.pos.GetExactDist2d(&pOldPacket.pos);
     
     // time between packets
     uiDiffTime_packets =  getMSTimeDiff(pOldPacket.time, pNewPacket.time);
-    if (uiDiffTime_packets <= 0)
+    if (uiDiffTime_packets == 0)
         uiDiffTime_packets = 1;
 
     // fClientSpeedRate = it is the player's rate calculated using the distance done by the player
-    fClientSpeedRate = (fDistance2d * 1000 / uiDiffTime_packets);
+    fClientSpeedRate = fDistance2d * 1000 / uiDiffTime_packets;
+    uClientSpeedRate = uDistance2D * 1000 / uiDiffTime_packets;
 
     // fServerRate = it is the player's rate using the distance per second (core information)
     fServerRate = fSpeedRate * uiDiffTime_packets / 1000 + sWorld->getFloatConfig(CONFIG_AC_MAX_DISTANCE_DIFF_ALLOWED);
@@ -530,7 +524,7 @@ void AntiCheat::CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket
 
     tg_z = (fDistance2d != 0 && !fly_auras && no_swim_flags) ? (pow(delta_z, 2) / fDistance2d) : -99999; // movement distance tangents
 
-	if (fSpeedRate < m_anti_Last_HSpeed && m_anti_LastSpeedChangeTime == 0)
+	/*if (fSpeedRate < m_anti_Last_HSpeed && m_anti_LastSpeedChangeTime == 0)
 		m_anti_LastSpeedChangeTime = pNewPacket.time + uint32(floor(((m_anti_Last_HSpeed / fSpeedRate) * 1500)) + 100);
 
 	allowed_delta = (plMover->m_transport || plMover->m_temp_transport) ? 2 :   // movement distance allowed delta
@@ -543,7 +537,7 @@ void AntiCheat::CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket
 		m_anti_Last_HSpeed = fSpeedRate;                                    // store current speed
 		m_anti_Last_VSpeed = -2.3f;
 		m_anti_LastSpeedChangeTime = 0;
-	}
+	}*/
 	// end calculating section
 
 	JumpHeight = m_anti_JumpBaseZ - pNewPacket.pos.GetPositionZ();
@@ -726,7 +720,7 @@ bool AntiCheat::CheckMistiming(Vehicle *vehMover, MovementInfo& pMovementInfo)
 
 bool AntiCheat::CheckAntiGravity(Vehicle *vehMover, MovementInfo& pMovementInfo)
 {
-    if (!fly_auras && no_swim_in_water && m_anti_JumpBaseZ != 0 && JumpHeight < m_anti_Last_VSpeed)
+    /*if (!fly_auras && no_swim_in_water && m_anti_JumpBaseZ != 0 && JumpHeight < m_anti_Last_VSpeed)
 	{
         if (map_count)
             ++(m_CheatList[CHEAT_GRAVITY]);
@@ -754,7 +748,7 @@ bool AntiCheat::CheckAntiGravity(Vehicle *vehMover, MovementInfo& pMovementInfo)
 		    plMover->FallGround(2);
 		    return false;
 	    }
-	}
+	}*/
 	return true; 
 }
 
@@ -846,10 +840,10 @@ bool AntiCheat::CheckAntiSpeed(Vehicle *vehMover, MovementInfo& pOldPacket, Move
     }
 
     // in my opinion this var must be constant in each check to avoid false reports
-    if (GetLastSpeedRate() != fSpeedRate)
+    if (GetLastSpeedRate() != uSpeedRate)
         return true;
 
-	if ((uint32)fDistance2d > 0 && (uint32)fClientSpeedRate > (uint32)fSpeedRate)    
+	if (uDistance2D > 0 && uClientSpeedRate > uSpeedRate)    
 	{          
         cheat_find = true;
         if (map_count)
@@ -892,7 +886,7 @@ bool AntiCheat::CheckAntiTele(Vehicle *vehMover, MovementInfo& pNewPacket, uint3
 // mountain hack checks // 1.56f (delta_z < GetPlayer()->m_anti_Last_VSpeed))
 bool AntiCheat::CheckAntiMountain(Vehicle *vehMover, MovementInfo& pMovementInfo)
 {
-	if (delta_z < m_anti_Last_VSpeed && m_anti_JumpCount == 0 && tg_z > 2.37f)
+	/*if (delta_z < m_anti_Last_VSpeed && m_anti_JumpCount == 0 && tg_z > 2.37f)
 	{
         if (map_count)
             ++(m_CheatList[CHEAT_MOUNTAIN]);
@@ -905,7 +899,7 @@ bool AntiCheat::CheckAntiMountain(Vehicle *vehMover, MovementInfo& pMovementInfo
 			    vehMover->Die();
 		    return false;
 	    }
-	}
+	}*/
 	return true;
 }
 
