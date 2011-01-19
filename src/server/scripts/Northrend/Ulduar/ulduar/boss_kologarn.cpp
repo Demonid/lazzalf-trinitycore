@@ -86,7 +86,7 @@ enum Npcs
     NPC_EYEBEAM_2                               = 33802,
     NPC_RUBBLE                                  = 33768,
     NPC_LEFT_ARM                                = 32933,
-    NPC_RIGHT_ARM                               = 32934
+    NPC_RIGHT_ARM                               = 32934,
 };
 
 enum Yells
@@ -146,6 +146,7 @@ public:
             me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
             SetCombatMovement(false);
             emerged = false;
+            eyeBeamHit = false;
         }
 
         Vehicle *vehicle;
@@ -154,6 +155,7 @@ public:
         bool Gripped;
         bool emerged;
         uint32 RubbleCount;
+        bool eyeBeamHit;
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -185,6 +187,10 @@ public:
                 // With Open Arms
                 if (RubbleCount == 0)
                     instance->DoCompleteAchievement(ACHIEVEMENT_WITH_OPEN_ARMS);
+
+                // If Looks Could Kill
+                /*if (!eyeBeamHit)
+                    instance->DoCompleteAchievement(ACHIEVEMENT_LOOKS_COULD_KILL);*/
 
                 // Remove Stone Grip from players
                 Map::PlayerList const &players = instance->instance->GetPlayers();
@@ -251,6 +257,8 @@ public:
             events.ScheduleEvent(EVENT_EYEBEAM, 10000);
             events.ScheduleEvent(EVENT_SHOCKWAVE, 12000);
             // events.ScheduleEvent(EVENT_GRIP, 40000);
+
+            eyeBeamHit = false;
         }
 
         void Reset()
@@ -414,6 +422,7 @@ public:
     {
         npc_focused_eyebeamAI(Creature *c) : ScriptedAI(c)
         {
+            pInstance = c->GetInstanceScript();
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             DoCast(me, SPELL_EYEBEAM_IMMUNITY);
@@ -422,7 +431,21 @@ public:
             checkTimer = 1500;
         }
 
+        InstanceScript* pInstance;
         uint32 checkTimer;
+
+        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
+        {
+            if (pTarget->GetTypeId() == TYPEID_PLAYER)
+            {
+                if (spell->Id == RAID_MODE(SPELL_FOCUSED_EYEBEAM_10,SPELL_FOCUSED_EYEBEAM_25))
+                {
+                     if (pInstance)
+                         if (Creature* pKologarn = me->GetCreature(*me, pInstance->GetData64(DATA_KOLOGARN)))
+                             CAST_AI(boss_kologarn::boss_kologarnAI,pKologarn->AI())->eyeBeamHit = true;
+                }
+            }
+        }
 
         void UpdateAI(const uint32 diff)
         {
