@@ -532,6 +532,7 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
     FillTargetMap(targets, caster);
 
     UnitList targetsToRemove;
+    std::map<Unit *, std::pair<AuraApplication *, uint8> > targetsToReapply;
 
     // mark all auras as ready to remove
     for (ApplicationMap::iterator appIter = m_applications.begin(); appIter != m_applications.end();++appIter)
@@ -542,10 +543,25 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
             targetsToRemove.push_back(appIter->second->GetTarget());
         else
         {
+            if (!CanBeAppliedOn(existing->first))
+                targetsToRemove.push_back(appIter->second->GetTarget());
+            else
+            {
+                // Reapply disabled auraeffects
+                uint8 effReapply = 0;
+                for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+                    if (existing->second & (1 << effIndex))
+                        if ((GetSpellProto()->Effect[effIndex] != SPELL_EFFECT_APPLY_AURA) &&
+                            (GetSpellProto()->EffectMechanic[effIndex]) &&
+                            (!appIter->second->GetTarget()->IsImmunedToSpellEffect(GetSpellProto(), effIndex)))
+                            effReapply |= (1 << effIndex);
+                if (effReapply)
+                    targetsToReapply[appIter->second->GetTarget()] = std::make_pair<AuraApplication *, uint8>(appIter->second, effReapply);
+            }
             // needs readding - remove now, will be applied in next update cycle
             // (dbcs do not have auras which apply on same type of targets but have different radius, so this is not really needed)
-            if (appIter->second->GetEffectMask() != existing->second || !CanBeAppliedOn(existing->first))
-                targetsToRemove.push_back(appIter->second->GetTarget());
+            //if (appIter->second->GetEffectMask() != existing->second || !CanBeAppliedOn(existing->first))
+            //    targetsToRemove.push_back(appIter->second->GetTarget());
             // nothing todo - aura already applied
             // remove from auras to register list
             targets.erase(existing);
@@ -560,9 +576,19 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
 
         bool addUnit = true;
         // check target immunities
-        if (itr->first->IsImmunedToSpell(GetSpellProto())
-            || !CanBeAppliedOn(itr->first))
+        if (itr->first->IsImmunedToSpell(GetSpellProto()) || !CanBeAppliedOn(itr->first))
              addUnit = false;
+        else
+        {
+            for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+                if (itr->second & (1 << effIndex))
+                    if ((GetSpellProto()->EffectMechanic[effIndex]) &&
+                        (itr->first->IsImmunedToSpellEffect(GetSpellProto(), effIndex)))
+                        itr->second &= ~(1 << effIndex);
+
+            if (!itr->second)
+                addUnit = false;
+        }
 
         if (addUnit)
         {
@@ -621,6 +647,22 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
             itr->first->_ApplyAura(aurApp, itr->second);
         }
     }
+
+    // reapply aura effects for units
+    for (std::map<Unit *, std::pair<AuraApplication *, uint8> >::iterator itr = targetsToReapply.begin(); itr != targetsToReapply.end(); ++itr)
+    {
+        if (AuraApplication * aurApp = GetApplicationOfTarget(itr->first->GetGUID()))
+        {
+            if (itr->second.first != aurApp)
+                continue;
+
+            // owner has to be in world, or effect has to be applied to self
+            ASSERT((!GetOwner()->IsInWorld() && GetOwner() == itr->first) || GetOwner()->IsInMap(itr->first));
+            for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+                if (itr->second.second & (1 << effIndex))
+                    aurApp->HandleEffect(effIndex, true);
+         }
+     }
 }
 
 // targets have to be registered and not have effect applied yet to use this function
