@@ -8509,7 +8509,8 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 return false;
 
             target = this;
-            trigger_spell_id = 22588;
+            trigger_spell_id = 22588;            
+            break;
         }
         // Glyph of Shadow Word: Pain
         case 55681:
