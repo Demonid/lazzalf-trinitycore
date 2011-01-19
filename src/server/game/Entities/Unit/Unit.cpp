@@ -11868,9 +11868,9 @@ void Unit::Unmount()
     SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 0);
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_MOUNT);
 
-    WorldPacket data(SMSG_DISMOUNT, 8);
-    data.appendPackGUID(GetGUID());
-    SendMessageToSet(&data, true);
+    //WorldPacket data(SMSG_DISMOUNT, 8);
+    //data.appendPackGUID(GetGUID());
+    //SendMessageToSet(&data, true);
 
     // only resummon old pet if the player is already added to a map
     // this prevents adding a pet to a not created map which would otherwise cause a crash
