@@ -140,7 +140,7 @@ void AntiCheat::ResetCheatList(uint32 diff)
     }
 }
 
-bool AntiCheat::DoAntiCheatCheck(Vehicle *vehMover, uint16 opcode, MovementInfo& pMovementInfo, Unit *mover)
+bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Unit *mover)
 {
 	if (plMover->GetSession() && plMover->GetSession()->GetSecurity() >= int32(sWorld->getIntConfig(CONFIG_AC_DISABLE_GM_LEVEL)))
 		return true;
@@ -190,47 +190,47 @@ bool AntiCheat::DoAntiCheatCheck(Vehicle *vehMover, uint16 opcode, MovementInfo&
 	    { 	
 	        // Mistiming Cheat
 	        //if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_MISTIMING))
-		    //    if (!CheckMistiming(vehMover, pMovementInfo))
+		    //    if (!CheckMistiming(pMovementInfo))
 			//        check_passed = false;
 
             // Gravity Cheat
 		    //if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIGRAVITY))
-			//    if (!CheckAntiGravity(vehMover, pMovementInfo))
+			//    if (!CheckAntiGravity(pMovementInfo))
 			//	    check_passed = false;
 
             // MultiJump Cheat
 		    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIMULTIJUMP))
-			    if (!CheckAntiMultiJump(vehMover, pMovementInfo, opcode))
+			    if (!CheckAntiMultiJump(pMovementInfo, opcode))
 				    check_passed = false;
 
             // Speed Cheat
             if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTISPEED))
-			    if (!CheckAntiSpeed(vehMover, GetLastPacket(), pMovementInfo, opcode))
+			    if (!CheckAntiSpeed(GetLastPacket(), pMovementInfo, opcode))
 				    check_passed = false;
 
             // Tele Cheat
             //if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTITELE))
-			//    if (!CheckAntiTele(vehMover, pMovementInfo, opcode))
+			//    if (!CheckAntiTele(pMovementInfo, opcode))
 			//	    check_passed = false;
 
             // Mountain Cheat
 		    //if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIMOUNTAIN))
-			//    if (!CheckAntiMountain(vehMover, pMovementInfo))
+			//    if (!CheckAntiMountain(pMovementInfo))
 			//	    check_passed = false;
 
             // Fly Cheat
 		    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIFLY))
-			    if (!CheckAntiFly(vehMover, GetLastPacket(), pMovementInfo))
+			    if (!CheckAntiFly(GetLastPacket(), pMovementInfo))
 				    check_passed = false;
 
             // Waterwalk Cheat
 		    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIWATERWALK))
-                if (!CheckAntiWaterwalk(vehMover, GetLastPacket(), pMovementInfo))
+                if (!CheckAntiWaterwalk(GetLastPacket(), pMovementInfo))
 				    check_passed = false;
 
             // Tele To Plane Cheat
 		    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTITELETOPLANE))
-			    if (!CheckAntiTeleToPlane(vehMover, GetLastPacket(), pMovementInfo))
+			    if (!CheckAntiTeleToPlane(GetLastPacket(), pMovementInfo))
 				    check_passed = false;
 	    }
         if (cheat_find)
@@ -674,7 +674,7 @@ void AntiCheat::LogCheat(eCheat m_cheat, MovementInfo& pMovementInfo)
         }
 }
 
-bool AntiCheat::CheckMistiming(Vehicle *vehMover, MovementInfo& pMovementInfo)
+bool AntiCheat::CheckMistiming(MovementInfo& pMovementInfo)
 {		
 	const int32 GetMistimingDelta = abs(int32(sWorld->getIntConfig(CONFIG_AC_ENABLE_MISTIMING_DELTHA)));
 	
@@ -695,8 +695,6 @@ bool AntiCheat::CheckMistiming(Vehicle *vehMover, MovementInfo& pMovementInfo)
         if (map_block && sWorld->getIntConfig(CONFIG_AC_MISTIMING_BLOCK_COUNT) &&
             m_CheatList[CHEAT_MISTIMING] >= sWorld->getIntConfig(CONFIG_AC_MISTIMING_BLOCK_COUNT))     
 	    {
-		    if (vehMover)
-			    vehMover->Die();
 		    // Tell the player "Sure, you can fly!"
 		    {
 			    WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
@@ -718,7 +716,7 @@ bool AntiCheat::CheckMistiming(Vehicle *vehMover, MovementInfo& pMovementInfo)
 	return true; 
 }
 
-bool AntiCheat::CheckAntiGravity(Vehicle *vehMover, MovementInfo& pMovementInfo)
+bool AntiCheat::CheckAntiGravity(MovementInfo& pMovementInfo)
 {
     /*if (!fly_auras && no_swim_in_water && m_anti_JumpBaseZ != 0 && JumpHeight < m_anti_Last_VSpeed)
 	{
@@ -729,8 +727,6 @@ bool AntiCheat::CheckAntiGravity(Vehicle *vehMover, MovementInfo& pMovementInfo)
         if (map_block && sWorld->getIntConfig(CONFIG_AC_ANTIGRAVITY_BLOCK_COUNT) &&
             m_CheatList[CHEAT_GRAVITY] >= sWorld->getIntConfig(CONFIG_AC_ANTIGRAVITY_BLOCK_COUNT))
 	    {
-		    if (vehMover)
-			    vehMover->Die();
 		    // Tell the player "Sure, you can fly!"
 		    {
 			    WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
@@ -752,7 +748,7 @@ bool AntiCheat::CheckAntiGravity(Vehicle *vehMover, MovementInfo& pMovementInfo)
 	return true; 
 }
 
-bool AntiCheat::CheckAntiMultiJump(Vehicle *vehMover, MovementInfo& pNewPacket, uint32 uiOpcode)
+bool AntiCheat::CheckAntiMultiJump(MovementInfo& pNewPacket, uint32 uiOpcode)
 {
     // if we receive 2 jump packets consecutively... it is wrong! The player is cheating.
     if (uiOpcode != MSG_MOVE_JUMP || GetLastOpcode() != MSG_MOVE_JUMP)
@@ -765,9 +761,6 @@ bool AntiCheat::CheckAntiMultiJump(Vehicle *vehMover, MovementInfo& pNewPacket, 
 	if (map_block && sWorld->getIntConfig(CONFIG_AC_ANTIMULTIJUMP_BLOCK_COUNT) &&
         m_CheatList[CHEAT_MULTIJUMP] >= sWorld->getIntConfig(CONFIG_AC_ANTIMULTIJUMP_BLOCK_COUNT))
     {
-	    // don't process new jump packet
-	    if (vehMover)
-		    vehMover->Die();
 	    // Tell the player "Sure, you can fly!"
 	    {
 		    WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
@@ -790,7 +783,7 @@ bool AntiCheat::CheckAntiMultiJump(Vehicle *vehMover, MovementInfo& pNewPacket, 
     return true;
 }
 
-bool AntiCheat::CheckAntiSpeed(Vehicle *vehMover, MovementInfo& pOldPacket, MovementInfo& pNewPacket, uint32 uiOpcode)
+bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacket, uint32 uiOpcode)
 {
     // strange packet
     if (uiOpcode == MSG_MOVE_SET_FACING)        
@@ -810,10 +803,6 @@ bool AntiCheat::CheckAntiSpeed(Vehicle *vehMover, MovementInfo& pOldPacket, Move
         (plMover->HasAura(7840) || // 7840 -> Swim Speed
         plMover->HasAura(88026) || // 88026 -> Silversnap Swim Tonic Master
         plMover->HasAura(30430)))   // 30430 -> Embrace of the Serpent
-        return true;
-
-    // just to prevent false reports
-    if (plMover->GetVehicle())
         return true;
 
     // the best way is checking the ip of the target, if it is the same this check should return.
@@ -852,8 +841,6 @@ bool AntiCheat::CheckAntiSpeed(Vehicle *vehMover, MovementInfo& pOldPacket, Move
         if (map_block && sWorld->getIntConfig(CONFIG_AC_ANTISPEED_BLOCK_COUNT) &&
             m_CheatList[CHEAT_SPEED] >= sWorld->getIntConfig(CONFIG_AC_ANTISPEED_BLOCK_COUNT))
         {
-            if (vehMover)
-	            vehMover->Die();
             plMover->FallGround(2);
             return false;
         }
@@ -861,7 +848,7 @@ bool AntiCheat::CheckAntiSpeed(Vehicle *vehMover, MovementInfo& pOldPacket, Move
 	return true;
 }
 
-bool AntiCheat::CheckAntiTele(Vehicle *vehMover, MovementInfo& pNewPacket, uint32 uiOpcode)
+bool AntiCheat::CheckAntiTele(MovementInfo& pNewPacket, uint32 uiOpcode)
 {
     /*if (uiOpcode == 183 && 
         GetLastOpcode() == 181 && 
@@ -874,8 +861,6 @@ bool AntiCheat::CheckAntiTele(Vehicle *vehMover, MovementInfo& pNewPacket, uint3
         if (map_block && sWorld->getIntConfig(CONFIG_AC_ANTITELE_BLOCK_COUNT) &&
             m_CheatList[CHEAT_TELEPORT] >= sWorld->getIntConfig(CONFIG_AC_ANTITELE_BLOCK_COUNT))
         {
-            if (vehMover)
-	            vehMover->Die();
             plMover->FallGround(2);
             return false;
         }
@@ -884,7 +869,7 @@ bool AntiCheat::CheckAntiTele(Vehicle *vehMover, MovementInfo& pNewPacket, uint3
 }
 
 // mountain hack checks // 1.56f (delta_z < GetPlayer()->m_anti_Last_VSpeed))
-bool AntiCheat::CheckAntiMountain(Vehicle *vehMover, MovementInfo& pMovementInfo)
+bool AntiCheat::CheckAntiMountain(MovementInfo& pMovementInfo)
 {
 	/*if (delta_z < m_anti_Last_VSpeed && m_anti_JumpCount == 0 && tg_z > 2.37f)
 	{
@@ -895,15 +880,13 @@ bool AntiCheat::CheckAntiMountain(Vehicle *vehMover, MovementInfo& pMovementInfo
         if (map_block && sWorld->getIntConfig(CONFIG_AC_ANTIMOUNTAIN_BLOCK_COUNT) &&
             m_CheatList[CHEAT_MOUNTAIN] >= sWorld->getIntConfig(CONFIG_AC_ANTIMOUNTAIN_BLOCK_COUNT))
 	    {
-		    if (vehMover)
-			    vehMover->Die();
 		    return false;
 	    }
 	}*/
 	return true;
 }
 
-bool AntiCheat::CheckAntiFly(Vehicle *vehMover, MovementInfo& pOldPacket, MovementInfo& pNewPacket)
+bool AntiCheat::CheckAntiFly(MovementInfo& pOldPacket, MovementInfo& pNewPacket)
 {
     if (!pOldPacket.HasMovementFlag(MOVEMENTFLAG_FLYING))
         return true;
@@ -935,8 +918,6 @@ bool AntiCheat::CheckAntiFly(Vehicle *vehMover, MovementInfo& pOldPacket, Moveme
         if (map_block && sWorld->getIntConfig(CONFIG_AC_ANTIFLY_BLOCK_COUNT) &&
             m_CheatList[CHEAT_FLY] >= sWorld->getIntConfig(CONFIG_AC_ANTIFLY_BLOCK_COUNT))
 	    {
-		    if (vehMover)
-			    vehMover->Die();
 		    // Tell the player "Sure, you can fly!"
 		    {
 			    WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
@@ -958,7 +939,7 @@ bool AntiCheat::CheckAntiFly(Vehicle *vehMover, MovementInfo& pOldPacket, Moveme
 	return true;
 }
 
-bool AntiCheat::CheckAntiWaterwalk(Vehicle *vehMover, MovementInfo& pOldPacket, MovementInfo& pNewPacket)
+bool AntiCheat::CheckAntiWaterwalk(MovementInfo& pOldPacket, MovementInfo& pNewPacket)
 {
     if (!pOldPacket.HasMovementFlag(MOVEMENTFLAG_WATERWALKING))
         return true;
@@ -994,8 +975,6 @@ bool AntiCheat::CheckAntiWaterwalk(Vehicle *vehMover, MovementInfo& pOldPacket, 
 		if (map_block && sWorld->getIntConfig(CONFIG_AC_ANTIWATERWALK_BLOCK_COUNT) && 
             m_CheatList[CHEAT_WATERWALK] >= sWorld->getIntConfig(CONFIG_AC_ANTIWATERWALK_BLOCK_COUNT))
 	    {
-		    if (vehMover)
-			    vehMover->Die();
 		    // Tell the player "Sure, you can fly!"
 		    {
 			    WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
@@ -1017,7 +996,7 @@ bool AntiCheat::CheckAntiWaterwalk(Vehicle *vehMover, MovementInfo& pOldPacket, 
 	return true;
 }
 
-bool AntiCheat::CheckAntiTeleToPlane(Vehicle *vehMover, MovementInfo& pOldPacket, MovementInfo& pNewPacket)
+bool AntiCheat::CheckAntiTeleToPlane(MovementInfo& pOldPacket, MovementInfo& pNewPacket)
 {
     if (!no_swim_in_water)
         return true;
@@ -1053,9 +1032,7 @@ bool AntiCheat::CheckAntiTeleToPlane(Vehicle *vehMover, MovementInfo& pOldPacket
 		    LogCheat(CHEAT_TELETOPLANE, pNewPacket);
 		    if (map_block && sWorld->getIntConfig(CONFIG_AC_ANTITELETOPLANE_BLOCK_COUNT) &&
                 m_CheatList[CHEAT_TELETOPLANE] >= sWorld->getIntConfig(CONFIG_AC_ANTITELETOPLANE_BLOCK_COUNT))
-	        {						
-		        if (vehMover)
-			        vehMover->Die();
+	        {
 		        return false;
 	        }
 	    }

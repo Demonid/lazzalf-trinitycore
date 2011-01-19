@@ -94,22 +94,22 @@ class AntiCheat
         void CalcVariablesSmall(MovementInfo& pNewPacket, Unit* mover);
         bool CanFly(MovementInfo& pMovementInfo);
 		
-		bool CheckMistiming(Vehicle* /*vehMover*/, MovementInfo& /*pMovementInfo*/);
-		bool CheckAntiGravity(Vehicle* /*vehMover*/, MovementInfo& /*pMovementInfo*/);
-		bool CheckAntiMultiJump(Vehicle* vehMover, MovementInfo& pNewPacket, uint32 uiOpcode);
-        bool CheckAntiSpeed(Vehicle *vehMover, MovementInfo& pOldPacket, MovementInfo& pNewPacket, uint32 uiOpcode);
-        bool CheckAntiTele(Vehicle *vehMover, MovementInfo& pNewPacket, uint32 uiOpcode);
-		bool CheckAntiMountain(Vehicle* /*vehMover*/, MovementInfo& /*pMovementInfo*/);
-		bool CheckAntiFly(Vehicle* vehMover, MovementInfo& pOldPacket, MovementInfo& pNewPacket);
-		bool CheckAntiWaterwalk(Vehicle* vehMover, MovementInfo& pOldPacket, MovementInfo& pNewPacket);
-		bool CheckAntiTeleToPlane(Vehicle* vehMover, MovementInfo& pOldPacket, MovementInfo& pNewPacket);
+		bool CheckMistiming(MovementInfo& /*pMovementInfo*/);
+		bool CheckAntiGravity(MovementInfo& /*pMovementInfo*/);
+		bool CheckAntiMultiJump(MovementInfo& pNewPacket, uint32 uiOpcode);
+        bool CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacket, uint32 uiOpcode);
+        bool CheckAntiTele(MovementInfo& pNewPacket, uint32 uiOpcode);
+		bool CheckAntiMountain(MovementInfo& /*pMovementInfo*/);
+		bool CheckAntiFly(MovementInfo& pOldPacket, MovementInfo& pNewPacket);
+		bool CheckAntiWaterwalk(MovementInfo& pOldPacket, MovementInfo& pNewPacket);
+		bool CheckAntiTeleToPlane(MovementInfo& pOldPacket, MovementInfo& pNewPacket);
         void LogCheat(eCheat /*m_cheat*/, MovementInfo& /*pMovementInfo*/);
         bool AntiCheatPunisher(MovementInfo& /*pMovementInfo*/);
         inline bool ControllPunisher();
 	
     public:
         AntiCheat(Player* new_plMover);
-		bool DoAntiCheatCheck(Vehicle* /*vehMover*/, uint16 /*opcode*/, MovementInfo& /*pMovementInfo*/, Unit* /*mover*/);
+		bool DoAntiCheatCheck(uint16 /*opcode*/, MovementInfo& /*pMovementInfo*/, Unit* /*mover*/);
 
     public:
         uint32 number_cheat_find;

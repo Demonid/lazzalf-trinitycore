@@ -263,12 +263,6 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     ASSERT(mover != NULL);                                  // there must always be a mover
 
     Player *plMover = mover->GetTypeId() == TYPEID_PLAYER ? (Player*)mover : NULL;
-    Vehicle *vehMover = mover->GetVehicleKit();
-    if (vehMover)
-        if (mover->ToPlayer() && mover->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
-            if (Unit *charmer = mover->GetCharmer())
-                if (charmer->GetTypeId() == TYPEID_PLAYER)
-                    plMover = (Player*)charmer;
 
     // ignore, waiting processing in WorldSession::HandleMoveWorldportAckOpcode and WorldSession::HandleMoveTeleportAck
     if (plMover && plMover->IsBeingTeleported())
@@ -369,13 +363,14 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
         In Flight
         On Transport
         Being Teleported
+        On Vehicle
         Can't free move
     */
     if (sWorld->getBoolConfig(CONFIG_AC_ENABLE))
     {
-        if (plMover && !plMover->isInFlight() && !plMover->GetTransport() && !plMover->IsBeingTeleported() && plMover->CanFreeMove())
+        if (plMover && !plMover->isInFlight() && !plMover->GetTransport() && !plMover->IsBeingTeleported() && plMover->CanFreeMove() && !plMover->GetVehicle())
         {
-            check_passed = plMover->GetAntiCheat()->DoAntiCheatCheck(vehMover, opcode, movementInfo, mover);
+            check_passed = plMover->GetAntiCheat()->DoAntiCheatCheck(opcode, movementInfo, mover);
         }
         else if (plMover)
         {
@@ -384,23 +379,6 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
             plMover->GetAntiCheat()->SetDelta(int32(sWorld->getIntConfig(CONFIG_AC_SLEEP_DELTA)));
         }
     }
-
-    // save packet time for next control.
-    /*if (plMover)
-    {
-        uint8 uiMoveType = 0;
-
-        if (plMover->IsFlying())
-            uiMoveType = MOVE_FLIGHT;
-        else if (plMover->IsUnderWater())
-            uiMoveType = MOVE_SWIM;
-        else 
-            uiMoveType = MOVE_RUN;
-
-        plMover->GetAntiCheat()->SaveLastPacket(movementInfo);
-        plMover->GetAntiCheat()->SetLastOpcode(opcode);
-        plMover->GetAntiCheat()->SetLastSpeedRate(plMover->GetSpeedRate(UnitMoveType(uiMoveType)));
-    }*/
 
     if (check_passed)
     {
