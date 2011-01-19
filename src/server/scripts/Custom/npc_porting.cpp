@@ -282,9 +282,10 @@ class npc_porting : public CreatureScript
                 break;
             case GOSSIP_ACTION_INFO_DEF+3:
                 {
-                    QueryResult result = ExtraDatabase.PQuery("SELECT id_equip_1, id_equip_2, id_equip_3 FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());               
+                    QueryResult result = ExtraDatabase.PQuery("SELECT id_equip_1, id_equip_2, id_equip_3, id_items FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());               
                     if (result)
                     {
+                        // Equip standard
                         Field *fields = result->Fetch();
                         for (int j = 0; j < 3; j++)
                             if (EquipVct[fields[j].GetUInt32()].item[0])
@@ -292,15 +293,22 @@ class npc_porting : public CreatureScript
                                 {
                                     pPlayer->AddItem(EquipVct[fields[j].GetUInt32()].item[i], 1);
                                 }
+
+                        // Singoli item
+                        std::stringstream ItemStringStream;
+                        std::string ItemString;
+                        ItemStringStream.str(std::string(fields[3].GetCString()));
+                        while (std::getline(ItemStringStream, ItemString, ','))
+		                {
+			                std::stringstream ss2(ItemString);
+			                int item_num = 0;
+			                ss2 >> item_num; 
+			                if (item_num > 0)
+			                { 
+				                pPlayer->AddItem(item_num, 1);
+			                }
+		                }                                
                     }
-                    result = ExtraDatabase.PQuery("SELECT id_item_1, id_item_2, id_item_3, id_item_4, id_item_5 FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());               
-                    if (result)
-                    {
-                        Field *fields = result->Fetch();
-                        for (int j = 0; j < 5; j++)
-                            if (fields[j].GetUInt32())
-                                pPlayer->AddItem(fields[j].GetUInt32(), 1);
-                    }   
     
                     result = ExtraDatabase.PQuery("SELECT `active` FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());
                     if (result)
