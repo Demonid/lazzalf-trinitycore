@@ -48,7 +48,7 @@ class AntiCheat
 
         MovementInfo lastpMovementInfo;
         uint32 uiLastOpcode;
-        float fLastSpeedRate;
+        uint32 uLastSpeedRate;
 
         bool cheat_find;
 
@@ -67,6 +67,7 @@ class AntiCheat
 
 		// Variables
 		float fSpeedRate;	
+        uint32 uSpeedRate;
 		//float delta_x;
 		//float delta_y;
 		float delta_z;
@@ -82,6 +83,9 @@ class AntiCheat
         float fClientSpeedRate;
         float fServerRate;
         float fDistance2d;
+
+        uint32 uClientSpeedRate;
+        uint32 uDistance2D;
 
         float fServerDelta;
 		
@@ -145,8 +149,8 @@ class AntiCheat
         MovementInfo& GetLastPacket() { return lastpMovementInfo; }
         void SetLastOpcode(uint32 uiOpcode) { uiLastOpcode = uiOpcode; }
         uint32 GetLastOpcode() { return uiLastOpcode; }
-        void SetLastSpeedRate(float fSpeedRateRate) { fLastSpeedRate = fSpeedRateRate; }
-        float GetLastSpeedRate() { return fLastSpeedRate; }
+        void SetLastSpeedRate(uint32 uSpeedRate) { uLastSpeedRate = uSpeedRate; }
+        uint32 GetLastSpeedRate() { return uLastSpeedRate; }
 };
 
 #endif
