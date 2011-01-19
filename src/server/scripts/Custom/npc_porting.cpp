@@ -137,9 +137,9 @@ static Elem EquipVct[] =
     {0}
 };
 
-#define MSG_GOSSIP_PORTING_1     "Attiva Porting Fase 1"
+#define MSG_GOSSIP_PORTING_1     "Attiva Porting"
 #define MSG_GOSSIP_CLOSE         "Chiudi"
-#define MSG_GOSSIP_PORTING_2     "Attiva Porting Fase 2"
+#define MSG_GOSSIP_PORTING_2     "Equipaggia le 4 bags e poi Continua"
 #define MSG_GOSSIP_PORTING_3     "Portami a Dalaran"
 
 #define ITEM_BAG 21843
@@ -267,15 +267,15 @@ class npc_porting : public CreatureScript
                                         if (SkillSpells[j].skill == 333) // Enchanting
                                             pPlayer->AddItem(ITEM_TITANIUM_ROD, 1);
 
-                                        if (SkillSpells[j].skill == 762 && fields[i+8].GetUInt32() == 300) // Riding
-                                            pPlayer->AddItem(ITEM_TOME_COLD_WEATHER_FLY, 1);
+                                        //if (SkillSpells[j].skill == 762 && fields[i+8].GetUInt32() == 300) // Riding
+                                        //    pPlayer->AddItem(ITEM_TOME_COLD_WEATHER_FLY, 1);
                                     }
                                 }
                             }
                         }
+                        ExtraDatabase.PExecute("UPDATE `porting` SET `fase` = 1 WHERE `guid` = %u", pPlayer->GetGUIDLow());                        
                         std::string msg = "Equipaggia le 4 bags e poi continua il porting";
                         pCreature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
-                        ExtraDatabase.PExecute("UPDATE `porting` SET `fase` = 1 WHERE `guid` = %u", pPlayer->GetGUIDLow());
                     }
                     pPlayer->CLOSE_GOSSIP_MENU();
                 }
@@ -345,7 +345,7 @@ class npc_porting : public CreatureScript
                             }
                             else
                             {                            
-                                std::string msg = "Porting completato in parte! Edita eventualmente il ticket (per non perdere priorità) o apri ticket per completare il porting con un GM! Motivo del parziale completamento:";
+                                std::string msg = "Porting completato in parte! Apri ticket per completare il porting con un GM! Motivo del parziale completamento:";
                                 pCreature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
                                 pCreature->MonsterWhisper(fields[1].GetCString(), pPlayer->GetGUID());
                             }
