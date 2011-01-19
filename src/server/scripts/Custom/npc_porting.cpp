@@ -195,7 +195,7 @@ class npc_porting : public CreatureScript
                         // Livello
                         pPlayer->GiveLevel(fields[0].GetUInt8());
                         // Monete
-                        pPlayer->ModifyMoney(fields[1].GetUInt32() * 1000);
+                        pPlayer->ModifyMoney(fields[1].GetUInt32() * 10000);
                         // Reputazioni
                         for (int i = 2; i < 5; i++)
                         {
