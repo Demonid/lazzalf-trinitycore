@@ -1,4 +1,4 @@
-/*Table structure for table `porting` */
+﻿/*Table structure for table `porting` */
 DROP TABLE IF EXISTS `porting`;
 CREATE TABLE `porting` (
   `guid` int(32) unsigned NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE `porting` (
   `level_skill_7` int(32) NOT NULL DEFAULT '0',
   `skill_8` int(32) NOT NULL DEFAULT '0',
   `level_skill_8` int(32) NOT NULL DEFAULT '0',
-  `id_item` longtext,
+  `id_items` longtext,
   `ticket_txt` longtext,
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
