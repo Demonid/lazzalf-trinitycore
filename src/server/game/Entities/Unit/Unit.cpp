@@ -11868,9 +11868,9 @@ void Unit::Unmount()
     SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 0);
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_MOUNT);
 
-    //WorldPacket data(SMSG_DISMOUNT, 8);
-    //data.appendPackGUID(GetGUID());
-    //SendMessageToSet(&data, true);
+    WorldPacket data(SMSG_DISMOUNT, 8);
+    data.appendPackGUID(GetGUID());
+    SendMessageToSet(&data, true);
 
     // only resummon old pet if the player is already added to a map
     // this prevents adding a pet to a not created map which would otherwise cause a crash
@@ -16655,9 +16655,10 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId, AuraApplication const * a
         WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
         thisPlr->GetSession()->SendPacket(&data);
 
-        data.Initialize(SMSG_BREAK_TARGET, 7);
-        data.append(vehicle->GetBase()->GetPackGUID());
-        thisPlr->GetSession()->SendPacket(&data);
+        // Cause Freeze
+        //data.Initialize(SMSG_BREAK_TARGET, 7);
+        //data.append(vehicle->GetBase()->GetPackGUID());
+        //thisPlr->GetSession()->SendPacket(&data);
     }
 
     SetControlled(true, UNIT_STAT_ROOT);
