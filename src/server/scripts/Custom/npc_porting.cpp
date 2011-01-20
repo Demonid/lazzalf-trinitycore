@@ -154,22 +154,20 @@ class npc_porting : public CreatureScript
 
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        if (pPlayer->getLevel() <= 40 || (pPlayer->getClass() == CLASS_DEATH_KNIGHT && pPlayer->getLevel() <= 70))
-        {
-            QueryResult result = ExtraDatabase.PQuery("SELECT `fase` FROM `porting` WHERE `guid` = %u AND `active` <> 0", pPlayer->GetGUIDLow());
+        QueryResult result = ExtraDatabase.PQuery("SELECT `fase` FROM `porting` WHERE `guid` = %u AND `active` <> 0", pPlayer->GetGUIDLow());
 
-            if (result)
-            {
-                Field *fields = result->Fetch();
-                if (fields[0].GetInt32() == 0)
+        if (result)
+        {
+            Field *fields = result->Fetch();
+            if (fields[0].GetInt32() == 0)
+                //if (pPlayer->getLevel() <= 40 || (pPlayer->getClass() == CLASS_DEATH_KNIGHT && pPlayer->getLevel() <= 70))
                     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                else if (fields[0].GetInt32() == 1)
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                else if (fields[0].GetInt32() == 2)
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                else if (fields[0].GetInt32() == -1)
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
-            }
+            else if (fields[0].GetInt32() == 1)
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+            else if (fields[0].GetInt32() == 2)
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+            else if (fields[0].GetInt32() == -1)
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
         }
 
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_CLOSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
