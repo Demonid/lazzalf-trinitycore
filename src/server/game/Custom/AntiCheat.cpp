@@ -472,10 +472,13 @@ void AntiCheat::CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket
     else
         uiMoveType = MOVE_RUN;
     
+    // SpeedRate
 	fSpeedRate = plMover->GetSpeed(UnitMoveType(uiMoveType)) + pNewPacket.j_xyspeed;
     uSpeedRate = (uint32)(plMover->GetSpeed(UnitMoveType(uiMoveType)) + pNewPacket.j_xyspeed);
 
 	delta_z = plMover->GetPositionZ() - pNewPacket.pos.GetPositionZ();
+
+    // Distance2d
 	fDistance2d = pNewPacket.pos.GetExactDist2dSq(&pOldPacket.pos);
     uDistance2D = (uint32)pNewPacket.pos.GetExactDist2d(&pOldPacket.pos);
     
@@ -484,29 +487,18 @@ void AntiCheat::CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket
     if (uiDiffTime_packets == 0)
         uiDiffTime_packets = 1;
 
+    // Client Speed
     fClientSpeedRate = fDistance2d * 1000 / uiDiffTime_packets;
     uClientSpeedRate = uDistance2D * 1000 / uiDiffTime_packets;
 
     // Check if he have fly auras
 	fly_auras = CanFly(pNewPacket);
 
-	bool no_swim_flags = (pNewPacket.flags & MOVEMENTFLAG_SWIMMING) == 0;
+	bool swim_flags = pNewPacket.flags & MOVEMENTFLAG_SWIMMING;
 
-    float water_level = mover->GetBaseMap()->GetWaterLevel(plMover->GetPositionX(),plMover->GetPositionY());
-    bool no_swim_above_water = (plMover->GetPositionZ() - 7.0f) >= water_level;
+    swim_in_water = mover->IsUnderWater();
 
-    no_swim_in_water = !mover->IsUnderWater();
-
-    no_swim_water = no_swim_in_water && no_swim_above_water;
-
-	//if (cClientTimeDelta < 0)
-	//	cClientTimeDelta = 0;
-	//client_time_delta = cClientTimeDelta < 1500 ? float(cClientTimeDelta)/1000.0f : 1.5f; // normalize time - 1.5 second allowed for heavy loaded server
-   
-    // normalize time - 1.5 second allowed for heavy loaded server
-	client_time_delta = uiDiffTime_packets < sWorld->getFloatConfig(CONFIG_AC_MIN_DIFF_PACKETTIME) ? float(uiDiffTime_packets)/1000.0f : sWorld->getFloatConfig(CONFIG_AC_MIN_DIFF_PACKETTIME)/1000.0f; 
-
-    tg_z = (fDistance2d != 0 && !fly_auras && no_swim_flags) ? (pow(delta_z, 2) / fDistance2d) : -99999; // movement distance tangents
+    tg_z = (fDistance2d != 0 && !fly_auras && !swim_flags) ? (pow(delta_z, 2) / fDistance2d) : -99999; // movement distance tangents
 	// end calculating section
 
 	JumpHeight = m_anti_JumpBaseZ - pNewPacket.pos.GetPositionZ();
@@ -685,7 +677,7 @@ bool AntiCheat::CheckMistiming(MovementInfo& pMovementInfo)
 
 bool AntiCheat::CheckAntiGravity(MovementInfo& pMovementInfo)
 {
-    /*if (!fly_auras && no_swim_in_water && m_anti_JumpBaseZ != 0 && JumpHeight < m_anti_Last_VSpeed)
+    /*if (!fly_auras && !swim_in_water && m_anti_JumpBaseZ != 0 && JumpHeight < m_anti_Last_VSpeed)
 	{
         if (map_count)
             ++(m_CheatList[CHEAT_GRAVITY]);
@@ -967,7 +959,7 @@ bool AntiCheat::CheckAntiWaterwalk(MovementInfo& pOldPacket, MovementInfo& pNewP
 
 bool AntiCheat::CheckAntiTeleToPlane(MovementInfo& pOldPacket, MovementInfo& pNewPacket)
 {
-    if (!no_swim_in_water)
+    if (swim_in_water)
         return true;
 
     if (pOldPacket.pos.GetPositionZ() > 0.0001f || pOldPacket.pos.GetPositionZ() < -0.0001f ||
