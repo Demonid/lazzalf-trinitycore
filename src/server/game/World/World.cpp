@@ -693,11 +693,11 @@ void World::LoadConfigSettings(bool reload)
         sLog->outError("Anticheat.TeleportToPlanePunisher.Count (%d) must be >= 0. Using 0 instead.", m_int_configs[CONFIG_AC_ANTITELETOPLANE_PUNI_COUNT]);
         m_int_configs[CONFIG_AC_ANTITELETOPLANE_PUNI_COUNT] = 0;
     }
-    m_int_configs[CONFIG_AC_ENABLE_ANTITELETOPLANE_ALARMS] = sConfig->GetIntDefault("Anticheat.TeleportToPlaneAlarms", 50);
-    if (m_int_configs[CONFIG_AC_ENABLE_ANTITELETOPLANE_ALARMS] < 20)
+    m_int_configs[CONFIG_AC_ENABLE_ANTITELETOPLANE_ALARMS] = sConfig->GetIntDefault("Anticheat.TeleportToPlaneAlarms", 10);
+    if (m_int_configs[CONFIG_AC_ENABLE_ANTITELETOPLANE_ALARMS] < 1)
     {
-        sLog->outError("Anticheat.TeleportToPlaneAlarms (%d) must be >= 20. Using 20 instead.", m_int_configs[CONFIG_AC_ENABLE_ANTITELETOPLANE_ALARMS]);
-        m_int_configs[CONFIG_AC_ENABLE_ANTITELETOPLANE_ALARMS] = 20;
+        sLog->outError("Anticheat.TeleportToPlaneAlarms (%d) must be >= 1. Using 1 instead.", m_int_configs[CONFIG_AC_ENABLE_ANTITELETOPLANE_ALARMS]);
+        m_int_configs[CONFIG_AC_ENABLE_ANTITELETOPLANE_ALARMS] = 1;
     }
     if (m_int_configs[CONFIG_AC_ENABLE_ANTITELETOPLANE_ALARMS] > 100)
     {
