@@ -73,9 +73,7 @@ class AntiCheat
 		float delta_z;
 		float real_delta;
 		bool fly_auras;
-		bool no_swim_in_water;
-		bool no_swim_water;
-		float client_time_delta;
+		bool swim_in_water;
 		float tg_z;
 		float allowed_delta;
 		float JumpHeight;
