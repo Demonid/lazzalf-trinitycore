@@ -959,16 +959,13 @@ bool AntiCheat::CheckAntiWaterwalk(MovementInfo& pOldPacket, MovementInfo& pNewP
 
 bool AntiCheat::CheckAntiTeleToPlane(MovementInfo& pOldPacket, MovementInfo& pNewPacket)
 {
-    if (swim_in_water)
-        return true;
-
-    if (pOldPacket.pos.GetPositionZ() > 0.0001f || pOldPacket.pos.GetPositionZ() < -0.0001f ||
-        pNewPacket.pos.GetPositionZ() > 0.0001f || pNewPacket.pos.GetPositionZ() < -0.0001f)
-        return true;
-
-    //if (pOldPacket.pos.GetPositionZ() != 0 ||
-    //    pNewPacket.pos.GetPositionZ() != 0)
+    //if (pOldPacket.pos.GetPositionZ() > 0.0001f || pOldPacket.pos.GetPositionZ() < -0.0001f ||
+    //    pNewPacket.pos.GetPositionZ() > 0.0001f || pNewPacket.pos.GetPositionZ() < -0.0001f)
     //    return true;
+
+    if (pOldPacket.pos.GetPositionZ() != 0 ||
+        pNewPacket.pos.GetPositionZ() != 0)
+        return true;
 
     if (pNewPacket.HasMovementFlag(MOVEMENTFLAG_FALLING))
         return true;
