@@ -457,16 +457,6 @@ void AntiCheat::CalcVariablesSmall(MovementInfo& pNewPacket, Unit *mover)
     
 	fSpeedRate = plMover->GetSpeed(UnitMoveType(uiMoveType)) + pNewPacket.j_xyspeed;
     uSpeedRate = (uint32)(plMover->GetSpeed(UnitMoveType(uiMoveType)) + pNewPacket.j_xyspeed);
-
-    /*if (fSpeedRate < m_anti_Last_HSpeed && m_anti_LastSpeedChangeTime == 0)
-		m_anti_LastSpeedChangeTime = pNewPacket.time + uint32(floor(((m_anti_Last_HSpeed / fSpeedRate) * 1500)) + 100); // 100ms above for random fluctuation
-
-	if (pNewPacket.time > m_anti_LastSpeedChangeTime)
-	{
-		m_anti_Last_HSpeed = fSpeedRate;                                    // store current speed
-		m_anti_Last_VSpeed = -2.3f;
-		m_anti_LastSpeedChangeTime = 0;
-	}*/
 }
 
 void AntiCheat::CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket, Unit *mover)
@@ -494,13 +484,8 @@ void AntiCheat::CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket
     if (uiDiffTime_packets == 0)
         uiDiffTime_packets = 1;
 
-    // fClientSpeedRate = it is the player's rate calculated using the distance done by the player
     fClientSpeedRate = fDistance2d * 1000 / uiDiffTime_packets;
     uClientSpeedRate = uDistance2D * 1000 / uiDiffTime_packets;
-
-    // fServerRate = it is the player's rate using the distance per second (core information)
-    // fServerRate = fSpeedRate * uiDiffTime_packets / 1000 + sWorld->getFloatConfig(CONFIG_AC_MAX_DISTANCE_DIFF_ALLOWED);
-    // fServerDelta = fSpeedRate * uiDiffTime_packets / 1000 + sWorld->getFloatConfig(CONFIG_AC_MAX_DISTANCE_DIFF_ALLOWED);
 
     // Check if he have fly auras
 	fly_auras = CanFly(pNewPacket);
@@ -522,21 +507,6 @@ void AntiCheat::CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket
 	client_time_delta = uiDiffTime_packets < sWorld->getFloatConfig(CONFIG_AC_MIN_DIFF_PACKETTIME) ? float(uiDiffTime_packets)/1000.0f : sWorld->getFloatConfig(CONFIG_AC_MIN_DIFF_PACKETTIME)/1000.0f; 
 
     tg_z = (fDistance2d != 0 && !fly_auras && no_swim_flags) ? (pow(delta_z, 2) / fDistance2d) : -99999; // movement distance tangents
-
-	/*if (fSpeedRate < m_anti_Last_HSpeed && m_anti_LastSpeedChangeTime == 0)
-		m_anti_LastSpeedChangeTime = pNewPacket.time + uint32(floor(((m_anti_Last_HSpeed / fSpeedRate) * 1500)) + 100);
-
-	allowed_delta = (plMover->m_transport || plMover->m_temp_transport) ? 2 :   // movement distance allowed delta
-		pow(std::max(fSpeedRate, m_anti_Last_HSpeed) * client_time_delta, 2)
-	    + sWorld->getFloatConfig(CONFIG_AC_MAX_DISTANCE_DIFF_ALLOWED)            // minimum allowed delta
-		+ (tg_z > 2.2 ? pow(delta_z, 2)/2.37f : 0);                             // mountain fall allowed delta
-
-	if (pNewPacket.time > m_anti_LastSpeedChangeTime)
-	{
-		m_anti_Last_HSpeed = fSpeedRate;                                    // store current speed
-		m_anti_Last_VSpeed = -2.3f;
-		m_anti_LastSpeedChangeTime = 0;
-	}*/
 	// end calculating section
 
 	JumpHeight = m_anti_JumpBaseZ - pNewPacket.pos.GetPositionZ();
@@ -783,6 +753,7 @@ bool AntiCheat::CheckAntiMultiJump(MovementInfo& pNewPacket, uint32 uiOpcode)
 bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacket, uint32 uiOpcode)
 {
     // strange packet
+    /*
     if (uiOpcode == MSG_MOVE_SET_FACING)        
         return true;
 
@@ -791,20 +762,21 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
         pNewPacket.GetMovementFlags() != pOldPacket.GetMovementFlags())
         return true;
 
-    // False segnalation
+    // False segnalation    
     if (plMover->HasAura(30174) || // 30174 -> Riding Turtle
         plMover->HasAura(64731)) // 64731 -> Sea Turtle
         return true;
-
+    
     if (pNewPacket.flags & MOVEMENTFLAG_SWIMMING &&
         (plMover->HasAura(7840) || // 7840 -> Swim Speed
         plMover->HasAura(88026) || // 88026 -> Silversnap Swim Tonic Master
         plMover->HasAura(30430)))   // 30430 -> Embrace of the Serpent
-        return true;
+        return true;    
 
     // the best way is checking the ip of the target, if it is the same this check should return.
     if (plMover->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
         return true;
+    */
 
     // it will make false reports
     if (plMover->IsFalling() && fly_auras)
@@ -815,6 +787,7 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
         return true;
     
     // If we are under the Terrain, We are falling in Texture
+    /*
     if (const Map *map = plMover->GetMap())
     {
         float ground_z = map->GetHeight(plMover->GetPositionX(), plMover->GetPositionY(), MAX_HEIGHT);
@@ -828,6 +801,7 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
     // in my opinion this var must be constant in each check to avoid false reports
     if (GetLastSpeedRate() != uSpeedRate)
         return true;
+    */
 
 	if (uDistance2D > 0 && uClientSpeedRate > uSpeedRate)    
 	{          
