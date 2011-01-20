@@ -358,6 +358,8 @@ public:
                     if (Unit* LeftArm = me->SummonCreature(NPC_LEFT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
                     {
                         LeftArm->EnterVehicle(vehicle, 0);
+                        LeftArm->DestroyForNearbyPlayers();
+                        LeftArm->UpdateObjectVisibility(false);
                         DoCast(me, SPELL_ARM_RESPAWN, true);
                         me->MonsterTextEmote(EMOTE_LEFT, 0, true);
                         if (instance)
@@ -369,6 +371,8 @@ public:
                     if (Unit* RightArm = me->SummonCreature(NPC_RIGHT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
                     {
                         RightArm->EnterVehicle(vehicle, 1);
+                        RightArm->DestroyForNearbyPlayers();
+                        RightArm->UpdateObjectVisibility(false);
                         DoCast(me, SPELL_ARM_RESPAWN, true);
                         me->MonsterTextEmote(EMOTE_RIGHT, 0, true);
                         if (instance)
@@ -507,7 +511,6 @@ public:
 
 };
 
-
 class npc_right_arm : public CreatureScript
 {
 public:
@@ -527,8 +530,6 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 64708, true);
             me->SetReactState(REACT_PASSIVE);
-
-            Reset();
         }
 
         InstanceScript* pInstance;
@@ -537,25 +538,15 @@ public:
         int32 ArmDamage;
         uint32 SqueezeTimer;
 
-        uint32 uiStoneGripTimer;
-        uint64 uiGrippedTargets[3];
-        uint32 uiPermittedDamage;
-
         void Reset()
         {
             Gripped = false;
             ArmDamage = 0;
             SqueezeTimer = 0;
-
-            memset(&uiGrippedTargets, 0, sizeof(uiGrippedTargets));
-            uiPermittedDamage = RAID_MODE(100000, 480000);
-            uiStoneGripTimer = 0;
         }
 
         void JustDied(Unit* /*victim*/)
         {
-            ReleaseGrabbedPlayers();
-
             for (uint8 i = 0; i < 5; ++i)
                 me->SummonCreature(NPC_RUBBLE, RubbleRight, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
             
@@ -572,36 +563,21 @@ public:
             summon->AI()->DoZoneInCombat();
         }
 
-        /*
         void KilledUnit(Unit* Victim)
         {
-            if (Victim && Victim->ToPlayer())
+            if (Victim)
             {
                 Victim->ExitVehicle();
-                Victim->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.810f, 10, 10);
-                //Victim->ToPlayer()->TeleportTo(Victim->GetMapId(), 1767.80f, -18.38f, 449.0f, 0);                    
+                Victim->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
             }
         }
-        */
 
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
                 return;
 
-            /*if (uiStoneGripTimer <= diff)
-            {
-                GrabPlayers();
-                if (Creature* Kologarn = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_KOLOGARN) : 0))
-                    DoScriptText(SAY_GRAB_PLAYER, Kologarn);
-
-                uiStoneGripTimer = urand(30000, 35000);
-                uiPermittedDamage = RAID_MODE(100000, 480000);
-            }
-            else
-                uiStoneGripTimer -= diff;*/
-
-            /*if (Gripped)
+            if (Gripped)
             {
                 if (SqueezeTimer <= diff)
                 {
@@ -611,31 +587,11 @@ public:
                             me->Kill(me->GetVehicleKit()->GetPassenger(n), true);
                     }
                     Gripped = false;
-                }  
-                else SqueezeTimer -= diff;
-            }*/
-        }
-
-        void ReleaseGrabbedPlayers()
-        {
-             for (uint8 i = 0; i < N_GRIPPED; ++i)
-                if (Unit* grabbed = Unit::GetUnit(*me, uiGrippedTargets[i]))
-                    me->CastSpell(grabbed, SPELL_STONE_GRIP_CANCEL, false);
-        }
-
-        void GrabPlayers()
-        {
-            for (uint8 i = 0; i < N_GRIPPED; ++i)
-            {
-                if (Unit* grabbed = SelectTarget(SELECT_TARGET_RANDOM, 1, 50.0f, true))
-                {
-                    DoCast(grabbed, SPELL_STONE_GRIP);
-                    uiGrippedTargets[i] = grabbed->GetGUID();
                 }
+                else SqueezeTimer -= diff;
             }
         }
 
-        /*
         void DoAction(const int32 action)
         {
             switch (action)
@@ -648,32 +604,22 @@ public:
                             if (GripTarget && GripTarget->isAlive())
                             {
                                 GripTarget->EnterVehicle(me, n);
-                                me->AddAura(RAID_MODE(SPELL_STONE_GRIP_10,SPELL_STONE_GRIP_25), GripTarget);
+                                me->AddAura(SPELL_STONE_GRIP, GripTarget);
                                 me->AddAura(SPELL_STONE_GRIP_STUN, GripTarget);
                                 GripTargetGUID[n] = NULL;
                             }
                         }
-                    }  
+                    }
                     ArmDamage = 0;
                     SqueezeTimer = 16000;
                     Gripped = true;
                     break;
             }
-        }*/
+        }
     
         void DamageTaken(Unit* pKiller, uint32 &damage)
         {
-            if (uiGrippedTargets[0] == 0)
-                return;
-
-            if (damage > uiPermittedDamage)
-                uiPermittedDamage = 0;
-            else
-                uiPermittedDamage -= damage;
-
-            if (!uiPermittedDamage)
-                ReleaseGrabbedPlayers();
-            /*if (Gripped)
+            if (Gripped)
             {
                 ArmDamage += damage;
                 int32 dmg = RAID_MODE(100000, 480000);
@@ -685,19 +631,20 @@ public:
                         Unit* pGripTarget = me->GetVehicleKit()->GetPassenger(n);
                         if (pGripTarget && pGripTarget->isAlive())
                         {
-                            pGripTarget->RemoveAurasDueToSpell(RAID_MODE(SPELL_STONE_GRIP_10,SPELL_STONE_GRIP_25));
+                            pGripTarget->RemoveAurasDueToSpell(SPELL_STONE_GRIP);
                             pGripTarget->RemoveAurasDueToSpell(SPELL_STONE_GRIP_STUN);
                             pGripTarget->ExitVehicle();
-                            //pGripTarget->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
-                            if (pGripTarget->ToPlayer())
-                                pGripTarget->ToPlayer()->TeleportTo(pGripTarget->GetMapId(), 1767.80f, -18.38f, 449.0f, 6.27f); 
+                            pGripTarget->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
                         }
                     }
                     Gripped = false;
                 }
-            }*/
+            }
         }
     };
+};
+
+
 
 };
 
