@@ -645,10 +645,6 @@ public:
 };
 
 
-
-};
-
-
 void AddSC_boss_kologarn()
 {
     new boss_kologarn();
