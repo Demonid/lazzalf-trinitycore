@@ -33,6 +33,7 @@ EndContentData */
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
+#include "Group.h"
 
 /*######
 ## npc_bunthen_plainswind
@@ -587,6 +588,7 @@ enum BossOmenSpells
 };
 
 #define MOONGLADE_ZONE_ID 493
+#define QUEST_ELUNES_BLESSING 8868
 
 class boss_omen : public CreatureScript
 {
@@ -615,7 +617,18 @@ public:
             StarshardsTimer = 7000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void JustDied(Unit* killer)
+        {
+            if (Group* grp = killer->ToPlayer()->GetGroup())
+            {
+                for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+                {
+                    itr->getSource()->CompleteQuest(QUEST_ELUNES_BLESSING);
+                }
+            }
+        }
+
+        void EnterCombat(Unit* who)
         {
             CleaveTimer = 10000;
             StarshardsTimer = 7000;
