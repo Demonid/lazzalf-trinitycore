@@ -667,7 +667,6 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
     // the best way is checking the ip of the target, if it is the same this check should return.
     if (plMover->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
         return true;
-    */
 
     // it will make false reports
     if (plMover->IsFalling() && fly_auras)
@@ -677,8 +676,7 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
     if (plMover->HasAuraType(SPELL_AURA_FEATHER_FALL) || plMover->HasAuraType(SPELL_AURA_SAFE_FALL))
         return true;
     
-    // If we are under the Terrain, We are falling in Texture
-    /*
+    // If we are under the Terrain, We are falling in Texture    
     if (const Map *map = plMover->GetMap())
     {
         float ground_z = map->GetHeight(plMover->GetPositionX(), plMover->GetPositionY(), MAX_HEIGHT);
