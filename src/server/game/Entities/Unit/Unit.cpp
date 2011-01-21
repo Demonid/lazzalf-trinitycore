@@ -3583,6 +3583,33 @@ inline void Unit::RemoveAuraFromStack(AuraMap::iterator &iter, AuraRemoveMode re
 {
     if (iter->second->ModStackAmount(-1))
         RemoveOwnedAura(iter, removeMode);
+    else
+    {
+        // Lifebloom hack
+        Aura * aura = iter->second;
+        
+        if ((aura->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID) &&
+            (aura->GetSpellProto()->SpellFamilyFlags[EFFECT_1] == 0x10) &&
+            (removeMode == AURA_REMOVE_BY_ENEMY_SPELL))
+        {
+            Unit * caster = aura->GetCaster();
+            AuraEffect const * aurEff = aura->GetEffect(EFFECT_1);
+            if (!caster || !aurEff)
+                return;
+
+            // final heal
+            int32 amount = aurEff->GetAmount() / aura->GetStackAmount();
+            int32 stack = 1;
+            CastCustomSpell(this, 33778, &amount, &stack, NULL, true, NULL, aurEff, caster->GetGUID());
+
+            Unit * source = caster;
+            if (aura->GetUnitOwner() && !aura->GetUnitOwner()->IsFriendlyTo(source))
+                source = aura->GetUnitOwner();
+            // restore mana
+            int32 returnmana = CalculatePctU(caster->GetCreateMana(), GetSpellProto()->ManaCostPercentage) * stack / 2;
+            source->CastCustomSpell(source, 64372, &returnmana, NULL, NULL, true, NULL, aurEff, caster->GetGUID()); 
+        }
+    }
 }
 
 void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit *dispeller)
@@ -3662,7 +3689,7 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit 
                 if (aura->GetEffect(i))
                 {
                     baseDamage[i] = aura->GetEffect(i)->GetBaseAmount();
-                    damage[i] = aura->GetEffect(i)->GetAmount();
+                    damage[i] = aura->GetEffect(i)->GetAmount() / aura->GetStackAmount();
                     effMask |= (1<<i);
                     if (aura->GetEffect(i)->CanBeRecalculated())
                         recalculateMask |= (1<<i);
@@ -3696,14 +3723,29 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit 
             {
                 int32 dur = (2*MINUTE*IN_MILLISECONDS < aura->GetDuration() || aura->GetDuration() < 0) ? 2*MINUTE*IN_MILLISECONDS : aura->GetDuration();
 
-                newAura = Aura::TryCreate(aura->GetSpellProto(), effMask, stealer, NULL, &baseDamage[0], NULL, aura->GetCasterGUID());
+                /*newAura = Aura::TryCreate(aura->GetSpellProto(), effMask, stealer, NULL, &baseDamage[0], NULL, aura->GetCasterGUID());
                 if (!newAura)
                     return;
                 // strange but intended behaviour: Stolen single target auras won't be treated as single targeted
                 if (newAura->IsSingleTarget())
                     newAura->UnregisterSingleTarget();
                 newAura->SetLoadedState(dur, dur, stealCharge ? 1 : aura->GetCharges(), aura->GetStackAmount(), recalculateMask, &damage[0]);
-                newAura->ApplyForTargets();
+                newAura->ApplyForTargets();*/
+                newAura = stealer->GetAura(aura->GetId(), aura->GetCasterGUID());
+                if (newAura)
+                    newAura->ModStackAmount(1);
+                else
+                {
+                    newAura = Aura::TryCreate(aura->GetSpellProto(), effMask, stealer, NULL, &baseDamage[0], NULL, aura->GetCasterGUID());
+                    if (!newAura)
+                        return;
+
+                    // strange but intended behaviour: Stolen single target auras won't be treated as single targeted
+                    if (newAura->IsSingleTarget())
+                        newAura->UnregisterSingleTarget();
+                    newAura->SetLoadedState(dur, dur, stealCharge ? 1 : aura->GetCharges(), newAura->GetStackAmount(), recalculateMask, &damage[0]);
+                    newAura->ApplyForTargets();
+                }
             }
             return;
         }
