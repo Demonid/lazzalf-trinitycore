@@ -3606,7 +3606,7 @@ inline void Unit::RemoveAuraFromStack(AuraMap::iterator &iter, AuraRemoveMode re
             if (aura->GetUnitOwner() && !aura->GetUnitOwner()->IsFriendlyTo(source))
                 source = aura->GetUnitOwner();
             // restore mana
-            int32 returnmana = CalculatePctU(caster->GetCreateMana(), GetSpellProto()->ManaCostPercentage) * stack / 2;
+            int32 returnmana = CalculatePctU(caster->GetCreateMana(), aura->GetSpellProto()->ManaCostPercentage) * stack / 2;
             source->CastCustomSpell(source, 64372, &returnmana, NULL, NULL, true, NULL, aurEff, caster->GetGUID()); 
         }
     }
