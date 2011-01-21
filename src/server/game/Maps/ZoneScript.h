@@ -47,6 +47,7 @@ class ZoneScript
         virtual void SetData(uint32 /*DataId*/, uint32 /*Value*/) {}
 
         virtual void ProcessEvent(GameObject * /*obj*/, uint32 /*eventId*/, Player* = NULL) {}
+        virtual void ProcessEvent(Unit* /*unit*/, uint32 /*eventId*/) {}
 };
 
 #endif
