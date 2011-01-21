@@ -310,10 +310,6 @@ bool AntiCheat::AntiCheatPunisher(MovementInfo& pMovementInfo)
     if (plMover->getLevel() > sWorld->getIntConfig(CONFIG_AC_PUNI_LEVEL_MAX))
         return true;
 
-    if (sWorld->getBoolConfig(CONFIG_AC_PUNI_MAP_SMALL))
-        if (plMover->GetMapId() != 0 && plMover->GetMapId() != 1)
-            return true;
-
     if (!ControllPunisher())
         return true; 
 
@@ -858,10 +854,6 @@ bool AntiCheat::CheckAntiWaterwalk(MovementInfo& pOldPacket, MovementInfo& pNewP
 
 bool AntiCheat::CheckAntiTeleToPlane(MovementInfo& pOldPacket, MovementInfo& pNewPacket)
 {
-    //if (pOldPacket.pos.GetPositionZ() > 0.0001f || pOldPacket.pos.GetPositionZ() < -0.0001f ||
-    //    pNewPacket.pos.GetPositionZ() > 0.0001f || pNewPacket.pos.GetPositionZ() < -0.0001f)
-    //    return true;
-
     if (pOldPacket.pos.GetPositionZ() != 0 ||
         pNewPacket.pos.GetPositionZ() != 0)
         return true;
@@ -878,7 +870,7 @@ bool AntiCheat::CheckAntiTeleToPlane(MovementInfo& pOldPacket, MovementInfo& pNe
     float z_diff = fabs(ground_Z - z);
 
 	// we are not really walking there
-    if (z_diff > 2.0f)
+    if (z_diff > 1.0f)
     {
 	    ++(m_anti_TeleToPlane_Count);
 	    if (m_anti_TeleToPlane_Count > sWorld->getIntConfig(CONFIG_AC_ENABLE_ANTITELETOPLANE_ALARMS))
