@@ -976,10 +976,10 @@ bool AntiCheat::CheckAntiTeleToPlane(MovementInfo& pOldPacket, MovementInfo& pNe
     float x, y, z;
     plMover->GetPosition(x, y, z);
     float ground_Z = plMover->GetMap()->GetHeight(x, y, z);
-    float z_diff = fabs(ground_Z - z);   
+    float z_diff = fabs(ground_Z - z);
 
 	// we are not really walking there
-    if (z_diff > 1.0f)
+    if (z_diff > 2.0f)
     {
 	    ++(m_anti_TeleToPlane_Count);
 	    if (m_anti_TeleToPlane_Count > sWorld->getIntConfig(CONFIG_AC_ENABLE_ANTITELETOPLANE_ALARMS))
