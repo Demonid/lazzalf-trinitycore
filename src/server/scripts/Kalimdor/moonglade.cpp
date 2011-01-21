@@ -576,6 +576,85 @@ public:
 
 };
 
+/*
+ * Boss Omen - Lunar Festival
+ */
+
+enum BossOmenSpells
+{
+    SPELL_STARSHARDS = 37124,
+    SPELL_CLEAVE = 19983,
+};
+
+#define MOONGLADE_ZONE_ID 493
+
+class boss_omen : public CreatureScript
+{
+public:
+    boss_omen() : CreatureScript("boss_omen") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new boss_omenAI (pCreature);
+    }
+
+    struct boss_omenAI : public ScriptedAI
+    {
+        boss_omenAI(Creature *pCreature) : ScriptedAI(pCreature)
+        {
+            CleaveTimer = 10000;
+            StarshardsTimer = 7000;
+        }
+
+        uint32 CleaveTimer;
+        uint32 StarshardsTimer;
+
+        void Reset()
+        {
+            CleaveTimer = 10000;
+            StarshardsTimer = 7000;
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            CleaveTimer = 10000;
+            StarshardsTimer = 7000;
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (me->GetZoneId() != MOONGLADE_ZONE_ID)
+            {
+                me->AttackStop();
+                me->CastStop();
+                me->ForcedDespawn();
+                return;
+            }
+
+            if (CleaveTimer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_CLEAVE);
+                CleaveTimer = 10000;
+            }
+            else CleaveTimer -= diff;
+
+            if (StarshardsTimer <= diff)
+            {
+                //if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                DoCastAOE(SPELL_STARSHARDS);
+                StarshardsTimer = 5000;
+            }
+            else StarshardsTimer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+};
+
 /*####
 #
 ####*/
@@ -587,4 +666,5 @@ void AddSC_moonglade()
     new npc_silva_filnaveth();
     new npc_clintar_dreamwalker();
     new npc_clintar_spirit();
+    new boss_omen();
 }
