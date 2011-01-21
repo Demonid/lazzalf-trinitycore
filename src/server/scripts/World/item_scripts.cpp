@@ -550,13 +550,16 @@ public:
 
     bool OnUse(Player* pPlayer, Item* pItem, SpellCastTargets const& /*targets*/)
     {
+        if (!pPlayer)
+            return true;
+
         if (pPlayer->GetAreaId() == STORMRAGE_BARROW_DENS_AREA)
         {
             if (Creature* pCreature = pPlayer->FindNearestCreature(BOSS_OMEN, 100, true))
                 if (pCreature->isAlive())
                     return false;
 
-            pPlayer->SummonCreature(BOSS_OMEN, boss_position);
+            pPlayer->SummonCreature(BOSS_OMEN, boss_position, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
             return true;
         }
         else

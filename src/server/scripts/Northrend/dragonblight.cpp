@@ -268,8 +268,34 @@ public:
     }
 };
 
+/* Emblazoned Battle Horn */
+
+#define NPC_GROMTHAR 27002
+
+const Position gromthar_position = {2720.921f, 427.441f, 67.002f, 5.996f};
+
+class item_emblazoned_battle_horn : public ItemScript
+{
+public:
+    item_emblazoned_battle_horn() : ItemScript("item_emblazoned_battle_horn") { }
+
+    bool OnUse(Player* pPlayer, Item* pItem, SpellCastTargets const& /*targets*/)
+    {
+        if (!pPlayer)
+            return true;
+
+        if (Creature* pCreature = pPlayer->FindNearestCreature(NPC_GROMTHAR, 100, true))
+            if (pCreature->isAlive())
+                return false;
+ 
+        pPlayer->SummonCreature(NPC_GROMTHAR, gromthar_position, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+        return true;
+    }
+};
+
 void AddSC_dragonblight()
 {
     new npc_alexstrasza_wr_gate;
     new npc_inquisitor_hallard;
+    new item_emblazoned_battle_horn;
 }
