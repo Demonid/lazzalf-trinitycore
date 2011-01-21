@@ -47,7 +47,6 @@ class AntiCheat
 
         MovementInfo lastpMovementInfo;
         uint32 uiLastOpcode;
-        uint32 uLastSpeedRate;
 
         bool cheat_find;
 
@@ -79,7 +78,6 @@ class AntiCheat
 		
 		void CalcDeltas(MovementInfo& pNewPacket, MovementInfo& pOldPacket);
 		void CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket, Unit* mover);
-        void CalcVariablesSmall(MovementInfo& pNewPacket, Unit* mover);
         bool CanFly(MovementInfo& pMovementInfo);
 		
 		bool CheckAntiGravity(MovementInfo& /*pMovementInfo*/);
@@ -124,14 +122,12 @@ class AntiCheat
 		bool GetAndUpdateDelta(int32 /*diff*/);
 		void SetDelta(int32 /*delta*/);
         int32 GetDelta();
-        void  SetSleep(int32 delta);
+        void SetSleep(int32 delta, bool forced = true);
         void ResetCheatList(uint32 /*diff*/);
         void SaveLastPacket(MovementInfo& pMovementInfo) { lastpMovementInfo = pMovementInfo; }
         MovementInfo& GetLastPacket() { return lastpMovementInfo; }
         void SetLastOpcode(uint32 uiOpcode) { uiLastOpcode = uiOpcode; }
         uint32 GetLastOpcode() { return uiLastOpcode; }
-        void SetLastSpeedRate(uint32 uSpeedRate) { uLastSpeedRate = uSpeedRate; }
-        uint32 GetLastSpeedRate() { return uLastSpeedRate; }
 };
 
 #endif

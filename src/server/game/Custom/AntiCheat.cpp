@@ -64,7 +64,7 @@ bool AntiCheat::GetBlock()
 
 bool AntiCheat::GetAndUpdateDelta(int32 diff)
 {
-    if (ac_goactivate > 0)
+    if (ac_goactivate > 0 && ac_delta >= 0)
     {
         ac_goactivate--;
         return true;
@@ -106,8 +106,11 @@ void AntiCheat::SetDelta(int32 delta)
     ac_delta = delta;
 }
 
-void AntiCheat::SetSleep(int32 delta)
+void AntiCheat::SetSleep(int32 delta, bool forced)
 {
+    if (!forced && ac_delta < 0)
+        return;
+
     if (ac_delta < delta)
     {
         ac_delta = delta;
@@ -145,6 +148,14 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
     if (!plMover->IsInWorld())
         return true;
 
+    if (plMover->isInFlight() || plMover->GetTransport() || plMover->GetVehicle())
+    {
+        SaveLastPacket(pMovementInfo);
+        SetLastOpcode(opcode);
+        SetSleep(1);
+        return true;        
+    }
+
 	// Calc Delthas for AntiCheat
 	CalcDeltas(pMovementInfo, GetLastPacket());
 
@@ -168,8 +179,7 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
     if (sWorld->iIgnoreMapIds_AC.count(plMover->GetMapId()))
     {
         // Go to sleep
-        ac_goactivate = 0;
-        SetDelta(int32(sWorld->getIntConfig(CONFIG_AC_SLEEP_DELTA)));
+        SetSleep(int32(sWorld->getIntConfig(CONFIG_AC_SLEEP_DELTA)));
         return true;
     }
 
@@ -255,12 +265,9 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
             }
         }
     }
-    else
-        CalcVariablesSmall(pMovementInfo, mover);
 
     SaveLastPacket(pMovementInfo);
     SetLastOpcode(opcode);
-    SetLastSpeedRate(uSpeedRate);
 
 	return check_passed;
 }
@@ -405,24 +412,6 @@ void AntiCheat::CalcDeltas(MovementInfo& pNewPacket,  MovementInfo& pOldPacket)
 	    difftime_log_file = cServerTime - m_logfile_time;
     if (!m_logdb_time)
         difftime_log_db = cServerTime - m_logdb_time;
-}
-
-// Calc variables for next AntiCheat activation
-void AntiCheat::CalcVariablesSmall(MovementInfo& pNewPacket, Unit *mover)
-{
-	// calculating section
-    uint8 uiMoveType = 0;
-    if (plMover->HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING))
-        uiMoveType = MOVE_SWIM;
-    else if (plMover->IsFlying())
-        uiMoveType = MOVE_FLIGHT;
-    else if (plMover->HasUnitMovementFlag(MOVEMENTFLAG_WALKING))
-        uiMoveType = MOVE_WALK;
-    else
-        uiMoveType = MOVE_RUN;
-    
-	fSpeedRate = plMover->GetSpeed(UnitMoveType(uiMoveType)) + pNewPacket.j_xyspeed;
-    uSpeedRate = (uint32)(plMover->GetSpeed(UnitMoveType(uiMoveType)) + pNewPacket.j_xyspeed);
 }
 
 void AntiCheat::CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket, Unit *mover)
@@ -703,10 +692,6 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
             map_z > (INVALID_HEIGHT + 10.0f + 5.0f))
             return true;
     }
-
-    // in my opinion this var must be constant in each check to avoid false reports
-    if (GetLastSpeedRate() != uSpeedRate)
-        return true;
     */
 
 	if (uClientSpeedRate > uSpeedRate)    

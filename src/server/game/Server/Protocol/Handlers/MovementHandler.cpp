@@ -359,25 +359,9 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     // begin anti cheat
     bool check_passed = true;   
 
-    /* Exceptions:
-        In Flight
-        On Transport
-        Being Teleported
-        On Vehicle
-        Can't free move
-    */
-    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE))
+    if (plMover && sWorld->getBoolConfig(CONFIG_AC_ENABLE))
     {
-        if (plMover && !plMover->isInFlight() && !plMover->GetTransport() && !plMover->IsBeingTeleported() && plMover->CanFreeMove() && !plMover->GetVehicle())
-        {
-            check_passed = plMover->GetAntiCheat()->DoAntiCheatCheck(opcode, movementInfo, mover);
-        }
-        else if (plMover)
-        {
-            // Go to sleep
-            plMover->GetAntiCheat()->ac_goactivate = 0;
-            plMover->GetAntiCheat()->SetDelta(int32(sWorld->getIntConfig(CONFIG_AC_SLEEP_DELTA)));
-        }
+        check_passed = plMover->GetAntiCheat()->DoAntiCheatCheck(opcode, movementInfo, mover);
     }
 
     if (check_passed)
