@@ -568,20 +568,6 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_AC_ENABLE]                       = sConfig->GetBoolDefault("Anticheat.Movement.Enable", true);
     m_bool_configs[CONFIG_AC_ENABLE_DBLOG]                 = sConfig->GetBoolDefault("Anticheat.EnableDBLog", true);        
     
-    m_bool_configs[CONFIG_AC_ENABLE_MISTIMING]             = sConfig->GetBoolDefault("Anticheat.Mistiming.Enable", true);
-    m_int_configs[CONFIG_AC_MISTIMING_BLOCK_COUNT]         = sConfig->GetIntDefault("Anticheat.MistimingBlock.Count", 0);
-    if (m_int_configs[CONFIG_AC_MISTIMING_BLOCK_COUNT] < 0)
-    {
-        sLog->outError("Anticheat.MistimingBlock.Count (%d) must be >= 0. Using 0 instead.", m_int_configs[CONFIG_AC_MISTIMING_BLOCK_COUNT]);
-        m_int_configs[CONFIG_AC_MISTIMING_BLOCK_COUNT] = 0;
-    }
-    m_int_configs[CONFIG_AC_MISTIMING_PUNI_COUNT]         = sConfig->GetIntDefault("Anticheat.MistimingPunisher.Count", 0);
-    if (m_int_configs[CONFIG_AC_MISTIMING_PUNI_COUNT] < 0)
-    {
-        sLog->outError("Anticheat.MistimingPunisher.Count (%d) must be >= 0. Using 0 instead.", m_int_configs[CONFIG_AC_MISTIMING_PUNI_COUNT]);
-        m_int_configs[CONFIG_AC_MISTIMING_PUNI_COUNT] = 0;
-    }
-
     m_bool_configs[CONFIG_AC_ENABLE_ANTIGRAVITY]           = sConfig->GetBoolDefault("Anticheat.AntiGravity.Enable", true);
     m_int_configs[CONFIG_AC_ANTIGRAVITY_BLOCK_COUNT]         = sConfig->GetIntDefault("Anticheat.AntiGravityBlock.Count", 0);
     if (m_int_configs[CONFIG_AC_ANTIGRAVITY_BLOCK_COUNT] < 0)
@@ -711,17 +697,7 @@ void World::LoadConfigSettings(bool reload)
         sLog->outError("Anticheat.IgnoreGMLevel (%d) must be >= 0. Using 0 instead.", m_int_configs[CONFIG_AC_DISABLE_GM_LEVEL]);
         m_int_configs[CONFIG_AC_DISABLE_GM_LEVEL] = 0;
     }    
-    m_int_configs[CONFIG_AC_ENABLE_MISTIMING_DELTHA] = sConfig->GetIntDefault("Anticheat.MistimingDelta", 15000);
-    if (m_int_configs[CONFIG_AC_ENABLE_MISTIMING_DELTHA] < 5000)
-    {
-        sLog->outError("Anticheat.m_MistimingDelta (%d) must be >= 5000ms. Using 5000ms instead.", m_int_configs[CONFIG_AC_ENABLE_MISTIMING_DELTHA]);
-        m_int_configs[CONFIG_AC_ENABLE_MISTIMING_DELTHA] = 5000;
-    }
-    if (m_int_configs[CONFIG_AC_ENABLE_MISTIMING_DELTHA] > 50000)
-    {
-        sLog->outError("Anticheat.m_MistimingDelta (%d) must be <= 50000ms. Using 50000ms instead.", m_int_configs[CONFIG_AC_ENABLE_MISTIMING_DELTHA]);
-        m_int_configs[CONFIG_AC_ENABLE_MISTIMING_DELTHA] = 50000;
-    }
+
     m_int_configs[CONFIG_AC_DELTA_LOG_FILE] = sConfig->GetIntDefault("Anticheat.LogFileDelta", 1000);
     if (m_int_configs[CONFIG_AC_DELTA_LOG_FILE] < 0)
     {

@@ -14,8 +14,7 @@
 
 enum eCheat
 {
-	CHEAT_MISTIMING = 0,
-	CHEAT_GRAVITY,
+	CHEAT_GRAVITY = 0,
 	CHEAT_MULTIJUMP,
 	CHEAT_SPEED,
 	CHEAT_TELEPORT,
@@ -57,10 +56,8 @@ class AntiCheat
         bool map_puni;
 
 		// Delthas
-		int32 cClientTimeDelta;
 		uint64 cServerTime;		
 		uint32 cServerTimeDelta;
-		int32 sync_time;
         uint32 difftime_log_file;
         uint32 difftime_log_db;
         uint32 uiDiffTime_packets;
@@ -68,31 +65,23 @@ class AntiCheat
 		// Variables
 		float fSpeedRate;	
         uint32 uSpeedRate;
-		//float delta_x;
-		//float delta_y;
 		float delta_z;
-		float real_delta;
 		bool fly_auras;
 		bool swim_in_water;
 		float tg_z;
-		float allowed_delta;
 		float JumpHeight;
 
         float fClientSpeedRate;
-        // float fServerRate;
         float fDistance2d;
 
         uint32 uClientSpeedRate;
         uint32 uDistance2D;
-
-        // float fServerDelta;
 		
 		void CalcDeltas(MovementInfo& pNewPacket, MovementInfo& pOldPacket);
 		void CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket, Unit* mover);
         void CalcVariablesSmall(MovementInfo& pNewPacket, Unit* mover);
         bool CanFly(MovementInfo& pMovementInfo);
 		
-		bool CheckMistiming(MovementInfo& /*pMovementInfo*/);
 		bool CheckAntiGravity(MovementInfo& /*pMovementInfo*/);
 		bool CheckAntiMultiJump(MovementInfo& pNewPacket, uint32 uiOpcode);
         bool CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacket, uint32 uiOpcode);
@@ -116,17 +105,11 @@ class AntiCheat
         uint32 m_CheatList[MAX_CHEAT];
         uint32 m_CheatList_reset_diff;        
 	
-		time_t m_anti_LastClientTime;           // last movement client time
         time_t m_anti_LastServerTime;           // last movement server time
-        time_t m_anti_DeltaClientTime;          // client side session time
         time_t m_anti_DeltaServerTime;          // server side session time
-        uint32 m_anti_MistimingCount;           // mistiming count
         time_t m_logfile_time;
-        time_t m_logdb_time;        
+        time_t m_logdb_time;
 
-        time_t m_anti_LastSpeedChangeTime;      // last speed change time
-
-        float m_anti_Last_HSpeed;               // horizontal speed, default RUN speed
         float m_anti_Last_VSpeed;               // vertical speed, default max jump height
 
         uint32 m_anti_TeleToPlane_Count;        // Teleport To Plane alarm counter

@@ -31,15 +31,9 @@ AntiCheat::AntiCheat(Player* new_plMover)
         m_CheatList[i] = 0;
     m_CheatList_reset_diff = sWorld->getIntConfig(CONFIG_AC_RESET_CHEATLIST_DELTA);
 	
-	m_anti_LastClientTime  = 0;          // last movement client time
     m_anti_LastServerTime  = 0;          // last movement server time
-    m_anti_DeltaClientTime = 0;          // client side session time
     m_anti_DeltaServerTime = 0;          // server side session time
-    m_anti_MistimingCount  = 0;          // mistiming count
 
-    m_anti_LastSpeedChangeTime = 0;      // last speed change time
-
-    m_anti_Last_HSpeed =  7.0f;          // horizontal speed, default RUN speed
     m_anti_Last_VSpeed = -2.3f;          // vertical speed, default max jump height
 
     m_anti_TeleToPlane_Count = 0;        // Teleport To Plane alarm counter
@@ -115,7 +109,10 @@ void AntiCheat::SetDelta(int32 delta)
 void AntiCheat::SetSleep(int32 delta)
 {
     if (ac_delta < delta)
+    {
         ac_delta = delta;
+        m_anti_LastServerTime = getMSTime();
+    }
 
     ac_goactivate = 0;
 }
@@ -187,12 +184,7 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
         // Check taxi flight
         const uint32 curDest = plMover->m_taxi.GetTaxiDestination();	
 	    if (!curDest)
-	    { 	
-	        // Mistiming Cheat
-	        //if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_MISTIMING))
-		    //    if (!CheckMistiming(pMovementInfo))
-			//        check_passed = false;
-
+	    {
             // Gravity Cheat
 		    //if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIGRAVITY))
 			//    if (!CheckAntiGravity(pMovementInfo))
@@ -275,10 +267,7 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
 
 bool AntiCheat::ControllPunisher()
 {
-    if (sWorld->getIntConfig(CONFIG_AC_MISTIMING_PUNI_COUNT) && 
-        m_CheatList[CHEAT_MISTIMING] >= sWorld->getIntConfig(CONFIG_AC_MISTIMING_PUNI_COUNT))
-        return true;
-    else if (sWorld->getIntConfig(CONFIG_AC_ANTIGRAVITY_PUNI_COUNT) && 
+    if (sWorld->getIntConfig(CONFIG_AC_ANTIGRAVITY_PUNI_COUNT) && 
         m_CheatList[CHEAT_GRAVITY] >= sWorld->getIntConfig(CONFIG_AC_ANTIGRAVITY_PUNI_COUNT))
         return true;
     else if (sWorld->getIntConfig(CONFIG_AC_ANTIMULTIJUMP_PUNI_COUNT) && 
@@ -317,11 +306,6 @@ bool AntiCheat::AntiCheatPunisher(MovementInfo& pMovementInfo)
     if (sWorld->getBoolConfig(CONFIG_AC_PUNI_MAP_SMALL))
         if (plMover->GetMapId() != 0 && plMover->GetMapId() != 1)
             return true;
-
-    // Lagghi test
-    if ((m_CheatList[CHEAT_MISTIMING] >= (m_CheatList[CHEAT_SPEED] / 15)) &&
-        (m_CheatList[CHEAT_FLY] < (m_CheatList[CHEAT_SPEED] / 10)))
-        return true;
 
     if (!ControllPunisher())
         return true; 
@@ -404,17 +388,6 @@ bool AntiCheat::AntiCheatPunisher(MovementInfo& pMovementInfo)
 
 void AntiCheat::CalcDeltas(MovementInfo& pNewPacket,  MovementInfo& pOldPacket)
 {
-	// Calc Client Time Delta
-	cClientTimeDelta = 1500;
-	if (m_anti_LastClientTime != 0)
-	{
-		cClientTimeDelta = pNewPacket.time - m_anti_LastClientTime;
-		m_anti_DeltaClientTime += cClientTimeDelta;
-		m_anti_LastClientTime = pNewPacket.time;
-	}
-	else
-		m_anti_LastClientTime = pNewPacket.time;
-
     // Get Server Time
 	cServerTime = getMSTime();
 
@@ -423,17 +396,10 @@ void AntiCheat::CalcDeltas(MovementInfo& pNewPacket,  MovementInfo& pOldPacket)
 	if (m_anti_LastServerTime != 0)
 	{
 		cServerTimeDelta = cServerTime - m_anti_LastServerTime;
-		m_anti_DeltaServerTime += cServerTimeDelta;
 		m_anti_LastServerTime = cServerTime;
 	}
 	else
 		m_anti_LastServerTime = cServerTime;
-
-	// resync times on client login (first 15 sec for heavy areas)
-	if (m_anti_DeltaServerTime < 15000 && m_anti_DeltaClientTime < 15000)
-		m_anti_DeltaClientTime = m_anti_DeltaServerTime;
-
-	sync_time = m_anti_DeltaClientTime - m_anti_DeltaServerTime;
     
     if (!m_logfile_time)
 	    difftime_log_file = cServerTime - m_logfile_time;
@@ -534,16 +500,6 @@ void AntiCheat::LogCheat(eCheat m_cheat, MovementInfo& pMovementInfo)
     std::string cheat_type = "";
 	switch (m_cheat)
 	{
-		case CHEAT_MISTIMING:
-            if (difftime_log_file >= sWorld->getIntConfig(CONFIG_AC_DELTA_LOG_FILE))
-			{
-				m_logfile_time = cServerTime;    
-			    sLog->outCheat("AC-%s Map %u Area %u, X:%f Y:%f Z:%f, mistiming exception #%d, mistiming: %dms", 
-                    plMover->GetName(), plMover->GetMapId(), plMover->GetAreaId(), plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ(),
-			        m_anti_MistimingCount, sync_time);
-            }
-            cheat_type = "Mistiming";
-            break;
 		case CHEAT_GRAVITY:
             if (difftime_log_file >= sWorld->getIntConfig(CONFIG_AC_DELTA_LOG_FILE))
 			{
@@ -631,48 +587,6 @@ void AntiCheat::LogCheat(eCheat m_cheat, MovementInfo& pMovementInfo)
                 cheat_type.c_str(), plMover->GetGUIDLow(), plMover->GetName(), plMover->getLevel(), plMover->GetMapId(), plMover->GetAreaId(), plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ());
             m_logdb_time = cServerTime;
         }
-}
-
-bool AntiCheat::CheckMistiming(MovementInfo& pMovementInfo)
-{		
-	const int32 GetMistimingDelta = abs(int32(sWorld->getIntConfig(CONFIG_AC_ENABLE_MISTIMING_DELTHA)));
-	
-	if (sync_time > GetMistimingDelta)
-	{
-		cClientTimeDelta = cServerTimeDelta;
-        if (map_count)
-		    ++(m_anti_MistimingCount);
-
-		const bool bMistimingModulo = m_anti_MistimingCount % 50 == 0;
-
-		if (bMistimingModulo)
-		{
-            ++(m_CheatList[CHEAT_MISTIMING]);		
-            // cheat_find = true;
-			LogCheat(CHEAT_MISTIMING, pMovementInfo);
-		}
-        if (map_block && sWorld->getIntConfig(CONFIG_AC_MISTIMING_BLOCK_COUNT) &&
-            m_CheatList[CHEAT_MISTIMING] >= sWorld->getIntConfig(CONFIG_AC_MISTIMING_BLOCK_COUNT))     
-	    {
-		    // Tell the player "Sure, you can fly!"
-		    {
-			    WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
-			    data.append(plMover->GetPackGUID());
-			    data << uint32(0);
-			    plMover->GetSession()->SendPacket(&data);
-		    }
-		    // Then tell the player "Wait, no, you can't."
-		    {
-			    WorldPacket data(SMSG_MOVE_UNSET_CAN_FLY, 12);
-			    data.append(plMover->GetPackGUID());
-			    data << uint32(0);
-			    plMover->GetSession()->SendPacket(&data);
-		    }
-		    plMover->FallGround(2);
-		    return false;
-	    }
-	}
-	return true; 
 }
 
 bool AntiCheat::CheckAntiGravity(MovementInfo& pMovementInfo)
