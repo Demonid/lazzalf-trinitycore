@@ -47,7 +47,6 @@ AntiCheat::AntiCheat(Player* new_plMover)
     m_logdb_time = 0;                    // Time for logs DB
 
 	cheat_find = false;
-    map_count = true;
     map_block = true;
     map_puni = true;
 }
@@ -164,7 +163,6 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
         return true;
     
     cheat_find = false;
-    map_count = !sWorld->iIgnoreMapIds_ACCount.count(plMover->GetMapId());
     map_block = !sWorld->iIgnoreMapIds_ACBlock.count(plMover->GetMapId());
     map_puni = !sWorld->iIgnoreMapIds_ACPuni.count(plMover->GetMapId());
 
@@ -176,7 +174,8 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
 	//if (GetBlock())
 	//	return true;
 
-    if (sWorld->iIgnoreMapIds_AC.count(plMover->GetMapId()))
+    // Map ignored
+    if (sWorld->iIgnoreMapIds_ACCount.count(plMover->GetMapId()))
     {
         // Go to sleep
         SetSleep(int32(sWorld->getIntConfig(CONFIG_AC_SLEEP_DELTA)));
@@ -238,20 +237,17 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
         if (cheat_find)
         {
             // Yes, we found a cheater
-            if (map_count)
-            {
-                ++(number_cheat_find);
+            ++(number_cheat_find);
 
-                if (sWorld->getIntConfig(CONFIG_AC_REPORTS_FOR_GM_WARNING) &&
-                    number_cheat_find > sWorld->getIntConfig(CONFIG_AC_REPORTS_FOR_GM_WARNING)) 
-                {
-                    // display warning at the center of the screen, hacky way.
-                    std::string str = "";
-                    str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plMover->GetName()) + "|cFF00FFFF] Possible cheater!";
-                    WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
-                    data << str;
-                    sWorld->SendGlobalGMMessage(&data);
-                }
+            if (sWorld->getIntConfig(CONFIG_AC_REPORTS_FOR_GM_WARNING) &&
+                number_cheat_find > sWorld->getIntConfig(CONFIG_AC_REPORTS_FOR_GM_WARNING)) 
+            {
+                // display warning at the center of the screen, hacky way.
+                std::string str = "";
+                str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plMover->GetName()) + "|cFF00FFFF] Possible cheater!";
+                WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
+                data << str;
+                sWorld->SendGlobalGMMessage(&data);
             }
             // We are are not going to sleep
             SetDelta(-abs(int32(sWorld->getIntConfig(CONFIG_AC_ALARM_DELTA))));
@@ -424,13 +420,11 @@ void AntiCheat::CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket
         uiMoveType = MOVE_RUN;
     
     // SpeedRate
-	fSpeedRate = plMover->GetSpeed(UnitMoveType(uiMoveType)) + pNewPacket.j_xyspeed;
     uSpeedRate = (uint32)(plMover->GetSpeed(UnitMoveType(uiMoveType)) + pNewPacket.j_xyspeed);
 
 	delta_z = plMover->GetPositionZ() - pNewPacket.pos.GetPositionZ();
 
     // Distance2d
-	fDistance2d = pNewPacket.pos.GetExactDist2dSq(&pOldPacket.pos);
     uDistance2D = (uint32)pNewPacket.pos.GetExactDist2d(&pOldPacket.pos);
     
     // time between packets
@@ -439,7 +433,6 @@ void AntiCheat::CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket
         uiDiffTime_packets = 1;
 
     // Client Speed
-    fClientSpeedRate = fDistance2d * 1000 / uiDiffTime_packets;
     uClientSpeedRate = uDistance2D * 1000 / uiDiffTime_packets;
 
     // Check if he have fly auras
@@ -449,7 +442,7 @@ void AntiCheat::CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket
 
     swim_in_water = mover->IsUnderWater();
 
-    tg_z = (fDistance2d != 0 && !fly_auras && !swim_flags) ? (pow(delta_z, 2) / fDistance2d) : -99999; // movement distance tangents
+    tg_z = (uDistance2D != 0 && !fly_auras && !swim_flags) ? (pow(delta_z, 2) / (float)uDistance2D) : -99999; // movement distance tangents
 	// end calculating section
 
 	JumpHeight = m_anti_JumpBaseZ - pNewPacket.pos.GetPositionZ();
@@ -508,8 +501,8 @@ void AntiCheat::LogCheat(eCheat m_cheat, MovementInfo& pMovementInfo)
             if (difftime_log_file >= sWorld->getIntConfig(CONFIG_AC_DELTA_LOG_FILE))
 			{
 				m_logfile_time = cServerTime;  
-			    sLog->outCheat("AC-%s Map %u Area %u, X:%f Y:%f Z:%f, speed exception | cDeltaDistance=%f DeltaPacketTime=%u | sSpeed=%f cSpeed=%f", plMover->GetName(), plMover->GetMapId(), 
-				    plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ(), plMover->GetAreaId(), fDistance2d, uiDiffTime_packets, fSpeedRate, fClientSpeedRate);
+			    sLog->outCheat("AC-%s Map %u Area %u, X:%f Y:%f Z:%f, speed exception | cDeltaDistance=%u DeltaPacketTime=%u | sSpeed=%u cSpeed=%u", plMover->GetName(), plMover->GetMapId(), 
+				    plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ(), plMover->GetAreaId(), uDistance2D, uiDiffTime_packets, uSpeedRate, uClientSpeedRate);
             }	
             cheat_type = "Speed";
             break;
@@ -517,8 +510,8 @@ void AntiCheat::LogCheat(eCheat m_cheat, MovementInfo& pMovementInfo)
             if (difftime_log_file >= sWorld->getIntConfig(CONFIG_AC_DELTA_LOG_FILE))
 			{
 				m_logfile_time = cServerTime;  
-			    sLog->outCheat("AC-%s Map %u Area %u, X:%f Y:%f Z:%f, teleport exception | cDeltaDistance=%f DeltaPacketTime=%u | sSpeed=%f cSpeed=%f", plMover->GetName(), plMover->GetMapId(), 
-				    plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ(), plMover->GetAreaId(), fDistance2d, uiDiffTime_packets, fSpeedRate, fClientSpeedRate);
+			    sLog->outCheat("AC-%s Map %u Area %u, X:%f Y:%f Z:%f, teleport exception | cDeltaDistance=%u DeltaPacketTime=%u | sSpeed=%u cSpeed=%u", plMover->GetName(), plMover->GetMapId(), 
+				    plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ(), plMover->GetAreaId(), uDistance2D, uiDiffTime_packets, uSpeedRate, uClientSpeedRate);
             }
             cheat_type = "Teleport";
             break;
@@ -578,8 +571,7 @@ bool AntiCheat::CheckAntiGravity(MovementInfo& pMovementInfo)
 {
     /*if (!fly_auras && !swim_in_water && m_anti_JumpBaseZ != 0 && JumpHeight < m_anti_Last_VSpeed)
 	{
-        if (map_count)
-            ++(m_CheatList[CHEAT_GRAVITY]);
+        ++(m_CheatList[CHEAT_GRAVITY]);
         cheat_find = true;
 		LogCheat(CHEAT_GRAVITY, pMovementInfo);
         if (map_block && sWorld->getIntConfig(CONFIG_AC_ANTIGRAVITY_BLOCK_COUNT) &&
@@ -612,8 +604,7 @@ bool AntiCheat::CheckAntiMultiJump(MovementInfo& pNewPacket, uint32 uiOpcode)
     if (uiOpcode != MSG_MOVE_JUMP || GetLastOpcode() != MSG_MOVE_JUMP)
         return true;
 
-    if (map_count)
-        ++(m_CheatList[CHEAT_MULTIJUMP]);
+    ++(m_CheatList[CHEAT_MULTIJUMP]);
     cheat_find = true;
 	LogCheat(CHEAT_MULTIJUMP, pNewPacket);
 	if (map_block && sWorld->getIntConfig(CONFIG_AC_ANTIMULTIJUMP_BLOCK_COUNT) &&
@@ -634,7 +625,6 @@ bool AntiCheat::CheckAntiMultiJump(MovementInfo& pNewPacket, uint32 uiOpcode)
 		    plMover->GetSession()->SendPacket(&data);
 	    }
 	    plMover->FallGround(2);
-	    m_anti_JumpCount = 0;
 	    return false;
     }
 
@@ -691,8 +681,7 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
 	if (uClientSpeedRate > uSpeedRate)    
 	{          
         cheat_find = true;
-        if (map_count)
-            ++(m_CheatList[CHEAT_SPEED]);
+        ++(m_CheatList[CHEAT_SPEED]);
         LogCheat(CHEAT_SPEED, pNewPacket);
         if (map_block && sWorld->getIntConfig(CONFIG_AC_ANTISPEED_BLOCK_COUNT) &&
             m_CheatList[CHEAT_SPEED] >= sWorld->getIntConfig(CONFIG_AC_ANTISPEED_BLOCK_COUNT))
@@ -711,8 +700,7 @@ bool AntiCheat::CheckAntiTele(MovementInfo& pNewPacket, uint32 uiOpcode)
         fClientRate > fServerRate)
     {      
         cheat_find = true;
-	    if (map_count)
-            ++(m_CheatList[CHEAT_TELEPORT]);
+	    ++(m_CheatList[CHEAT_TELEPORT]);
 		LogCheat(CHEAT_TELEPORT, pNewPacket);
         if (map_block && sWorld->getIntConfig(CONFIG_AC_ANTITELE_BLOCK_COUNT) &&
             m_CheatList[CHEAT_TELEPORT] >= sWorld->getIntConfig(CONFIG_AC_ANTITELE_BLOCK_COUNT))
@@ -729,8 +717,7 @@ bool AntiCheat::CheckAntiMountain(MovementInfo& pMovementInfo)
 {
 	/*if (delta_z < m_anti_Last_VSpeed && m_anti_JumpCount == 0 && tg_z > 2.37f)
 	{
-        if (map_count)
-            ++(m_CheatList[CHEAT_MOUNTAIN]);
+        ++(m_CheatList[CHEAT_MOUNTAIN]);
         cheat_find = true;
 		LogCheat(CHEAT_MOUNTAIN, pMovementInfo);
         if (map_block && sWorld->getIntConfig(CONFIG_AC_ANTIMOUNTAIN_BLOCK_COUNT) &&
@@ -767,8 +754,7 @@ bool AntiCheat::CheckAntiFly(MovementInfo& pOldPacket, MovementInfo& pNewPacket)
 
 	if (!fly_auras)
 	{
-        if (map_count)
-            ++(m_CheatList[CHEAT_FLY]);
+        ++(m_CheatList[CHEAT_FLY]);
         cheat_find = true;
 		LogCheat(CHEAT_FLY, pNewPacket);
         if (map_block && sWorld->getIntConfig(CONFIG_AC_ANTIFLY_BLOCK_COUNT) &&
@@ -822,8 +808,7 @@ bool AntiCheat::CheckAntiWaterwalk(MovementInfo& pOldPacket, MovementInfo& pNewP
 
 	if (!fly_auras && !plMover->IsFlying())
 	{
-        if (map_count)
-            ++(m_CheatList[CHEAT_WATERWALK]);
+        ++(m_CheatList[CHEAT_WATERWALK]);
         cheat_find = true;
 		LogCheat(CHEAT_WATERWALK, pNewPacket);
 		if (map_block && sWorld->getIntConfig(CONFIG_AC_ANTIWATERWALK_BLOCK_COUNT) && 
@@ -873,8 +858,7 @@ bool AntiCheat::CheckAntiTeleToPlane(MovementInfo& pOldPacket, MovementInfo& pNe
 	    ++(m_anti_TeleToPlane_Count);
 	    if (m_anti_TeleToPlane_Count > sWorld->getIntConfig(CONFIG_AC_ENABLE_ANTITELETOPLANE_ALARMS))
 	    {
-            if (map_count)
-                ++(m_CheatList[CHEAT_TELETOPLANE]);
+            ++(m_CheatList[CHEAT_TELETOPLANE]);
             cheat_find = true;
 		    LogCheat(CHEAT_TELETOPLANE, pNewPacket);
 		    if (map_block && sWorld->getIntConfig(CONFIG_AC_ANTITELETOPLANE_BLOCK_COUNT) &&

@@ -50,7 +50,6 @@ class AntiCheat
 
         bool cheat_find;
 
-        bool map_count;
         bool map_block;
         bool map_puni;
 
@@ -62,19 +61,15 @@ class AntiCheat
         uint32 uiDiffTime_packets;
 
 		// Variables
-		float fSpeedRate;	
-        uint32 uSpeedRate;
+        uint32 uSpeedRate;         
+        uint32 uClientSpeedRate;
+        uint32 uDistance2D;
+
 		float delta_z;
 		bool fly_auras;
 		bool swim_in_water;
 		float tg_z;
-		float JumpHeight;
-
-        float fClientSpeedRate;
-        float fDistance2d;
-
-        uint32 uClientSpeedRate;
-        uint32 uDistance2D;
+		float JumpHeight;       
 		
 		void CalcDeltas(MovementInfo& pNewPacket, MovementInfo& pOldPacket);
 		void CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket, Unit* mover);
