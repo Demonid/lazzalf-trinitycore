@@ -2587,15 +2587,6 @@ ArenaMod.TimeToReset = 24
 
 Anticheat.Movement.Enable = 0
 
-#
-#    Anticheat.Movement.MistimingDelta
-#        mistiming intelval between client and serverside (default 15000 ms, allowed 5000 - 50000 ms)
-
-Anticheat.Mistiming.Enable               = 1
-Anticheat.MistimingBlock.Count           = 0
-Anticheat.MistimingPunisher.Count        = 0
-Anticheat.MistimingDelta = 15000
-
 Anticheat.AntiGravity.Enable             = 1
 Anticheat.AntiGravityBlock.Count         = 0
 Anticheat.AntiGravityPunisher.Count      = 0
