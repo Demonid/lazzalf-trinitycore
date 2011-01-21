@@ -538,6 +538,70 @@ public:
 
 };
 
+/* Support quest: Meeting at the Blackwing Coven */
+
+enum KolphisDarkscaleTexts
+{
+    INTRO = 10539,
+    TEXT_1 = 10541,
+    TEXT_2 = 10542,
+    TEXT_3 = 10543,
+    TEXT_4 = 10544,
+    TEXT_5 = 10545,
+};
+
+#define QUEST_MEETING_BLACKWING_COVEN 10722
+
+class kolphis_darkscale_npc : public CreatureScript
+{
+    public:
+        kolphis_darkscale_npc(): CreatureScript("kolphis_darkscale_npc") {}
+
+    bool OnGossipHello(Player *player, Creature *_Creature)
+    {
+        if (!player)
+            return true;
+
+        if (player->GetQuestStatus(QUEST_MEETING_BLACKWING_COVEN) == QUEST_STATUS_INCOMPLETE)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I'm fine, thank you. You asked for me?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1); 
+            player->SEND_GOSSIP_MENU(INTRO, _Creature->GetGUID());
+            return true;
+        }
+
+        return false;
+    };
+
+    bool OnGossipSelect(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+    {
+        player->PlayerTalkClass->ClearMenus();
+        switch(action)
+        {
+            case GOSSIP_ACTION_INFO_DEF+1:
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Oh, it's not my fault, I can assure you.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                player->SEND_GOSSIP_MENU(TEXT_1, _Creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+2:
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Um, no... no, I don't want that at all.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+                player->SEND_GOSSIP_MENU(TEXT_2, _Creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+3:
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Impressive. When do we attack?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+                player->SEND_GOSSIP_MENU(TEXT_3, _Creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+4:
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Absolutely!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5); 
+                player->SEND_GOSSIP_MENU(TEXT_4, _Creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+5:
+                player->SEND_GOSSIP_MENU(TEXT_5, _Creature->GetGUID());
+                player->CompleteQuest(QUEST_MEETING_BLACKWING_COVEN);
+                break;
+        }
+        return true;
+    };
+};
+
 
 /*######
 ## AddSC
@@ -553,4 +617,5 @@ void AddSC_blades_edge_mountains()
     new go_legion_obelisk();
     new npc_bloodmaul_brutebane();
     new npc_ogre_brute();
+    new kolphis_darkscale_npc();
 }
