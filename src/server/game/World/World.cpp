@@ -750,7 +750,6 @@ void World::LoadConfigSettings(bool reload)
         sLog->outError("Anticheat.CheatResetListDeltaFound (%d) must be >= 0. Using 0 instead.", m_int_configs[CONFIG_AC_RESET_CHEATLIST_DELTA_FOUND]);
         m_int_configs[CONFIG_AC_RESET_CHEATLIST_DELTA_FOUND] = 0;
     }
-    m_bool_configs[CONFIG_AC_PUNI_MAP_SMALL] = sConfig->GetBoolDefault("Anticheat.Punisher.MapSmall", false);
     m_int_configs[CONFIG_AC_PUNI_TYPE] = sConfig->GetIntDefault("Anticheat.Punisher.TypeBan", 0);
     if (m_int_configs[CONFIG_AC_PUNI_TYPE] < 0)
     {
@@ -773,19 +772,7 @@ void World::LoadConfigSettings(bool reload)
     {
         sLog->outError("Anticheat.ReportsForGMWarnings (%d) must be >= 0. Using 0 instead.", m_int_configs[CONFIG_AC_REPORTS_FOR_GM_WARNING]);
         m_int_configs[CONFIG_AC_REPORTS_FOR_GM_WARNING] = 0;
-    }    
-    m_float_configs[CONFIG_AC_MAX_DISTANCE_DIFF_ALLOWED] = sConfig->GetFloatDefault("Anticheat.MaxAllowedDistance", 10.0f);
-    if (m_float_configs[CONFIG_AC_MAX_DISTANCE_DIFF_ALLOWED] < 0)
-    {
-        sLog->outError("Anticheat.MaxAllowedDistance (%d) must be >= 0. Using 0 instead.", m_float_configs[CONFIG_AC_MAX_DISTANCE_DIFF_ALLOWED]);
-        m_float_configs[CONFIG_AC_MAX_DISTANCE_DIFF_ALLOWED] = 0;
-    }   
-    m_float_configs[CONFIG_AC_MIN_DIFF_PACKETTIME] = sConfig->GetFloatDefault("Anticheat.MinDiffPacketTime", 1500.0f);
-    if (m_float_configs[CONFIG_AC_MIN_DIFF_PACKETTIME] < 0)
-    {
-        sLog->outError("Anticheat.MinDiffPacketTime (%d) must be >= 0. Using 0 instead.", m_float_configs[CONFIG_AC_MIN_DIFF_PACKETTIME]);
-        m_float_configs[CONFIG_AC_MIN_DIFF_PACKETTIME] = 0;
-    } 
+    }
     std::string ignoreMapIds = sConfig->GetStringDefault("Anticheat.ignoreMapIds", "");
     ACpreventMapsFromBeingUsed(ignoreMapIds.c_str());
     std::string ignoreMapIdsCount = sConfig->GetStringDefault("Anticheat.ignoreMapIdsCount", "");
