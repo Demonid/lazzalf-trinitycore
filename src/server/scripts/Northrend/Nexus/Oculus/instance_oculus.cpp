@@ -18,13 +18,25 @@
 #include "ScriptPCH.h"
 #include "oculus.h"
 
-#define MAX_ENCOUNTER 4
+#define MAX_ENCOUNTER 5
 
 /* The Occulus encounters:
 0 - Drakos the Interrogator
 1 - Varos Cloudstrider
 2 - Mage-Lord Urom
 3 - Ley-Guardian Eregos */
+
+struct Locations 
+{
+	float x,y,z,o;
+};
+
+static Locations BossMoveLoc[]=
+{
+    {951.233337f, 1034.698608f, 359.967377f, 1.119904f}, // Verdisa
+	{943.559143f, 1045.573730f, 359.967377f, 0.365921f}, // Belgar
+    {944.670776f, 1058.858032f, 359.967377f, 5.639870f}  // Eternos
+};
 
 class instance_oculus : public InstanceMapScript
 {
@@ -46,6 +58,10 @@ public:
             varosGUID = 0;
             uromGUID = 0;
             eregosGUIDs = 0;
+
+		    uiBera = 0;
+		    uiVerdisa = 0;
+		    uiEternos = 0;
 
             platformUrom = 0;
 
@@ -102,7 +118,21 @@ public:
                 case NPC_EREGOS:
                     eregosGUIDs = creature->GetGUID();
                     break;
+			    case NPC_BELGARISTRASZ:
+				    uiBera = creature->GetGUID();
+				    creature->SetReactState(REACT_PASSIVE);
+				    break;
+			    case NPC_VERDISA:
+				    uiVerdisa = creature->GetGUID();
+				    creature->SetReactState(REACT_PASSIVE);
+				    break;
+			    case NPC_ETERNOS :
+				    uiEternos = creature->GetGUID();
+				    creature->SetReactState(REACT_PASSIVE);
+				    break;
+			    break;
                 case NPC_AZURE_RING_GUARDIAN:
+                    creature->SetUnitMovementFlags(MOVEMENTFLAG_CAN_FLY);
                     azureDragonsList.push_back(creature->GetGUID());
                     break;
             }
@@ -128,7 +158,33 @@ public:
                 case DATA_DRAKOS_EVENT:
                     encounter[0] = data;
                     if (data == DONE)
+                    {
                         OpenCageDoors();
+                        if (uiBera)
+                        {
+                            if (Creature* pBera = instance->GetCreature(uiBera))
+                            {
+                                pBera->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+                                pBera->GetMotionMaster()->MovePoint(1,BossMoveLoc[1].x,BossMoveLoc[1].y,BossMoveLoc[1].z);
+                            }
+                        }
+                        if (uiVerdisa)
+                        {
+                            if (Creature* pVerdisa = instance->GetCreature(uiVerdisa))
+                            {
+                                pVerdisa->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+                                pVerdisa->GetMotionMaster()->MovePoint(2,BossMoveLoc[0].x,BossMoveLoc[0].y,BossMoveLoc[0].z);
+                            }
+                        }
+                        if (uiEternos)
+                        {
+                            if (Creature* pEternos = instance->GetCreature(uiEternos))
+                            {
+                                pEternos->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+                                pEternos->GetMotionMaster()->MovePoint(3,BossMoveLoc[2].x,BossMoveLoc[2].y,BossMoveLoc[2].z);
+                            }
+                        }
+                    }
                     break;
                 case DATA_VAROS_EVENT:
                     encounter[1] = data;
@@ -139,6 +195,9 @@ public:
                 case DATA_EREGOS_EVENT:
                     encounter[3] = data;
                     break;
+                case DATA_CENTRIFUGE_CONSTRUCT_EVENT:
+				    encounter[4] = data;
+				    break;
                 case DATA_UROM_PLATAFORM:
                     platformUrom = data;
                     break;
@@ -156,6 +215,7 @@ public:
                 case DATA_VAROS_EVENT:                 return encounter[1];
                 case DATA_UROM_EVENT:                  return encounter[2];
                 case DATA_EREGOS_EVENT:                return encounter[3];
+                case DATA_CENTRIFUGE_CONSTRUCT_EVENT:  return encounter[4];
                 case DATA_UROM_PLATAFORM:              return platformUrom;
             }
 
@@ -192,7 +252,7 @@ public:
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << "T O " << encounter[0] << " " << encounter[1] << " " << encounter[2] << " " << encounter[3];
+            saveStream << "T O " << encounter[0] << " " << encounter[1] << " " << encounter[2] << " " << encounter[3] << " " << encounter[4];
 
             str_data = saveStream.str();
 
@@ -211,10 +271,10 @@ public:
             OUT_LOAD_INST_DATA(in);
 
             char dataHead1, dataHead2;
-            uint16 data0, data1, data2, data3;
+            uint16 data0, data1, data2, data3, data4;
 
             std::istringstream loadStream(in);
-            loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3;
+            loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4;
 
             if (dataHead1 == 'T' && dataHead2 == 'O')
             {
@@ -222,6 +282,7 @@ public:
                 encounter[1] = data1;
                 encounter[2] = data2;
                 encounter[3] = data3;
+                encounter[4] = data4;
 
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     if (encounter[i] == IN_PROGRESS)
@@ -236,6 +297,10 @@ public:
             uint64 varosGUID;
             uint64 uromGUID;
             uint64 eregosGUIDs;
+
+       	    uint64 uiBera;
+            uint64 uiVerdisa;
+            uint64 uiEternos;
 
             uint8 platformUrom;
 
