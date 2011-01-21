@@ -131,7 +131,7 @@ class npc_announcer_toc10 : public CreatureScript
 
             char const* _message = "We are ready!";
 
-            if (player->isInCombat() || instanceScript->IsEncounterInProgress() || instanceScript->GetData(TYPE_EVENT))
+            if (player->isInCombat() || instanceScript->IsEncounterInProgress() /*|| instanceScript->GetData(TYPE_EVENT)*/)
                 return true;
 
             uint8 i = 0;
@@ -593,7 +593,8 @@ class npc_tirion_toc : public CreatureScript
                             if (m_pInstance->GetData(TYPE_BEASTS) != DONE)
                             {
                                 me->SummonCreature(NPC_DREADSCALE, ToCCommonLoc[3].GetPositionX(), ToCCommonLoc[3].GetPositionY(), ToCCommonLoc[3].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN);
-                                me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[4].GetPositionX(), ToCCommonLoc[4].GetPositionY(), ToCCommonLoc[4].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN);
+                                if (!Unit::GetCreature((*me),m_pInstance->GetData64(NPC_ACIDMAW)))
+                                    me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[4].GetPositionX(), ToCCommonLoc[4].GetPositionY(), ToCCommonLoc[4].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN);
                                 if (Creature* pTemp = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_DREADSCALE)))
                                 {
                                     pTemp->GetMotionMaster()->MovePoint(0, ToCCommonLoc[8].GetPositionX(), ToCCommonLoc[8].GetPositionY(), ToCCommonLoc[8].GetPositionZ());
