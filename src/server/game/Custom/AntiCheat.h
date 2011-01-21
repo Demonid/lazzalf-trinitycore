@@ -14,11 +14,9 @@
 
 enum eCheat
 {
-	CHEAT_GRAVITY = 0,
-	CHEAT_MULTIJUMP,
+	CHEAT_MULTIJUMP = 0,
 	CHEAT_SPEED,
 	CHEAT_TELEPORT,
-	CHEAT_MOUNTAIN,
 	CHEAT_FLY,
 	CHEAT_WATERWALK,
 	CHEAT_TELETOPLANE,
@@ -75,11 +73,9 @@ class AntiCheat
 		void CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket, Unit* mover);
         bool CanFly(MovementInfo& pMovementInfo);
 		
-		bool CheckAntiGravity(MovementInfo& /*pMovementInfo*/);
 		bool CheckAntiMultiJump(MovementInfo& pNewPacket, uint32 uiOpcode);
         bool CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacket, uint32 uiOpcode);
         bool CheckAntiTele(MovementInfo& pNewPacket, uint32 uiOpcode);
-		bool CheckAntiMountain(MovementInfo& /*pMovementInfo*/);
 		bool CheckAntiFly(MovementInfo& pOldPacket, MovementInfo& pNewPacket);
 		bool CheckAntiWaterwalk(MovementInfo& pOldPacket, MovementInfo& pNewPacket);
 		bool CheckAntiTeleToPlane(MovementInfo& pOldPacket, MovementInfo& pNewPacket);

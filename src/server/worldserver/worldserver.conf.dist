@@ -2587,10 +2587,6 @@ ArenaMod.TimeToReset = 24
 
 Anticheat.Movement.Enable = 0
 
-Anticheat.AntiGravity.Enable             = 1
-Anticheat.AntiGravityBlock.Count         = 0
-Anticheat.AntiGravityPunisher.Count      = 0
-
 Anticheat.AntiMultiJump.Enable           = 1
 Anticheat.AntiMultiJumpBlock.Count       = 0
 Anticheat.AntiMultiJumpPunisher.Count    = 0
@@ -2598,16 +2594,10 @@ Anticheat.AntiMultiJumpPunisher.Count    = 0
 Anticheat.AntiSpeed.Enable               = 1
 Anticheat.AntiSpeedBlock.Count           = 0
 Anticheat.AntiSpeedPunisher.Count        = 0
-Anticheat.MaxAllowedDistance          	 = 100
-Anticheat.MinDiffPacketTime              = 1500
 
 Anticheat.AntiTele.Enable                = 1
 Anticheat.AntiTeleBlock.Count            = 0
 Anticheat.AntiTelePunisher.Count         = 0
-
-Anticheat.AntiMountain.Enable            = 1
-Anticheat.AntiMountainBlock.Count        = 0
-Anticheat.AntiMountainPunisher.Count     = 0
 
 Anticheat.AntiFlyHack.Enable             = 1
 Anticheat.AntiFlyHackBlock.Count         = 0

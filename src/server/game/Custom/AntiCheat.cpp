@@ -194,11 +194,6 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
         const uint32 curDest = plMover->m_taxi.GetTaxiDestination();	
 	    if (!curDest)
 	    {
-            // Gravity Cheat
-		    //if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIGRAVITY))
-			//    if (!CheckAntiGravity(pMovementInfo))
-			//	    check_passed = false;
-
             // MultiJump Cheat
 		    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIMULTIJUMP))
 			    if (!CheckAntiMultiJump(pMovementInfo, opcode))
@@ -212,11 +207,6 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
             // Tele Cheat
             //if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTITELE))
 			//    if (!CheckAntiTele(pMovementInfo, opcode))
-			//	    check_passed = false;
-
-            // Mountain Cheat
-		    //if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIMOUNTAIN))
-			//    if (!CheckAntiMountain(pMovementInfo))
 			//	    check_passed = false;
 
             // Fly Cheat
@@ -270,10 +260,7 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
 
 bool AntiCheat::ControllPunisher()
 {
-    if (sWorld->getIntConfig(CONFIG_AC_ANTIGRAVITY_PUNI_COUNT) && 
-        m_CheatList[CHEAT_GRAVITY] >= sWorld->getIntConfig(CONFIG_AC_ANTIGRAVITY_PUNI_COUNT))
-        return true;
-    else if (sWorld->getIntConfig(CONFIG_AC_ANTIMULTIJUMP_PUNI_COUNT) && 
+    if (sWorld->getIntConfig(CONFIG_AC_ANTIMULTIJUMP_PUNI_COUNT) && 
         m_CheatList[CHEAT_MULTIJUMP] >= sWorld->getIntConfig(CONFIG_AC_ANTIMULTIJUMP_PUNI_COUNT))
         return true;
     else if (sWorld->getIntConfig(CONFIG_AC_ANTISPEED_PUNI_COUNT) &&
@@ -281,9 +268,6 @@ bool AntiCheat::ControllPunisher()
         return true;
     else if (sWorld->getIntConfig(CONFIG_AC_ANTITELE_PUNI_COUNT) && 
         m_CheatList[CHEAT_TELEPORT] >= sWorld->getIntConfig(CONFIG_AC_ANTITELE_PUNI_COUNT))
-        return true;
-    else if (sWorld->getIntConfig(CONFIG_AC_ANTIMOUNTAIN_PUNI_COUNT) && 
-        m_CheatList[CHEAT_MOUNTAIN] >= sWorld->getIntConfig(CONFIG_AC_ANTIMOUNTAIN_PUNI_COUNT))
         return true;
     else if (sWorld->getIntConfig(CONFIG_AC_ANTIFLY_PUNI_COUNT) &&
         m_CheatList[CHEAT_FLY] >= sWorld->getIntConfig(CONFIG_AC_ANTIFLY_PUNI_COUNT))
@@ -478,16 +462,6 @@ void AntiCheat::LogCheat(eCheat m_cheat, MovementInfo& pMovementInfo)
     std::string cheat_type = "";
 	switch (m_cheat)
 	{
-		case CHEAT_GRAVITY:
-            if (difftime_log_file >= sWorld->getIntConfig(CONFIG_AC_DELTA_LOG_FILE))
-			{
-				m_logfile_time = cServerTime;   
-		        sLog->outCheat("AC-%s Map %u Area %u, X:%f Y:%f Z:%f, AntiGravity exception. JumpHeight = %f, Allowed Vertical Speed = %f",
-                    plMover->GetName(), plMover->GetMapId(), plMover->GetAreaId(), plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ(),
-				    JumpHeight, m_anti_Last_VSpeed);
-            }
-            cheat_type = "Gravity";
-			break;
 		case CHEAT_MULTIJUMP:
             if (difftime_log_file >= sWorld->getIntConfig(CONFIG_AC_DELTA_LOG_FILE))
 			{
@@ -514,16 +488,6 @@ void AntiCheat::LogCheat(eCheat m_cheat, MovementInfo& pMovementInfo)
 				    plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ(), plMover->GetAreaId(), uDistance2D, uiDiffTime_packets, uSpeedRate, uClientSpeedRate);
             }
             cheat_type = "Teleport";
-            break;
-		case CHEAT_MOUNTAIN:
-            if (difftime_log_file >= sWorld->getIntConfig(CONFIG_AC_DELTA_LOG_FILE))
-			{
-				m_logfile_time = cServerTime;  
-			    sLog->outCheat("AC-%s Map %u Area %u, X:%f Y:%f Z:%f, umountain exception | tg_z=%f", 
-                    plMover->GetName(), plMover->GetMapId(), plMover->GetAreaId(), plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ(),
-                    tg_z);
-            }
-			cheat_type = "Mountain";
             break;
 		case CHEAT_FLY:
             if (difftime_log_file >= sWorld->getIntConfig(CONFIG_AC_DELTA_LOG_FILE))
@@ -565,37 +529,6 @@ void AntiCheat::LogCheat(eCheat m_cheat, MovementInfo& pMovementInfo)
                 cheat_type.c_str(), plMover->GetGUIDLow(), plMover->GetName(), plMover->getLevel(), plMover->GetMapId(), plMover->GetAreaId(), plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ());
             m_logdb_time = cServerTime;
         }
-}
-
-bool AntiCheat::CheckAntiGravity(MovementInfo& pMovementInfo)
-{
-    /*if (!fly_auras && !swim_in_water && m_anti_JumpBaseZ != 0 && JumpHeight < m_anti_Last_VSpeed)
-	{
-        ++(m_CheatList[CHEAT_GRAVITY]);
-        cheat_find = true;
-		LogCheat(CHEAT_GRAVITY, pMovementInfo);
-        if (map_block && sWorld->getIntConfig(CONFIG_AC_ANTIGRAVITY_BLOCK_COUNT) &&
-            m_CheatList[CHEAT_GRAVITY] >= sWorld->getIntConfig(CONFIG_AC_ANTIGRAVITY_BLOCK_COUNT))
-	    {
-		    // Tell the player "Sure, you can fly!"
-		    {
-			    WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
-			    data.append(plMover->GetPackGUID());
-			    data << uint32(0);
-			    plMover->GetSession()->SendPacket(&data);
-		    }
-		    // Then tell the player "Wait, no, you can't."
-		    {
-			    WorldPacket data(SMSG_MOVE_UNSET_CAN_FLY, 12);
-			    data.append(plMover->GetPackGUID());
-			    data << uint32(0);
-			    plMover->GetSession()->SendPacket(&data);
-		    }
-		    plMover->FallGround(2);
-		    return false;
-	    }
-	}*/
-	return true; 
 }
 
 bool AntiCheat::CheckAntiMultiJump(MovementInfo& pNewPacket, uint32 uiOpcode)
@@ -709,23 +642,6 @@ bool AntiCheat::CheckAntiTele(MovementInfo& pNewPacket, uint32 uiOpcode)
             return false;
         }
 	}    */
-	return true;
-}
-
-// mountain hack checks // 1.56f (delta_z < GetPlayer()->m_anti_Last_VSpeed))
-bool AntiCheat::CheckAntiMountain(MovementInfo& pMovementInfo)
-{
-	/*if (delta_z < m_anti_Last_VSpeed && m_anti_JumpCount == 0 && tg_z > 2.37f)
-	{
-        ++(m_CheatList[CHEAT_MOUNTAIN]);
-        cheat_find = true;
-		LogCheat(CHEAT_MOUNTAIN, pMovementInfo);
-        if (map_block && sWorld->getIntConfig(CONFIG_AC_ANTIMOUNTAIN_BLOCK_COUNT) &&
-            m_CheatList[CHEAT_MOUNTAIN] >= sWorld->getIntConfig(CONFIG_AC_ANTIMOUNTAIN_BLOCK_COUNT))
-	    {
-		    return false;
-	    }
-	}*/
 	return true;
 }
 

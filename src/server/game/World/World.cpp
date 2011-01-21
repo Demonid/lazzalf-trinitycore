@@ -567,21 +567,7 @@ void World::LoadConfigSettings(bool reload)
     // movement anticheat
     m_bool_configs[CONFIG_AC_ENABLE]                       = sConfig->GetBoolDefault("Anticheat.Movement.Enable", true);
     m_bool_configs[CONFIG_AC_ENABLE_DBLOG]                 = sConfig->GetBoolDefault("Anticheat.EnableDBLog", true);        
-    
-    m_bool_configs[CONFIG_AC_ENABLE_ANTIGRAVITY]           = sConfig->GetBoolDefault("Anticheat.AntiGravity.Enable", true);
-    m_int_configs[CONFIG_AC_ANTIGRAVITY_BLOCK_COUNT]         = sConfig->GetIntDefault("Anticheat.AntiGravityBlock.Count", 0);
-    if (m_int_configs[CONFIG_AC_ANTIGRAVITY_BLOCK_COUNT] < 0)
-    {
-        sLog->outError("Anticheat.AntiGravityBlock.Count (%d) must be >= 0. Using 0 instead.", m_int_configs[CONFIG_AC_ANTIGRAVITY_BLOCK_COUNT]);
-        m_int_configs[CONFIG_AC_ANTIGRAVITY_BLOCK_COUNT] = 0;
-    }
-    m_int_configs[CONFIG_AC_ANTIGRAVITY_PUNI_COUNT]         = sConfig->GetIntDefault("Anticheat.AntiGravityPunisher.Count", 0);
-    if (m_int_configs[CONFIG_AC_ANTIGRAVITY_PUNI_COUNT] < 0)
-    {
-        sLog->outError("Anticheat.AntiGravityPunisher.Count (%d) must be >= 0. Using 0 instead.", m_int_configs[CONFIG_AC_ANTIGRAVITY_PUNI_COUNT]);
-        m_int_configs[CONFIG_AC_ANTIGRAVITY_PUNI_COUNT] = 0;
-    }
-    
+  
     m_bool_configs[CONFIG_AC_ENABLE_ANTIMULTIJUMP]         = sConfig->GetBoolDefault("Anticheat.AntiMultiJump.Enable", true);
     m_int_configs[CONFIG_AC_ANTIMULTIJUMP_BLOCK_COUNT]         = sConfig->GetIntDefault("Anticheat.AntiMultiJumpBlock.Count", 0);
     if (m_int_configs[CONFIG_AC_ANTIMULTIJUMP_BLOCK_COUNT] < 0)
@@ -596,9 +582,7 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_AC_ANTIMULTIJUMP_PUNI_COUNT] = 0;
     }
     
-    m_bool_configs[CONFIG_AC_ENABLE_ANTISPEED]         = sConfig->GetBoolDefault("Anticheat.AntiTele.Enable", true);
-    m_bool_configs[CONFIG_AC_ENABLE_ANTITELE]          = sConfig->GetBoolDefault("Anticheat.AntiSpeed.Enable", true);
-
+    m_bool_configs[CONFIG_AC_ENABLE_ANTISPEED]         = sConfig->GetBoolDefault("Anticheat.AntiSpeed.Enable", true); 
     m_int_configs[CONFIG_AC_ANTISPEED_BLOCK_COUNT]         = sConfig->GetIntDefault("Anticheat.AntiSpeedBlock.Count", 0);
     if (m_int_configs[CONFIG_AC_ANTISPEED_BLOCK_COUNT] < 0)
     {
@@ -611,6 +595,8 @@ void World::LoadConfigSettings(bool reload)
         sLog->outError("Anticheat.AntiSpeedPunisher.Count (%d) must be >= 0. Using 0 instead.", m_int_configs[CONFIG_AC_ANTISPEED_PUNI_COUNT]);
         m_int_configs[CONFIG_AC_ANTISPEED_PUNI_COUNT] = 0;
     }
+
+    m_bool_configs[CONFIG_AC_ENABLE_ANTITELE]          = sConfig->GetBoolDefault("Anticheat.AntiTele.Enable", true);
     m_int_configs[CONFIG_AC_ANTITELE_BLOCK_COUNT]         = sConfig->GetIntDefault("Anticheat.AntiTeleBlock.Count", 0);
     if (m_int_configs[CONFIG_AC_ANTITELE_BLOCK_COUNT] < 0)
     {
@@ -624,28 +610,14 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_AC_ANTITELE_PUNI_COUNT] = 0;
     }
     
-    m_bool_configs[CONFIG_AC_ENABLE_ANTIMOUNTAIN]          = sConfig->GetBoolDefault("Anticheat.AntiMountain.Enable", true);
-    m_int_configs[CONFIG_AC_ANTIMOUNTAIN_BLOCK_COUNT]         = sConfig->GetIntDefault("Anticheat.AntiMountainBlock.Count", 0);
-    if (m_int_configs[CONFIG_AC_ANTIMOUNTAIN_BLOCK_COUNT] < 0)
-    {
-        sLog->outError("Anticheat.AntiMountainBlock.Count (%d) must be >= 0. Using 0 instead.", m_int_configs[CONFIG_AC_ANTIMOUNTAIN_BLOCK_COUNT]);
-        m_int_configs[CONFIG_AC_ANTIMOUNTAIN_BLOCK_COUNT] = 0;
-    }
-    m_int_configs[CONFIG_AC_ANTIMOUNTAIN_PUNI_COUNT]         = sConfig->GetIntDefault("Anticheat.AntiMountainPunisher.Count", 0);
-    if (m_int_configs[CONFIG_AC_ANTIMOUNTAIN_PUNI_COUNT] < 0)
-    {
-        sLog->outError("Anticheat.AntiMountainPunisher.Count (%d) must be >= 0. Using 0 instead.", m_int_configs[CONFIG_AC_ANTIMOUNTAIN_PUNI_COUNT]);
-        m_int_configs[CONFIG_AC_ANTIMOUNTAIN_PUNI_COUNT] = 0;
-    }
-    
     m_bool_configs[CONFIG_AC_ENABLE_ANTIFLY]               = sConfig->GetBoolDefault("Anticheat.AntiFlyHack.Enable", true);
     m_int_configs[CONFIG_AC_ANTIFLY_BLOCK_COUNT]         = sConfig->GetIntDefault("Anticheat.AntiFlyHackBlock.Count", 0);
     if (m_int_configs[CONFIG_AC_ANTIFLY_BLOCK_COUNT] < 0)
     {
         sLog->outError("Anticheat.AntiFlyHackBlock.Count (%d) must be >= 0. Using 0 instead.", m_int_configs[CONFIG_AC_ANTIFLY_BLOCK_COUNT]);
         m_int_configs[CONFIG_AC_ANTIFLY_BLOCK_COUNT] = 0;
-    }
-    m_int_configs[CONFIG_AC_ANTIMOUNTAIN_PUNI_COUNT]         = sConfig->GetIntDefault("Anticheat.AntiFlyHackPunisher.Count", 0);
+    }    
+    m_int_configs[CONFIG_AC_ANTIFLY_PUNI_COUNT]         = sConfig->GetIntDefault("Anticheat.AntiFlyHackPunisher.Count", 0);
     if (m_int_configs[CONFIG_AC_ANTIFLY_PUNI_COUNT] < 0)
     {
         sLog->outError("Anticheat.AntiFlyHackPunisher.Count (%d) must be >= 0. Using 0 instead.", m_int_configs[CONFIG_AC_ANTIFLY_PUNI_COUNT]);
@@ -656,13 +628,13 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_AC_ANTIWATERWALK_BLOCK_COUNT]         = sConfig->GetIntDefault("Anticheat.AntiWaterwalkBlock.Count", 0);
     if (m_int_configs[CONFIG_AC_ANTIWATERWALK_BLOCK_COUNT] < 0)
     {
-        sLog->outError("Anticheat.AntiFlyHackBlock.Count (%d) must be >= 0. Using 0 instead.", m_int_configs[CONFIG_AC_ANTIWATERWALK_BLOCK_COUNT]);
+        sLog->outError("Anticheat.AntiWaterwalkBlock.Count (%d) must be >= 0. Using 0 instead.", m_int_configs[CONFIG_AC_ANTIWATERWALK_BLOCK_COUNT]);
         m_int_configs[CONFIG_AC_ANTIWATERWALK_BLOCK_COUNT] = 0;
     }
-    m_int_configs[CONFIG_AC_ANTIMOUNTAIN_PUNI_COUNT]         = sConfig->GetIntDefault("Anticheat.AntiFlyHackPunisher.Count", 0);
+    m_int_configs[CONFIG_AC_ANTIWATERWALK_PUNI_COUNT]         = sConfig->GetIntDefault("Anticheat.AntiWaterwalkPunisher.Count", 0);
     if (m_int_configs[CONFIG_AC_ANTIWATERWALK_PUNI_COUNT] < 0)
     {
-        sLog->outError("Anticheat.AntiFlyHackPunisher.Count (%d) must be >= 0. Using 0 instead.", m_int_configs[CONFIG_AC_ANTIWATERWALK_PUNI_COUNT]);
+        sLog->outError("Anticheat.AntiWaterwalkPunisher.Count (%d) must be >= 0. Using 0 instead.", m_int_configs[CONFIG_AC_ANTIWATERWALK_PUNI_COUNT]);
         m_int_configs[CONFIG_AC_ANTIWATERWALK_PUNI_COUNT] = 0;
     }
     
@@ -673,7 +645,7 @@ void World::LoadConfigSettings(bool reload)
         sLog->outError("Anticheat.TeleportToPlaneBlock.Count (%d) must be >= 0. Using 0 instead.", m_int_configs[CONFIG_AC_ANTITELETOPLANE_BLOCK_COUNT]);
         m_int_configs[CONFIG_AC_ANTITELETOPLANE_BLOCK_COUNT] = 0;
     }
-    m_int_configs[CONFIG_AC_ANTIMOUNTAIN_PUNI_COUNT]         = sConfig->GetIntDefault("Anticheat.TeleportToPlanePunisher.Count", 0);
+    m_int_configs[CONFIG_AC_ANTITELETOPLANE_PUNI_COUNT]         = sConfig->GetIntDefault("Anticheat.TeleportToPlanePunisher.Count", 0);
     if (m_int_configs[CONFIG_AC_ANTITELETOPLANE_PUNI_COUNT] < 0)
     {
         sLog->outError("Anticheat.TeleportToPlanePunisher.Count (%d) must be >= 0. Using 0 instead.", m_int_configs[CONFIG_AC_ANTITELETOPLANE_PUNI_COUNT]);
