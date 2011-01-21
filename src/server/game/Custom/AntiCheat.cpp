@@ -795,7 +795,7 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
         return true;
     */
 
-	if (uDistance2D > 0 && uClientSpeedRate > uSpeedRate)    
+	if (uClientSpeedRate > uSpeedRate)    
 	{          
         cheat_find = true;
         if (map_count)
@@ -910,17 +910,17 @@ bool AntiCheat::CheckAntiWaterwalk(MovementInfo& pOldPacket, MovementInfo& pNewP
     if (!plMover->isAlive())
         return true;
     
-    if (plMover->HasAura(1066))
-        return true;
+    //if (plMover->HasAura(1066))
+    //    return true;
 
-    if (plMover->IsUnderWater())
-        return true;
+    //if (plMover->IsUnderWater())
+    //    return true;
 
-    float water_level = plMover->GetBaseMap()->GetWaterLevel(plMover->GetPositionX(),plMover->GetPositionY());
-    float water_level_diff = fabs(water_level - plMover->GetPositionZ());
+    //float water_level = plMover->GetBaseMap()->GetWaterLevel(plMover->GetPositionX(),plMover->GetPositionY());
+    //float water_level_diff = fabs(water_level - plMover->GetPositionZ());
 
-    if (water_level_diff > 0.15f)
-        return true;
+    //if (water_level_diff > 0.15f)
+    //    return true;
 
 	if (plMover->HasAuraType(SPELL_AURA_WATER_WALK) ||
         plMover->HasAuraType(SPELL_AURA_FEATHER_FALL) ||
