@@ -1991,7 +1991,6 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
     if ((GetMapId() == mapid && !m_transport) || (GetTransport() && GetMapId() == 628))
     {
-        GetAntiCheat()->m_anti_JumpBaseZ = 0;
         //lets reset far teleport flag if it wasn't reset during chained teleports
         SetSemaphoreTeleportFar(false);
         //setup delayed teleport flag
@@ -2168,7 +2167,6 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             m_teleport_dest = WorldLocation(mapid, final_x, final_y, final_z, final_o);
             SetFallInformation(0, final_z);
-            GetAntiCheat()->m_anti_JumpBaseZ = 0;
             // if the player is saved before worldportack (at logout for example)
             // this will be used instead of the current location in SaveToDB
 
