@@ -619,12 +619,15 @@ public:
 
         void JustDied(Unit* killer)
         {
-            if (Group* grp = killer->ToPlayer()->GetGroup())
+            if (killer->GetTypeId() == TYPEID_PLAYER)
             {
-                for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+                if (Group* grp = killer->ToPlayer()->GetGroup())
                 {
-                    itr->getSource()->CompleteQuest(QUEST_ELUNES_BLESSING);
+                    for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+                        itr->getSource()->CompleteQuest(QUEST_ELUNES_BLESSING);
                 }
+                else
+                    killer->ToPlayer()->CompleteQuest(QUEST_ELUNES_BLESSING);
             }
         }
 
