@@ -177,7 +177,7 @@ enum FreyaNpcs
     NPC_STORM_LASHER                            = 32919,
     NPC_SNAPLASHER                              = 32916,
     NPC_NATURE_BOMB                             = 34129,
-    OBJECT_NATURE_BOMB                          = 194902,
+    GOB_NATURE_BOMB                             = 194902,
     NPC_EONARS_GIFT                             = 33228,
     NPC_HEALTHY_SPORE                           = 33215,
     NPC_UNSTABLE_SUN_BEAM                       = 33050,
@@ -1145,7 +1145,7 @@ class creature_nature_bomb : public CreatureScript
             float x = me->GetPositionX();
             float y = me->GetPositionY();
             float z = me->GetPositionZ();
-            pGo = me->SummonGameObject(OBJECT_NATURE_BOMB, x, y, z, 0, 0, 0, 0, 0, 0);
+            pGo = me->SummonGameObject(GOB_NATURE_BOMB, x, y, z, 0, 0, 0, 0, 0, 0);
         }
 
         InstanceScript* m_pInstance;
@@ -1325,14 +1325,19 @@ class creature_healthy_spore : public CreatureScript
     {
         creature_healthy_sporeAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
-            me->SetInCombatWithZone();
-            DoCast(me, SPELL_HEALTHY_SPORE_VISUAL);
-            DoCast(me, SPELL_POTENT_PHEROMONES);
-            DoCast(me, SPELL_GROW);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            me->SetInCombatWithZone();            
         }
 
-        InstanceScript* m_pInstance;
+        void UpdateAI(const uint32 diff)
+        {
+            if (!me->HasAura(SPELL_HEALTHY_SPORE_VISUAL))
+            {
+                DoCast(me, SPELL_HEALTHY_SPORE_VISUAL);
+                DoCast(me, SPELL_POTENT_PHEROMONES);
+                DoCast(me, SPELL_GROW);
+            }
+        }
     };
 
     CreatureAI* GetAI(Creature* pCreature) const

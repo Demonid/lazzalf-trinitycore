@@ -12,9 +12,9 @@ class npc_demolisher_engineerer : public CreatureScript
     public:
     npc_demolisher_engineerer() : CreatureScript("npc_demolisher_engineerer") { }
 
-    struct npc_demolisher_engineererAI : public ScriptedAI
+    struct npc_demolisher_engineererAI : public PassiveAI
     {
-        npc_demolisher_engineererAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_demolisher_engineererAI(Creature* pCreature) : PassiveAI(pCreature)
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
