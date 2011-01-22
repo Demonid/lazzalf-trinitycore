@@ -34,8 +34,6 @@ AntiCheat::AntiCheat(Player* new_plMover)
     m_anti_LastServerTime  = 0;          // last movement server time
     m_anti_DeltaServerTime = 0;          // server side session time
 
-    m_anti_Last_VSpeed = -2.3f;          // vertical speed, default max jump height
-
     m_anti_TeleToPlane_Count = 0;        // Teleport To Plane alarm counter
 
     m_anti_AlarmCount = 0;               // alarm counter
@@ -411,8 +409,6 @@ void AntiCheat::CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket
     // SpeedRate
     uSpeedRate = (uint32)(plMover->GetSpeed(UnitMoveType(uiMoveType)) + pNewPacket.j_xyspeed);
 
-	delta_z = plMover->GetPositionZ() - pNewPacket.pos.GetPositionZ();
-
     // Distance2d
     uDistance2D = (uint32)pNewPacket.pos.GetExactDist2d(&pOldPacket.pos);
     
@@ -430,11 +426,6 @@ void AntiCheat::CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket
 	bool swim_flags = pNewPacket.flags & MOVEMENTFLAG_SWIMMING;
 
     swim_in_water = mover->IsUnderWater();
-
-    tg_z = (uDistance2D != 0 && !fly_auras && !swim_flags) ? (pow(delta_z, 2) / (float)uDistance2D) : -99999; // movement distance tangents
-	// end calculating section
-
-	JumpHeight = m_anti_JumpBaseZ - pNewPacket.pos.GetPositionZ();
 }
 
 bool AntiCheat::CanFly(MovementInfo& pMovementInfo)
