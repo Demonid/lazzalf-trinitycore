@@ -288,7 +288,7 @@ public:
             if (pCreature->isAlive())
                 return false;
  
-        pPlayer->SummonCreature(NPC_GROMTHAR, gromthar_position, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+        pPlayer->SummonCreature(NPC_GROMTHAR, gromthar_position, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 180000);
         return true;
     }
 };

@@ -559,7 +559,7 @@ public:
                 if (pCreature->isAlive())
                     return false;
 
-            pPlayer->SummonCreature(BOSS_OMEN, boss_position, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+            pPlayer->SummonCreature(BOSS_OMEN, boss_position, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 180000);
             return true;
         }
         else
