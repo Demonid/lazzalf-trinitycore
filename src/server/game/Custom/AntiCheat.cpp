@@ -36,11 +36,6 @@ AntiCheat::AntiCheat(Player* new_plMover)
 
     m_anti_TeleToPlane_Count = 0;        // Teleport To Plane alarm counter
 
-    m_anti_AlarmCount = 0;               // alarm counter
-
-    m_anti_JumpCount = 0;                // Jump already began, anti air jump check
-    m_anti_JumpBaseZ = 0;                // Z coord before jump (AntiGrav)
-
     m_logfile_time = 0;                  // Time for logs file
     m_logdb_time = 0;                    // Time for logs DB
 
@@ -440,7 +435,7 @@ bool AntiCheat::CanFly(MovementInfo& pMovementInfo)
         plMover->HasAuraType(SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_ALWAYS) || 
         plMover->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK))
         return true;
-
+    /*
     if (Creature* pCreature = plMover->GetVehicleCreatureBase())
         if (pCreature->GetCreatureInfo()->InhabitType & INHABIT_AIR)
             return true;
@@ -449,6 +444,7 @@ bool AntiCheat::CanFly(MovementInfo& pMovementInfo)
         pMovementInfo.HasMovementFlag(MOVEMENTFLAG_JUMPING) || 
         plMover->GetMap()->GetGameObject(pMovementInfo.t_guid))
         return true;
+    */
 
     return false;
 }

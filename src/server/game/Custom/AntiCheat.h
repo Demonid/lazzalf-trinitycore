@@ -98,10 +98,6 @@ class AntiCheat
         time_t m_logdb_time;
 
         uint32 m_anti_TeleToPlane_Count;        // Teleport To Plane alarm counter
-
-        uint64 m_anti_AlarmCount;               // alarm counter
-
-        uint16 m_anti_JumpCount;                // Jump already began, anti air jump check
 		
 		void SetBlock(bool /*block*/);
 		bool GetBlock();
