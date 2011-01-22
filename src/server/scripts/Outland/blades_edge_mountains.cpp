@@ -602,6 +602,58 @@ class kolphis_darkscale_npc : public CreatureScript
     };
 };
 
+/* Support quest: Whispers of the Raven God */
+
+enum GO_Prophecies
+{
+    FIRST_PROPHECY = 184950,
+    SECOND_PROPHECY = 184967,
+    THIRD_PROPHECY = 184968,
+    FOURTH_PROPHECY = 184969,
+};
+
+enum Prophecy_Credits
+{
+    FIRST_PROPHECY_CREDIT = 22798,
+    SECOND_PROPHECY_CREDIT = 22799,
+    THIRD_PROPHECY_CREDIT = 22800,
+    FOURTH_PROPHECY_CREDIT = 22801,
+};
+
+#define QUEST_WHISPERS_RAVEN_GOD 10607
+
+class go_prophecy : public GameObjectScript
+{
+    public:
+        go_prophecy() : GameObjectScript("go_prophecy") { }
+
+    bool OnGossipHello(Player *pPlayer, GameObject *pGO)
+    {
+        if (!pPlayer)
+            return true;
+
+        if (pPlayer->GetQuestStatus(QUEST_WHISPERS_RAVEN_GOD) == QUEST_STATUS_INCOMPLETE)
+        {
+            switch(pGO->GetEntry())
+            {
+                case FIRST_PROPHECY:
+                    pPlayer->KilledMonsterCredit(FIRST_PROPHECY_CREDIT, 0);
+                    break;
+                case SECOND_PROPHECY:
+                    pPlayer->KilledMonsterCredit(SECOND_PROPHECY_CREDIT, 0);
+                    break;
+                case THIRD_PROPHECY:
+                    pPlayer->KilledMonsterCredit(THIRD_PROPHECY_CREDIT, 0);
+                    break;
+                case FOURTH_PROPHECY:
+                    pPlayer->KilledMonsterCredit(FOURTH_PROPHECY_CREDIT, 0);
+                    break;
+            }
+        }
+        return true;
+    };
+};
+
 
 /*######
 ## AddSC
@@ -618,4 +670,5 @@ void AddSC_blades_edge_mountains()
     new npc_bloodmaul_brutebane();
     new npc_ogre_brute();
     new kolphis_darkscale_npc();
+    new go_prophecy();
 }
