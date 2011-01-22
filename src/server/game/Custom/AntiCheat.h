@@ -48,6 +48,7 @@ class AntiCheat
 
         bool cheat_find;
 
+        bool map_count;
         bool map_block;
         bool map_puni;
 
