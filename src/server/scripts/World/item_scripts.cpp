@@ -541,7 +541,7 @@ public:
 #define BOSS_OMEN 15467
 #define STORMRAGE_BARROW_DENS_AREA 2363
 
-const Position boss_position = {7594.054f, -2889.576f, 464.525f, 2.629f};
+const Position boss_position = {7657.348f, -2909.398f, 464.586f, 2.985f};
 
 class item_green_rocket_cluster : public ItemScript
 {
