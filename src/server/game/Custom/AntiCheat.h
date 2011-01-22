@@ -64,11 +64,8 @@ class AntiCheat
         uint32 uClientSpeedRate;
         uint32 uDistance2D;
 
-		float delta_z;
 		bool fly_auras;
 		bool swim_in_water;
-		float tg_z;
-		float JumpHeight;       
 		
 		void CalcDeltas(MovementInfo& pNewPacket, MovementInfo& pOldPacket);
 		void CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket, Unit* mover);
@@ -100,14 +97,11 @@ class AntiCheat
         time_t m_logfile_time;
         time_t m_logdb_time;
 
-        float m_anti_Last_VSpeed;               // vertical speed, default max jump height
-
         uint32 m_anti_TeleToPlane_Count;        // Teleport To Plane alarm counter
 
         uint64 m_anti_AlarmCount;               // alarm counter
 
         uint16 m_anti_JumpCount;                // Jump already began, anti air jump check
-        float m_anti_JumpBaseZ;                 // Z coord before jump
 		
 		void SetBlock(bool /*block*/);
 		bool GetBlock();
