@@ -302,11 +302,11 @@ class npc_porting : public CreatureScript
                         }
 
                         // Singoli item
-                        if (fields[3].GetCString())
+                        if (fields[3].GetString())
                         {
                             std::stringstream ItemStringStream;
                             std::string ItemString;
-                            ItemStringStream.str(std::string(fields[3].GetCString()));
+                            ItemStringStream.str(fields[3].GetString());
                             while (std::getline(ItemStringStream, ItemString, ','))
 		                    {
 			                    std::stringstream ss2(ItemString);
@@ -342,12 +342,12 @@ class npc_porting : public CreatureScript
                             std::string msg = "Porting concluso! Il Ticket è stato chiuso!";
                             pCreature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
                         }
-                        else if (fields[0].GetInt32() == 2 && fields[1].GetCString())
+                        else if (fields[0].GetInt32() == 2 && fields[1].GetString())
                         {
                             GM_Ticket *ticket = sTicketMgr->GetGMTicketByPlayer(pPlayer->GetGUID());
                             if (ticket && ticket->closed == 0 && !ticket->completed)
                             {
-                                std::string ticketText(fields[1].GetCString());
+                                std::string ticketText(fields[1].GetString());
                                 ticket->message = ticketText;
                                 sTicketMgr->AddOrUpdateGMTicket(*ticket, true);
                                 std::string msg = "Porting completato in parte! Ticket editato in automatico per completare il porting con un GM!";
@@ -357,7 +357,7 @@ class npc_porting : public CreatureScript
                             {                            
                                 std::string msg = "Porting completato in parte! Apri ticket per completare il porting con un GM! Motivo del parziale completamento:";
                                 pCreature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
-                                pCreature->MonsterWhisper(fields[1].GetCString(), pPlayer->GetGUID());
+                                pCreature->MonsterWhisper((fields[1].GetString()).c_str(), pPlayer->GetGUID());
                             }
                         }
                         ExtraDatabase.PExecute("UPDATE `porting` SET `fase` = 2 WHERE `guid` = %u", pPlayer->GetGUIDLow());                
@@ -378,8 +378,8 @@ class npc_porting : public CreatureScript
                     if (result)
                     {
                         Field *fields = result->Fetch();
-                        if (fields[1].GetCString())
-                            pCreature->MonsterWhisper(fields[0].GetCString(), pPlayer->GetGUID());
+                        if (fields[0].GetString())
+                            pCreature->MonsterWhisper((fields[0].GetString()).c_str(), pPlayer->GetGUID());
                     }                    
                     pPlayer->CLOSE_GOSSIP_MENU();
                 }
