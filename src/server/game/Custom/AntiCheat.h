@@ -65,7 +65,6 @@ class AntiCheat
         uint32 uDistance2D;
 
 		bool fly_auras;
-		bool swim_in_water;
 		
 		void CalcDeltas(MovementInfo& pNewPacket, MovementInfo& pOldPacket);
 		void CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket, Unit* mover);
