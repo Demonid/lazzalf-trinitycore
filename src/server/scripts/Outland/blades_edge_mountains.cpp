@@ -654,6 +654,28 @@ class go_prophecy : public GameObjectScript
     };
 };
 
+#define QUEST_THE_THUNDERSPIKE 10526
+#define NPC_GOR_GRIMGUT 21319
+
+const Position gor_grimgut_position = {1316.82f, 6689.07f, -18.659f, 6.191f};
+
+class go_the_thunderspike : public GameObjectScript
+{
+    public:
+        go_the_thunderspike() : GameObjectScript("go_the_thunderspike") { }
+
+    bool OnGossipHello(Player *pPlayer, GameObject *pGO)
+    {
+        if (!pPlayer)
+            return true;
+
+        if (pPlayer->GetQuestStatus(QUEST_THE_THUNDERSPIKE) == QUEST_STATUS_INCOMPLETE)
+            pPlayer->SummonCreature(NPC_GOR_GRIMGUT, gor_grimgut_position, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 180000);
+
+        return true;
+    };
+};
+
 
 /*######
 ## AddSC
@@ -671,4 +693,5 @@ void AddSC_blades_edge_mountains()
     new npc_ogre_brute();
     new kolphis_darkscale_npc();
     new go_prophecy();
+    new go_the_thunderspike();
 }
