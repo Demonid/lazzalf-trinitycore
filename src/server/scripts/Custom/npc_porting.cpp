@@ -291,27 +291,33 @@ class npc_porting : public CreatureScript
                     {
                         // Equip standard
                         Field *fields = result->Fetch();
-                        for (int j = 0; j < 3; j++)
-                            if (EquipVct[fields[j].GetUInt32()].item[0])
-                                for (int i = 1; EquipVct[fields[j].GetUInt32()].item[i] != 0; i++)
-                                {
-                                    pPlayer->AddItem(EquipVct[fields[j].GetUInt32()].item[i], 1);
-                                }
+                        if (fields[j].GetUInt32())
+                        {
+                            for (int j = 0; j < 3; j++)
+                                if (EquipVct[fields[j].GetUInt32()].item[0])
+                                    for (int i = 1; EquipVct[fields[j].GetUInt32()].item[i] != 0; i++)
+                                    {
+                                        pPlayer->AddItem(EquipVct[fields[j].GetUInt32()].item[i], 1);
+                                    }
+                        }
 
                         // Singoli item
-                        std::stringstream ItemStringStream;
-                        std::string ItemString;
-                        ItemStringStream.str(std::string(fields[3].GetCString()));
-                        while (std::getline(ItemStringStream, ItemString, ','))
-		                {
-			                std::stringstream ss2(ItemString);
-			                int item_num = 0;
-			                ss2 >> item_num; 
-			                if (item_num > 0)
-			                { 
-				                pPlayer->AddItem(item_num, 1);
-			                }
-		                }                                
+                        if (fields[3].GetCString())
+                        {
+                            std::stringstream ItemStringStream;
+                            std::string ItemString;
+                            ItemStringStream.str(std::string(fields[3].GetCString()));
+                            while (std::getline(ItemStringStream, ItemString, ','))
+		                    {
+			                    std::stringstream ss2(ItemString);
+			                    int item_num = 0;
+			                    ss2 >> item_num; 
+			                    if (item_num > 0)
+			                    { 
+				                    pPlayer->AddItem(item_num, 1);
+			                    }
+		                    }   
+                        }
                     }
     
                     result = ExtraDatabase.PQuery("SELECT `active`, `ticket_txt` FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());
@@ -336,7 +342,7 @@ class npc_porting : public CreatureScript
                             std::string msg = "Porting concluso! Il Ticket è stato chiuso!";
                             pCreature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
                         }
-                        else if (fields[0].GetInt32() == 2)
+                        else if (fields[0].GetInt32() == 2 && fields[1].GetCString())
                         {
                             GM_Ticket *ticket = sTicketMgr->GetGMTicketByPlayer(pPlayer->GetGUID());
                             if (ticket && ticket->closed == 0 && !ticket->completed)
@@ -372,7 +378,8 @@ class npc_porting : public CreatureScript
                     if (result)
                     {
                         Field *fields = result->Fetch();
-                        pCreature->MonsterWhisper(fields[0].GetCString(), pPlayer->GetGUID());
+                        if (fields[1].GetCString())
+                            pCreature->MonsterWhisper(fields[0].GetCString(), pPlayer->GetGUID());
                     }                    
                     pPlayer->CLOSE_GOSSIP_MENU();
                 }
