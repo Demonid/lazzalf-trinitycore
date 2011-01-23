@@ -437,7 +437,7 @@ bool AntiCheat::CanFly(MovementInfo& pMovementInfo)
         plMover->HasAuraType(SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_ALWAYS) || 
         plMover->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK))
         return true;
-    /*
+
     if (Creature* pCreature = plMover->GetVehicleCreatureBase())
         if (pCreature->GetCreatureInfo()->InhabitType & INHABIT_AIR)
             return true;
@@ -446,7 +446,6 @@ bool AntiCheat::CanFly(MovementInfo& pMovementInfo)
         pMovementInfo.HasMovementFlag(MOVEMENTFLAG_JUMPING) || 
         plMover->GetMap()->GetGameObject(pMovementInfo.t_guid))
         return true;
-    */
 
     return false;
 }
