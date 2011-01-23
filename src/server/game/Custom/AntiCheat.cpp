@@ -421,8 +421,6 @@ void AntiCheat::CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket
 	fly_auras = CanFly(pNewPacket);
 
 	bool swim_flags = pNewPacket.flags & MOVEMENTFLAG_SWIMMING;
-
-    swim_in_water = mover->IsUnderWater();
 }
 
 bool AntiCheat::CanFly(MovementInfo& pMovementInfo)
@@ -580,21 +578,22 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
         plMover->HasAura(88026) || // 88026 -> Silversnap Swim Tonic Master
         plMover->HasAura(30430)))   // 30430 -> Embrace of the Serpent
         return true; 
-    */
-
+    
     // the best way is checking the ip of the target, if it is the same this check should return.
     if (plMover->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
         return true;
+    */
 
     // it will make false reports
     if (plMover->IsFalling() && fly_auras)
         return true;
-    /*
+    
 
     // the same reason for IsFalling, just in case...
     if (plMover->HasAuraType(SPELL_AURA_FEATHER_FALL) || plMover->HasAuraType(SPELL_AURA_SAFE_FALL))
         return true;
     
+    /*
     // If we are under the Terrain, We are falling in Texture    
     if (const Map *map = plMover->GetMap())
     {
