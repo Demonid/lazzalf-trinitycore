@@ -166,7 +166,7 @@ class npc_porting : public CreatureScript
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
             else if (fields[0].GetInt32() == 2)
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-            else if (fields[0].GetInt32() == -1)
+            else if (fields[0].GetInt32() == 99)
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
         }
 
@@ -190,11 +190,12 @@ class npc_porting : public CreatureScript
                 pPlayer->CLOSE_GOSSIP_MENU();
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                {
-                    pPlayer->AddItem(ITEM_BAG, 4);
+                {   
                     QueryResult result = ExtraDatabase.PQuery("SELECT level, gold, repu_1, repu_2, repu_3, level_repu_1, level_repu_2, level_repu_3, skill_1, skill_2, skill_3, skill_4, skill_5, skill_6, skill_7, skill_8, level_skill_1, level_skill_2, level_skill_3, level_skill_4 , level_skill_5, level_skill_6, level_skill_7, level_skill_8 FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());               
                     if (result)
                     {
+                        pPlayer->AddItem(ITEM_BAG, 4);
+
                         Field *fields = result->Fetch();
                         // Livello
                         pPlayer->GiveLevel(fields[0].GetUInt8());
