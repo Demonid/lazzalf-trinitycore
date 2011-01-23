@@ -379,6 +379,8 @@ class npc_porting : public CreatureScript
                     pPlayer->CLOSE_GOSSIP_MENU();
                 }
                 break;
+            default:
+                break;
         }
         return true;
     }
