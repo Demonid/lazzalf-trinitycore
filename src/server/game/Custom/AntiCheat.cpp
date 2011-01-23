@@ -693,11 +693,11 @@ bool AntiCheat::CheckAntiWaterwalk(MovementInfo& pOldPacket, MovementInfo& pNewP
     if (!plMover->isAlive())
         return true;
     
-    //if (plMover->HasAura(1066))
-    //    return true;
+    if (plMover->HasAura(1066))
+        return true;
 
-    //if (plMover->IsUnderWater())
-    //    return true;
+    if (plMover->IsUnderWater())
+        return true;
 
     //float water_level = plMover->GetBaseMap()->GetWaterLevel(plMover->GetPositionX(),plMover->GetPositionY());
     //float water_level_diff = fabs(water_level - plMover->GetPositionZ());
