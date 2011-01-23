@@ -111,6 +111,16 @@ public:
             summons.Summon(summon);
         }
 
+        void JustDied(Unit* /*Killer*/)
+        {
+            _JustDied();
+        }
+
+        void Reset()
+        {
+            _Reset();
+        }
+
         void KilledUnit(Unit* Victim)
         {
             if (instance)

@@ -383,6 +383,17 @@ public:
             _JustDied();
             DoScriptText(SAY_DEATH, me);
 
+            Map::PlayerList const& players = me->GetMap()->GetPlayers();
+            if (!players.isEmpty())
+            {
+                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                {
+                    Player* pPlayer = itr->getSource();
+                    if (pPlayer)
+                        me->GetMap()->ToInstanceMap()->PermBindAllPlayers(pPlayer);
+                }
+            }
+
             switch (towerCount)
             {
                 case 4:
