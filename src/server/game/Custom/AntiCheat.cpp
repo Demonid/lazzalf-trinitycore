@@ -141,11 +141,13 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
     if (!plMover->IsInWorld())
         return true;
 
-    if (plMover->isInFlight() || plMover->GetTransport() || plMover->GetVehicle())
+    if (plMover->isInFlight() || plMover->GetTransport() || 
+        plMover->GetVehicle() || !plMover->CanFreeMove() || 
+        plMover->IsBeingTeleported())
     {
         SaveLastPacket(pMovementInfo);
         SetLastOpcode(opcode);
-        SetSleep(1);
+        SetSleep(2000);
         return true;        
     }
 
@@ -578,7 +580,8 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
         (plMover->HasAura(7840) || // 7840 -> Swim Speed
         plMover->HasAura(88026) || // 88026 -> Silversnap Swim Tonic Master
         plMover->HasAura(30430)))   // 30430 -> Embrace of the Serpent
-        return true;    
+        return true; 
+    */
 
     // the best way is checking the ip of the target, if it is the same this check should return.
     if (plMover->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
@@ -587,6 +590,7 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
     // it will make false reports
     if (plMover->IsFalling() && fly_auras)
         return true;
+    /*
 
     // the same reason for IsFalling, just in case...
     if (plMover->HasAuraType(SPELL_AURA_FEATHER_FALL) || plMover->HasAuraType(SPELL_AURA_SAFE_FALL))
@@ -604,7 +608,7 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
     }
     */
 
-	if (uClientSpeedRate > uSpeedRate)    
+	if (uDistance2D > 0 && uClientSpeedRate > uSpeedRate)    
 	{          
         cheat_find = true;
         if (map_count)
