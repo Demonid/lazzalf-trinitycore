@@ -162,69 +162,65 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
 	// Set to false if block a Cheat
 	bool check_passed = true;
 
-    // Only if we are not coming from sleep
-    if (ac_goactivate < int32(sWorld->getIntConfig(CONFIG_AC_ALIVE_COUNT)))
+    CalcVariables(GetLastPacket(), pMovementInfo, mover);
+
+    // MultiJump Cheat
+    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIMULTIJUMP))
+	    if (!CheckAntiMultiJump(pMovementInfo, opcode))
+		    check_passed = false;
+
+    // Speed Cheat
+    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTISPEED))
+	    if (!CheckAntiSpeed(GetLastPacket(), pMovementInfo, opcode))
+		    check_passed = false;
+
+    // Tele Cheat
+    //if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTITELE))
+	//    if (!CheckAntiTele(pMovementInfo, opcode))
+	//	    check_passed = false;
+
+    // Fly Cheat
+    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIFLY))
+	    if (!CheckAntiFly(GetLastPacket(), pMovementInfo))
+		    check_passed = false;
+
+    // Waterwalk Cheat
+    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIWATERWALK))
+        if (!CheckAntiWaterwalk(GetLastPacket(), pMovementInfo))
+		    check_passed = false;
+
+    // Tele To Plane Cheat
+    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTITELETOPLANE))
+	    if (!CheckAntiTeleToPlane(GetLastPacket(), pMovementInfo))
+		    check_passed = false;
+
+    if (cheat_find)
     {
-        CalcVariables(GetLastPacket(), pMovementInfo, mover);
-
-        // Check taxi flight
-            // MultiJump Cheat
-		    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIMULTIJUMP))
-			    if (!CheckAntiMultiJump(pMovementInfo, opcode))
-				    check_passed = false;
-
-            // Speed Cheat
-            if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTISPEED))
-			    if (!CheckAntiSpeed(GetLastPacket(), pMovementInfo, opcode))
-				    check_passed = false;
-
-            // Tele Cheat
-            //if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTITELE))
-			//    if (!CheckAntiTele(pMovementInfo, opcode))
-			//	    check_passed = false;
-
-            // Fly Cheat
-		    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIFLY))
-			    if (!CheckAntiFly(GetLastPacket(), pMovementInfo))
-				    check_passed = false;
-
-            // Waterwalk Cheat
-		    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIWATERWALK))
-                if (!CheckAntiWaterwalk(GetLastPacket(), pMovementInfo))
-				    check_passed = false;
-
-            // Tele To Plane Cheat
-		    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTITELETOPLANE))
-			    if (!CheckAntiTeleToPlane(GetLastPacket(), pMovementInfo))
-				    check_passed = false;
-        if (cheat_find)
+        if (map_count)
         {
-            if (map_count)
-            {
-                // Yes, we found a cheater
-                ++(number_cheat_find);
+            // Yes, we found a cheater
+            ++(number_cheat_find);
 
-                if (sWorld->getIntConfig(CONFIG_AC_REPORTS_FOR_GM_WARNING) &&
-                    number_cheat_find > sWorld->getIntConfig(CONFIG_AC_REPORTS_FOR_GM_WARNING)) 
-                {
-                    // display warning at the center of the screen, hacky way.
-                    std::string str = "";
-                    str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plMover->GetName()) + "|cFF00FFFF] Possible cheater!";
-                    WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
-                    data << str;
-                    sWorld->SendGlobalGMMessage(&data);
-                }
-            }
-            // We are are not going to sleep
-            SetAlarm(sWorld->getIntConfig(CONFIG_AC_ALARM_DELTA));
-            // Increase reset cheat list time
-            if (m_CheatList_reset_diff < sWorld->getIntConfig(CONFIG_AC_RESET_CHEATLIST_DELTA_FOUND))
-                m_CheatList_reset_diff = sWorld->getIntConfig(CONFIG_AC_RESET_CHEATLIST_DELTA_FOUND);
-            if (map_puni)
+            if (sWorld->getIntConfig(CONFIG_AC_REPORTS_FOR_GM_WARNING) &&
+                number_cheat_find > sWorld->getIntConfig(CONFIG_AC_REPORTS_FOR_GM_WARNING)) 
             {
-                if (!AntiCheatPunisher(pMovementInfo)) // Try Punish him
-                    check_passed = false;                
+                // display warning at the center of the screen, hacky way.
+                std::string str = "";
+                str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plMover->GetName()) + "|cFF00FFFF] Possible cheater!";
+                WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
+                data << str;
+                sWorld->SendGlobalGMMessage(&data);
             }
+        }
+        // We are are not going to sleep
+        SetAlarm(sWorld->getIntConfig(CONFIG_AC_ALARM_DELTA));
+        // Increase reset cheat list time
+        if (m_CheatList_reset_diff < sWorld->getIntConfig(CONFIG_AC_RESET_CHEATLIST_DELTA_FOUND))
+            m_CheatList_reset_diff = sWorld->getIntConfig(CONFIG_AC_RESET_CHEATLIST_DELTA_FOUND);
+        if (map_puni)
+        {
+            if (!AntiCheatPunisher(pMovementInfo)) // Try Punish him
+                check_passed = false;                
         }
     }
 
