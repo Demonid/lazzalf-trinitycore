@@ -21,10 +21,11 @@ AntiCheat::AntiCheat(Player* new_plMover)
 {
     plMover = new_plMover;
 
-    ac_block = false;
     number_cheat_find = 0;
 
-	ac_delta = 0;
+    activateACCheck = false;
+    disableACCheckTimer = 5000;
+    alarmACCheckTimer = 0; 
     ac_goactivate = 0;
 
     for (int i = 0; i < MAX_CHEAT; i++)
@@ -45,71 +46,59 @@ AntiCheat::AntiCheat(Player* new_plMover)
     map_puni = true;
 }
 
-void AntiCheat::SetBlock(bool block)
+void AntiCheat::UpdateDiffAntiCheat(uint32 diff)
 {
-	ac_block = block;
+    if (ac_goactivate > 0)
+    {
+        activateACCheck = true;
+    }
+
+    if (alarmACCheckTimer <= diff)
+    {
+        alarmACCheckTimer = 0;
+        if (!activateACCheck)
+        {
+            if (disableACCheckTimer <= diff)
+            {
+                activateACCheck = true;
+                ac_goactivate = sWorld->getIntConfig(CONFIG_AC_ALIVE_COUNT);
+            } 
+            else 
+                disableACCheckTimer -= diff;
+        }
+    } 
+    else
+    {
+        alarmACCheckTimer -= diff;
+        activateACCheck = true;
+    }
 }
 
-bool AntiCheat::GetBlock()
+void AntiCheat::UpdateAntiCheat()
 {
-	return ac_block;
-}
-
-bool AntiCheat::GetAndUpdateDelta(int32 diff)
-{
-    if (ac_goactivate > 0 && ac_delta >= 0)
+    if (ac_goactivate > 0)
     {
         ac_goactivate--;
-        return true;
-    }
-
-    if (ac_delta == 0)
-        ac_delta = int32(sWorld->getIntConfig(CONFIG_AC_SLEEP_DELTA));
-
-    if (ac_delta > 0)
-    {
-        if (ac_delta > diff)
-            ac_delta -= diff;
-        else
-        {
-            ac_delta = 0;
-            ac_goactivate = sWorld->getIntConfig(CONFIG_AC_ALIVE_COUNT);
-        }
-    }
-    else if (ac_delta < 0)
-    {
-        if (ac_delta < -diff)
-            ac_delta += diff;
-        else
-        {
-            ac_delta = 0;
-        }
-    }
-		
-	return ac_delta <= 0;
-}
-
-int AntiCheat::GetDelta()
-{
-    return ac_delta;
-}
-
-void AntiCheat::SetDelta(int32 delta)
-{
-    ac_delta = delta;
-}
-
-void AntiCheat::SetSleep(int32 delta, bool forced)
-{
-    if (!forced && ac_delta < 0)
         return;
-
-    if (ac_delta < delta)
-    {
-        ac_delta = delta;
-        m_anti_LastServerTime = getMSTime();
     }
 
+    if (!alarmACCheckTimer)
+    {
+        disableACCheckTimer = sWorld->getIntConfig(CONFIG_AC_SLEEP_DELTA);
+        activateACCheck = false;
+    }
+}
+
+void AntiCheat::SetAlarm(uint32 delta)
+{
+    alarmACCheckTimer = delta;
+}
+
+void AntiCheat::SetSleep(uint32 delta)
+{
+    disableACCheckTimer = delta; // Set sleep
+    alarmACCheckTimer = 0; // Disable alert
+    activateACCheck = false;
     ac_goactivate = 0;
 }
 
@@ -141,23 +130,18 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
     if (!plMover->IsInWorld())
         return true;
 
-    if (plMover->isInFlight() || plMover->GetTransport() || 
-        plMover->GetVehicle() || !plMover->CanFreeMove() || 
-        plMover->IsBeingTeleported())
+    if (!activateACCheck || plMover->isInFlight() || 
+        plMover->GetTransport() || plMover->GetVehicle() || 
+        !plMover->CanFreeMove() || plMover->IsBeingTeleported())
     {
         SaveLastPacket(pMovementInfo);
         SetLastOpcode(opcode);
-        SetSleep(2000);
         return true;        
     }
 
 	// Calc Delthas for AntiCheat
 	CalcDeltas(pMovementInfo, GetLastPacket());
-
-    // Diff for AntiCheat sleep
-	if (!GetAndUpdateDelta(int32(cServerTimeDelta)))
-        return true;
-    
+        
     cheat_find = false;
     map_count = !sWorld->iIgnoreMapIds_ACCount.count(plMover->GetMapId());
     map_block = !sWorld->iIgnoreMapIds_ACBlock.count(plMover->GetMapId());
@@ -166,10 +150,6 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
     // Clean player cheatlist only if we founded a cheat
     if (number_cheat_find)
         ResetCheatList(cServerTimeDelta);
-  
-    // AntiCheat Block (not used for now)
-	//if (GetBlock())
-	//	return true;
 
     // Map ignored
     if (sWorld->iIgnoreMapIds_AC.count(plMover->GetMapId()))
@@ -188,9 +168,6 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
         CalcVariables(GetLastPacket(), pMovementInfo, mover);
 
         // Check taxi flight
-        const uint32 curDest = plMover->m_taxi.GetTaxiDestination();	
-	    if (!curDest)
-	    {
             // MultiJump Cheat
 		    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTIMULTIJUMP))
 			    if (!CheckAntiMultiJump(pMovementInfo, opcode))
@@ -220,7 +197,6 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
 		    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTITELETOPLANE))
 			    if (!CheckAntiTeleToPlane(GetLastPacket(), pMovementInfo))
 				    check_passed = false;
-	    }
         if (cheat_find)
         {
             if (map_count)
@@ -240,7 +216,7 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
                 }
             }
             // We are are not going to sleep
-            SetDelta(-abs(int32(sWorld->getIntConfig(CONFIG_AC_ALARM_DELTA))));
+            SetAlarm(sWorld->getIntConfig(CONFIG_AC_ALARM_DELTA));
             // Increase reset cheat list time
             if (m_CheatList_reset_diff < sWorld->getIntConfig(CONFIG_AC_RESET_CHEATLIST_DELTA_FOUND))
                 m_CheatList_reset_diff = sWorld->getIntConfig(CONFIG_AC_RESET_CHEATLIST_DELTA_FOUND);
@@ -254,6 +230,8 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
 
     SaveLastPacket(pMovementInfo);
     SetLastOpcode(opcode);
+
+    UpdateAntiCheat();
 
 	return check_passed;
 }
@@ -378,7 +356,7 @@ void AntiCheat::CalcDeltas(MovementInfo& pNewPacket,  MovementInfo& pOldPacket)
 	cServerTimeDelta = 1500;
 	if (m_anti_LastServerTime != 0)
 	{
-		cServerTimeDelta = cServerTime - m_anti_LastServerTime;
+        cServerTimeDelta = cServerTime - m_anti_LastServerTime;
 		m_anti_LastServerTime = cServerTime;
 	}
 	else
@@ -558,8 +536,7 @@ bool AntiCheat::CheckAntiMultiJump(MovementInfo& pNewPacket, uint32 uiOpcode)
 
 bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacket, uint32 uiOpcode)
 {
-    // strange packet
-    /*
+    // strange packet    
     if (uiOpcode == MSG_MOVE_SET_FACING)        
         return true;
 
@@ -568,6 +545,7 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
         pNewPacket.GetMovementFlags() != pOldPacket.GetMovementFlags())
         return true;
 
+    /*
     // False segnalation    
     if (plMover->HasAura(30174) || // 30174 -> Riding Turtle
         plMover->HasAura(64731)) // 64731 -> Sea Turtle
@@ -586,25 +564,11 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
 
     // it will make false reports
     if (plMover->IsFalling() && fly_auras)
-        return true;
-    
+        return true;    
 
     // the same reason for IsFalling, just in case...
     if (plMover->HasAuraType(SPELL_AURA_FEATHER_FALL) || plMover->HasAuraType(SPELL_AURA_SAFE_FALL))
         return true;
-    
-    /*
-    // If we are under the Terrain, We are falling in Texture    
-    if (const Map *map = plMover->GetMap())
-    {
-        float ground_z = map->GetHeight(plMover->GetPositionX(), plMover->GetPositionY(), MAX_HEIGHT);
-        float floor_z  = map->GetHeight(plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ());
-        float map_z    = ((floor_z <= (INVALID_HEIGHT+5.0f)) ? ground_z : floor_z);
-        if (map_z - 10.0f > plMover->GetPositionZ() && 
-            map_z > (INVALID_HEIGHT + 10.0f + 5.0f))
-            return true;
-    }
-    */
 
 	if (uDistance2D > 0 && uClientSpeedRate > uSpeedRate)    
 	{          
