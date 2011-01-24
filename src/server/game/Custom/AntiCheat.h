@@ -66,6 +66,19 @@ class AntiCheat
         uint32 uDistance2D;
 
 		bool fly_auras;
+
+        uint32 number_cheat_find;
+        int32 ac_goactivate;
+
+        uint32 m_CheatList[MAX_CHEAT];
+        uint32 m_CheatList_reset_diff;        
+	
+        time_t m_anti_LastServerTime;           // last movement server time
+        time_t m_anti_DeltaServerTime;          // server side session time
+        time_t m_logfile_time;
+        time_t m_logdb_time;
+
+        uint32 m_anti_TeleToPlane_Count;        // Teleport To Plane alarm counter
 		
 		void CalcDeltas(MovementInfo& pNewPacket, MovementInfo& pOldPacket);
 		void CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket, Unit* mover);
@@ -84,21 +97,7 @@ class AntiCheat
     public:
         AntiCheat(Player* new_plMover);
 		bool DoAntiCheatCheck(uint16 /*opcode*/, MovementInfo& /*pMovementInfo*/, Unit* /*mover*/);
-
-    public:
-        uint32 number_cheat_find;
-        int32 ac_goactivate;
-
-        uint32 m_CheatList[MAX_CHEAT];
-        uint32 m_CheatList_reset_diff;        
 	
-        time_t m_anti_LastServerTime;           // last movement server time
-        time_t m_anti_DeltaServerTime;          // server side session time
-        time_t m_logfile_time;
-        time_t m_logdb_time;
-
-        uint32 m_anti_TeleToPlane_Count;        // Teleport To Plane alarm counter
-		
         void UpdateDiffAntiCheat(uint32 diff);
         void UpdateAntiCheat();
 		void SetAlarm(uint32 delta);
