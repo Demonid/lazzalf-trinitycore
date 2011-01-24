@@ -322,7 +322,6 @@ bool AntiCheat::AntiCheatPunisher(MovementInfo& pMovementInfo)
                 QueryResult result = LoginDatabase.PQuery("SELECT last_ip FROM account WHERE id=%u", plMover->GetSession()->GetAccountId());
                 if (result)
                 {
-
                     Field *fields = result->Fetch();
                     std::string LastIP = fields[0].GetString();
                     if(!LastIP.empty())
