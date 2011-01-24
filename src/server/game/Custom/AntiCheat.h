@@ -40,8 +40,9 @@ class AntiCheat
     private:
         Player* plMover;
 
-		bool ac_block;        
-		int32 ac_delta;
+        bool activateACCheck;
+        uint32 alarmACCheckTimer;
+        uint32 disableACCheckTimer;
 
         MovementInfo lastpMovementInfo;
         uint32 uiLastOpcode;
@@ -98,12 +99,11 @@ class AntiCheat
 
         uint32 m_anti_TeleToPlane_Count;        // Teleport To Plane alarm counter
 		
-		void SetBlock(bool /*block*/);
-		bool GetBlock();
-		bool GetAndUpdateDelta(int32 /*diff*/);
-		void SetDelta(int32 /*delta*/);
+        void UpdateDiffAntiCheat(uint32 diff);
+        void UpdateAntiCheat();
+		void SetAlarm(uint32 delta);
         int32 GetDelta();
-        void SetSleep(int32 delta, bool forced = true);
+        void SetSleep(uint32 delta);
         void ResetCheatList(uint32 /*diff*/);
         void SaveLastPacket(MovementInfo& pMovementInfo) { lastpMovementInfo = pMovementInfo; }
         MovementInfo& GetLastPacket() { return lastpMovementInfo; }

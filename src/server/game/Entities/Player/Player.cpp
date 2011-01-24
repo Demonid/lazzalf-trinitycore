@@ -1268,6 +1268,9 @@ void Player::Update(uint32 p_time)
     if (!IsInWorld())
         return;
 
+    // AntiCheat
+    GetAntiCheat()->UpdateDiffAntiCheat(p_time);
+
     // undelivered mail
     if (m_nextMailDelivereTime && m_nextMailDelivereTime <= time(NULL))
     {
