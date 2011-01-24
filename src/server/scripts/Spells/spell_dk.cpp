@@ -209,7 +209,8 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
                     int32 bp = 0;
                     // Living ghoul as a target
                     if (unitTarget->isAlive())
-                        bp = int32(unitTarget->CountPctFromMaxHealth(25));
+                        bp = int32(unitTarget->CountPctFromMaxHealth(15));
+                        //bp = int32(unitTarget->CountPctFromMaxHealth(25));
                     // Some corpse
                     else
                         bp = GetEffectValue();

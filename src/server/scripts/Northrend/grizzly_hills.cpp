@@ -798,6 +798,48 @@ public:
     };
 };
 
+/* Npc Drakuru */
+
+#define QUEST_TRUCE 11989
+#define SPELL_BLOOD_OATH 50001
+
+class npc_drakuru : public CreatureScript
+{
+    public:
+        npc_drakuru(): CreatureScript("npc_drakuru") {}
+
+    bool OnGossipHello(Player *player, Creature *_Creature)
+    {
+        if (!player)
+            return true;
+
+        if (_Creature->isQuestGiver())
+            player->PrepareQuestMenu(_Creature->GetGUID());
+
+        if (player->HasAura(SPELL_BLOOD_OATH))
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Shake hands", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1); 
+            player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, _Creature->GetGUID());
+            return true;
+        }
+
+        return false;
+    };
+
+    bool OnGossipSelect(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+    {
+        player->PlayerTalkClass->ClearMenus();
+        switch(action)
+        {
+            case GOSSIP_ACTION_INFO_DEF+1:
+                player->CompleteQuest(QUEST_TRUCE);
+                player->CLOSE_GOSSIP_MENU();
+                break;
+        }
+        return true;
+    };
+};
+
 void AddSC_grizzly_hills()
 {
     new npc_orsonn_and_kodian;
@@ -809,4 +851,5 @@ void AddSC_grizzly_hills()
     new npc_wounded_skirmisher;
     new npc_lightning_sentry();
     new npc_venture_co_straggler();
+    new npc_drakuru();
 }
