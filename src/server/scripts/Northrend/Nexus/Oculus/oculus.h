@@ -23,7 +23,8 @@ enum Data
     DATA_DRAKOS_EVENT,
     DATA_VAROS_EVENT,
     DATA_UROM_EVENT,
-    DATA_EREGOS_EVENT,
+    DATA_EREGOS_EVENT,    
+    DATA_CENTRIFUGE_CONSTRUCT_EVENT,
     DATA_UROM_PLATAFORM
 };
 
@@ -41,6 +42,10 @@ enum Bosses
     NPC_VAROS                   = 27447,
     NPC_UROM                    = 27655,
     NPC_EREGOS                  = 27656,
+
+    NPC_VERDISA                                   = 27657,
+    NPC_BELGARISTRASZ                             = 27658,
+    NPC_ETERNOS                                   = 27659,
 
     NPC_AZURE_RING_GUARDIAN     = 27638
 };
