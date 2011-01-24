@@ -118,10 +118,17 @@ public:
                 }
                 break;
             }
-            if (spellId)
-                caster->CastCustomSpell(unitTarget, spellId, &basePoint, 0, 0, true);
-            if (spellId == HUNTER_SPELL_CHIMERA_SHOT_SCORPID && caster->ToPlayer()) // Scorpid Sting - Add 1 minute cooldown
-                caster->ToPlayer()->AddSpellCooldown(spellId,0,uint32(time(NULL) + 60));
+            if (spellId && caster->ToPlayer() && !caster->ToPlayer()->HasSpellCooldown(spellId))
+            {
+                if (spellId == HUNTER_SPELL_CHIMERA_SHOT_SCORPID)
+                {
+                    unitTarget->CastSpell(unitTarget, spellId, true);
+                    // Scorpid Sting - Add 1 minute cooldown
+                    caster->ToPlayer()->AddSpellCooldown(spellId,0,uint32(time(NULL) + 60));
+                }
+                else
+                    caster->CastCustomSpell(unitTarget, spellId, &basePoint, 0, 0, true);
+            }
         }
 
         void Register()
