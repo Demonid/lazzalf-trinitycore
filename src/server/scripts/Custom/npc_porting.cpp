@@ -139,7 +139,7 @@ static Elem EquipVct[] =
 
 #define MSG_GOSSIP_PORTING_1     "Attiva Porting"
 #define MSG_GOSSIP_CLOSE         "Chiudi"
-#define MSG_GOSSIP_PORTING_2     "Equipaggia le 4 bags e poi Continua"
+#define MSG_GOSSIP_PORTING_2     "EQUIPAGGIA MANUALMENTE LE 4 BAGS e poi Continua"
 #define MSG_GOSSIP_PORTING_3     "Portami a Dalaran"
 #define MSG_GOSSIP_PORTING_4     "Porting Non Valido"
 
