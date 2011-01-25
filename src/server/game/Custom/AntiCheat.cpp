@@ -559,7 +559,10 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
 
     // it will make false reports
     if (plMover->IsFalling() && fly_auras)
-        return true;    
+        return true;
+
+    if (plMover->IsFalling() && plMover->GetMapId() == 607) //False segnalation in SOTA
+        return true;
 
     // the same reason for IsFalling, just in case...
     if (plMover->HasAuraType(SPELL_AURA_FEATHER_FALL) || plMover->HasAuraType(SPELL_AURA_SAFE_FALL))
