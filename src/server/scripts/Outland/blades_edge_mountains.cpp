@@ -654,6 +654,8 @@ class go_prophecy : public GameObjectScript
     };
 };
 
+/* The Thunderspike */
+
 #define QUEST_THE_THUNDERSPIKE 10526
 #define NPC_GOR_GRIMGUT 21319
 

@@ -840,6 +840,77 @@ class npc_drakuru : public CreatureScript
     };
 };
 
+/* Drakuru's Elixir */
+
+enum MojoIDs
+{
+    ITEM_FROZEN_MOJO = 35799, /* Subject to Interpretation */
+    ITEM_ZIMBO_MOJO = 35836, /* Sacrifices Must be Made */
+    ITEM_DESPERATE_MOJO = 36743, /* My Heart is in Your Hands */
+    ITEM_SACRED_MOJO = 36758, /* Voices From the Dust */
+    ITEM_ENDURING_MOJO = 38303, /* Cleansing Drak'Tharon */
+};
+
+enum DrakuruImages
+{
+    FIRST_IMAGE = 26500, /* Subject to Interpretation */
+    SECOND_IMAGE = 26543, /* Sacrifices Must be Made */
+    THIRD_IMAGE = 26701, /* My Heart is in Your Hands */
+    FOURTH_IMAGE = 26787, /* Voices From the Dust */
+    FIFTH_IMAGE = 28016, /* Cleansing Drak'Tharon */
+};
+
+class item_drakuru_elixir : public ItemScript
+{
+public:
+    item_drakuru_elixir() : ItemScript("item_drakuru_elixir") { }
+
+    bool OnUse(Player* pPlayer, Item* pItem, SpellCastTargets const& /*targets*/)
+    {
+        if (!pPlayer)
+            return true;
+
+        if (pPlayer->HasItemCount(ITEM_FROZEN_MOJO, 5))
+            pPlayer->SummonCreature(FIRST_IMAGE, pPlayer->GetPositionX() + 1.f, pPlayer->GetPositionY() + 1.f, pPlayer->GetPositionZ() + 1.f, pPlayer->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+
+        if (pPlayer->HasItemCount(ITEM_ZIMBO_MOJO, 1))
+            pPlayer->SummonCreature(SECOND_IMAGE, pPlayer->GetPositionX() + 1.f, pPlayer->GetPositionY() + 1.f, pPlayer->GetPositionZ() + 1.f, pPlayer->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+
+        if (pPlayer->HasItemCount(ITEM_DESPERATE_MOJO, 5))
+            pPlayer->SummonCreature(THIRD_IMAGE, pPlayer->GetPositionX() + 1.f, pPlayer->GetPositionY() + 1.f, pPlayer->GetPositionZ() + 1.f, pPlayer->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+
+        if (pPlayer->HasItemCount(ITEM_SACRED_MOJO, 5))
+            pPlayer->SummonCreature(FOURTH_IMAGE, pPlayer->GetPositionX() + 1.f, pPlayer->GetPositionY() + 1.f, pPlayer->GetPositionZ() + 1.f, pPlayer->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+
+        if (pPlayer->HasItemCount(ITEM_ENDURING_MOJO, 5))
+            pPlayer->SummonCreature(FIFTH_IMAGE, pPlayer->GetPositionX() + 1.f, pPlayer->GetPositionY() + 1.f, pPlayer->GetPositionZ() + 1.f, pPlayer->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+
+        return true;
+    }
+};
+
+/* Seer of Zeb'Halak - Quest: Sacrifices Must be Made */
+
+#define QUEST_SACRIFICES_MUST_BE_MADE 12007
+#define SPELL_CREATE_EYE_OF_PROPHETS 47293
+
+class go_seer_of_zebhalak : public GameObjectScript
+{
+    public:
+        go_seer_of_zebhalak() : GameObjectScript("go_seer_of_zebhalak") { }
+
+    bool OnGossipHello(Player *pPlayer, GameObject *pGO)
+    {
+        if (!pPlayer)
+            return true;
+
+        if (pPlayer->GetQuestStatus(QUEST_SACRIFICES_MUST_BE_MADE) == QUEST_STATUS_INCOMPLETE)
+            pPlayer->CastSpell(pPlayer, SPELL_CREATE_EYE_OF_PROPHETS, true);
+
+        return true;
+    };
+};
+
 void AddSC_grizzly_hills()
 {
     new npc_orsonn_and_kodian;
@@ -852,4 +923,6 @@ void AddSC_grizzly_hills()
     new npc_lightning_sentry();
     new npc_venture_co_straggler();
     new npc_drakuru();
+    new item_drakuru_elixir();
+    new go_seer_of_zebhalak();
 }

@@ -160,7 +160,7 @@ public:
             if (pInstance)
             {
                 if(IsHeroic() && !KilledVoidSentry)
-                pInstance->DoCompleteAchievement(ACHIEVEMENT_VOID_DANCE);					
+                    pInstance->DoCompleteAchievement(ACHIEVEMENT_VOID_DANCE);					
         
                 if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
                 {
