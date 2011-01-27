@@ -798,9 +798,20 @@ public:
     };
 };
 
+/* Cleansing Drak'Tharon quest chain */
+
+enum CDT_ChainQuests
+{
+    QUEST_TRUCE = 11989,
+    QUEST_SUBJECT_TO_INTERPRETATION = 11991,
+    QUEST_SACRIFICES_MUST_BE_MADE = 12007,
+    QUEST_MY_HEART_IS_IN_YOUR_HANDS = 12802,
+    QUEST_VOICES_FROM_THE_DUST = 12068,    
+    QUEST_CLEANSING_DRAK_THARON = 12238,
+};
+
 /* Npc Drakuru */
 
-#define QUEST_TRUCE 11989
 #define SPELL_BLOOD_OATH 50001
 
 class npc_drakuru : public CreatureScript
@@ -870,20 +881,32 @@ public:
         if (!pPlayer)
             return true;
 
-        if (pPlayer->HasItemCount(ITEM_FROZEN_MOJO, 5))
-            pPlayer->SummonCreature(FIRST_IMAGE, pPlayer->GetPositionX() + 1.f, pPlayer->GetPositionY() + 1.f, pPlayer->GetPositionZ() + 1.f, pPlayer->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+        Creature* DrakuruImage;
+        uint32 drakuruImageID;
 
-        if (pPlayer->HasItemCount(ITEM_ZIMBO_MOJO, 1))
-            pPlayer->SummonCreature(SECOND_IMAGE, pPlayer->GetPositionX() + 1.f, pPlayer->GetPositionY() + 1.f, pPlayer->GetPositionZ() + 1.f, pPlayer->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+        drakuruImageID = 0;
 
-        if (pPlayer->HasItemCount(ITEM_DESPERATE_MOJO, 5))
-            pPlayer->SummonCreature(THIRD_IMAGE, pPlayer->GetPositionX() + 1.f, pPlayer->GetPositionY() + 1.f, pPlayer->GetPositionZ() + 1.f, pPlayer->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+        if (pPlayer->HasItemCount(ITEM_ENDURING_MOJO, 5)  && !(pPlayer->GetQuestStatus(QUEST_CLEANSING_DRAK_THARON) == QUEST_STATUS_REWARDED))
+            drakuruImageID = FIFTH_IMAGE;
 
-        if (pPlayer->HasItemCount(ITEM_SACRED_MOJO, 5))
-            pPlayer->SummonCreature(FOURTH_IMAGE, pPlayer->GetPositionX() + 1.f, pPlayer->GetPositionY() + 1.f, pPlayer->GetPositionZ() + 1.f, pPlayer->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+        if (pPlayer->HasItemCount(ITEM_SACRED_MOJO, 5) && !(pPlayer->GetQuestStatus(QUEST_VOICES_FROM_THE_DUST) == QUEST_STATUS_REWARDED))
+            drakuruImageID = FOURTH_IMAGE;
 
-        if (pPlayer->HasItemCount(ITEM_ENDURING_MOJO, 5))
-            pPlayer->SummonCreature(FIFTH_IMAGE, pPlayer->GetPositionX() + 1.f, pPlayer->GetPositionY() + 1.f, pPlayer->GetPositionZ() + 1.f, pPlayer->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+        if (pPlayer->HasItemCount(ITEM_DESPERATE_MOJO, 5) && !(pPlayer->GetQuestStatus(QUEST_MY_HEART_IS_IN_YOUR_HANDS) == QUEST_STATUS_REWARDED))
+            drakuruImageID = THIRD_IMAGE;
+
+        if (pPlayer->HasItemCount(ITEM_ZIMBO_MOJO, 1) && !(pPlayer->GetQuestStatus(QUEST_SACRIFICES_MUST_BE_MADE) == QUEST_STATUS_REWARDED))
+            drakuruImageID = SECOND_IMAGE;
+
+        if (pPlayer->HasItemCount(ITEM_FROZEN_MOJO, 5) && !(pPlayer->GetQuestStatus(QUEST_SUBJECT_TO_INTERPRETATION) == QUEST_STATUS_REWARDED))
+            drakuruImageID = FIRST_IMAGE;
+
+        if (drakuruImageID == 0)
+            return true;
+
+        DrakuruImage = pPlayer->FindNearestCreature(drakuruImageID, 50, true);
+        if (!DrakuruImage)
+            pPlayer->SummonCreature(drakuruImageID, pPlayer->GetPositionX() + 1.f, pPlayer->GetPositionY() + 1.f, pPlayer->GetPositionZ() + 1.f, pPlayer->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
 
         return true;
     }
@@ -891,7 +914,6 @@ public:
 
 /* Seer of Zeb'Halak - Quest: Sacrifices Must be Made */
 
-#define QUEST_SACRIFICES_MUST_BE_MADE 12007
 #define SPELL_CREATE_EYE_OF_PROPHETS 47293
 
 class go_seer_of_zebhalak : public GameObjectScript
