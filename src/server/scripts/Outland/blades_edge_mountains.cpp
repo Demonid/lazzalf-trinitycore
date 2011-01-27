@@ -671,8 +671,11 @@ class go_the_thunderspike : public GameObjectScript
         if (!pPlayer)
             return true;
 
+        Creature* GorGrimgut = pPlayer->FindNearestCreature(NPC_GOR_GRIMGUT, 60, true);
+
         if (pPlayer->GetQuestStatus(QUEST_THE_THUNDERSPIKE) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->SummonCreature(NPC_GOR_GRIMGUT, gor_grimgut_position, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 180000);
+            if (!GorGrimgut)
+                pPlayer->SummonCreature(NPC_GOR_GRIMGUT, gor_grimgut_position, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 180000);
 
         return true;
     };
