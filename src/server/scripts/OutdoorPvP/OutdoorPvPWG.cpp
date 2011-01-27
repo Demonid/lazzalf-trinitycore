@@ -39,6 +39,9 @@ void OutdoorPvPWG::ResetCreatureEntry(Creature *cr, uint32 entry)
     {
         // cr->SetOriginalEntry(entry);
         cr->UpdateEntry(entry); // SetOriginalEntry as used before may lead to crash
+        if (cr->GetAreaId() == 4575)
+            if (cr->AI())
+                cr->AI()->EnterEvadeMode();
         if (entry != cr->GetEntry() || !cr->isAlive())
             cr->Respawn(true);
         cr->SetVisible(true);
@@ -951,6 +954,7 @@ void OutdoorPvPWG::OnCreatureRemove(Creature *creature)
             break;
         case CREATURE_QUESTGIVER:
             m_questgivers.erase(creature->GetDBTableGUIDLow());
+            creature->SetReactState(REACT_PASSIVE);
             break;
         case CREATURE_ENGINEER:
             for (OutdoorPvP::OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
@@ -1311,6 +1315,10 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
         case CREATURE_SIEGE_VEHICLE:
             creature->DespawnOrUnsummon();
             return false;
+        case CREATURE_QUESTGIVER:
+            if (creature && creature->GetAI())
+                creature->AI()->EnterEvadeMode();
+            return false;
         case CREATURE_GUARD:
         case CREATURE_SPECIAL:
             {
@@ -1346,6 +1354,9 @@ bool OutdoorPvPWG::UpdateQuestGiverPosition(uint32 guid, Creature *creature)
         }
 
         creature->SetHomePosition(pos);
+        if (creature->GetEntry() != 30400 || creature->GetEntry() != 30499)
+            creature->SetReactState(REACT_AGGRESSIVE);
+
         creature->DestroyForNearbyPlayers();
 
         if (!creature->GetMap()->IsLoaded(pos.GetPositionX(), pos.GetPositionY()))
@@ -1810,6 +1821,7 @@ bool OutdoorPvPWG::Update(uint32 diff)
 								    if (Driver && Driver->isAlive())
 								    {
                                         Creature* New = i->getSource()->SummonCreature(Old->GetEntry(), 5141.191406f, 2841.045410f, 408.703217f, 3.163321f, TEMPSUMMON_MANUAL_DESPAWN);
+                                        m_vehicles[TEAM_ALLIANCE].insert(New);
                                         New->SetPower(POWER_MANA, Old->GetPower(POWER_MANA));
                                         New->SetPower(POWER_RAGE, Old->GetPower(POWER_RAGE));
                                         New->SetPower(POWER_FOCUS, Old->GetPower(POWER_FOCUS));
@@ -1859,6 +1871,7 @@ bool OutdoorPvPWG::Update(uint32 diff)
 								    if (Driver && Driver->isAlive())
 								    {
                                         Creature* New = i->getSource()->SummonCreature(Old->GetEntry(), 5141.191406f, 2841.045410f, 408.703217f, 3.163321f, TEMPSUMMON_MANUAL_DESPAWN);
+                                        m_vehicles[TEAM_ALLIANCE].insert(New);
                                         New->SetPower(POWER_MANA, Old->GetPower(POWER_MANA));
                                         New->SetPower(POWER_RAGE, Old->GetPower(POWER_RAGE));
                                         New->SetPower(POWER_FOCUS, Old->GetPower(POWER_FOCUS));
@@ -1914,6 +1927,7 @@ bool OutdoorPvPWG::Update(uint32 diff)
 								    if (Driver && Driver->isAlive())
 								    {
                                         Creature* New = i->getSource()->SummonCreature(Old->GetEntry(), 5141.191406f, 2841.045410f, 408.703217f, 3.163321f, TEMPSUMMON_MANUAL_DESPAWN);
+                                        m_vehicles[TEAM_HORDE].insert(New);
                                         New->SetPower(POWER_MANA, Old->GetPower(POWER_MANA));
                                         New->SetPower(POWER_RAGE, Old->GetPower(POWER_RAGE));
                                         New->SetPower(POWER_FOCUS, Old->GetPower(POWER_FOCUS));
@@ -1963,6 +1977,7 @@ bool OutdoorPvPWG::Update(uint32 diff)
 								    if (Driver && Driver->isAlive())
 								    {
                                         Creature* New = i->getSource()->SummonCreature(Old->GetEntry(), 5141.191406f, 2841.045410f, 408.703217f, 3.163321f, TEMPSUMMON_MANUAL_DESPAWN);
+                                        m_vehicles[TEAM_HORDE].insert(New);
                                         New->SetPower(POWER_MANA, Old->GetPower(POWER_MANA));
                                         New->SetPower(POWER_RAGE, Old->GetPower(POWER_RAGE));
                                         New->SetPower(POWER_FOCUS, Old->GetPower(POWER_FOCUS));
