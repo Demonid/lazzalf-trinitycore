@@ -221,8 +221,6 @@ enum CharacterDatabaseStatements
 
     MAX_CHARACTERDATABASE_STATEMENTS,
 };
-
-
     
-    {CHAR_DEL_GUILD_GUILDHOUSE, "DELETE FROM gh_guildadd WHERE guildId = ?", CONNECTION_ASYNC}
+
 #endif
