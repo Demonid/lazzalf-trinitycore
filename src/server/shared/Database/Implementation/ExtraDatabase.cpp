@@ -22,7 +22,8 @@ bool ExtraDatabaseConnection::Open()
     if (!MySQLConnection::Open())
         return false;
 
-    m_stmts.resize(MAX_EXTRADATABASE_STATEMENTS);
+    if (!m_reconnecting)
+        m_stmts.resize(MAX_EXTRADATABASE_STATEMENTS);
 
     /*
         ##################################
@@ -30,13 +31,16 @@ bool ExtraDatabaseConnection::Open()
         ##################################
     */
 
-    for (uint32 index = 0; index < MAX_EXTRADATABASE_STATEMENTS; ++index)
-    {
-        PreparedStatementTable const& pst = ExtraDatabasePreparedStatements[index];        
-        PrepareStatement(pst.index, pst.query, pst.type);
-    }
+    /* ################ LOAD PREPARED STATEMENTS HERE ################ */
 
-    m_statementTable = ExtraDatabasePreparedStatements;
+    PREPARE_STATEMENT(EXTRA_ADD_ITEMSTAT, "INSERT INTO item_stats (guid, item, state) VALUES (?, ?, ?)", CONNECTION_ASYNC)
+
+    /* ############## END OF LOADING PREPARED STATEMENTS ############## */
+
+    for (PreparedStatementMap::const_iterator itr = m_queries.begin(); itr != m_queries.end(); ++itr)
+    {
+        PrepareStatement(itr->first, itr->second.first, itr->second.second);
+    }
 
     return true;
 }
