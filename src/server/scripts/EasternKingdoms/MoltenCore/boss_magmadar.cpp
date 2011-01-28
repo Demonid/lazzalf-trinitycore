@@ -48,7 +48,7 @@ public:
     {
         boss_magmadarAI(Creature *pCreature) : BossAI(pCreature, BOSS_MAGMADAR)
         {
-            m_pInstance = pCreature->GetInstanceScript(); 
+            m_pInstance = pCreature->GetInstanceScript();
         }
 
         InstanceScript* m_pInstance;

@@ -2360,7 +2360,7 @@ void SpellMgr::LoadPetDefaultSpells()
         }
     }
 
-    
+
     sLog->outString(">> Loaded %u summonable creature templates in %u ms", countCreature, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
