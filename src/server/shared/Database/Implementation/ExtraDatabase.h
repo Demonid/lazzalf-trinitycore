@@ -46,9 +46,4 @@ enum ExtraDatabaseStatements
     MAX_EXTRADATABASE_STATEMENTS,
 };
 
-static const PreparedStatementTable ExtraDatabasePreparedStatements[] =
-{
-    {EXTRA_ADD_ITEMSTAT, "INSERT INTO item_stats (guid, item, state) VALUES (?, ?, ?)", CONNECTION_ASYNC}
-};
-
 #endif
