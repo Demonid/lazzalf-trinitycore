@@ -54,7 +54,7 @@ const Position Pos[10] =
     {722.408f,-1152.41f,-120.029f,5.33087f},
     {718.994f,-1156.36f,-119.805f,5.75738f},
     {838.51f,-829.84f,-232.00f,2.00f},
-};  
+};
 
 class instance_molten_core : public InstanceMapScript
 {

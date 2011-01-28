@@ -428,7 +428,7 @@ void Unit::SendMonsterMoveTransport(Unit *vehicleOwner)
     data << GetPositionY() - vehicleOwner->GetPositionY();
     data << GetPositionZ() - vehicleOwner->GetPositionZ();
     data << uint32(getMSTime());            // should be an increasing constant that indicates movement packet count
-    data << uint8(SPLINETYPE_FACING_ANGLE); 
+    data << uint8(SPLINETYPE_FACING_ANGLE);
     data << GetTransOffsetO();              // facing angle?
     data << uint32(SPLINEFLAG_TRANSPORT);
     data << uint32(GetTransTime());         // move time
@@ -6635,7 +6635,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 }
                 else if (damage > 0)
                     triggered_spell_id = 58597;
-                    
+
                 target = this;
                 break;
             }
@@ -7873,7 +7873,7 @@ bool Unit::HandleAuraProc(Unit * pVictim, uint32 damage, Aura * triggeredByAura,
                     break;
                 // Discerning Eye of the Beast
                 case 59915:
-                { 
+                {
                     CastSpell(this, 59914, true);   // 59914 already has correct basepoints in DBC, no need for custom bp
                     *handled = true;
                     break;
@@ -8772,7 +8772,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             // Item - Shaman T10 Enhancement 4P Bonus
             if (AuraEffect const* aurEff = GetAuraEffect(70832, 0))
                 if (Aura const* maelstrom = GetAura(53817))
-                    if ((maelstrom->GetStackAmount() == maelstrom->GetSpellProto()->StackAmount) && roll_chance_i(aurEff->GetAmount()))               
+                    if ((maelstrom->GetStackAmount() == maelstrom->GetSpellProto()->StackAmount) && roll_chance_i(aurEff->GetAmount()))
                         CastSpell(this, 70831, true, castItem, triggeredByAura);
 
             // have rank dependent proc chance, ignore too often cases
@@ -10414,6 +10414,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 }
         break;
         case SPELLFAMILY_PRIEST:
+            // Mind Flay
             if (spellProto->SpellFamilyFlags[0] & 0x800000)
             {
                 // Glyph of Mind Fly
@@ -10426,6 +10427,14 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 if (AuraEffect * aurEff = GetAuraEffect(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS, SPELLFAMILY_PRIEST, 2848, 1))
                     // Increase Mind Flay damage if Shadow Word: Pain present on target
                     if (pVictim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x8000, 0,0, GetGUID()))
+                        AddPctN(DoneTotalMod, aurEff->GetAmount());
+            }
+            // Smite
+            else if (spellProto->SpellFamilyFlags[0] & 0x80)
+            {
+                // Glyph of Smite
+                if (AuraEffect * aurEff = GetAuraEffect(55692, 0))
+                    if (pVictim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x100000, 0, 0, GetGUID()))
                         AddPctN(DoneTotalMod, aurEff->GetAmount());
             }
         break;
@@ -14420,7 +14429,7 @@ void Unit::StopMoving()
     //if (fabs(GetPositionZ() - z) < 2.0f)
     //    Relocate(GetPositionX(), GetPositionY(), z);
     //Relocate(GetPositionX(), GetPositionY(),GetPositionZ());
-    
+
     if (!(GetUnitMovementFlags() & MOVEMENTFLAG_ONTRANSPORT))
         SendMonsterStop();
 
