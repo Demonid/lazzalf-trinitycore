@@ -396,7 +396,7 @@ class npc_porting : public CreatureScript
             switch (uiAction)
             {
                 case GOSSIP_ACTION_INFO_DEF+3:
-                    if (std::strcmp(code, pPlayer->GetName()) == 0)
+                    if (strcmp(code, pPlayer->GetName()) == 0)
                     {
                         PortingFase2(pPlayer, pCreature);
                     }
