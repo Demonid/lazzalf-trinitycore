@@ -399,7 +399,8 @@ public:
                 DoCast(me, SPELL_BERSERK);
             } else m_uiBerserkTimer -= uiDiff;
 
-            DoMeleeAttackIfReady();
+            if (m_uiStage != 2)
+                DoMeleeAttackIfReady();
         }
     };
 
