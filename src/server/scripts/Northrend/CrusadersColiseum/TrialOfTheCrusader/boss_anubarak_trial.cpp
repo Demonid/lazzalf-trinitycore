@@ -572,10 +572,12 @@ public:
     {
         mob_frost_sphereAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
+            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
         }
 
         bool   m_bFall;
         uint32 m_uiPermafrostTimer;
+        InstanceScript* m_pInstance;
 
         void Reset()
         {
@@ -589,11 +591,21 @@ public:
             DoCast(SPELL_FROST_SPHERE);
         }
 
-        void DamageTaken(Unit* /*pWho*/, uint32& uiDamage)
+        void DamageTaken(Unit* pWho, uint32& uiDamage)
         {
             if (me->GetHealth() < uiDamage)
             {
                 uiDamage = 0;
+
+                if (pWho->ToTempSummon() && pWho->GetEntry() == NPC_SPIKE)
+                {
+                    pWho->ToTempSummon()->DisappearAndDie();
+                    if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ANUBARAK)))
+                        pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);
+                    me->DisappearAndDie();
+                    return;
+                }
+
                 if (!m_bFall)
                 {
                     m_bFall = true;
@@ -688,6 +700,8 @@ public:
             Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID);
             if (!pTarget || !pTarget->isAlive() || !pTarget->HasAura(SPELL_MARK))
             {
+                if (Unit* pTarget = me->FindNearestCreature(NPC_FROST_SPHERE, 15.0f))
+                    pTarget->RemoveFromWorld();
                 if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ANUBARAK)))
                     pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);
                 me->DisappearAndDie();
