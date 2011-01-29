@@ -162,7 +162,7 @@ class npc_porting : public CreatureScript
             if (fields[0].GetInt32() == 0)
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
             else if (fields[0].GetInt32() == 1)
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3, "SI", 0, true);
+                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3, "Hai equipaggiato le 4 bags?", 0, true);
                 //pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
             else if (fields[0].GetInt32() == 2)
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
@@ -396,7 +396,7 @@ class npc_porting : public CreatureScript
             switch (uiAction)
             {
                 case GOSSIP_ACTION_INFO_DEF+3:
-                    if (strcmp(code, pPlayer->GetName()) == 0)
+                    if (strcmp(code,"SI") == 0)
                     {
                         PortingFase2(pPlayer, pCreature);
                     }
