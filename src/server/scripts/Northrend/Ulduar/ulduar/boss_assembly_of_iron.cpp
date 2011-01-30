@@ -300,7 +300,7 @@ class boss_steelbreaker : public CreatureScript
         {
             DoScriptText(RAND(SAY_STEELBREAKER_SLAY_1, SAY_STEELBREAKER_SLAY_2), me);
         
-            if (phase == 3)
+            if (phase == 3 && who->GetTypeId() == TYPEID_PLAYER)
                 DoCast(me, SPELL_ELECTRICAL_CHARGE);
         }
 
