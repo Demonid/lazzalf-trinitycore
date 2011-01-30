@@ -3652,6 +3652,7 @@ void SpellMgr::LoadSpellCustomAttr()
         {
         case 49838: // Stop Time
             spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+            spellInfo->EffectRadiusIndex[0] = 150;
             count++;
             break;
         case 61407: // Energize Cores
@@ -3935,19 +3936,19 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 18754: // Improved succubus - problems with apply if target is pet
             spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_FLAT_MODIFIER;    // it's affects duration of seduction, let's minimize affection
-            spellInfo->EffectBasePoints[0] = -1.5*IN_MILISECONDS*0.22;           // reduce cast time of seduction by 22%
+            spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.22;           // reduce cast time of seduction by 22%
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
             count++;
             break;
         case 18755:
             spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_FLAT_MODIFIER;
-            spellInfo->EffectBasePoints[0] = -1.5*IN_MILISECONDS*0.44;           // reduce cast time of seduction by 44%
+            spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.44;           // reduce cast time of seduction by 44%
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
             count++;
             break;
         case 18756:
             spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_FLAT_MODIFIER;
-            spellInfo->EffectBasePoints[0] = -1.5*IN_MILISECONDS*0.66;           // reduce cast time of seduction by 66%
+            spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.66;           // reduce cast time of seduction by 66%
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
             count++;
             break;
@@ -4029,10 +4030,6 @@ void SpellMgr::LoadSpellCustomAttr()
         case 31687: // Summon Water Elemental
             // 322-330 switch - effect changed to dummy, target entry not changed in client:(
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
-            count++;
-            break;
-        case 49838:     // Stop time (Amber Drake in oculus)
-            spellInfo->EffectRadiusIndex[0] = 150;
             count++;
             break;
         case 62713:     // Ironbranch's Essence
