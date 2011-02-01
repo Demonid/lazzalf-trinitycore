@@ -3649,7 +3649,9 @@ void SpellMgr::LoadSpellCustomAttr()
         }
 
         switch (i)
-        {
+        {        
+		case 5171: 
+        case 6774:  // Slice and Dice
         case 49838: // Stop Time
         case 50526: // Wandering Plague
         case 52916: // Honor Among Thieves
@@ -3673,12 +3675,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
             spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_TARGET_ENEMY;
             count++;
-            break;
-		case 5171: 
-        case 6774:          // Slice and Dice
-		case 52916:         // Honor Among Thieves (triggered)
-			spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
-			count++;
             break;
         // Heroism
         case 32182:
