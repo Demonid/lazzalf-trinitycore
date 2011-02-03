@@ -32,6 +32,7 @@ EndScriptData */
 #define TICKET_COST                 500000
 #define EVENT_LOTTO                 132
 #define MAX_TICKET                  5
+#define PERC_WIN                    0.6
 
 class npc_lotto : public CreatureScript
 {
@@ -91,7 +92,7 @@ public:
     {
         npc_lottoAI(Creature* pCreature) : ScriptedAI(pCreature) 
         {
-            SayTimer = 1800*IN_MILLISECONDS;
+            SayTimer = 600*IN_MILLISECONDS;
         }
         
         uint32 SayTimer;
@@ -108,7 +109,7 @@ public:
                     if (maxTickets)
                     {
                         uint32 winner = urand(1, maxTickets);
-                        uint32 reward = TICKET_COST / 2.0f * maxTickets;
+                        uint32 reward = TICKET_COST * PERC_WIN * maxTickets;
                         result = ExtraDatabase.PQuery("SELECT guid FROM lotto_tickets WHERE id=%u;", winner);
                         uint32 winnerGuid = result->Fetch()->GetUInt32();
                         Player *pWinner = sObjectMgr->GetPlayerByLowGUID(winnerGuid);
@@ -143,8 +144,16 @@ public:
                     
                 if (SayTimer <= diff)
                 {
-                    me->MonsterSay("Biglietti della Lotteria! Bastano 50 ori per diventare milionari!", 0, NULL);
-                    SayTimer = 1800*IN_MILLISECONDS;
+                    me->MonsterYell("Biglietti della Lotteria! Bastano 50 ori per diventare milionari!", 0, NULL);
+                    QueryResult result = ExtraDatabase.Query("SELECT MAX(id) FROM lotto_tickets");
+                    if (result)
+                    {
+                        uint32 maxTickets = result->Fetch()->GetUInt32();
+                        char msg[500];
+                        sprintf(msg, "Il montepremi ammonta a %i ori!", TICKET_COST * PERC_WIN * maxTickets);
+                        me->MonsterYell(msg, 0, NULL);
+                    }
+                    SayTimer = 600 * IN_MILLISECONDS;
                 }
                 else SayTimer -= diff;
             }
