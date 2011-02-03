@@ -114,7 +114,7 @@ public:
                             return;
                     }
 
-                    result = ExtraDatabase.Query("SELECT name, guid FROM `lotto_tickets` ORDER BY RAND() LIMIT 3;");
+                    result = ExtraDatabase.Query("SELECT name, guid, id FROM `lotto_tickets` ORDER BY RAND() LIMIT 3;");
                     uint32 position = 0;
 
                     if (!result)
@@ -128,6 +128,7 @@ public:
 
                         const char* name = fields[0].GetCString();
                         uint32 guid = fields[1].GetUInt32();
+                        uint32 ticket = fields[2].GetUInt32();
                         // uint32 reward = TICKET_COST / (1 << position) * maxTickets;
                         uint32 reward = TICKET_COST * mol_win[position-1] * maxTickets;
 
@@ -146,13 +147,13 @@ public:
                         switch (position)
                         {
                             case 1:
-                                sprintf(msg, "Il vincitore della Lotteria e' %s che guadagna la bellezza di %i gold!", name, reward/10000);
+                                sprintf(msg, "Il vincitore della Lotteria e' %s che guadagna la bellezza di %i gold con il biglietto %i!", name, reward/10000, ticket);
                                 break;
                             case 2:
-                                sprintf(msg, "Il secondo premio va a %s che vince %i gold!", name, reward/10000);
+                                sprintf(msg, "Il secondo premio va a %s che vince %i gold con il biglietto %i!", name, reward/10000, ticket);
                                 break;
                             case 3:
-                                sprintf(msg, "Mentre il terzo se lo aggiudica %s che vince %i gold!", name, reward/10000);
+                                sprintf(msg, "Mentre il terzo se lo aggiudica %s che vince %i gold con il biglietto %i!", name, reward/10000, ticket);
                                 break;
                         }
                         sWorld->SendWorldText(LANG_EVENTMESSAGE, msg);
