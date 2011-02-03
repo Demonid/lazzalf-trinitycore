@@ -32,7 +32,8 @@ EndScriptData */
 #define TICKET_COST                 500000
 #define EVENT_LOTTO                 132
 #define MAX_TICKET                  5
-#define PERC_WIN                    0.6
+
+float mol_win[3] = {0.5f, 0.2f, 0.1f};
 
 class npc_lotto : public CreatureScript
 {
@@ -103,38 +104,56 @@ public:
             {
                 if (me->IsVisible())
                 {
-                    me->SetVisible(false);
+                     me->SetVisible(false);
                     QueryResult result = ExtraDatabase.Query("SELECT MAX(id) FROM lotto_tickets");
                     uint32 maxTickets = result->Fetch()->GetUInt32();
-                    if (maxTickets)
-                    {
-                        uint32 winner = urand(1, maxTickets);
-                        uint32 reward = TICKET_COST * PERC_WIN * maxTickets;
-                        result = ExtraDatabase.PQuery("SELECT guid FROM lotto_tickets WHERE id=%u;", winner);
-                        uint32 winnerGuid = result->Fetch()->GetUInt32();
-                        Player *pWinner = sObjectMgr->GetPlayerByLowGUID(winnerGuid);
-                        SQLTransaction trans = CharacterDatabase.BeginTransaction();
-                        MailDraft("Premio Lotteria", "Complimenti! Hai vinto!")
-                            .AddMoney(reward)
-                            .SendMailTo(trans, MailReceiver(pWinner, GUID_LOPART(winnerGuid)), MailSender(MAIL_NORMAL, 0, MAIL_STATIONERY_GM));
-                        CharacterDatabase.CommitTransaction(trans);
-                        
-                        if (pWinner) 
-                        {
-                            char msg[500];
-                            sprintf(msg, "E' stato estratto il biglietto numero %i , e il vincitore e' %s ! Premio: %i ori! Prossima estrazione domani alla stessa ora!", winner, pWinner->GetName(), reward/10000);
-                            sWorld->SendWorldText(LANG_EVENTMESSAGE, msg);
-                        }
-                        else 
-                        {
-                            char msg[500];
-                            sprintf(msg, "E' stato estratto il biglietto numero %i per un ammontare di %i ori! Prossima estrazione domani!", winner, reward/10000);
-                            sWorld->SendWorldText(LANG_EVENTMESSAGE, msg);
-                        }
+                    if (!maxTickets)
+                        return;
 
-                        ExtraDatabase.PExecute("INSERT INTO lotto_extractions (winner,guid) SELECT name,guid FROM lotto_tickets WHERE id=%u;", winner);
-                        ExtraDatabase.PExecute("DELETE FROM lotto_tickets;");
+                    result = ExtraDatabase.Query("SELECT name, guid FROM `lotto_tickets` ORDER BY RAND() LIMIT 3;");
+                    uint32 position = 0;
+
+                    do
+                    {
+                        ++position;
+
+                        Field *fields = result->Fetch();
+
+                        const char* name = fields[0].GetCString();
+                        uint32 guid = fields[1].GetUInt32();
+                        // uint32 reward = TICKET_COST / (1 << position) * maxTickets;
+                        uint32 reward = TICKET_COST * mol_win[position-1] * maxTickets;
+
+                        ExtraDatabase.PExecute("INSERT INTO `lotto_extractions` (winner,guid,position,reward) VALUES ('%s',%u,%u,%u);",name,guid,position,reward);
+
+                        // Send reward by mail
+                        Player *pPlayer = sObjectMgr->GetPlayerByLowGUID(guid);
+                        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+                        MailDraft("Premio Lotteria", "Complimenti! Hai vinto alla Lotteria!")
+                            .AddMoney(reward)
+                            .SendMailTo(trans, MailReceiver(pPlayer, GUID_LOPART(guid)), MailSender(MAIL_NORMAL, 0, MAIL_STATIONERY_GM));
+                        CharacterDatabase.CommitTransaction(trans);
+
+                        // Event Message
+                        char msg[500];
+                        switch (position)
+                        {
+                            case 1:
+                                sprintf(msg, "Il vincitore della Lotteria e' %s che guadagna la bellezza di %i gold!", name, reward/10000);
+                                break;
+                            case 2:
+                                sprintf(msg, "Il secondo premio va a %s che vince %i gold!", name, reward/10000);
+                                break;
+                            case 3:
+                                sprintf(msg, "Mentre il terzo se lo aggiudica %s che vince %i gold!", name, reward/10000);
+                                break;
+                        }
+                        sWorld->SendWorldText(LANG_EVENTMESSAGE, msg);
                     }
+                    while (result->NextRow());
+
+                    // Delete tickets after extraction
+                    ExtraDatabase.PExecute("DELETE FROM lotto_tickets;");
                 }
             }
             else
@@ -150,7 +169,7 @@ public:
                     {
                         uint32 maxTickets = result->Fetch()->GetUInt32();
                         char msg[500];
-                        sprintf(msg, "Il montepremi ammonta a %i ori!", TICKET_COST * PERC_WIN * maxTickets);
+                        sprintf(msg, "Il Primo premio ammonta a %i ori!", TICKET_COST * mol_win[0] * maxTickets);
                         me->MonsterYell(msg, 0, NULL);
                     }
                     SayTimer = 600 * IN_MILLISECONDS;
