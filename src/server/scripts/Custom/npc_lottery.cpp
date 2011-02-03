@@ -104,7 +104,7 @@ public:
             {
                 if (me->IsVisible())
                 {
-                     me->SetVisible(false);
+                    me->SetVisible(false);
                     QueryResult result = ExtraDatabase.Query("SELECT MAX(id) FROM lotto_tickets");
                     uint32 maxTickets = 0;
                     if (result)
@@ -176,8 +176,9 @@ public:
                     {
                         uint32 maxTickets = result->Fetch()->GetUInt32();
                         char msg[500];
-                        sprintf(msg, "Il Primo premio ammonta a %i ori!", TICKET_COST * mol_win[0] * maxTickets);
-                        me->MonsterYell(msg, 0, NULL);
+                        sprintf(msg, "Il Primo premio ammonta a %u ori!", uint32(TICKET_COST / 10000 * mol_win[0] * maxTickets));
+                        if (uint32(TICKET_COST / 10000 * mol_win[0] * maxTickets) > 3000)
+                            me->MonsterYell(msg, 0, NULL);
                     }
                     SayTimer = 600 * IN_MILLISECONDS;
                 }
