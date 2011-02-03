@@ -106,9 +106,10 @@ public:
                 {
                      me->SetVisible(false);
                     QueryResult result = ExtraDatabase.Query("SELECT MAX(id) FROM lotto_tickets");
+                    uint32 maxTickets = 0;
                     if (result)
                     {
-                        uint32 maxTickets = result->Fetch()->GetUInt32();
+                        maxTickets = result->Fetch()->GetUInt32();
                         if (!maxTickets)
                             return;
                     }
@@ -116,50 +117,50 @@ public:
                     result = ExtraDatabase.Query("SELECT name, guid FROM `lotto_tickets` ORDER BY RAND() LIMIT 3;");
                     uint32 position = 0;
 
-                    if (result)
+                    if (!result)
+                        return;
+
+                    do
                     {
-                        do
+                        ++position;
+
+                        Field *fields = result->Fetch();
+
+                        const char* name = fields[0].GetCString();
+                        uint32 guid = fields[1].GetUInt32();
+                        // uint32 reward = TICKET_COST / (1 << position) * maxTickets;
+                        uint32 reward = TICKET_COST * mol_win[position-1] * maxTickets;
+
+                        ExtraDatabase.PExecute("INSERT INTO `lotto_extractions` (winner,guid,position,reward) VALUES ('%s',%u,%u,%u);",name,guid,position,reward);
+
+                        // Send reward by mail
+                        Player *pPlayer = sObjectMgr->GetPlayerByLowGUID(guid);
+                        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+                        MailDraft("Premio Lotteria", "Complimenti! Hai vinto alla Lotteria!")
+                            .AddMoney(reward)
+                            .SendMailTo(trans, MailReceiver(pPlayer, GUID_LOPART(guid)), MailSender(MAIL_NORMAL, 0, MAIL_STATIONERY_GM));
+                        CharacterDatabase.CommitTransaction(trans);
+
+                        // Event Message
+                        char msg[500];
+                        switch (position)
                         {
-                            ++position;
-
-                            Field *fields = result->Fetch();
-
-                            const char* name = fields[0].GetCString();
-                            uint32 guid = fields[1].GetUInt32();
-                            // uint32 reward = TICKET_COST / (1 << position) * maxTickets;
-                            uint32 reward = TICKET_COST * mol_win[position-1] * maxTickets;
-
-                            ExtraDatabase.PExecute("INSERT INTO `lotto_extractions` (winner,guid,position,reward) VALUES ('%s',%u,%u,%u);",name,guid,position,reward);
-
-                            // Send reward by mail
-                            Player *pPlayer = sObjectMgr->GetPlayerByLowGUID(guid);
-                            SQLTransaction trans = CharacterDatabase.BeginTransaction();
-                            MailDraft("Premio Lotteria", "Complimenti! Hai vinto alla Lotteria!")
-                                .AddMoney(reward)
-                                .SendMailTo(trans, MailReceiver(pPlayer, GUID_LOPART(guid)), MailSender(MAIL_NORMAL, 0, MAIL_STATIONERY_GM));
-                            CharacterDatabase.CommitTransaction(trans);
-
-                            // Event Message
-                            char msg[500];
-                            switch (position)
-                            {
-                                case 1:
-                                    sprintf(msg, "Il vincitore della Lotteria e' %s che guadagna la bellezza di %i gold!", name, reward/10000);
-                                    break;
-                                case 2:
-                                    sprintf(msg, "Il secondo premio va a %s che vince %i gold!", name, reward/10000);
-                                    break;
-                                case 3:
-                                    sprintf(msg, "Mentre il terzo se lo aggiudica %s che vince %i gold!", name, reward/10000);
-                                    break;
-                            }
-                            sWorld->SendWorldText(LANG_EVENTMESSAGE, msg);
+                            case 1:
+                                sprintf(msg, "Il vincitore della Lotteria e' %s che guadagna la bellezza di %i gold!", name, reward/10000);
+                                break;
+                            case 2:
+                                sprintf(msg, "Il secondo premio va a %s che vince %i gold!", name, reward/10000);
+                                break;
+                            case 3:
+                                sprintf(msg, "Mentre il terzo se lo aggiudica %s che vince %i gold!", name, reward/10000);
+                                break;
                         }
-                        while (result->NextRow());
-
-                        // Delete tickets after extraction
-                        ExtraDatabase.PExecute("DELETE FROM lotto_tickets;");
+                        sWorld->SendWorldText(LANG_EVENTMESSAGE, msg);
                     }
+                    while (result->NextRow());
+
+                    // Delete tickets after extraction
+                    ExtraDatabase.PExecute("DELETE FROM lotto_tickets;");
                 }
             }
             else
