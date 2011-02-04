@@ -73,11 +73,14 @@ public:
             case GOSSIP_ACTION_INFO_DEF:
                 pPlayer->ModifyMoney(-TICKET_COST);
                 QueryResult result = ExtraDatabase.Query("SELECT MAX(id) FROM lotto_tickets");
-                uint32 id = result->Fetch()->GetUInt32();
-                ExtraDatabase.PExecute("INSERT INTO lotto_tickets (id,name,guid) VALUES (%u,'%s',%u);", id+1, pPlayer->GetName(), pPlayer->GetGUIDLow());
-                char msg[500];
-                sprintf(msg, "Buona fortuna, $N. Il tuo biglietto e' il numero %i", id+1);
-                pCreature->MonsterWhisper(msg, pPlayer->GetGUID());
+                if (result)
+                {
+                    uint32 id = result->Fetch()->GetUInt32();
+                    ExtraDatabase.PExecute("INSERT INTO lotto_tickets (id,name,guid) VALUES (%u,'%s',%u);", id+1, pPlayer->GetName(), pPlayer->GetGUIDLow());
+                    char msg[500];
+                    sprintf(msg, "Buona fortuna, $N. Il tuo biglietto e' il numero %i", id+1);
+                    pCreature->MonsterWhisper(msg, pPlayer->GetGUID());
+                }
                 break;
         }
         pPlayer->PlayerTalkClass->CloseGossip();
@@ -171,7 +174,9 @@ public:
                     
                 if (SayTimer <= diff)
                 {
-                    me->MonsterYell("Biglietti della Lotteria! Bastano 50 ori per diventare milionari!", 0, NULL);
+                    char msg[500];
+                    sprintf(msg, "Biglietti della Lotteria! Bastano %u ori per diventare milionari!", TICKET_COST / 10000);
+                    me->MonsterYell(msg, 0, NULL);
                     QueryResult result = ExtraDatabase.Query("SELECT MAX(id) FROM lotto_tickets");
                     if (result)
                     {
@@ -190,9 +195,106 @@ public:
 
 };
 
+class npc_lotto2 : public CreatureScript
+{
+public:
+    npc_lotto2() : CreatureScript("npc_lotto2") { }
+
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        if (pPlayer && !pPlayer->isGameMaster())
+        {
+            QueryResult result = ExtraDatabase.PQuery("SELECT COUNT(*) FROM lotto_tickets where guid=%u", pPlayer->GetGUIDLow());
+            if (result)
+            {
+                Field *fields = result->Fetch();
+                if (fields[0].GetInt32() >= MAX_TICKET)
+                {
+                    pPlayer->SEND_GOSSIP_MENU(1200006, pCreature->GetGUID());
+                    return true;
+                }
+                pPlayer->PrepareGossipMenu(pCreature);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BUY_TICKET, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                pPlayer->SEND_GOSSIP_MENU(1200005, pCreature->GetGUID());
+            }
+        }
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        pPlayer->PlayerTalkClass->ClearMenus();
+        
+        if (!pPlayer->HasEnoughMoney(TICKET_COST))
+            return false;
+        
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_INFO_DEF:
+                pPlayer->ModifyMoney(-TICKET_COST);
+                QueryResult result = ExtraDatabase.Query("SELECT MAX(id) FROM lotto_tickets");
+                if (result)
+                {
+                    uint32 id = result->Fetch()->GetUInt32();
+                    ExtraDatabase.PExecute("INSERT INTO lotto_tickets (id,name,guid) VALUES (%u,'%s',%u);", id+1, pPlayer->GetName(), pPlayer->GetGUIDLow());
+                    char msg[500];
+                    sprintf(msg, "Buona fortuna, $N. Il tuo biglietto e' il numero %i", id+1);
+                    pCreature->MonsterWhisper(msg, pPlayer->GetGUID());
+                }
+                break;
+        }
+        pPlayer->PlayerTalkClass->CloseGossip();
+        return true;
+    }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_lotto2AI (pCreature);
+    }
+
+    struct npc_lotto2AI : public ScriptedAI
+    {
+        npc_lotto2AI(Creature* pCreature) : ScriptedAI(pCreature) 
+        {
+            SayTimer = 300*IN_MILLISECONDS;
+            InvisibleTimer = 0;
+        }
+        
+        uint32 SayTimer;
+        uint32 InvisibleTimer;
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (IsEventActive(EVENT_LOTTO))
+            {
+                if (me->IsVisible())
+                    me->SetVisible(false);
+                InvisibleTimer = 10*IN_MILLISECONDS;
+            }
+            else if (InvisibleTimer <= diff)
+            {
+                if (!me->IsVisible())
+                    me->SetVisible(true);
+                    
+                if (SayTimer <= diff)
+                {
+                    char msg[500];
+                    sprintf(msg, "Biglietti della Lotteria! Bastano %u ori per diventare milionari!", TICKET_COST / 10000);
+                    me->MonsterYell(msg, 0, NULL);
+                    SayTimer = 300 * IN_MILLISECONDS;
+                }
+                else SayTimer -= diff;
+            }
+            else InvisibleTimer -= diff;
+        }
+    };
+
+};
+
 
 void AddSC_npc_lottery()
 {
     new npc_lotto;
+    new npc_lotto2;
 }
 
