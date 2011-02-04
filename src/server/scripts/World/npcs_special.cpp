@@ -47,6 +47,7 @@ EndContentData */
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "World.h"
+#include "Guild.h"
 
 /*########
 # npc_air_force_bots
@@ -2026,7 +2027,8 @@ public:
         {
             me->SetControlled(true,UNIT_STAT_STUNNED);//disable rotate
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
-
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+            me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
             uiResetTimer = 5000;
             uiDespawnTimer = 15000;
         }
@@ -2042,6 +2044,7 @@ public:
         void DamageTaken(Unit * /*done_by*/, uint32 &damage)
         {
             uiResetTimer = 5000;
+            //me->SetHealth(me->GetMaxHealth());
             damage = 0;
         }
 
