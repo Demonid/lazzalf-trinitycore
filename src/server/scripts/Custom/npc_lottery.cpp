@@ -33,7 +33,17 @@ EndScriptData */
 #define EVENT_LOTTO                 132
 #define MAX_TICKET                  5
 
-float mol_win[3] = {0.5f, 0.2f, 0.1f};
+float mol_win[4] = {0.5f, 0.2f, 0.1f, 0.0f};
+
+#define MAX_ITEM 5
+uint32 item_win[MAX_ITEM] =
+{
+    0,
+    0,
+    0,
+    0,
+    0
+};
 
 class npc_lotto : public CreatureScript
 {
@@ -134,15 +144,30 @@ public:
                         uint32 ticket = fields[2].GetUInt32();
                         // uint32 reward = TICKET_COST / (1 << position) * maxTickets;
                         uint32 reward = TICKET_COST * mol_win[position-1] * maxTickets;
+                        if (position == 4)
+                            reward = item_win[rand()% MAX_ITEM];
 
                         ExtraDatabase.PExecute("INSERT INTO `lotto_extractions` (winner,guid,position,reward) VALUES ('%s',%u,%u,%u);",name,guid,position,reward);
 
                         // Send reward by mail
+                        Item* item = NULL;
                         Player *pPlayer = sObjectMgr->GetPlayerByLowGUID(guid);
                         SQLTransaction trans = CharacterDatabase.BeginTransaction();
-                        MailDraft("Premio Lotteria", "Complimenti! Hai vinto alla Lotteria!")
-                            .AddMoney(reward)
-                            .SendMailTo(trans, MailReceiver(pPlayer, GUID_LOPART(guid)), MailSender(MAIL_NORMAL, 0, MAIL_STATIONERY_GM));
+                        if (position != 4)
+                        {
+                            MailDraft("Premio Lotteria", "Complimenti! Hai vinto alla Lotteria!")
+                                .AddMoney(reward)
+                                .SendMailTo(trans, MailReceiver(pPlayer, GUID_LOPART(guid)), MailSender(MAIL_NORMAL, 0, MAIL_STATIONERY_GM));
+                        }
+                        else
+                        {
+                            item = Item::CreateItem(reward, 1 ,pPlayer);                         
+                            if (!item)
+                                break;
+                            MailDraft("Premio Lotteria", "Complimenti! Hai vinto alla Lotteria!")
+                                .AddItem(item)
+                                .SendMailTo(trans, MailReceiver(pPlayer, GUID_LOPART(guid)), MailSender(MAIL_NORMAL, 0, MAIL_STATIONERY_GM));
+                        }
                         CharacterDatabase.CommitTransaction(trans);
 
                         // Event Message
@@ -157,6 +182,9 @@ public:
                                 break;
                             case 3:
                                 sprintf(msg, "Mentre il terzo se lo aggiudica %s che vince %i gold con il biglietto %i!", name, reward/10000, ticket);
+                                break;
+                            case 4:
+                                sprintf(msg, "E' uscito un premio speciale che se lo aggiudica %s che vince %s con il biglietto %i!", name, item->GetProto()->Name1, ticket);
                                 break;
                         }
                         sWorld->SendWorldText(LANG_EVENTMESSAGE, msg);
