@@ -530,8 +530,7 @@ bool AntiCheat::CheckAntiMultiJump(MovementInfo& pNewPacket, uint32 uiOpcode)
 }
 
 bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacket, uint32 uiOpcode)
-{
-    // strange packet    
+{  
     if (pOldPacket.HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
         return true;
 
