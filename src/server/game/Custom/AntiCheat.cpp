@@ -532,7 +532,7 @@ bool AntiCheat::CheckAntiMultiJump(MovementInfo& pNewPacket, uint32 uiOpcode)
 bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacket, uint32 uiOpcode)
 {
     // strange packet    
-    if (uiOpcode == MSG_MOVE_SET_FACING)        
+    if (pOldPacket.HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
         return true;
 
     // we like check heartbeat movements
