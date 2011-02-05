@@ -9826,7 +9826,8 @@ void Unit::SetMinion(Minion *minion, bool apply)
             }
         }
 
-        if (GetTypeId() == TYPEID_PLAYER)
+        // Mounting should not remove infinite cooldowns
+        if (GetTypeId() == TYPEID_PLAYER  && !IsMounted())
         {
             SpellEntry const *spellInfo = sSpellStore.LookupEntry(minion->GetUInt32Value(UNIT_CREATED_BY_SPELL));
             // Remove infinity cooldown
