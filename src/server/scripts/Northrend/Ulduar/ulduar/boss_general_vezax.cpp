@@ -214,10 +214,10 @@ class boss_general_vezax : public CreatureScript
                         {
                             Unit* pTarget = NULL;
                             /*  He will not cast this on players within 15 yards of him. 
-                                However, if there are not at least 9 people outside of 15 yards 
+                                However, if there are not at least 5 people outside of 15 yards 
                                 he will start casting it on players inside 15 yards melee and tank included.
                             */
-                            if (!(pTarget = CheckPlayersInRange(RAID_MODE(4,9), 15.0f, 50.f)))
+                            if (!(pTarget = CheckPlayersInRange(RAID_MODE(2,5), 15.0f, 100.f)))
                                 pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true); 
                             DoCast(pTarget, SPELL_MARK_OF_THE_FACELESS);
                             events.ScheduleEvent(EVENT_MARK, urand(35000, 40000));
