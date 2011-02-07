@@ -20,6 +20,7 @@ enum eCheat
 	CHEAT_FLY,
 	CHEAT_WATERWALK,
 	CHEAT_TELETOPLANE,
+    CHEAT_CLIMB,
     MAX_CHEAT
 };
 
@@ -67,6 +68,8 @@ class AntiCheat
 
 		bool fly_auras;
 
+        float angle;
+
         uint32 number_cheat_find;
         int32 ac_goactivate;
 
@@ -90,6 +93,7 @@ class AntiCheat
 		bool CheckAntiFly(MovementInfo& pOldPacket, MovementInfo& pNewPacket);
 		bool CheckAntiWaterwalk(MovementInfo& pOldPacket, MovementInfo& pNewPacket);
 		bool CheckAntiTeleToPlane(MovementInfo& pOldPacket, MovementInfo& pNewPacket);
+        bool CheckAntiClimb(MovementInfo& pOldPacket, MovementInfo& pNewPacket, uint32 uiOpcode);
         void LogCheat(eCheat /*m_cheat*/, MovementInfo& /*pMovementInfo*/);
         bool AntiCheatPunisher(MovementInfo& /*pMovementInfo*/);
         inline bool ControllPunisher();
