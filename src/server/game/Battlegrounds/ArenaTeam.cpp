@@ -312,6 +312,17 @@ void ArenaTeam::SetCaptain(const uint64& guid)
 
 void ArenaTeam::DelMember(uint64 guid)
 {
+    uint32 plPRating;
+ 
+    plPRating = 0;
+
+    if (sWorld->getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING) > 0)
+        plPRating = sWorld->getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING);
+    else if (GetRating() >= 1000)
+        plPRating = 1000;
+
+    uint32 neWplPRating = plPRating;
+
     for (MemberList::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
         if (itr->guid == guid)
         {
@@ -327,6 +338,7 @@ void ArenaTeam::DelMember(uint64 guid)
             player->SetArenaTeamInfoField(GetSlot(), ArenaTeamInfoType(i), 0);
         sLog->outArena("Player: %s [GUID: %u] left arena team type: %u [Id: %u].", player->GetName(), player->GetGUIDLow(), GetType(), GetId());
     }
+    //CharacterDatabase.PExecute("UPDATE character_arena_stats SET personal_rating = '%u' WHERE guid = '%u' AND slot = '%u'", neWplPRating , GUID_LOPART(guid), GetSlot());
     CharacterDatabase.PExecute("DELETE FROM arena_team_member WHERE arenateamid = '%u' AND guid = '%u'", GetId(), GUID_LOPART(guid));
 }
 
@@ -816,6 +828,42 @@ void ArenaTeam::UpdateArenaPointsHelper(std::map<uint32, uint32>& PlayerPoints)
         }
         else
             PlayerPoints[GUID_LOPART(itr->guid)] = points_to_add;
+    }
+}
+
+void ArenaTeam::SaveToDBArenaModTeam(uint32 ArenaTeamId, uint32 EnemyTeamId)
+{
+    if(!EnemyTeamId || !ArenaTeamId)
+        return;
+
+    QueryResult result = CharacterDatabase.PQuery("SELECT wins FROM arena_mod WHERE player_guid ='0' AND player_team_id ='%u' AND enemy_team_id ='%u'", ArenaTeamId, EnemyTeamId);
+
+    if(!result)
+    {
+        CharacterDatabase.PExecute("INSERT INTO arena_mod (player_guid, player_team_id, enemy_team_id, wins) VALUES ('0', '%u', '%u', 1)", ArenaTeamId, EnemyTeamId);
+        return;
+    }
+    else
+    {
+        CharacterDatabase.PExecute("UPDATE arena_mod SET wins = wins + '1' WHERE player_guid ='0' AND player_team_id ='%u' AND enemy_team_id ='%u'", ArenaTeamId, EnemyTeamId);
+    }
+}
+
+void ArenaTeam::SaveToDBArenaModPlayer(uint64 PlayerGuid, uint32 ArenaTeamId, uint32 EnemyTeamId)
+{
+    if(!EnemyTeamId || !PlayerGuid || !ArenaTeamId)
+        return;
+
+    QueryResult result = CharacterDatabase.PQuery("SELECT wins FROM arena_mod WHERE player_guid ='%u' AND player_team_id ='%u' AND enemy_team_id ='%u'", GUID_LOPART(PlayerGuid), ArenaTeamId, EnemyTeamId);
+
+    if(!result)
+    {
+        CharacterDatabase.PExecute("INSERT INTO arena_mod (player_guid, player_team_id, enemy_team_id, wins) VALUES ('%u', '%u', '%u', 1)", GUID_LOPART(PlayerGuid), ArenaTeamId, EnemyTeamId);
+        return;
+    }
+    else
+    {
+        CharacterDatabase.PExecute("UPDATE arena_mod SET wins = wins + '1' WHERE player_guid ='%u' AND player_team_id ='%u' AND enemy_team_id ='%u'", GUID_LOPART(PlayerGuid), ArenaTeamId, EnemyTeamId);
     }
 }
 

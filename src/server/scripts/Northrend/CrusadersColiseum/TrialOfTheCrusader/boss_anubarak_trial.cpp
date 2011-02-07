@@ -399,7 +399,8 @@ public:
                 DoCast(me, SPELL_BERSERK);
             } else m_uiBerserkTimer -= uiDiff;
 
-            DoMeleeAttackIfReady();
+            if (m_uiStage != 2)
+                DoMeleeAttackIfReady();
         }
     };
 
@@ -452,7 +453,12 @@ public:
 
         void JustDied(Unit* pKiller)
         {
-            DoCast(pKiller, RAID_MODE(SPELL_TRAITOR_KING_10, SPELL_TRAITOR_KING_25));
+            // DoCast(pKiller, RAID_MODE(SPELL_TRAITOR_KING_10, SPELL_TRAITOR_KING_25));
+
+            if(m_pInstance->GetData(DATA_TRAITOR_KING_START) == ACHI_IS_NOT_STARTED)
+               m_pInstance->SetData(DATA_TRAITOR_KING_START, ACHI_START);
+           
+            m_pInstance->SetData(DATA_TRAITOR_KING_COUNT, ACHI_INCREASE);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -566,10 +572,12 @@ public:
     {
         mob_frost_sphereAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
+            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
         }
 
         bool   m_bFall;
         uint32 m_uiPermafrostTimer;
+        InstanceScript* m_pInstance;
 
         void Reset()
         {
@@ -583,11 +591,21 @@ public:
             DoCast(SPELL_FROST_SPHERE);
         }
 
-        void DamageTaken(Unit* /*pWho*/, uint32& uiDamage)
+        void DamageTaken(Unit* pWho, uint32& uiDamage)
         {
             if (me->GetHealth() < uiDamage)
             {
                 uiDamage = 0;
+
+                if (pWho->ToTempSummon() && pWho->GetEntry() == NPC_SPIKE)
+                {
+                    pWho->ToTempSummon()->DisappearAndDie();
+                    if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ANUBARAK)))
+                        pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);
+                    me->DisappearAndDie();
+                    return;
+                }
+
                 if (!m_bFall)
                 {
                     m_bFall = true;
@@ -682,6 +700,8 @@ public:
             Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID);
             if (!pTarget || !pTarget->isAlive() || !pTarget->HasAura(SPELL_MARK))
             {
+                if (Unit* pTarget = me->FindNearestCreature(NPC_FROST_SPHERE, 15.0f))
+                    pTarget->RemoveFromWorld();
                 if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ANUBARAK)))
                     pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);
                 me->DisappearAndDie();
