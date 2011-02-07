@@ -567,6 +567,23 @@ public:
     }
 };
 
+uint32 HeartCandies[8] = {21816, 21817, 21818, 21819, 21820, 21821, 21822, 21823};
+
+class item_bag_of_heart_candies : public ItemScript
+{
+public:
+    item_bag_of_heart_candies() : ItemScript("item_bag_of_heart_candies") { }
+
+    bool OnUse(Player* pPlayer, Item* pItem, SpellCastTargets const& /*targets*/)
+    {
+        if (!pPlayer)
+            return true;
+
+        pPlayer->AddItem(HeartCandies[rand() % 8], 1);
+        return true;
+    }
+};
+
 void AddSC_item_scripts()
 {
     new item_marry_tele;
@@ -585,4 +602,5 @@ void AddSC_item_scripts()
     new item_trident_of_nazjan;
     new item_captured_frog();
     new item_green_rocket_cluster();
+    new item_bag_of_heart_candies();
 }
