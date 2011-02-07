@@ -2623,6 +2623,10 @@ Anticheat.TeleportToPlaneBlock.Count     = 0
 Anticheat.TeleportToPlanePunisher.Count  = 0
 Anticheat.TeleportToPlaneAlarms = 50
 
+Anticheat.AntiClimb.Enable               = 1
+Anticheat.AntiClimbBlock.Count           = 0
+Anticheat.AntiClimbPunisher.Count        = 0
+
 #
 #    Anticheat.IgnoreGMLevel
 #       Ignore GMLevel min in AntiCheat controll (default 3)

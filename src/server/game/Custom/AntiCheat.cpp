@@ -8,6 +8,7 @@
 #include "Vehicle.h"
 #include "Transport.h"
 #include "ObjectMgr.h"
+#include "MapManager.h"
 
 /**
  *
@@ -16,6 +17,8 @@
  * @Authors : Lazzalf based on AC2 and Manuel AntiCheat
  *
  **/
+
+#define CLIMB_ANGLE 1.9f
 
 AntiCheat::AntiCheat(Player* new_plMover)
 {
@@ -194,6 +197,11 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
 	    if (!CheckAntiTeleToPlane(GetLastPacket(), pMovementInfo))
 		    check_passed = false;
 
+    // Climb Cheat
+    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_ANTICLIMB))
+	    if (!CheckAntiClimb(GetLastPacket(), pMovementInfo, opcode))
+		    check_passed = false;
+
     if (cheat_find)
     {
         if (map_count)
@@ -252,6 +260,9 @@ bool AntiCheat::ControllPunisher()
     else if (sWorld->getIntConfig(CONFIG_AC_ANTITELETOPLANE_PUNI_COUNT) && 
         m_CheatList[CHEAT_TELETOPLANE] >= sWorld->getIntConfig(CONFIG_AC_ANTITELETOPLANE_PUNI_COUNT))
         return true;
+    else if (sWorld->getIntConfig(CONFIG_AC_ANTICLIMB_PUNI_COUNT) && 
+        m_CheatList[CHEAT_CLIMB] >= sWorld->getIntConfig(CONFIG_AC_ANTICLIMB_PUNI_COUNT))
+        return true;   
 
     return false;
 }
@@ -394,6 +405,14 @@ void AntiCheat::CalcVariables(MovementInfo& pOldPacket, MovementInfo& pNewPacket
 	fly_auras = CanFly(pNewPacket);
 
 	bool swim_flags = pNewPacket.flags & MOVEMENTFLAG_SWIMMING;
+
+    Position playerPos;
+    plMover->GetPosition(&playerPos);
+
+    float deltaZ = fabs(playerPos.GetPositionZ() - pNewPacket.pos.GetPositionZ());
+    float deltaXY = pNewPacket.pos.GetExactDist2d(&playerPos);
+
+    angle = MapManager::NormalizeOrientation(tan(deltaZ/deltaXY));
 }
 
 bool AntiCheat::CanFly(MovementInfo& pMovementInfo)
@@ -483,6 +502,15 @@ void AntiCheat::LogCheat(eCheat m_cheat, MovementInfo& pMovementInfo)
 				    plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ(), m_anti_TeleToPlane_Count);
             }
             cheat_type = "TeleToPlane";
+            break;
+        case CHEAT_CLIMB:
+            if (difftime_log_file >= sWorld->getIntConfig(CONFIG_AC_DELTA_LOG_FILE))
+			{
+				m_logfile_time = cServerTime;  
+			    sLog->outCheat("AC-%s Map %u, X: %f, Y: %f, Z: %f Climb exception. Angle %f", plMover->GetName(), plMover->GetMapId(), 
+				    plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ(), angle);
+            }
+            cheat_type = "Climb";
             break;
 	}
 
@@ -721,7 +749,7 @@ bool AntiCheat::CheckAntiTeleToPlane(MovementInfo& pOldPacket, MovementInfo& pNe
     {
         if (map_count)
 	        ++(m_anti_TeleToPlane_Count);
-	    if (m_anti_TeleToPlane_Count > sWorld->getIntConfig(CONFIG_AC_ENABLE_ANTITELETOPLANE_ALARMS))
+	    if (m_anti_TeleToPlane_Count > sWorld->getIntConfig(CONFIG_AC_ANTITELETOPLANE_ALARMS))
 	    {
             ++(m_CheatList[CHEAT_TELETOPLANE]);
             cheat_find = true;
@@ -735,5 +763,46 @@ bool AntiCheat::CheckAntiTeleToPlane(MovementInfo& pOldPacket, MovementInfo& pNe
     }
 	else
 		m_anti_TeleToPlane_Count = 0;
+	return true;
+}
+
+bool AntiCheat::CheckAntiClimb(MovementInfo& pOldPacket, MovementInfo& pNewPacket, uint32 uiOpcode)
+{  
+    if (uiOpcode != MSG_MOVE_HEARTBEAT ||
+        plMover->GetAntiCheat()->GetLastOpcode() != MSG_MOVE_HEARTBEAT)
+        return true;
+
+    if (plMover->IsInWater() || 
+        plMover->IsFlying() || 
+        plMover->IsFalling())
+        return true;
+   
+	if (angle > CLIMB_ANGLE)    
+	{          
+        cheat_find = true;
+        if (map_count)
+            ++(m_CheatList[CHEAT_CLIMB]);
+        LogCheat(CHEAT_CLIMB, pNewPacket);
+        if (map_block && sWorld->getIntConfig(CONFIG_AC_ANTICLIMB_BLOCK_COUNT) &&
+            m_CheatList[CHEAT_CLIMB] >= sWorld->getIntConfig(CONFIG_AC_ANTICLIMB_BLOCK_COUNT))
+        {
+            // Tell the player "Sure, you can fly!"
+		    {
+			    WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
+			    data.append(plMover->GetPackGUID());
+			    data << uint32(0);
+			    plMover->GetSession()->SendPacket(&data);
+		    }
+		    // Then tell the player "Wait, no, you can't."
+		    {
+			    WorldPacket data(SMSG_MOVE_UNSET_CAN_FLY, 12);
+			    data.append(plMover->GetPackGUID());
+			    data << uint32(0);
+			    plMover->GetSession()->SendPacket(&data);
+		    }
+		    plMover->FallGround(2);
+            return false;
+        }
+	}    
 	return true;
 }
