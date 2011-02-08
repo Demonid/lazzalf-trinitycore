@@ -567,33 +567,6 @@ public:
     }
 };
 
-uint32 HeartCandies[8] = {21816, 21817, 21818, 21819, 21820, 21821, 21822, 21823};
-
-class item_bag_of_heart_candies : public ItemScript
-{
-public:
-    item_bag_of_heart_candies() : ItemScript("item_bag_of_heart_candies") { }
-
-    bool OnUse(Player* pPlayer, Item* pItem, SpellCastTargets const& /*targets*/)
-    {
-        if (!pPlayer)
-            return true;
-
-        pPlayer->AddItem(HeartCandies[urand(1, 8) - 1], 1);
-        int32 charges = pItem->GetSpellCharges();
-        charges++;
-        if (charges != 0)
-            pItem->SetSpellCharges(0, charges);
-        else
-        {
-            pPlayer->RemoveItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
-            pItem->DestroyForPlayer(pPlayer);
-            pItem->RemoveFromWorld();
-        }
-        return true;
-    }
-};
-
 void AddSC_item_scripts()
 {
     new item_marry_tele;
@@ -612,5 +585,4 @@ void AddSC_item_scripts()
     new item_trident_of_nazjan;
     new item_captured_frog();
     new item_green_rocket_cluster();
-    new item_bag_of_heart_candies();
 }
