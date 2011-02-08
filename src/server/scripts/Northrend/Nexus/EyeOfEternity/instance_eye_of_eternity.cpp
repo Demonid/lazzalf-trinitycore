@@ -129,16 +129,20 @@ class instance_eye_of_eternity : public InstanceMapScript
                     m_uiOutroCheck = uiData;
                     break;
                 case TYPE_DESTROY_PLATFORM:
-                    if(uiData == IN_PROGRESS)
+                    if (uiData == IN_PROGRESS)
                     {
-                        if(GameObject* m_uiMalygosPlatform = instance->GetGameObject(m_uiMalygosPlatformGUID))
+                        if (GameObject* m_uiMalygosPlatform = instance->GetGameObject(m_uiMalygosPlatformGUID))
+                        {
                             m_uiMalygosPlatform->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+                            m_uiMalygosPlatform->SetPhaseMask(4, true);
+                        }
                     }
                     else if(uiData == NOT_STARTED)
                     {
-                        if(GameObject* m_uiMalygosPlatform = instance->GetGameObject(m_uiMalygosPlatformGUID))
+                        if (GameObject* m_uiMalygosPlatform = instance->GetGameObject(m_uiMalygosPlatformGUID))
                         {
                             m_uiMalygosPlatform->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+                            m_uiMalygosPlatform->SetPhaseMask(1, true);
                             m_uiMalygosPlatform->Respawn();
                         }
                     }
