@@ -796,6 +796,46 @@ class spell_item_red_rider_air_rifle : public SpellScriptLoader
         }
 };
 
+uint32 HeartCandies[8] = {21816, 21817, 21818, 21819, 21820, 21821, 21822, 21823};
+
+class spell_item_bag_of_heart_candies : public SpellScriptLoader
+{
+public:
+    spell_item_bag_of_heart_candies() : SpellScriptLoader("spell_item_bag_of_heart_candies") { }
+
+    class spell_item_bag_of_heart_candies_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_item_bag_of_heart_candies_SpellScript)
+    public:
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            for (uint32 i = 0; i < 8; ++i)
+                if (!sItemStore.LookupEntry(HeartCandies[i]))
+                    return false;
+            return true;
+        }
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            Unit* pCaster = GetCaster();
+            if (pCaster->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            pCaster->ToPlayer()->AddItem(HeartCandies[urand(1, 8) - 1], 1);
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_item_bag_of_heart_candies_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_bag_of_heart_candies_SpellScript();
+    }
+};
+
 enum eGenericData
 {
     SPELL_ARCANITE_DRAGONLING           = 19804,
@@ -827,4 +867,5 @@ void AddSC_item_spell_scripts()
     new spell_item_underbelly_elixir();
     new spell_item_shadowmourne();
     new spell_item_red_rider_air_rifle();
+    new spell_item_bag_of_heart_candies();
 }
