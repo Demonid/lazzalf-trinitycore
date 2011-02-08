@@ -579,7 +579,17 @@ public:
         if (!pPlayer)
             return true;
 
-        pPlayer->AddItem(HeartCandies[rand() % 8], 1);
+        pPlayer->AddItem(HeartCandies[urand(1, 8) - 1], 1);
+        int32 charges = pItem->GetSpellCharges();
+        charges++;
+        if (charges != 0)
+            pItem->SetSpellCharges(0, charges);
+        else
+        {
+            pPlayer->RemoveItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
+            pItem->DestroyForPlayer(pPlayer);
+            pItem->RemoveFromWorld();
+        }
         return true;
     }
 };
