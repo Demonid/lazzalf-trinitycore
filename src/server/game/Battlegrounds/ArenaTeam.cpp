@@ -312,9 +312,7 @@ void ArenaTeam::SetCaptain(const uint64& guid)
 
 void ArenaTeam::DelMember(uint64 guid)
 {
-    uint32 plPRating;
- 
-    plPRating = 0;
+    uint32 plPRating = 0;
 
     if (sWorld->getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING) > 0)
         plPRating = sWorld->getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING);
@@ -338,8 +336,8 @@ void ArenaTeam::DelMember(uint64 guid)
             player->SetArenaTeamInfoField(GetSlot(), ArenaTeamInfoType(i), 0);
         sLog->outArena("Player: %s [GUID: %u] left arena team type: %u [Id: %u].", player->GetName(), player->GetGUIDLow(), GetType(), GetId());
     }
-    //CharacterDatabase.PExecute("UPDATE character_arena_stats SET personal_rating = '%u' WHERE guid = '%u' AND slot = '%u'", neWplPRating , GUID_LOPART(guid), GetSlot());
     CharacterDatabase.PExecute("DELETE FROM arena_team_member WHERE arenateamid = '%u' AND guid = '%u'", GetId(), GUID_LOPART(guid));
+    CharacterDatabase.PExecute("UPDATE character_arena_stats SET personal_rating = '%u' WHERE guid = '%u' AND slot = '%u'", neWplPRating , GUID_LOPART(guid), GetSlot());
 }
 
 void ArenaTeam::Disband(WorldSession *session)
@@ -774,15 +772,27 @@ void ArenaTeam::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, i
     }
 }
 
-void ArenaTeam::MemberWon(Player * plr, uint32 againstMatchmakerRating, int32 teamratingchange)
+void ArenaTeam::MemberWon(Player * plr, uint32 againstMatchmakerRating, int32 teamratingchange, int32 againstRating)
 {
     // called for each participant after winning a match
     for (MemberList::iterator itr = m_members.begin(); itr !=  m_members.end(); ++itr)
     {
         if (itr->guid == plr->GetGUID())
         {
+            int32 mod = 0;
             // update personal rating
-            int32 mod = GetPersonalRatingMod(teamratingchange, (m_stats.rating - teamratingchange), itr->personal_rating);
+            if (againstRating && (m_stats.rating > itr->personal_rating) && (m_stats.rating - itr->personal_rating) < 32)
+            {
+                float chance = GetChanceAgainst(itr->personal_rating, againstRating);
+                float K = (itr->personal_rating < 1000) ? 48.0f : 32.0f;
+                // calculate the rating modification (ELO system with k=32 or k=48 if rating<1000)
+                mod = (int32)ceil(K * (0.0f - chance));
+            }
+            else
+            {
+                // update personal rating
+                mod = GetPersonalRatingMod(teamratingchange, (m_stats.rating - teamratingchange), itr->personal_rating);
+            }
             itr->ModifyPersonalRating(plr, mod, GetSlot());
 
             // update matchmaker rating
