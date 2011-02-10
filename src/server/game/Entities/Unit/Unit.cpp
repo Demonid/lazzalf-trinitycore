@@ -1008,7 +1008,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 dama
                     else
                     {
                         critPctDamageMod += pVictim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE);
-                        critPctDamageMod += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS_MELEE);
+                        critPctDamageMod += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, GetSpellSchoolMask(spellInfo)); 
                     }
                     // Increase crit damage from SPELL_AURA_MOD_CRIT_PERCENT_VERSUS
                     critPctDamageMod += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_PERCENT_VERSUS, crTypeMask);
@@ -1208,7 +1208,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
                 else
                 {
                     mod += damageInfo->target->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE);
-                    mod += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS_MELEE);
+                    mod += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, damageInfo->damageSchoolMask); 
                 }
 
                 uint32 crTypeMask = damageInfo->target->GetCreatureTypeMask();
@@ -10983,6 +10983,7 @@ uint32 Unit::SpellCriticalDamageBonus(SpellEntry const *spellProto, uint32 damag
 {
     // Calculate critical bonus
     int32 crit_bonus;
+    int32 crit_mod = 0;
     switch(spellProto->DmgClass)
     {
         case SPELL_DAMAGE_CLASS_MELEE:                      // for melee based spells is 100%
@@ -10998,15 +10999,19 @@ uint32 Unit::SpellCriticalDamageBonus(SpellEntry const *spellProto, uint32 damag
     // adds additional damage to crit_bonus (from talents)
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, crit_bonus);
+    damage += crit_bonus;
+
+    crit_mod += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, GetSpellSchoolMask(spellProto)); 
 
     if (pVictim)
-    {
+        crit_mod += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_PERCENT_VERSUS, pVictim->GetCreatureTypeMask());
+    /*{
         uint32 creatureTypeMask = pVictim->GetCreatureTypeMask();
         crit_bonus = int32(crit_bonus * GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CRIT_PERCENT_VERSUS, creatureTypeMask));
-    }
+    }*/
 
-    if (crit_bonus > 0)
-        damage += crit_bonus;
+    if (crit_mod != 0)
+        AddPctN(damage, crit_mod); 
 
     return damage;
 }
