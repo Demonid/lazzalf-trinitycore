@@ -19,7 +19,7 @@
 SDName: Kologarn
 SDAuthor: PrinceCreed
 SD%Complete: 100%
-SD%Comments:
+SD%Comments: Kologarn's vehicleid is wrong.
 EndScriptData */
 
 #include "ScriptPCH.h"
@@ -29,36 +29,23 @@ EndScriptData */
 enum Spells
 {
     // Kologarn
-    SPELL_ARM_DEAD_DAMAGE_10                    = 63629,
-    SPELL_ARM_DEAD_DAMAGE_25                    = 63979,
-    SPELL_TWO_ARM_SMASH_10                      = 63356,
-    SPELL_TWO_ARM_SMASH_25                      = 64003,
-    SPELL_ONE_ARM_SMASH_10                      = 63573,
-    SPELL_ONE_ARM_SMASH_25                      = 64006,
-    SPELL_ARM_SWEEP_10                          = 63766,
-    SPELL_ARM_SWEEP_25                          = 63983,
-    SPELL_STONE_SHOUT_10                        = 63716,
-    SPELL_STONE_SHOUT_25                        = 64005,
-    SPELL_PETRIFY_BREATH_10                     = 62030,
-    SPELL_PETRIFY_BREATH_25                     = 63980,
-    SPELL_SHOCKWAVE_10                          = 63783,
-    SPELL_SHOCKWAVE_25                          = 63982,
+    SPELL_ARM_DEAD_DAMAGE                       = 63629,
+    SPELL_TWO_ARM_SMASH                         = 63356,
+    SPELL_ONE_ARM_SMASH                         = 63573,
+    SPELL_ARM_SWEEP                             = 63766,
+    SPELL_STONE_SHOUT                           = 63716,
+    SPELL_PETRIFY_BREATH                        = 62030,
+    SPELL_SHOCKWAVE                             = 63783,
     SPELL_SHOCKWAVE_VISUAL                      = 63788,
     
-    SPELL_STONE_GRIP_10                         = 64290,
-    SPELL_STONE_GRIP_25                         = 64292,
+    SPELL_STONE_GRIP                            = 64290,
     SPELL_STONE_GRIP_STUN                       = 62056,
-    //SPELL_STONE_GRIP_STUN_25                    = 63985,
-    SPELL_FOCUSED_EYEBEAM_10                    = 63347,
-    SPELL_FOCUSED_EYEBEAM_25                    = 63977,
+    SPELL_FOCUSED_EYEBEAM                       = 63347,
     SPELL_EYEBEAM_VISUAL_1                      = 63676,
     SPELL_EYEBEAM_VISUAL_2                      = 63702,
     SPELL_EYEBEAM_IMMUNITY                      = 64722,
     SPELL_ARM_RESPAWN                           = 64753
 };
-
-#define SPELL_STONE_GRIP RAID_MODE(62166,63981)
-#define SPELL_STONE_GRIP_CANCEL 65594
 
 enum Events
 {
@@ -86,7 +73,7 @@ enum Npcs
     NPC_EYEBEAM_2                               = 33802,
     NPC_RUBBLE                                  = 33768,
     NPC_LEFT_ARM                                = 32933,
-    NPC_RIGHT_ARM                               = 32934,
+    NPC_RIGHT_ARM                               = 32934
 };
 
 enum Yells
@@ -106,13 +93,13 @@ enum Yells
 #define EMOTE_RIGHT                             "The Right Arm has regrown!"
 #define EMOTE_STONE                             "Kologarn casts Stone Grip!"
 
-#define N_GRIPPED                               RAID_MODE(1, 2)
-
 // Achievements
 #define ACHIEVEMENT_LOOKS_COULD_KILL            RAID_MODE(2955, 2956) // TODO
 #define ACHIEVEMENT_RUBBLE_AND_ROLL             RAID_MODE(2959, 2960)
 #define ACHIEVEMENT_WITH_OPEN_ARMS              RAID_MODE(2951, 2952)
 #define ACHIEV_DISARMED_START_EVENT             21687
+
+#define N_GRIPPED                               RAID_MODE(1, 2)
 
 uint32 GripTargetGUID[3];
 
@@ -139,14 +126,13 @@ public:
     {
         boss_kologarnAI(Creature *pCreature) : BossAI(pCreature, BOSS_KOLOGARN), vehicle(pCreature->GetVehicleKit()),
             left(false), right(false)
-        {            
+        {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
             me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
             SetCombatMovement(false);
             emerged = false;
-            eyeBeamHit = false;
         }
 
         Vehicle *vehicle;
@@ -155,7 +141,6 @@ public:
         bool Gripped;
         bool emerged;
         uint32 RubbleCount;
-        bool eyeBeamHit;
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -188,10 +173,6 @@ public:
                 if (RubbleCount == 0)
                     instance->DoCompleteAchievement(ACHIEVEMENT_WITH_OPEN_ARMS);
 
-                // If Looks Could Kill
-                /*if (!eyeBeamHit)
-                    instance->DoCompleteAchievement(ACHIEVEMENT_LOOKS_COULD_KILL);*/
-
                 // Remove Stone Grip from players
                 Map::PlayerList const &players = instance->instance->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -205,8 +186,7 @@ public:
                     {
                         pPlayer->RemoveAurasDueToSpell(RAID_MODE(64290, 64292));
                         pPlayer->RemoveAurasDueToSpell(SPELL_STONE_GRIP_STUN);
-                        //pPlayer->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
-                        pPlayer->TeleportTo(pPlayer->GetMapId(), 1767.80f, -18.38f, 449.0f, 6.27f); 
+                        pPlayer->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
                     }
                 }
             }
@@ -256,9 +236,7 @@ public:
             events.ScheduleEvent(EVENT_SWEEP, 10000);
             events.ScheduleEvent(EVENT_EYEBEAM, 10000);
             events.ScheduleEvent(EVENT_SHOCKWAVE, 12000);
-            // events.ScheduleEvent(EVENT_GRIP, 40000);
-
-            eyeBeamHit = false;
+            events.ScheduleEvent(EVENT_GRIP, 40000);
         }
 
         void Reset()
@@ -285,10 +263,10 @@ public:
                 return;
             
             if (events.GetTimer() > 15000 && !me->IsWithinMeleeRange(me->getVictim()))
-                DoCastAOE(RAID_MODE(SPELL_PETRIFY_BREATH_10,SPELL_PETRIFY_BREATH_25), true);
+                DoCastAOE(SPELL_PETRIFY_BREATH, true);
         
             if (!left && !right)
-                DoCast(me, RAID_MODE(SPELL_STONE_SHOUT_10,SPELL_STONE_SHOUT_25), true);
+                DoCast(me, SPELL_STONE_SHOUT, true);
 
             switch(events.GetEvent())
             {
@@ -297,18 +275,18 @@ public:
                     if (left && right)
                     {
                         if (me->IsWithinMeleeRange(me->getVictim()))
-                            DoCastVictim(RAID_MODE(SPELL_TWO_ARM_SMASH_10,SPELL_TWO_ARM_SMASH_25), true);
+                            DoCastVictim(SPELL_TWO_ARM_SMASH, true);
                     }
                     else if (left || right)
                     {
                         if (me->IsWithinMeleeRange(me->getVictim()))
-                            DoCastVictim(RAID_MODE(SPELL_ONE_ARM_SMASH_10,SPELL_ONE_ARM_SMASH_25), true);
+                            DoCastVictim(SPELL_ONE_ARM_SMASH, true);
                     }
                     events.RescheduleEvent(EVENT_SMASH, 15000);
                     break;
                 case EVENT_SWEEP:
                     if (left)
-                        DoCastAOE(RAID_MODE(SPELL_ARM_SWEEP_10,SPELL_ARM_SWEEP_25), true);
+                        DoCastAOE(SPELL_ARM_SWEEP, true);
                     events.RescheduleEvent(EVENT_SWEEP, 15000);
                     break;
                 case EVENT_GRIP:
@@ -333,13 +311,13 @@ public:
                     if (left)
                     {
                         DoScriptText(SAY_SHOCKWAVE, me);
-                        DoCastAOE(RAID_MODE(SPELL_SHOCKWAVE_10,SPELL_SHOCKWAVE_25), true);
+                        DoCastAOE(SPELL_SHOCKWAVE, true);
                         DoCastAOE(SPELL_SHOCKWAVE_VISUAL, true);
                     }
                     events.RescheduleEvent(EVENT_SHOCKWAVE, urand(15000, 25000));
                     break;
                 case EVENT_EYEBEAM:
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 1, 70, true))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0, 50, true))
                     {
                         if (Creature* EyeBeam = me->SummonCreature(NPC_EYEBEAM_1,pTarget->GetPositionX(),pTarget->GetPositionY()+3,pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000))
                         {
@@ -358,8 +336,6 @@ public:
                     if (Unit* LeftArm = me->SummonCreature(NPC_LEFT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
                     {
                         LeftArm->EnterVehicle(vehicle, 0);
-                        //LeftArm->DestroyForNearbyPlayers();
-                        //LeftArm->UpdateObjectVisibility(false);
                         DoCast(me, SPELL_ARM_RESPAWN, true);
                         me->MonsterTextEmote(EMOTE_LEFT, 0, true);
                         if (instance)
@@ -371,8 +347,6 @@ public:
                     if (Unit* RightArm = me->SummonCreature(NPC_RIGHT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
                     {
                         RightArm->EnterVehicle(vehicle, 1);
-                        //RightArm->DestroyForNearbyPlayers();
-                        //RightArm->UpdateObjectVisibility(false);
                         DoCast(me, SPELL_ARM_RESPAWN, true);
                         me->MonsterTextEmote(EMOTE_RIGHT, 0, true);
                         if (instance)
@@ -426,30 +400,15 @@ public:
     {
         npc_focused_eyebeamAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             DoCast(me, SPELL_EYEBEAM_IMMUNITY);
-            DoCast(me, RAID_MODE(SPELL_FOCUSED_EYEBEAM_10,SPELL_FOCUSED_EYEBEAM_25));
+            DoCast(me, SPELL_FOCUSED_EYEBEAM);
             me->SetDisplayId(11686);
             checkTimer = 1500;
         }
 
-        InstanceScript* pInstance;
         uint32 checkTimer;
-
-        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
-        {
-            if (pTarget->GetTypeId() == TYPEID_PLAYER)
-            {
-                if (spell->Id == RAID_MODE(SPELL_FOCUSED_EYEBEAM_10,SPELL_FOCUSED_EYEBEAM_25))
-                {
-                     if (pInstance)
-                         if (Creature* pKologarn = me->GetCreature(*me, pInstance->GetData64(DATA_KOLOGARN)))
-                             CAST_AI(boss_kologarn::boss_kologarnAI,pKologarn->AI())->eyeBeamHit = true;
-                }
-            }
-        }
 
         void UpdateAI(const uint32 diff)
         {
@@ -510,6 +469,7 @@ public:
     };
 
 };
+
 
 class npc_right_arm : public CreatureScript
 {
@@ -587,7 +547,7 @@ public:
                             me->Kill(me->GetVehicleKit()->GetPassenger(n), true);
                     }
                     Gripped = false;
-                }
+                }  
                 else SqueezeTimer -= diff;
             }
         }
@@ -609,7 +569,7 @@ public:
                                 GripTargetGUID[n] = NULL;
                             }
                         }
-                    }
+                    }  
                     ArmDamage = 0;
                     SqueezeTimer = 16000;
                     Gripped = true;
@@ -642,6 +602,7 @@ public:
             }
         }
     };
+
 };
 
 
@@ -652,4 +613,3 @@ void AddSC_boss_kologarn()
     new npc_left_arm();
     new npc_right_arm();
 }
-
