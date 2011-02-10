@@ -196,7 +196,7 @@ class boss_general_vezax : public CreatureScript
                 switch(eventId)
                 {
                     case EVENT_SHADOW_CRASH:
-                        if (Unit * pTarget = GetPlayerAtMinimumRange(15.0f))
+                        if (Unit * pTarget = CheckPlayersInRange(1, 15.0f, 100.f))
                             DoCast(pTarget, SPELL_SHADOW_CRASH);
                         events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(6000, 10000));
                         break;
