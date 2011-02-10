@@ -326,8 +326,16 @@ class boss_steelbreaker : public CreatureScript
                     break;
                     case EVENT_STATIC_DISRUPTION:
                     {
-                        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_STATIC_DISRUPTION);
+                        Unit* pTarget = NULL;
+                        /* Static Disruption (1 dead) - 
+                           Inflicts 3,500 (25-man: 7,000) Nature damage to enemies in 6 yards radius area. 
+                           Also increases Nature damage taken by 75% for 20 seconds. 
+                           Prefers ranged targets, but will choose a player in melee ranged if no ranged 
+                           targets are available.
+                        */
+                        if (!(pTarget = CheckPlayersInRange(1, 15.0f, 100.f)))
+                            pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true); 
+                        DoCast(pTarget, SPELL_STATIC_DISRUPTION);
                         events.ScheduleEvent(EVENT_STATIC_DISRUPTION, 20000 + (rand()%20)*1000);
                     }
                     break;
@@ -360,6 +368,46 @@ class boss_steelbreaker : public CreatureScript
                     break;
             }
         }
+
+        Unit * CheckPlayersInRange(uint32 uiPlayersMin, float uiRangeMin, float uiRangeMax)
+        {
+            Map * pMap = me->GetMap();
+            if (pMap && pMap->IsDungeon())
+            {                
+                uint32 uplayerfound = 0;
+                std::list<Player*> PlayerList;
+                Map::PlayerList const &Players = pMap->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = Players.begin(); itr != Players.end(); ++itr)
+                {
+                    if (Player * pPlayer = itr->getSource())
+                    {
+                        float uiDistance = pPlayer->GetDistance(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                        if (uiRangeMin < uiDistance || uiDistance > uiRangeMax)
+                            continue;
+
+                        uplayerfound++;
+                        
+                        if (!pPlayer->isAlive())
+                            continue;
+
+                        PlayerList.push_back(pPlayer);
+                    }
+                }
+
+                if (PlayerList.empty())
+                    return NULL;
+
+                size_t size = PlayerList.size();
+                if (uplayerfound < uiPlayersMin)
+                    return NULL;
+
+                std::list<Player*>::const_iterator itr = PlayerList.begin();
+                std::advance(itr, urand(0, size - 1));
+                return *itr;
+            }
+            else
+                return NULL;
+        };
     };
 
     CreatureAI* GetAI(Creature* pCreature) const
