@@ -2608,6 +2608,37 @@ public:
     }
 };
 
+#define GOSSIP_ITEM "Vorrei un altro Lovely Charm Collector Kit."
+
+class npc_love_is_in_the_air : public CreatureScript
+{
+public:
+    npc_love_is_in_the_air() : CreatureScript("npc_love_is_in_the_air") { }
+
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        if (pCreature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+        if (!pPlayer->HasItemCount(49661, 1))
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_INFO_DEF:
+                pPlayer->AddItem(49661, 1);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+        }
+        
+        return true;
+    }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots;
@@ -2638,5 +2669,6 @@ void AddSC_npcs_special()
     new npc_locksmith;
     new npc_tabard_vendor;
     new npc_experience;
+    new npc_love_is_in_the_air();
 }
 
