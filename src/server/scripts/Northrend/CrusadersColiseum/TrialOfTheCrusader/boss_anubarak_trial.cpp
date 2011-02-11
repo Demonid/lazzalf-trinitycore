@@ -597,14 +597,14 @@ public:
             {
                 uiDamage = 0;
 
-                if (pWho->ToTempSummon() && pWho->GetEntry() == NPC_SPIKE)
+                /*if (pWho->ToTempSummon() && pWho->GetEntry() == NPC_SPIKE)
                 {
                     pWho->ToTempSummon()->DisappearAndDie();
                     if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ANUBARAK)))
                         pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);
                     me->DisappearAndDie();
                     return;
-                }
+                }*/
 
                 if (!m_bFall)
                 {
