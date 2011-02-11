@@ -577,12 +577,12 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
         (plMover->HasAura(7840) || // 7840 -> Swim Speed
         plMover->HasAura(88026) || // 88026 -> Silversnap Swim Tonic Master
         plMover->HasAura(30430)))   // 30430 -> Embrace of the Serpent
-        return true; 
+        return true;
+    */
     
     // the best way is checking the ip of the target, if it is the same this check should return.
     if (plMover->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
-        return true;
-    */
+        return true;    
 
     // it will make false reports
     if (plMover->IsFalling() && fly_auras)
@@ -636,13 +636,18 @@ bool AntiCheat::CheckAntiFly(MovementInfo& pOldPacket, MovementInfo& pNewPacket)
     if (!pOldPacket.HasMovementFlag(MOVEMENTFLAG_FLYING)) // is flying
         return true;
 
+    // we like check heartbeat movements
+    if (pNewPacket.GetMovementFlags() != plMover->GetUnitMovementFlags() || 
+        pNewPacket.GetMovementFlags() != pOldPacket.GetMovementFlags())
+        return true;
+
     if (plMover->HasAuraType(SPELL_AURA_FEATHER_FALL) || plMover->HasAuraType(SPELL_AURA_SAFE_FALL))
         return true;
 
     if (plMover->IsFalling())
         return true;
 
-	if (!fly_auras)
+	if (!fly_auras && plMover->IsFlying())
 	{
         if (map_count)
             ++(m_CheatList[CHEAT_FLY]);
