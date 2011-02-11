@@ -781,9 +781,12 @@ void ArenaTeam::MemberWon(Player * plr, uint32 againstMatchmakerRating, int32 te
         {
             int32 mod = 0;
             // update personal rating
-            if (againstRating && (m_stats.rating > itr->personal_rating) && (m_stats.rating - itr->personal_rating) < 32)
+            if ((againstRating != 0) && (m_stats.rating > itr->personal_rating) && ((m_stats.rating - itr->personal_rating) < 32))
             {
-                float chance = GetChanceAgainst(itr->personal_rating, againstRating);
+                int32 enemy_rating = againstRating;
+                if (enemy_rating < 1000)
+                    enemy_rating = 1000;
+                float chance = GetChanceAgainst(itr->personal_rating, enemy_rating);
                 float K = (itr->personal_rating < 1000) ? 48.0f : 32.0f;
                 // calculate the rating modification (ELO system with k=32 or k=48 if rating<1000)
                 mod = (int32)floor(K* (1.0f - chance));
