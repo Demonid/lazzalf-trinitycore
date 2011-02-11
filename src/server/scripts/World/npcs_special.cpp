@@ -2622,6 +2622,9 @@ public:
 
         if (!pPlayer->HasItemCount(49661, 1))
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,_Creature->GetGUID());
+        
         return true;
     }
 
