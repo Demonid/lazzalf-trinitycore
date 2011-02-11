@@ -4276,6 +4276,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 42894:
         case 42896:
         case 42897:
+            spellInfo->AttributesEx |= SPELL_ATTR1_NEGATIVE;
             count++;
             break;
         case 71357: // Order Whelp
