@@ -144,6 +144,8 @@ class instance_ulduar : public InstanceMapScript
         uint32 steelforgedDefendersCount;
         uint32 dwarfageddonTimer;
         uint32 achievementDwarfageddon;
+        // Can't Do That While Stunned
+        bool wasHitByLightning;
         // Lumberjacked
         uint8 eldersCount;
         uint32 lumberjackedTimer;
@@ -164,6 +166,7 @@ class instance_ulduar : public InstanceMapScript
             steelforgedDefendersCount = 0;
             dwarfageddonTimer = 0;
             achievementDwarfageddon = 0;
+            wasHitByLightning = false;
             eldersCount = 0;
             lumberjackedTimer = 0;
             achievementLumberjacked = 0;
@@ -533,6 +536,12 @@ class instance_ulduar : public InstanceMapScript
                     if (value == ACHI_INCREASE)
                         steelforgedDefendersCount++;
                     break;
+                case DATA_CANT_WHILE_STUNNED:
+                    if (value == ACHI_FAILED)
+                        wasHitByLightning = true;
+                    else if (value == ACHI_START)
+                        wasHitByLightning = false;
+                    break;
                 case DATA_LUMBERJACKED_START:
                     if (value == ACHI_START)
                         lumberjackedTimer = LUMBERJACKED_MAX_TIMER;
@@ -578,6 +587,11 @@ class instance_ulduar : public InstanceMapScript
                         return ACHI_IS_IN_PROGRESS;
                     else
                         return ACHI_IS_NOT_STARTED;
+                case DATA_CANT_WHILE_STUNNED:
+                    if (wasHitByLightning == true)
+                        return ACHI_FAILED;
+                    else
+                        return ACHI_IS_IN_PROGRESS;
                 case DATA_LUMBERJACKED_START:
                     if (lumberjackedTimer > 0)
                         return ACHI_IS_IN_PROGRESS;

@@ -266,6 +266,9 @@ class boss_steelbreaker : public CreatureScript
                 pInstance->DoCompleteAchievement(ACHIEVEMENT_CHOOSE_STEELBREAKER);
                 pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65195);
 
+                if (pInstance->GetData(DATA_CANT_WHILE_STUNNED) == ACHI_IS_IN_PROGRESS)
+                    pInstance->DoCompleteAchievement(ACHIEVEMENT_CANT_WHILE_STUNNED);
+
                 Map* pMap = me->GetMap();
                 if (pMap && pMap->IsDungeon())
                 {
@@ -480,6 +483,9 @@ class boss_runemaster_molgeim : public CreatureScript
                 pInstance->DoCompleteAchievement(ACHIEVEMENT_CHOOSE_MOLGEIM);
                 pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65195);
 
+                if (pInstance->GetData(DATA_CANT_WHILE_STUNNED) == ACHI_IS_IN_PROGRESS)
+                    pInstance->DoCompleteAchievement(ACHIEVEMENT_CANT_WHILE_STUNNED);
+
                 Map* pMap = me->GetMap();
                 if (pMap && pMap->IsDungeon())
                 {
@@ -663,6 +669,9 @@ class boss_stormcaller_brundir : public CreatureScript
             events.ScheduleEvent(EVENT_ENRAGE, 900000);
             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 2000);
             events.ScheduleEvent(EVENT_OVERLOAD, urand(60000, 120000));
+
+            // Reset achievement
+            pInstance->SetData(DATA_CANT_WHILE_STUNNED, ACHI_START);
         }
 
         void JustDied(Unit* Killer)
@@ -674,6 +683,9 @@ class boss_stormcaller_brundir : public CreatureScript
                 pInstance->SetBossState(BOSS_ASSEMBLY, DONE);
                 pInstance->DoCompleteAchievement(ACHIEVEMENT_CHOOSE_BRUNDIR);
                 pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65195);
+
+                if (pInstance->GetData(DATA_CANT_WHILE_STUNNED) == ACHI_IS_IN_PROGRESS)
+                    pInstance->DoCompleteAchievement(ACHIEVEMENT_CANT_WHILE_STUNNED);
 
                 Map* pMap = me->GetMap();
                 if (pMap && pMap->IsDungeon())
@@ -703,6 +715,13 @@ class boss_stormcaller_brundir : public CreatureScript
             if(Creature* Steelbreaker = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_STEELBREAKER) : 0))
                 if(Steelbreaker->isAlive())
                     Steelbreaker->AI()->DoAction(ACTION_STEELBREAKER);
+        }
+
+        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
+        {
+            if (spell->Id == SPELL_CHAIN_LIGHTNING || spell->Id == SPELL_LIGHTNING_WHIRL)
+                if (pTarget->GetTypeId() == TYPEID_PLAYER)
+                    pInstance->SetData(DATA_CANT_WHILE_STUNNED, ACHI_FAILED);
         }
         
         void UpdateAI(const uint32 diff)
