@@ -821,7 +821,7 @@ public:
             if (pCaster->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            pCaster->ToPlayer()->AddItem(HeartCandies[urand(1, 8) - 1], 1);
+            pCaster->ToPlayer()->AddItem(HeartCandies[urand(0, 7)], 1);
         }
 
         void Register()

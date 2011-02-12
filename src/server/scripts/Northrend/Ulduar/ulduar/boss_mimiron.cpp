@@ -362,6 +362,9 @@ public:
                                             pAerialUnit->DisappearAndDie();
                                             DespawnCreatures(NPC_ROCKET, 100);
                                             me->Kill(me, false);
+                                            Map::PlayerList const &players = instance->instance->GetPlayers();
+                                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                                                itr->getSource()->KilledMonsterCredit(33432, 0);
                                             checkBotAlive = true;
                                         }
                 }
