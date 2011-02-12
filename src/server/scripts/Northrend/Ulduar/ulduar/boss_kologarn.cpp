@@ -133,6 +133,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
             SetCombatMovement(false);
             emerged = false;
+            eyeBeamHit = false;
         }
 
         Vehicle *vehicle;
@@ -141,6 +142,7 @@ public:
         bool Gripped;
         bool emerged;
         uint32 RubbleCount;
+        bool eyeBeamHit;
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -172,6 +174,10 @@ public:
                 // With Open Arms
                 if (RubbleCount == 0)
                     instance->DoCompleteAchievement(ACHIEVEMENT_WITH_OPEN_ARMS);
+
+                // If Looks Could Kill
+                if (!eyeBeamHit)
+                    instance->DoCompleteAchievement(ACHIEVEMENT_LOOKS_COULD_KILL);
 
                 // Remove Stone Grip from players
                 Map::PlayerList const &players = instance->instance->GetPlayers();
@@ -237,6 +243,7 @@ public:
             events.ScheduleEvent(EVENT_EYEBEAM, 10000);
             events.ScheduleEvent(EVENT_SHOCKWAVE, 12000);
             events.ScheduleEvent(EVENT_GRIP, 40000);
+            eyeBeamHit = false;
         }
 
         void Reset()
@@ -406,9 +413,21 @@ public:
             DoCast(me, SPELL_FOCUSED_EYEBEAM);
             me->SetDisplayId(11686);
             checkTimer = 1500;
+            pInstance = c->GetInstanceScript();
         }
 
+        InstanceScript* pInstance;
         uint32 checkTimer;
+
+        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
+        {
+            if (spell->Id == SPELL_FOCUSED_EYEBEAM)
+            {
+                if (pTarget->GetTypeId() == TYPEID_PLAYER)
+                    if (Creature* pKologarn = me->GetCreature(*me, pInstance->GetData64(DATA_KOLOGARN)))
+                        CAST_AI(boss_kologarn::boss_kologarnAI,pKologarn->AI())->eyeBeamHit = true;
+            }
+        }
 
         void UpdateAI(const uint32 diff)
         {
