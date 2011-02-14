@@ -872,6 +872,5 @@ void AddSC_item_spell_scripts()
     new spell_item_underbelly_elixir();
     new spell_item_shadowmourne();
     new spell_item_red_rider_air_rifle();
-
     new spell_item_create_heart_candy();
 }

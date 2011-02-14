@@ -47,6 +47,7 @@ EndContentData */
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "World.h"
+#include "Guild.h"
 
 /*########
 # npc_air_force_bots
@@ -2026,7 +2027,8 @@ public:
         {
             me->SetControlled(true,UNIT_STAT_STUNNED);//disable rotate
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
-
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+            me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
             uiResetTimer = 5000;
             uiDespawnTimer = 15000;
         }
@@ -2042,6 +2044,7 @@ public:
         void DamageTaken(Unit * /*done_by*/, uint32 &damage)
         {
             uiResetTimer = 5000;
+            //me->SetHealth(me->GetMaxHealth());
             damage = 0;
         }
 
@@ -2605,6 +2608,40 @@ public:
     }
 };
 
+#define GOSSIP_ITEM "Vorrei un altro Lovely Charm Collector Kit."
+
+class npc_love_is_in_the_air : public CreatureScript
+{
+public:
+    npc_love_is_in_the_air() : CreatureScript("npc_love_is_in_the_air") { }
+
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        if (pCreature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+        if (!pPlayer->HasItemCount(49661, 1))
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+        pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,pCreature->GetGUID());
+        
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_INFO_DEF:
+                pPlayer->AddItem(49661, 1);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+        }
+        
+        return true;
+    }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots;
@@ -2635,5 +2672,6 @@ void AddSC_npcs_special()
     new npc_locksmith;
     new npc_tabard_vendor;
     new npc_experience;
+    new npc_love_is_in_the_air();
 }
 
