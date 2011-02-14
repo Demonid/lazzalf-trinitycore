@@ -372,10 +372,57 @@ public:
 
 };
 
+#define NEXUS_DRAKE_HATCHLING 26127
+
+class npc_dummy_raelorasz : public CreatureScript
+{
+public:
+    npc_dummy_raelorasz() : CreatureScript("npc_dummy_raelorasz") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_dummy_raeloraszAI(pCreature);
+    }
+
+    struct npc_dummy_raeloraszAI : public ScriptedAI
+    {
+        npc_dummy_raeloraszAI(Creature *c) : ScriptedAI(c)
+        {
+            uiFindTimer = 5000;
+        }
+
+        uint32 uiFindTimer;
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (uiFindTimer <= uiDiff)
+            {
+                std::list<Creature*> list;
+                me->GetCreatureListWithEntryInGrid(list, NEXUS_DRAKE_HATCHLING, 30.0f);
+                if (!list.empty())
+                    for (std::list<Creature*>::iterator itr = list.begin(); itr != list.end(); ++itr)
+                    {
+                        if (Unit* owner = (*itr)->GetOwner())
+                            if (owner->ToPlayer())
+                            {
+                                owner->ToPlayer()->CompleteQuest(11940);
+                                (*itr)->DespawnOrUnsummon();
+                            }
+                    }
+                uiFindTimer = 5000;
+            }
+            else
+                uiFindTimer -= uiDiff;
+        }
+    };
+
+};
+
 void AddSC_dragonblight()
 {
     new npc_alexstrasza_wr_gate;
     new npc_inquisitor_hallard;
     new item_emblazoned_battle_horn();
     new npc_torturer_lecraft();
+    new npc_dummy_raelorasz();
 }
