@@ -176,8 +176,8 @@ public:
                     instance->DoCompleteAchievement(ACHIEVEMENT_WITH_OPEN_ARMS);
 
                 // If Looks Could Kill
-                if (!eyeBeamHit)
-                    instance->DoCompleteAchievement(ACHIEVEMENT_LOOKS_COULD_KILL);
+                /*if (!eyeBeamHit)
+                    instance->DoCompleteAchievement(ACHIEVEMENT_LOOKS_COULD_KILL);*/
 
                 // Remove Stone Grip from players
                 Map::PlayerList const &players = instance->instance->GetPlayers();
