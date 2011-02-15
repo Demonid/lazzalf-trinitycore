@@ -48,7 +48,7 @@ enum VezaxSpells
     SPELL_SARONITE_BARRIER                      = 63364,
     SPELL_SEARING_FLAMES                        = 62661,
     SPELL_SHADOW_CRASH                          = 62660,
-    SPELL_SHADOW_CRASH_HIT                       = 62659, 
+    SPELL_SHADOW_CRASH_HIT                      = 62659, 
     SPELL_SURGE_OF_DARKNESS                     = 62662,
     SPELL_SARONITE_VAPOR                        = 63323,
     SPELL_PROFOUND_OF_DARKNESS                  = 63420,
@@ -136,7 +136,7 @@ class boss_general_vezax : public CreatureScript
         
         void SpellHitTarget(Unit * pTarget, const SpellEntry * pSpell)
         {
-            if (pSpell->Id == SPELL_SHADOW_CRASH_HIT && pTarget->GetTypeId() == TYPEID_PLAYER)
+            if ((pSpell->Id == SPELL_SHADOW_CRASH_HIT || pSpell->Id == SPELL_SHADOW_CRASH) && pTarget->GetTypeId() == TYPEID_PLAYER)
                 Dodged = false;
         }
 
@@ -196,7 +196,10 @@ class boss_general_vezax : public CreatureScript
                 switch(eventId)
                 {
                     case EVENT_SHADOW_CRASH:
-                        if (Unit * pTarget = CheckPlayersInRange(1, 15.0f, 100.f))
+                        Unit* pTarget = CheckPlayersInRange(1, 15.0f, 100.f);
+                        if (!pTarget)
+                            pTarget = SelectUnit(SELECT_TARGET_FARTHEST, 0);
+                        if (!pTarget->IsWithinDist(me, 15))
                             DoCast(pTarget, SPELL_SHADOW_CRASH);
                         events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(6000, 10000));
                         break;
@@ -211,13 +214,13 @@ class boss_general_vezax : public CreatureScript
                         events.ScheduleEvent(EVENT_DARKNESS, urand(60000, 70000));
                         break;
                     case EVENT_MARK:
-                        {
-                            Unit* pTarget = NULL;
+                        {                           
                             /*  He will not cast this on players within 15 yards of him. 
                                 However, if there are not at least 5 people outside of 15 yards 
                                 he will start casting it on players inside 15 yards melee and tank included.
                             */
-                            if (!(pTarget = CheckPlayersInRange(RAID_MODE(2,5), 15.0f, 100.f)))
+                            Unit* pTarget = CheckPlayersInRange(RAID_MODE(2,5), 15.0f, 100.f);
+                            if (!pTarget)
                                 pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true); 
                             DoCast(pTarget, SPELL_MARK_OF_THE_FACELESS);
                             events.ScheduleEvent(EVENT_MARK, urand(35000, 40000));
@@ -285,7 +288,7 @@ class boss_general_vezax : public CreatureScript
         Unit * CheckPlayersInRange(uint32 uiPlayersMin, float uiRangeMin, float uiRangeMax)
         {
             Map * pMap = me->GetMap();
-            if (pMap && pMap->IsDungeon())
+            if (pMap)
             {                
                 uint32 uplayerfound = 0;
                 std::list<Player*> PlayerList;
