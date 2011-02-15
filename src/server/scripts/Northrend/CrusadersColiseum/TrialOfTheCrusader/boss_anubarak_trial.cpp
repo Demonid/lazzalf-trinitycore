@@ -501,13 +501,15 @@ public:
 
         uint32 m_uiSpiderFrenzyTimer;
         uint32 m_uiSubmergeTimer;
+        uint32 m_uiExposeWeaknessTimer;
 
         void Reset()
         {
             me->SetCorpseDelay(0);
             m_uiSpiderFrenzyTimer = urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS);
             m_uiSubmergeTimer = 30*IN_MILLISECONDS;
-            DoCast(me, SPELL_EXPOSE_WEAKNESS);
+            m_uiExposeWeaknessTimer = 1* IN_MILLISECONDS;
+            //DoCast(me, SPELL_EXPOSE_WEAKNESS);
             DoCast(me, SPELL_SPIDER_FRENZY);
             me->SetInCombatWithZone();
             if (!me->isInCombat())
@@ -551,6 +553,17 @@ public:
                 m_uiSubmergeTimer = 20*IN_MILLISECONDS;
             } else m_uiSubmergeTimer -= uiDiff;
 
+            if (!me->HasAura(SPELL_SUBMERGE_EFFECT) && me->getVictim())
+            {
+                if (m_uiExposeWeaknessTimer <= uiDiff)
+                {
+                    if (me->IsWithinMeleeRange(me->getVictim()))
+                        DoCastVictim(67720, true);
+                    m_uiExposeWeaknessTimer = 2*IN_MILLISECONDS;
+                }
+                else 
+                    m_uiExposeWeaknessTimer -= uiDiff;
+            } 
             DoMeleeAttackIfReady();
         }
     };
@@ -682,6 +695,8 @@ public:
 
         void EnterCombat(Unit *pWho)
         {
+            if (!pWho->ToPlayer())
+                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true); 
             m_uiTargetGUID = pWho->GetGUID();
             DoCast(pWho, SPELL_MARK);
             me->SetSpeed(MOVE_RUN, 0.5f);
