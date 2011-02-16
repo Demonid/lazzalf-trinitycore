@@ -567,6 +567,9 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
         pNewPacket.GetMovementFlags() != pOldPacket.GetMovementFlags())
         return true;
 
+    if (!plMover->isAlive())
+        return true;
+
     /*
     // False segnalation    
     if (plMover->HasAura(30174) || // 30174 -> Riding Turtle
