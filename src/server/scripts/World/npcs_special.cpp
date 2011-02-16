@@ -1894,7 +1894,7 @@ public:
 
             bool hasCC = false;
             if (me->GetCharmerOrOwnerGUID() && me->getVictim())
-                hasCC = me->getVictim()->HasNegativeAuraWithAttribute(SPELL_ATTR0_BREAKABLE_BY_DAMAGE, me->GetCharmerOrOwnerGUID());
+                hasCC = me->getVictim()->HasAuraType(SPELL_AURA_MOD_CONFUSE);
 
             if (hasCC)
             {
