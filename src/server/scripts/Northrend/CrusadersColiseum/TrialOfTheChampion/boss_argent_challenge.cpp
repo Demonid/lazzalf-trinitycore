@@ -158,6 +158,7 @@ class boss_eadric : public CreatureScript
                         pInstance->HandleGameObject(pGO->GetGUID(),true);		
 					    if (pInstance)
                 pInstance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
+                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 68575);
 		    }
         }
 
@@ -334,6 +335,7 @@ class boss_paletress : public CreatureScript
                 pInstance->SetData(BOSS_ARGENT_CHALLENGE_P, DONE);
                 if (IsHeroic())
                     pInstance->DoCompleteAchievement(ACHIEV_CONF);
+                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 68574);
 		    }
         }
 

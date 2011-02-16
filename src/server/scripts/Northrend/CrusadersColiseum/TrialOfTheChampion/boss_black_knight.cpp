@@ -422,6 +422,7 @@ class boss_black_knight : public CreatureScript
             if (pInstance)
             {
                 pInstance->SetData(BOSS_BLACK_KNIGHT, DONE);
+                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 68663);
                 
                 if (IsHeroic())
                     pInstance->DoCompleteAchievement(ACHIEV_WORSE);
