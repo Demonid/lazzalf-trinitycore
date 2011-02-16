@@ -4224,6 +4224,13 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectRadiusIndex[0] = 28;   // another missing radius
             count++;
             break;
+        case 71708: // Empowered Flare (Blood Prince Council)
+        case 72785: // Empowered Flare (Blood Prince Council)
+        case 72786: // Empowered Flare (Blood Prince Council)
+        case 72787: // Empowered Flare (Blood Prince Council)
+            spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+            count++;
+            break;
         case 50294: // Druid - Starfall AOE rank
         case 53188:
         case 53189:
