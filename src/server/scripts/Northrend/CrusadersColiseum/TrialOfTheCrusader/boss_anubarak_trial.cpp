@@ -380,6 +380,8 @@ public:
                                 break;
                             }
                         }
+                        else if (Creature *pSummon = me->SummonCreature(NPC_FROST_SPHERE, SphereSpawn[i]))
+                            m_aSphereGUID[i] = pSummon->GetGUID(); 
                         i = (i+1)%6;
                     } while (i != startAt);
                     m_uiSummonFrostSphereTimer = urand(20, 30)*IN_MILLISECONDS;
