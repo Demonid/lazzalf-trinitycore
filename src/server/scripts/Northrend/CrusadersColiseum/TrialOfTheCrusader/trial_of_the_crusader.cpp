@@ -459,7 +459,7 @@ class npc_fizzlebang_toc : public CreatureScript
                             break;
                         case 1140:
                             DoScriptText(SAY_STAGE_1_04, me);
-                            if (Creature* pTemp = me->SummonCreature(NPC_JARAXXUS, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 5.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME))
+                            if (Creature* pTemp = me->SummonCreature(NPC_JARAXXUS, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 5.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2*DESPAWN_TIME))
                             {
                                 pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 pTemp->SetReactState(REACT_PASSIVE);
@@ -642,7 +642,7 @@ class npc_tirion_toc : public CreatureScript
                         case 310:
                             if (m_pInstance->GetData(TYPE_BEASTS) != DONE)
                             {
-                                me->SummonCreature(NPC_ICEHOWL, ToCCommonLoc[10].GetPositionX(), ToCCommonLoc[10].GetPositionY(), ToCCommonLoc[10].GetPositionZ(), 5, TEMPSUMMON_DEAD_DESPAWN);
+                                me->SummonCreature(NPC_ICEHOWL, ToCCommonLoc[10].GetPositionX(), ToCCommonLoc[10].GetPositionY(), ToCCommonLoc[10].GetPositionZ(), 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2*DESPAWN_TIME);
                                 if (Creature* pTemp = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ICEHOWL)))
                                 {
                                     pTemp->GetMotionMaster()->MovePoint(0, ToCCommonLoc[5].GetPositionX(), ToCCommonLoc[5].GetPositionY(), ToCCommonLoc[5].GetPositionZ());
