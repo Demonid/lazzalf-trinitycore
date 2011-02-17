@@ -5349,7 +5349,19 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     }
                     return;
                 }
-                case 63795: // Psychosis
+                case 65301: // Psychosis 10
+                {
+                    if (AuraEffect *aur=unitTarget->GetAuraEffect(63050, 0))
+                    {
+                        int32 stack = aur->GetBase()->GetStackAmount() - 12;
+                        if (stack <= 0)
+                            unitTarget->RemoveAurasDueToSpell(63050);
+                        else
+                            unitTarget->SetAuraStack(63050, unitTarget, stack);
+                    }
+                    return;
+                }
+                case 63795: // Psychosis 25
                 {
                     if (AuraEffect *aur=unitTarget->GetAuraEffect(63050, 0))
                     {
