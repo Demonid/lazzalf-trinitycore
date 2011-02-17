@@ -5650,8 +5650,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (target->GetCharmerGUID())
                         return SPELL_FAILED_CHARMED;
 
-                    if (target->IsMounted())
-                        return SPELL_FAILED_NOT_ON_MOUNTED;
+                    if (target->HasAura(46924)) // Bladestorm
+                        return SPELL_FAILED_CANT_BE_CHARMED;
 
                     int32 damage = CalculateDamage(i, target);
                     if (damage && int32(target->getLevel()) > damage)
