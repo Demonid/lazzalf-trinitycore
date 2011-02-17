@@ -1629,7 +1629,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                     if (caster->HasAura(20254) || caster->HasAura(20255) || caster->HasAura(20256))
                         if (apply)
                             target->CastSpell(target, 63510, true);
-                        else target->RemoveAura(63510);
+                        else 
+                            target->RemoveAura(63510);
+                    break;
                 case 31821:
                     // Aura Mastery Triggered Spell Handler
                     // If apply Concentration Aura -> trigger -> apply Aura Mastery Immunity
