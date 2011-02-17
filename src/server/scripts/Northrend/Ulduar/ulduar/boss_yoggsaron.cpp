@@ -130,7 +130,8 @@ enum Spells
     SPELL_DEATH_RAY_DAMAGE                      = 63883,
     SPELL_DEATH_RAY_DAMAGE_VISUAL               = 63886,
     SPELL_DEATH_RAY_WARNING_VISUAL              = 63882,
-    SPELL_PSYCHOSIS                             = 63795,
+    SPELL_PSYCHOSIS_10                          = 65301,
+    SPELL_PSYCHOSIS_25                          = 63795,
     SPELL_MALADY_OF_THE_MIND                    = 63830,
     
     // Guardian of Yogg Saron
@@ -621,7 +622,7 @@ class boss_sara : public CreatureScript
                     {
                         case EVENT_PSYCHOSIS:
                             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
-                                DoCast(pTarget, SPELL_PSYCHOSIS);
+                                DoCast(pTarget, RAID_MODE(SPELL_PSYCHOSIS_10, SPELL_PSYCHOSIS_25));
                             events.ScheduleEvent(EVENT_PSYCHOSIS, urand(4000, 6000), 0, PHASE_2);
                             break;
                         case EVENT_MALADY_OF_THE_MIND:
