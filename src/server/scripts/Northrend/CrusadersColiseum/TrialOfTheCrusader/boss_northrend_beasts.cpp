@@ -137,6 +137,8 @@ public:
         uint32 m_uiSummonTimer;
         uint32 m_uiSummonCount;
 
+        uint32 m_uiNextBossTimer;
+
         void Reset()
         {
             m_uiImpaleTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
@@ -149,12 +151,14 @@ public:
             else
                 m_uiSummonCount = 4;
 
+            m_uiNextBossTimer = 180*IN_MILLISECONDS;
+
             Summons.DespawnAll();
         }
 
         void JustDied(Unit* /*pKiller*/)
         {
-            if (m_pInstance)
+            if (m_pInstance && m_uiNextBossTimer)
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_DONE);
         }
 
@@ -197,7 +201,14 @@ public:
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim())
-                return;
+                return;            
+
+            if (IsHeroic() && m_uiNextBossTimer)
+                if (m_uiNextBossTimer <= uiDiff)
+                {
+                    m_uiNextBossTimer = 0;
+                    m_pInstance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_DONE);
+                } else m_uiNextBossTimer -= uiDiff;
 
             if (m_uiImpaleTimer <= uiDiff)
             {
@@ -382,6 +393,8 @@ struct boss_jormungarAI : public ScriptedAI
         spitTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
         sprayTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
         sweepTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+
+        m_uiNextBossTimer = 180*IN_MILLISECONDS;
     }
 
     void JustDied(Unit* /*pKiller*/)
@@ -392,7 +405,8 @@ struct boss_jormungarAI : public ScriptedAI
             {
                 if (!otherWorm->isAlive())
                 {
-                    instanceScript->SetData(TYPE_NORTHREND_BEASTS, SNAKES_DONE);
+                    if (m_uiNextBossTimer)
+                        instanceScript->SetData(TYPE_NORTHREND_BEASTS, SNAKES_DONE);
 
                     me->DespawnOrUnsummon();
                     otherWorm->DespawnOrUnsummon();
@@ -402,8 +416,6 @@ struct boss_jormungarAI : public ScriptedAI
             }
         }
     }
-
-
 
     void JustReachedHome()
     {
@@ -430,8 +442,24 @@ struct boss_jormungarAI : public ScriptedAI
     }
 
     void UpdateAI(const uint32 uiDiff)
-    {
-        if (!UpdateVictim()) return;
+    {     
+        if (!UpdateVictim()) 
+            return;
+
+        if (IsHeroic() && m_uiNextBossTimer)            
+            if (m_uiNextBossTimer <= uiDiff)
+            {
+                m_uiNextBossTimer = 0;
+                if (Creature* otherWorm = Unit::GetCreature(*me, instanceScript->GetData64(otherWormEntry)))
+                {
+                    if (otherWorm->isAlive())
+                        if (boss_jormungarAI* bossjormungarAI = CAST_AI(boss_jormungarAI, otherWorm->GetAI()))
+                        {
+                            bossjormungarAI->m_uiNextBossTimer = 0;
+                            instanceScript->SetData(TYPE_NORTHREND_BEASTS, SNAKES_DONE);
+                        }
+                }                
+            } else m_uiNextBossTimer -= uiDiff;
 
         if (instanceScript && instanceScript->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL && !enraged)
         {
@@ -558,6 +586,8 @@ struct boss_jormungarAI : public ScriptedAI
     }
 
     InstanceScript* instanceScript;
+
+    uint32 m_uiNextBossTimer;
 
     uint32 otherWormEntry;
 
