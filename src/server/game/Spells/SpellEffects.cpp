@@ -5283,7 +5283,11 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     if (Vehicle *seat = m_caster->GetVehicleKit())
                         if (Unit *passenger = seat->GetPassenger(0))
                             if (Unit *demolisher = m_caster->GetVehicleBase())
-                                passenger->CastSpell(demolisher, damage, true);
+                            {
+                                passenger->EnterVehicle(demolisher, 3);
+                                demolisher->AddAura(62427, demolisher);
+                            }
+
                     return;
                 }
                 case 62482: // Grab Crate
