@@ -432,6 +432,9 @@ bool AntiCheat::CanFly(MovementInfo& pMovementInfo)
         if (pCreature->GetCreatureInfo()->InhabitType & INHABIT_AIR)
             return true;
 
+    if (plMover->HasAura(44795)) // Parachute
+        return true;
+
     if (plMover->HasUnitMovementFlag(MOVEMENTFLAG_JUMPING) ||  
         pMovementInfo.HasMovementFlag(MOVEMENTFLAG_JUMPING) || 
         plMover->GetMap()->GetGameObject(pMovementInfo.t_guid))
@@ -569,19 +572,15 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
 
     if (!plMover->isAlive())
         return true;
-
-    /*
-    // False segnalation    
-    if (plMover->HasAura(30174) || // 30174 -> Riding Turtle
-        plMover->HasAura(64731)) // 64731 -> Sea Turtle
-        return true;
     
     if (pNewPacket.flags & MOVEMENTFLAG_SWIMMING &&
-        (plMover->HasAura(7840) || // 7840 -> Swim Speed
+        (plMover->HasAura(1066) || // 1066 -> Aquatic form
+        plMover->HasAura(30174) || // 30174 -> Riding Turtle
+        plMover->HasAura(64731) || // 64731 -> Sea Turtle
+        plMover->HasAura(7840)  || // 7840 -> Swim Speed
         plMover->HasAura(88026) || // 88026 -> Silversnap Swim Tonic Master
         plMover->HasAura(30430)))   // 30430 -> Embrace of the Serpent
-        return true;
-    */
+        return true;    
     
     // the best way is checking the ip of the target, if it is the same this check should return.
     if (plMover->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
