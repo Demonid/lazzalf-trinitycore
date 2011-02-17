@@ -5307,6 +5307,68 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     unitTarget->RemoveAurasDueToSpell(spellToRemove);
                     return;
                 }
+                case 63803: // Brain Link
+                case 64168: // Lunatic Gaze
+                {
+                    if (AuraEffect *aur=unitTarget->GetAuraEffect(63050, 0))
+                    {
+                        int32 stack = aur->GetBase()->GetStackAmount() - 2;
+                        if (stack <= 0)
+                            unitTarget->RemoveAurasDueToSpell(63050);
+                        else
+                            unitTarget->SetAuraStack(63050, unitTarget, stack);
+                    }
+                    return;
+                }
+                case 63830: // Malady of the Mind 10
+                case 63881: // Malady of the Mind 25
+                {
+                    if (AuraEffect *aur=unitTarget->GetAuraEffect(63050, 0))
+                    {
+                        int32 stack = aur->GetBase()->GetStackAmount() - 3;
+                        if (stack <= 0)
+                            unitTarget->RemoveAurasDueToSpell(63050);
+                        else
+                            unitTarget->SetAuraStack(63050, unitTarget, stack);
+                    }
+                    return;
+                }
+                case 64164: // Lunatic Gaze P3
+                {
+                    if (AuraEffect *aur=unitTarget->GetAuraEffect(63050, 0))
+                    {
+                        int32 stack = aur->GetBase()->GetStackAmount() - 4;
+                        if (stack <= 0)
+                            unitTarget->RemoveAurasDueToSpell(63050);
+                        else
+                            unitTarget->SetAuraStack(63050, unitTarget, stack);
+                    }
+                    return;
+                }
+                case 63795: // Psychosis
+                {
+                    if (AuraEffect *aur=unitTarget->GetAuraEffect(63050, 0))
+                    {
+                        int32 stack = aur->GetBase()->GetStackAmount() - 9;
+                        if (stack <= 0)
+                            unitTarget->RemoveAurasDueToSpell(63050);
+                        else
+                            unitTarget->SetAuraStack(63050, unitTarget, stack);
+                    }
+                    return;
+                }
+                case 64059: // Induce Madness
+                {
+                    if (AuraEffect *aur=unitTarget->GetAuraEffect(63050, 0))
+                    {
+                        int32 stack = aur->GetBase()->GetStackAmount() - 100;
+                        if (stack <= 0)
+                            unitTarget->RemoveAurasDueToSpell(63050);
+                        else
+                            unitTarget->SetAuraStack(63050, unitTarget, stack);
+                    }
+                    return;
+                }
                 case 60123: // Lightwell
                 {
                     if (m_caster->GetTypeId() != TYPEID_UNIT || !m_caster->ToCreature()->isSummon())
