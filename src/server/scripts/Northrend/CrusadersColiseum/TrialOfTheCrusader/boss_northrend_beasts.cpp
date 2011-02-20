@@ -152,7 +152,7 @@ public:
             else
                 m_uiSummonCount = 4;
 
-            m_uiNextBossTimer = 180*IN_MILLISECONDS;
+            m_uiNextBossTimer = 160*IN_MILLISECONDS;
 
             Summons.DespawnAll();
         }
@@ -395,7 +395,7 @@ struct boss_jormungarAI : public ScriptedAI
         sprayTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
         sweepTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
 
-        m_uiNextBossTimer = 180*IN_MILLISECONDS;
+        m_uiNextBossTimer = 160*IN_MILLISECONDS;
     }
 
     void JustDied(Unit* /*pKiller*/)
