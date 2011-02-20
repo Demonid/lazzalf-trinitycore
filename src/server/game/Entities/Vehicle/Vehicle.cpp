@@ -377,7 +377,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
             //    averageItemLevel = scalingInfo->baseItemLevel;
             // averageItemLevel -= scalingInfo->baseItemLevel;
 
-            float averageItemLevel = max(0, (plr->GetAverageItemLevel() - (scalingInfo->baseItemLevel + 30.0f)) * 3.0f);
+            float averageItemLevel = std::max(0.0f, float((plr->GetAverageItemLevel() - (scalingInfo->baseItemLevel + 30.0f)) * 3.0f));
 
             float currentHealthPct = float(me->GetHealth() / me->GetMaxHealth());
             m_bonusHP = uint32(me->GetMaxHealth() * (averageItemLevel * scalingInfo->scalingFactor));
@@ -450,7 +450,7 @@ void Vehicle::RemovePassenger(Unit *unit)
 
         if (m_bonusHP)
         {
-            me->SetHealth(me->GetHealth() - m_bonusHP);
+            me->SetHealth(std::max(1, int32(me->GetHealth() - m_bonusHP)));
             me->SetMaxHealth(me->GetMaxHealth() - m_bonusHP);
             m_bonusHP = 0;
         }
