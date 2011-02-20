@@ -116,7 +116,7 @@ void PetAI::UpdateAI(const uint32 diff)
             HandleReturnMovement();
     }
     else if (owner && !me->HasUnitState(UNIT_STAT_FOLLOW)) // no charm info and no victim
-        me->GetMotionMaster()->MoveFollow(owner,PET_FOLLOW_DIST, me->GetFollowAngle());
+        me->GetMotionMaster()->MoveFollow(owner,CalculateFollowDistance(), me->GetFollowAngle());
 
     if (!me->GetCharmInfo())
         return;
@@ -358,7 +358,7 @@ void PetAI::HandleReturnMovement()
             {
                 me->GetCharmInfo()->SetIsReturning(true);
                 me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveFollow(me->GetCharmerOrOwner(), PET_FOLLOW_DIST, me->GetFollowAngle());
+                me->GetMotionMaster()->MoveFollow(me->GetCharmerOrOwner(), CalculateFollowDistance(), me->GetFollowAngle());
             }
         }
     }
@@ -437,6 +437,28 @@ void PetAI::MovementInform(uint32 moveType, uint32 data)
     }
 }
 
+float PetAI::CalculateFollowDistance()
+{
+    float distance;
+    CreatureInfo const *cinfo = me->GetCreatureInfo();
+    switch (cinfo->family)
+    {
+        case CREATURE_FAMILY_SPIDER:
+        case CREATURE_FAMILY_DEVILSAUR:
+            distance = -2.0f;
+            break;
+        case CREATURE_FAMILY_CHIMAERA:
+        case CREATURE_FAMILY_CORE_HOUND:
+        case CREATURE_FAMILY_RHINO:
+            distance = -4.0f;
+            break;
+        default:
+            distance = PET_FOLLOW_DIST;
+            break;
+    }
+    return distance;
+}
+
 bool PetAI::_CanAttack(Unit *target)
 {
     // Evaluates wether a pet can attack a specific
@@ -462,7 +484,8 @@ bool PetAI::_CanAttack(Unit *target)
 
     // Follow
     if (me->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
-        return true;
+        return me->canSeeOrDetect(target);
+        //return true;
 
     // default, though we shouldn't ever get here
     return false;
@@ -470,7 +493,7 @@ bool PetAI::_CanAttack(Unit *target)
 
 bool PetAI::_CheckTargetCC(Unit *target)
 {
-    if (me->GetCharmerOrOwnerGUID() && target->HasNegativeAuraWithAttribute(SPELL_ATTR0_BREAKABLE_BY_DAMAGE, me->GetCharmerOrOwnerGUID()))
+    if (me->GetCharmerOrOwnerGUID() && target->HasNegativeAuraWithAttribute(SPELL_ATTR0_BREAKABLE_BY_DAMAGE))
         return true;
 
     return false;
