@@ -110,8 +110,6 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
 
     if (unit)
         mLastInvoker = unit;
-    else 
-        mLastInvoker = NULL;
 
     if (e.link && e.link != e.event_id)
     {
@@ -122,8 +120,8 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
             sLog->outErrorDb("SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Link Event %u not found or invalid, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.link);
     }
 
-    if (mLastInvoker)
-        sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: Invoker: %s (guidlow: %u)", mLastInvoker->GetName(), mLastInvoker->GetGUIDLow());
+    //if (mLastInvoker)
+    //    sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: Invoker: %s (guidlow: %u)", mLastInvoker->GetName(), mLastInvoker->GetGUIDLow());
 
     switch (e.GetActionType())
     {
