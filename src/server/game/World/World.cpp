@@ -3057,7 +3057,7 @@ void World::ACpreventMapsFromBeingUsed(const char* pMapIdString)
 			ss2 >> map_num; 
 			if (map_num >= 0)
 			{ 
-				sLog->outDebug("Ignoring Map %i for AC", map_num); 
+				//sLog->outDebug("Ignoring Map %i for AC", map_num); 
 				iIgnoreMapIds_AC[map_num] = true;
 			}
 		}
@@ -3079,7 +3079,7 @@ void World::ACpreventMapsFromBeingUsedCount(const char* pMapIdString)
 			ss2 >> map_num; 
 			if (map_num >= 0)
 			{ 
-				sLog->outDebug("Ignoring Map %i for ACCount", map_num); 
+				//sLog->outDebug("Ignoring Map %i for ACCount", map_num); 
 				iIgnoreMapIds_ACCount[map_num] = true;
 			}
 		}
@@ -3101,7 +3101,7 @@ void World::ACpreventMapsFromBeingUsedBlock(const char* pMapIdString)
 			ss2 >> map_num; 
 			if (map_num >= 0)
 			{ 
-				sLog->outDebug("Ignoring Map %i for ACBlock", map_num); 
+				//sLog->outDebug("Ignoring Map %i for ACBlock", map_num); 
 				iIgnoreMapIds_ACBlock[map_num] = true;
 			}
 		}
@@ -3123,7 +3123,7 @@ void World::ACpreventMapsFromBeingUsedPuni(const char* pMapIdString)
 			ss2 >> map_num; 
 			if (map_num >= 0)
 			{ 
-				sLog->outDebug("Ignoring Map %i for ACPuni", map_num); 
+				//sLog->outDebug("Ignoring Map %i for ACPuni", map_num); 
 				iIgnoreMapIds_ACPuni[map_num] = true;
 			}
 		}

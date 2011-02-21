@@ -149,7 +149,7 @@ static bool HandleGameObjectAddGuildCommand(ChatHandler* handler, const char* ar
         return false;
     }
 
-    sLog->outDebug(handler->GetTrinityString(LANG_GAMEOBJECT_CURRENT), gInfo->name, db_lowGUID, x, y, z, o);
+    //sLog->outDebug(handler->GetTrinityString(LANG_GAMEOBJECT_CURRENT), gInfo->name, db_lowGUID, x, y, z, o);
 
     map->Add(pGameObj);
 
