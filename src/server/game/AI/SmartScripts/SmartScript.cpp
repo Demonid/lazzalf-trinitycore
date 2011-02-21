@@ -110,6 +110,8 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
 
     if (unit)
         mLastInvoker = unit;
+    else 
+        mLastInvoker = NULL;
 
     if (e.link && e.link != e.event_id)
     {
