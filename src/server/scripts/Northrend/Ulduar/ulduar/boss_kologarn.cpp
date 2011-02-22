@@ -117,7 +117,6 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             SetCombatMovement(false);
             emerged = false;
@@ -167,6 +166,11 @@ public:
 
         void Reset()
         {
+            while (Unit* target = me->FindNearestCreature(33768, 100.0f))
+            {
+                target->CombatStop(true);
+                target->RemoveFromWorld();
+            }
             _Reset();
             events.ScheduleEvent(EVENT_INSTALL_ACCESSORIES, 1000);            
         }
