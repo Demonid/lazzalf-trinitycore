@@ -146,6 +146,11 @@ public:
         void EnterCombat(Unit * who)
         {
             DoScriptText(SAY_AGGRO, me);
+            _EnterCombat();
+
+            for (int32 n = 0; n < 2; ++n)
+                if (vehicle->GetPassenger(n))
+                    vehicle->GetPassenger(n)->ToCreature()->AI()->DoZoneInCombat();
             
             //events.ScheduleEvent(EVENT_MELEE_CHECK, 10000);
             events.ScheduleEvent(EVENT_SMASH, 5000);
@@ -155,15 +160,7 @@ public:
             events.ScheduleEvent(EVENT_SHOCKWAVE, 12000);
             
             RubbleCount = 0;            
-            eyeBeamHit = false;
-
-            Unit* arm = NULL;
-            if (arm = vehicle->GetPassenger(0))
-                arm->Attack(who, true);
-            if (arm = vehicle->GetPassenger(1))
-                arm->Attack(who, true);
-
-            _EnterCombat();
+            eyeBeamHit = false;            
         }
 
         void Reset()
@@ -275,7 +272,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!me->getVictim() && instance->GetBossState(BOSS_KOLOGARN) == NOT_STARTED)
+            if (!me->getVictim())
                 return;
 
             events.Update(diff);
@@ -395,14 +392,6 @@ public:
             }
 
             DoMeleeAttackIfReady();
-        }
-
-        void RespawnArm(Unit* arm)
-        {
-            arm->ToCreature()->Respawn();
-            arm->ToCreature()->SetInCombatWithZone();
-
-            arm->CastSpell(me, SPELL_ARM_ENTER_VEHICLE, true);
         }
     };
 };
