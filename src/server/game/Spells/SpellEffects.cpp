@@ -5305,12 +5305,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     }
                     return;
                 }
-                case 65594: // Cancel Stone Grip
-                {
-                    uint32 spellToRemove = unitTarget->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? 62166 : 63981;
-                    unitTarget->RemoveAurasDueToSpell(spellToRemove);
-                    return;
-                }
                 case 63803: // Brain Link
                 case 64168: // Lunatic Gaze
                 {
