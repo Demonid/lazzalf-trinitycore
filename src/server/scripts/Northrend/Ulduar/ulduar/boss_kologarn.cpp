@@ -47,10 +47,11 @@
 
 #define SPELL_BERSERK           47008 // guess
 
-#define NPC_LEFT_ARM            RAID_MODE(32933,33910)
-#define NPC_RIGHT_ARM           RAID_MODE(32934,33911)
+#define NPC_LEFT_ARM            32933//RAID_MODE(32933,33910)
+#define NPC_RIGHT_ARM           32934//RAID_MODE(32934,33911)
 #define NPC_EYEBEAM_1           33632
 #define NPC_EYEBEAM_2           33802
+#define NPC_RUBBLE              33768
 
 // Achievements
 #define ACHIEVEMENT_LOOKS_COULD_KILL            RAID_MODE(2955, 2956) // TODO
@@ -60,8 +61,7 @@
 enum Events
 {
     EVENT_NONE = 0,
-    EVENT_INSTALL_ACCESSORIES,
-    EVENT_MELEE_CHECK,
+    //EVENT_MELEE_CHECK,
     EVENT_SMASH,
     EVENT_SWEEP,
     EVENT_STONE_SHOUT,
@@ -98,6 +98,9 @@ enum KologarnChests
     CACHE_OF_LIVING_STONE_25                    = 195047
 };
 
+const Position RubbleLeft   = {1781.814f, -45.07f, 448.808f, 2.260f};
+const Position RubbleRight  = {1781.814f, -3.716f, 448.808f, 4.211f};
+
 class boss_kologarn : public CreatureScript
 {
 public:
@@ -117,10 +120,9 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
             SetCombatMovement(false);
             emerged = false;
-            Reset();
         }
 
         Vehicle *vehicle;
@@ -145,7 +147,7 @@ public:
         {
             DoScriptText(SAY_AGGRO, me);
             
-            events.ScheduleEvent(EVENT_MELEE_CHECK, 10000);
+            //events.ScheduleEvent(EVENT_MELEE_CHECK, 10000);
             events.ScheduleEvent(EVENT_SMASH, 5000);
             events.ScheduleEvent(EVENT_STONE_GRIP, 25000);
             events.ScheduleEvent(EVENT_ENRAGE, 600000);
@@ -166,13 +168,15 @@ public:
 
         void Reset()
         {
-            while (Unit* target = me->FindNearestCreature(33768, 100.0f))
-            {
-                target->CombatStop(true);
-                target->RemoveFromWorld();
-            }
             _Reset();
-            events.ScheduleEvent(EVENT_INSTALL_ACCESSORIES, 1000);            
+
+            if (instance)
+                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
+
+            if (Unit* LeftArm = me->SummonCreature(NPC_LEFT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
+                LeftArm->EnterVehicle(vehicle, 0);
+            if (Unit* RightArm = me->SummonCreature(NPC_RIGHT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
+                RightArm->EnterVehicle(vehicle, 1);                      
         }
 
         void JustDied(Unit * /*victim*/)
@@ -203,33 +207,56 @@ public:
             DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
         }
 
+        void AttackStart(Unit *who)
+        {
+            me->Attack(who, true);
+        }
+
         void PassengerBoarded(Unit *who, int8 /*seatId*/, bool apply)
         {
             if (who->GetEntry() == NPC_LEFT_ARM)
             {
                 left = apply;
-                if (!apply)
+                if (apply)
+                {
+                    who->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+                }
+                else
+                {
+                    if (instance && right)
+                        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
+                    events.ScheduleEvent(EVENT_RESPAWN_LEFT_ARM, 40000);
                     DoScriptText(SAY_LEFT_ARM_GONE, me);
+                }
             }
 
             else if (who->GetEntry() == NPC_RIGHT_ARM)
             {
                 right = apply;
-                if (!apply)
+                if (apply)
+                {
+                    who->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+                }
+                else
+                {
+                    if (instance && left)
+                        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
+                    events.ScheduleEvent(EVENT_RESPAWN_RIGHT_ARM, 40000);
                     DoScriptText(SAY_RIGHT_ARM_GONE, me);
+                }
             }
 
             if (!apply)
             {
-                who->CastSpell(me, SPELL_ARM_DEAD_DAMAGE, true);
-                DoScriptText(SAY_RIGHT_ARM_GONE, me);
+                me->DealDamage(me, int32(me->GetMaxHealth() * 15 / 100)); // decreases Kologarn's health by 15%
+                //who->CastSpell(me, SPELL_ARM_DEAD_DAMAGE, true);
                 
                 if (Creature* rubbleStalker = me->FindNearestCreature(NPC_RUBBLE_STALKER, 20.0f))
                 {
                     if (rubbleStalker)
                     {
                         rubbleStalker->CastSpell(rubbleStalker, SPELL_FALLING_RUBBLE, true);
-                        rubbleStalker->CastSpell(rubbleStalker, SPELL_SUMMON_RUBBLE, true);
+                        //rubbleStalker->CastSpell(rubbleStalker, SPELL_SUMMON_RUBBLE, true);
                     }
                 }
                 
@@ -238,13 +265,8 @@ public:
                 if (!right && !left)
                     events.ScheduleEvent(EVENT_STONE_SHOUT, 5000);
 
-                if (who->GetEntry() == NPC_LEFT_ARM)
-                    events.ScheduleEvent(EVENT_RESPAWN_LEFT_ARM, 40000);
-                else if (who->GetEntry() == NPC_RIGHT_ARM)
-                    events.ScheduleEvent(EVENT_RESPAWN_RIGHT_ARM, 40000);
-
-                if (instance)
-                    instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
+                //if (instance)
+                //    instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
             }
 
             if (apply)
@@ -261,17 +283,16 @@ public:
             if (me->HasUnitState(UNIT_STAT_CASTING))
                 return;
 
+            if (events.GetTimer() > 15000 && !me->IsWithinMeleeRange(me->getVictim()))
+                DoCastAOE(SPELL_PETRIFY_BREATH, true);
+
             switch (events.GetEvent())
             {
-                case EVENT_INSTALL_ACCESSORIES: // Delayed install, this is needed for IsInWorldCheck in Vehicle code to trigger PassengerBoarded
-                    vehicle->InstallAllAccessories(me->GetEntry());
-                    events.CancelEvent(EVENT_INSTALL_ACCESSORIES);
-                    break;
-                case EVENT_MELEE_CHECK:
-                    if (!me->IsWithinMeleeRange(me->getVictim()))
-                        DoCast(SPELL_PETRIFY_BREATH);
-                    events.RepeatEvent(1000);
-                    break;
+                //case EVENT_MELEE_CHECK:
+                    //if (!me->IsWithinMeleeRange(me->getVictim()))
+                    //    DoCast(SPELL_PETRIFY_BREATH);
+                    //events.RepeatEvent(1000);
+                 //   break;
                 case EVENT_SWEEP:
                     DoCast(SPELL_ARM_SWEEP);
                     events.RepeatEvent(15000);
@@ -324,15 +345,25 @@ public:
                     break;
                 case EVENT_RESPAWN_LEFT_ARM:
                 {
-                    if (Unit* arm = me->FindNearestCreature(NPC_LEFT_ARM, 20.0f, false))
-                        RespawnArm(arm);
+                    if (Unit* LeftArm = me->SummonCreature(NPC_LEFT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
+                    {
+                        LeftArm->EnterVehicle(vehicle, 0);
+                        DoCast(me, SPELL_ARM_VISUAL, true);
+                        if (instance)
+                            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
+                    }
                     events.CancelEvent(EVENT_RESPAWN_LEFT_ARM);                   
                     break;
                 }
                 case EVENT_RESPAWN_RIGHT_ARM:
                 {
-                    if (Unit* arm = me->FindNearestCreature(NPC_RIGHT_ARM, 20.0f, false))
-                        RespawnArm(arm);                 
+                    if (Unit* RightArm = me->SummonCreature(NPC_RIGHT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
+                    {
+                        RightArm->EnterVehicle(vehicle, 1);
+                        DoCast(me, SPELL_ARM_VISUAL, true);
+                        if (instance)
+                            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
+                    }             
                     events.CancelEvent(EVENT_RESPAWN_RIGHT_ARM);             
                     break;
                 }
@@ -425,6 +456,85 @@ public:
         }
     };
 
+};
+
+class npc_left_arm : public CreatureScript
+{
+public:
+    npc_left_arm() : CreatureScript("npc_left_arm") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_left_armAI (pCreature);
+    }
+
+    struct npc_left_armAI : public ScriptedAI
+    {
+        npc_left_armAI(Creature *c) : ScriptedAI(c)
+        {
+            pInstance = c->GetInstanceScript();
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+            me->SetReactState(REACT_PASSIVE);
+        }
+
+        InstanceScript* pInstance;
+
+        void JustDied(Unit* /*victim*/)
+        {
+            for (uint8 i = 0; i < 5; ++i)
+                me->SummonCreature(NPC_RUBBLE, RubbleLeft, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
+                    
+            // Hack to disable corpse fall
+            me->GetMotionMaster()->MoveTargetedHome();
+        }
+    
+        void JustSummoned(Creature *summon)
+        {
+            summon->AI()->DoZoneInCombat();
+        }
+    };
+};
+
+
+class npc_right_arm : public CreatureScript
+{
+public:
+    npc_right_arm() : CreatureScript("npc_right_arm") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_right_armAI (pCreature);
+    }
+
+    struct npc_right_armAI : public ScriptedAI
+    {
+        npc_right_armAI(Creature *c) : ScriptedAI(c)
+        {
+            pInstance = c->GetInstanceScript();
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+            me->ApplySpellImmune(0, IMMUNITY_ID, 64708, true);
+            me->SetReactState(REACT_PASSIVE);
+        }
+
+        InstanceScript* pInstance;
+
+        void JustDied(Unit* /*victim*/)
+        {
+            for (uint8 i = 0; i < 5; ++i)
+                me->SummonCreature(NPC_RUBBLE, RubbleRight, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
+                    
+            // Hack to disable corpse fall
+            me->GetMotionMaster()->MoveTargetedHome();
+        }
+    
+        void JustSummoned(Creature *summon)
+        {
+            summon->AI()->DoZoneInCombat();
+        }
+    };
 };
 
 class spell_ulduar_rubble_summon : public SpellScriptLoader
@@ -564,6 +674,8 @@ void AddSC_boss_kologarn()
 {
     new boss_kologarn();
     new npc_focused_eyebeam();
+    new npc_left_arm();
+    new npc_right_arm();
     new spell_ulduar_rubble_summon();
     new spell_ulduar_cancel_stone_grip();
     new spell_ulduar_stone_grip_absorb();
