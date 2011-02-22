@@ -175,10 +175,8 @@ public:
         if (pCreature->isQuestGiver())
             pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-        if (pCreature->GetMapId() != 571)
-            return true;
-
-        if (pPlayer->HasItemCount(SCHOOLS_OF_ARCANE_MAGIC, 1) &&
+        if (pCreature->GetMapId() == 571 &&
+            pPlayer->HasItemCount(SCHOOLS_OF_ARCANE_MAGIC, 1) &&
             !pPlayer->HasItemCount(KIRIN_TOR_FAMILIAR, 1) &&
             !pPlayer->HasSpell(KIRIN_TOR_FAMILIAR_SPELL))
         {
