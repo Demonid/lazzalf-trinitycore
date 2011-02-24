@@ -94,6 +94,32 @@ enum Data
     DATA_COMING_OUT_COUNT    
 };
 
+enum eNPCs
+{
+    NPC_LEVIATHAN               = 33113,
+    NPC_IGNIS                   = 33118,
+    NPC_RAZORSCALE              = 33186,
+    NPC_EXPEDITION_COMMANDER    = 33210,
+    NPC_XT002                   = 33293,
+    NPC_STEELBREAKER            = 32867,
+    NPC_MOLGEIM                 = 32927,
+    NPC_BRUNDIR                 = 32857,
+    NPC_KOLOGARN                = 32930,
+    NPC_FOCUSED_EYEBEAM         = 33632,
+    NPC_FOCUSED_EYEBEAM_RIGHT   = 33802,
+    NPC_RUBBLE                  = 33768,
+    NPC_LEFT_ARM                = 32933,
+    NPC_RIGHT_ARM               = 32934,
+    NPC_AURIAYA                 = 33515,
+    NPC_MIMIRON                 = 33350,
+    NPC_HODIR                   = 32845,
+    NPC_THORIM                  = 32865,
+    NPC_FREYA                   = 32906,
+    NPC_VEZAX                   = 33271,
+    NPC_YOGGSARON               = 33288,
+    NPC_ALGALON                 = 32871,
+};
+
 enum AchievementControl
 {
     ACHI_IS_NOT_STARTED,

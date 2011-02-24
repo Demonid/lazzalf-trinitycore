@@ -51,7 +51,7 @@ EndScriptData */
 #define SPELL_ARM_SWEEP         RAID_MODE(63766,63983)
 
 #define SPELL_ARM_ENTER_VEHICLE 65343
-#define SPELL_ARM_RESPAWN        64753
+#define SPELL_ARM_RESPAWN       64753
 
 #define SPELL_BERSERK           47008 // guess
 
@@ -74,15 +74,6 @@ enum Actions
     ACTION_RESPAWN_RIGHT,
     ACTION_RESPAWN_LEFT,
     ACTION_GRIP
-};
-
-enum Npcs
-{
-    NPC_EYEBEAM_1                               = 33632,
-    NPC_EYEBEAM_2                               = 33802,
-    NPC_RUBBLE                                  = 33768,
-    NPC_LEFT_ARM                                = 32933,
-    NPC_RIGHT_ARM                               = 32934
 };
 
 enum Yells
@@ -291,25 +282,11 @@ public:
                 case EVENT_GRIP:
                     if (right)
                     {
-                        std::list<Unit*> targetList;
-                        std::list<Unit*>::const_iterator itr;
-                        for (int i = 0; i < RAID_MODE(1, 3); i++)
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
-                                targetList.push_back(pTarget);                    
-                        //SelectTargetList(targetList, RAID_MODE(1, 3), SELECT_TARGET_RANDOM, 0.0f, true);
-                        for (itr = targetList.begin(); itr != targetList.end(); ++itr)
-                        {
-                            DoCast((*itr), SPELL_STONE_GRIP, true);
-                            /* 10 man: */
-                            // Cast 62056 -> HandleAuraLinked (64224) -> Apply 64224 -> Absorb damage
-                            //            -> Apply Stun with basepoints 64290
-                            // Cast 64290 -> Trigger spell (64708) Squeezed Lifeless
-                            //            -> Periodic damage 
-                            // Cast 63962 -> Visual
-                        }
+                        DoCast(SPELL_STONE_GRIP);
+                        DoScriptText(SAY_GRAB_PLAYER, me);
                         DoScriptText(SAY_GRAB_PLAYER, me);
                     }
-                    events.RescheduleEvent(EVENT_GRIP, 40000);
+                    events.RescheduleEvent(EVENT_GRIP, 30000);
                     break;
                 case EVENT_SHOCKWAVE:
                     if (left)
@@ -321,14 +298,14 @@ public:
                     events.RescheduleEvent(EVENT_SHOCKWAVE, urand(15000, 25000));
                     break;
                 case EVENT_EYEBEAM:
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0, 50, true))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0, -10.0f, true))
                     {
-                        if (Creature* EyeBeam = me->SummonCreature(NPC_EYEBEAM_1,pTarget->GetPositionX(),pTarget->GetPositionY()+3,pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000))
+                        if (Creature* EyeBeam = me->SummonCreature(NPC_FOCUSED_EYEBEAM,pTarget->GetPositionX(),pTarget->GetPositionY()+3,pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000))
                         {
                             EyeBeam->CastSpell(me, SPELL_EYEBEAM_VISUAL_1, true);
                             EyeBeam->AI()->AttackStart(pTarget);
                         }
-                        if (Creature* EyeBeam = me->SummonCreature(NPC_EYEBEAM_2,pTarget->GetPositionX(),pTarget->GetPositionY()-3,pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000))
+                        if (Creature* EyeBeam = me->SummonCreature(NPC_FOCUSED_EYEBEAM_RIGHT,pTarget->GetPositionX(),pTarget->GetPositionY()-3,pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000))
                         {
                             EyeBeam->CastSpell(me, SPELL_EYEBEAM_VISUAL_2, true);
                             EyeBeam->AI()->AttackStart(pTarget);
@@ -532,137 +509,258 @@ public:
 
 class spell_ulduar_rubble_summon : public SpellScriptLoader
 {
-public:
-    spell_ulduar_rubble_summon() : SpellScriptLoader("spell_ulduar_rubble_summon") { }
+    public:
+        spell_ulduar_rubble_summon() : SpellScriptLoader("spell_ulduar_rubble_summon") { }
 
-    class spell_ulduar_rubble_summonSpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_ulduar_rubble_summonSpellScript);
-
-        void HandleScript(SpellEffIndex /*effIndex*/)
+        class spell_ulduar_rubble_summonSpellScript : public SpellScript
         {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
+            PrepareSpellScript(spell_ulduar_rubble_summonSpellScript);
 
-            uint32 spellId = GetEffectValue();
-            for (uint8 i = 0; i < 5; ++i)
-                caster->CastSpell(caster, spellId, true);
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                uint32 spellId = GetEffectValue();
+                for (uint8 i = 0; i < 5; ++i)
+                    caster->CastSpell(caster, spellId, true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_ulduar_rubble_summonSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_ulduar_rubble_summonSpellScript();
+        }
+};
+
+// predicate function to select non main tank target
+class StoneGripTargetSelector : public std::unary_function<Unit *, bool>
+{
+    public:
+        StoneGripTargetSelector(Creature* me, const Unit* victim) : _me(me), _victim(victim) {}
+
+        bool operator() (Unit* pTarget)
+        {
+            if (pTarget == _victim && _me->getThreatManager().getThreatList().size() > 1)
+                return true;
+
+            if (pTarget->GetTypeId() != TYPEID_PLAYER)
+                return true;
+
+            return false;
         }
 
-        void Register()
-        {
-            OnEffect += SpellEffectFn(spell_ulduar_rubble_summonSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-        }
-    };
+        Creature* _me;
+        Unit const* _victim;
+};
 
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_ulduar_rubble_summonSpellScript();
-    }
+class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
+{
+    public:
+        spell_ulduar_stone_grip_cast_target() : SpellScriptLoader("spell_ulduar_stone_grip_cast_target") { }
+
+        class spell_ulduar_stone_grip_cast_target_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ulduar_stone_grip_cast_target_SpellScript);
+
+            bool Load()
+            {
+                if (GetCaster()->GetTypeId() != TYPEID_UNIT)
+                    return false;
+                return true;
+            }
+
+            void FilterTargetsInitial(std::list<Unit*>& unitList)
+            {
+                // Remove "main tank" and non-player targets
+                unitList.remove_if(StoneGripTargetSelector(GetCaster()->ToCreature(), GetCaster()->getVictim()));
+                // Maximum affected targets per difficulty mode
+                uint32 maxTargets = 1;
+                if (GetSpellInfo()->Id == 63981)
+                    maxTargets = 3;
+
+                // Return a random amount of targets based on maxTargets
+                while (maxTargets < unitList.size())
+                {
+                    std::list<Unit*>::iterator itr = unitList.begin();
+                    advance(itr, urand(0, unitList.size()-1));
+                    unitList.erase(itr);
+                }
+
+                // For subsequent effects
+                m_unitList = unitList;
+            }
+
+            void FillTargetsSubsequential(std::list<Unit*>& unitList)
+            {
+                unitList = m_unitList;
+            }
+
+            void HandleForceCast(SpellEffIndex i)
+            {
+                ASSERT (GetCaster()->ToCreature())
+                Player * plr = GetHitPlayer();
+                ASSERT (plr)
+                plr->CastSpell(GetTargetUnit(), GetSpellInfo()->EffectTriggerSpell[i], true);     // Don't send m_originalCasterGUID param here or underlying
+                PreventHitEffect(i);                                                                   // AureEffect::HandleAuraControlVehicle will fail on caster == target
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_ulduar_stone_grip_cast_target_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnEffect += SpellEffectFn(spell_ulduar_stone_grip_cast_target_SpellScript::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_ulduar_stone_grip_cast_target_SpellScript::FillTargetsSubsequential, EFFECT_1, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_ulduar_stone_grip_cast_target_SpellScript::FillTargetsSubsequential, EFFECT_2, TARGET_UNIT_AREA_ENEMY_SRC);
+            }
+
+            // Shared between effects
+            std::list<Unit*> m_unitList;
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_ulduar_stone_grip_cast_target_SpellScript();
+        }
 };
 
 class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
 {
-public:
-    spell_ulduar_cancel_stone_grip() : SpellScriptLoader("spell_ulduar_cancel_stone_grip") { }
+    public:
+        spell_ulduar_cancel_stone_grip() : SpellScriptLoader("spell_ulduar_cancel_stone_grip") { }
 
-    class spell_ulduar_cancel_stone_gripSpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_ulduar_cancel_stone_gripSpellScript);
-
-        void HandleScript(SpellEffIndex /*effIndex*/)
+        class spell_ulduar_cancel_stone_gripSpellScript : public SpellScript
         {
-            Unit* target = this->GetHitPlayer();
-            if (!target)
-                return;
+            PrepareSpellScript(spell_ulduar_cancel_stone_gripSpellScript);
 
-            switch (target->GetMap()->GetDifficulty())
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                case RAID_DIFFICULTY_10MAN_NORMAL:
-                    target->RemoveAura(SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), EFFECT_0));
-                    break;
-                case RAID_DIFFICULTY_25MAN_NORMAL:
-                    target->RemoveAura(SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), EFFECT_1));
-                    break;
+                Unit* target = this->GetHitPlayer();
+                if (!target)
+                    return;
+
+                if (!target->GetVehicle())
+                    return;
+
+                switch (target->GetMap()->GetDifficulty())
+                {
+                    case RAID_DIFFICULTY_10MAN_NORMAL:
+                        target->RemoveAura(SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), EFFECT_0));
+                        break;
+                    case RAID_DIFFICULTY_25MAN_NORMAL:
+                        target->RemoveAura(SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), EFFECT_1));
+                        break;
+                }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_ulduar_cancel_stone_gripSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffect += SpellEffectFn(spell_ulduar_cancel_stone_gripSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            return new spell_ulduar_cancel_stone_gripSpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_ulduar_cancel_stone_gripSpellScript();
-    }
 };
 
 class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
 {
-public:
-    spell_ulduar_stone_grip_absorb() : SpellScriptLoader("spell_ulduar_stone_grip_absorb") { }
+    public:
+        spell_ulduar_stone_grip_absorb() : SpellScriptLoader("spell_ulduar_stone_grip_absorb") { }
 
-    class spell_ulduar_stone_grip_absorb_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_ulduar_stone_grip_absorb_AuraScript);
-
-        //! This will be called when Right Arm (vehicle) has sustained a specific amount of damage depending on instance mode
-        //! What we do here is remove all harmful aura's related and teleport to safe spot.
-        void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        class spell_ulduar_stone_grip_absorb_AuraScript : public AuraScript
         {
-            if (!GetOwner()->ToCreature())
-                return;
+            PrepareAuraScript(spell_ulduar_stone_grip_absorb_AuraScript);
 
-            uint32 rubbleStalkerEntry = (GetOwner()->GetMap()->GetDifficulty() == DUNGEON_DIFFICULTY_NORMAL ? 33809 : 33942);
-            Creature* rubbleStalker = GetOwner()->FindNearestCreature(rubbleStalkerEntry, 200.0f, true);
-            if (rubbleStalker)
-                rubbleStalker->CastSpell(rubbleStalker, SPELL_STONE_GRIP_CANCEL, true);
-        }
+            //! This will be called when Right Arm (vehicle) has sustained a specific amount of damage depending on instance mode
+            //! What we do here is remove all harmful aura's related and teleport to safe spot.
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            {
+                if (!(mode & AURA_EFFECT_HANDLE_REAL))
+                    return;
 
-        void Register()
+                if (GetTargetApplication()->GetRemoveMode() !=  AURA_REMOVE_BY_ENEMY_SPELL)
+                    return;
+
+                if (!GetOwner()->ToCreature())
+                    return;
+
+                uint32 rubbleStalkerEntry = (GetOwner()->GetMap()->GetDifficulty() == DUNGEON_DIFFICULTY_NORMAL ? 33809 : 33942);
+                Creature* rubbleStalker = GetOwner()->FindNearestCreature(rubbleStalkerEntry, 200.0f, true);
+                if (rubbleStalker)
+                    rubbleStalker->CastSpell(rubbleStalker, SPELL_STONE_GRIP_CANCEL, true);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_ulduar_stone_grip_absorb_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectRemove += AuraEffectRemoveFn(spell_ulduar_stone_grip_absorb_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+            return new spell_ulduar_stone_grip_absorb_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_ulduar_stone_grip_absorb_AuraScript();
-    }
 };
 
 class spell_ulduar_stone_grip : public SpellScriptLoader
 {
-public:
-    spell_ulduar_stone_grip() : SpellScriptLoader("spell_ulduar_stone_grip") { }
+    public:
+        spell_ulduar_stone_grip() : SpellScriptLoader("spell_ulduar_stone_grip") { }
 
-    class spell_ulduar_stone_grip_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_ulduar_stone_grip_AuraScript);
-
-        void OnRemoveStun(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        class spell_ulduar_stone_grip_AuraScript : public AuraScript
         {
-            GetOwner()->ToUnit()->RemoveAurasDueToSpell(SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_2));
-            // Spellsystem doesn't recognize EFFECT_0 as actionable effect on dispel for some reason, manually do it here
-            GetOwner()->ToUnit()->ExitVehicle();
-            GetOwner()->ToUnit()->NearTeleportTo(1756.25f + irand(-3, 3), -8.3f + irand(-3, 3), 448.8f, 3.62f);
-        }
+            PrepareAuraScript(spell_ulduar_stone_grip_AuraScript);
 
-        void Register()
+            void OnRemoveStun(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            {
+                if (!(mode & AURA_EFFECT_HANDLE_REAL))
+                    return;
+
+                if (Player* pOwner = GetOwner()->ToPlayer())
+                    pOwner->RemoveAurasDueToSpell(aurEff->GetAmount());
+            }
+
+            void OnRemoveVehicle(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            {
+                if (!(mode & AURA_EFFECT_HANDLE_REAL))
+                    return;
+
+                Creature* cOwner = GetOwner()->ToCreature();
+                if (!cOwner)
+                    return;
+
+                Player* pCaster = GetCaster() ? GetCaster()->ToPlayer() : NULL;
+                if (!pCaster || !pCaster->IsOnVehicle(cOwner))
+                    return;
+
+                pCaster->RemoveAurasDueToSpell(GetId());
+                pCaster->ExitVehicle();
+                pCaster->GetMotionMaster()->MoveJump(1756.25f + irand(-3, 3), -8.3f + irand(-3, 3), 448.8f, 5.0f, 5.0f);
+                PreventDefaultAction();
+
+                //GetOwner()->ToUnit()->NearTeleportTo(1756.25f + irand(-3, 3), -8.3f + irand(-3, 3), 448.8f, 3.62f);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_ulduar_stone_grip_AuraScript::OnRemoveVehicle, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_ulduar_stone_grip_AuraScript::OnRemoveStun, EFFECT_2, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectRemove += AuraEffectRemoveFn(spell_ulduar_stone_grip_AuraScript::OnRemoveStun, EFFECT_2, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+            return new spell_ulduar_stone_grip_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_ulduar_stone_grip_AuraScript();
-    }
 };
-
 
 void AddSC_boss_kologarn()
 {
@@ -672,6 +770,7 @@ void AddSC_boss_kologarn()
     new npc_right_arm();
     new spell_ulduar_rubble_summon();
     new spell_ulduar_cancel_stone_grip();
+    new spell_ulduar_stone_grip_cast_target();
     new spell_ulduar_stone_grip_absorb();
     new spell_ulduar_stone_grip();
 }
