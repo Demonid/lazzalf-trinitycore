@@ -42,7 +42,6 @@ EndScriptData */
 #define SPELL_EYEBEAM_VISUAL_2  63702
 #define SPELL_EYEBEAM_IMMUNITY  64722
 
-#define NPC_RUBBLE_STALKER      RAID_MODE(33809,33942)
 #define SPELL_SUMMON_RUBBLE     63633
 #define SPELL_FALLING_RUBBLE    63821
 
@@ -54,6 +53,9 @@ EndScriptData */
 #define SPELL_ARM_RESPAWN       64753
 
 #define SPELL_BERSERK           47008 // guess
+
+#define NPC_RUBBLE_STALKER      33809
+#define NPC_ARM_SWEEP_STALKER   33661
 
 enum Events
 {
