@@ -76,8 +76,7 @@ enum NPCs
 {
     NPC_FLASH_FREEZE_PRE                        = 32926,
     NPC_FLASH_FREEZE                            = 32938,
-    NPC_ICICLE_TARGET                           = 33174,
-    NPC_HODIR                                   = 32845
+    NPC_ICICLE_TARGET                           = 33174
 };
 
 enum Events

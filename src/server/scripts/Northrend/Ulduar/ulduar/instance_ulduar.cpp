@@ -156,6 +156,8 @@ class instance_ulduar : public InstanceMapScript
         uint32 guardiansCount;
         uint32 comingOutTimer;
         uint32 achievementComingOut;
+
+        std::set<uint64> mRubbleSpawns;
             
         GameObject* pLeviathanDoor, /* *KologarnChest,*/ *HodirChest, *HodirRareChest, *ThorimChest, *ThorimRareChest, *pRunicDoor, *pStoneDoor, *pThorimLever,
             *MimironTram, *MimironElevator;
@@ -271,72 +273,143 @@ class instance_ulduar : public InstanceMapScript
             
             switch(pCreature->GetEntry())
             {
-                case 33113: uiLeviathanGUID = pCreature->GetGUID(); return;
-                case 33686: uiNorgannon = pCreature->GetGUID(); return;
-                case 33118: uiIgnis = pCreature->GetGUID(); return;
-                case 33186: uiRazorscale = pCreature->GetGUID(); return;
-                case 33210: uiExpCommander = pCreature->GetGUID(); return;
-                case 33293: uiXT002 = pCreature->GetGUID(); return;
-                case 32867: uiSteelbreaker = pCreature->GetGUID(); return;
-                case 32927: uiMolgeim = pCreature->GetGUID(); return;
-                case 32857: uiBrundir = pCreature->GetGUID(); return;
-                case 32930: uiKologarn = pCreature->GetGUID(); return;
-                case 32934: uiRightArm = pCreature->GetGUID(); return;
-                case 32933: uiLeftArm = pCreature->GetGUID(); return;
-                case 33515: uiAuriaya = pCreature->GetGUID(); return;
-                case 32915: uiBrightleaf = pCreature->GetGUID(); return;
-                case 32913: uiIronbranch = pCreature->GetGUID(); return;
-                case 32914: uiStonebark = pCreature->GetGUID(); return;
-                case 32906: uiFreya = pCreature->GetGUID(); return;
-                case 32865: uiThorim = pCreature->GetGUID(); return;
-                case 32872: uiRunicColossus = pCreature->GetGUID(); return;
-                case 32873: uiRuneGiant = pCreature->GetGUID(); return;
-                case 33350: uiMimiron = pCreature->GetGUID(); return;
-                case 33432: uiLeviathanMKII = pCreature->GetGUID(); return;
-                case 33651: uiVX001 = pCreature->GetGUID(); return;
-                case 33670: uiAerialUnit = pCreature->GetGUID(); return;
-                case 34068: uiMagneticCore = pCreature->GetGUID(); return;
-                case 33271: uiVezax = pCreature->GetGUID(); return;
-                case 33410: uiFreyaYS = pCreature->GetGUID(); return;
-                case 33413: uiThorimYS = pCreature->GetGUID(); return;
-                case 33412: uiMimironYS = pCreature->GetGUID(); return;
-                case 33411: uiHodirYS = pCreature->GetGUID(); return;
-                case 33890: uiYoggSaronBrain = pCreature->GetGUID(); return;
-                case 33288: uiYoggSaron = pCreature->GetGUID(); return;
+                case NPC_LEVIATHAN: 
+                    uiLeviathanGUID = pCreature->GetGUID(); 
+                    return;
+                case 33686: 
+                    uiNorgannon = pCreature->GetGUID(); 
+                    return;
+                case NPC_IGNIS: 
+                    uiIgnis = pCreature->GetGUID(); 
+                    return;
+                case NPC_RAZORSCALE: 
+                    uiRazorscale = pCreature->GetGUID(); 
+                    return;
+                case NPC_EXPEDITION_COMMANDER: 
+                    uiExpCommander = pCreature->GetGUID(); 
+                    return;
+                case NPC_XT002: 
+                    uiXT002 = pCreature->GetGUID(); 
+                    return;
+                case NPC_STEELBREAKER: 
+                    uiSteelbreaker = pCreature->GetGUID(); 
+                    return;
+                case NPC_MOLGEIM: 
+                    uiMolgeim = pCreature->GetGUID(); 
+                    return;
+                case NPC_BRUNDIR: 
+                    uiBrundir = pCreature->GetGUID(); 
+                    return;
+                case NPC_KOLOGARN: 
+                    uiKologarn = pCreature->GetGUID(); 
+                    return;
+                case NPC_RUBBLE: 
+                    mRubbleSpawns.insert(pCreature->GetGUID()); 
+                    return;
+                case NPC_RIGHT_ARM: 
+                    uiRightArm = pCreature->GetGUID(); 
+                    return;
+                case NPC_LEFT_ARM: 
+                    uiLeftArm = pCreature->GetGUID(); 
+                    return;
+                case NPC_AURIAYA: 
+                    uiAuriaya = pCreature->GetGUID(); 
+                    return;
+                case 32915: 
+                    uiBrightleaf = pCreature->GetGUID(); 
+                    return;
+                case 32913: 
+                    uiIronbranch = pCreature->GetGUID(); 
+                    return;
+                case 32914: 
+                    uiStonebark = pCreature->GetGUID(); 
+                    return;
+                case NPC_FREYA: 
+                    uiFreya = pCreature->GetGUID(); 
+                    return;
+                case NPC_THORIM: 
+                    uiThorim = pCreature->GetGUID(); 
+                    return;
+                case 32872: 
+                    uiRunicColossus = pCreature->GetGUID(); 
+                    return;
+                case 32873: 
+                    uiRuneGiant = pCreature->GetGUID(); 
+                    return;
+                case NPC_MIMIRON: 
+                    uiMimiron = pCreature->GetGUID(); 
+                    return;
+                case 33432: 
+                    uiLeviathanMKII = pCreature->GetGUID(); 
+                    return;
+                case 33651: 
+                    uiVX001 = pCreature->GetGUID(); 
+                    return;
+                case 33670: 
+                    uiAerialUnit = pCreature->GetGUID(); 
+                    return;
+                case 34068: 
+                    uiMagneticCore = pCreature->GetGUID(); 
+                    return;
+                case NPC_VEZAX: 
+                    uiVezax = pCreature->GetGUID(); 
+                    return;
+                case 33410: 
+                    uiFreyaYS = pCreature->GetGUID(); 
+                    return;
+                case 33413: 
+                    uiThorimYS = pCreature->GetGUID(); 
+                    return;
+                case 33412: 
+                    uiMimironYS = pCreature->GetGUID(); 
+                    return;
+                case 33411: 
+                    uiHodirYS = pCreature->GetGUID(); 
+                    return;
+                case 33890: 
+                    uiYoggSaronBrain = pCreature->GetGUID(); 
+                    return;
+                case NPC_YOGGSARON: 
+                    uiYoggSaron = pCreature->GetGUID(); 
+                    return;
                 
                 // Keeper's Images
-                case 33241: uiFreyaImage = pCreature->GetGUID();
-                {
-                    InstanceScript *data = pCreature->GetInstanceScript();
-                    pCreature->SetVisible(false);
-                    if (data && data->GetBossState(BOSS_VEZAX) == DONE)
-                        pCreature->SetVisible(true);
-                }
-                return;
-                case 33242: uiThorimImage = pCreature->GetGUID();
-                {
-                    InstanceScript *data = pCreature->GetInstanceScript();
-                    pCreature->SetVisible(false);
-                    if (data && data->GetBossState(BOSS_VEZAX) == DONE)
-                        pCreature->SetVisible(true);
-                }
-                return;
-                case 33244: uiMimironImage = pCreature->GetGUID();
-                {
-                    InstanceScript *data = pCreature->GetInstanceScript();
-                    pCreature->SetVisible(false);
-                    if (data && data->GetBossState(BOSS_VEZAX) == DONE)
-                        pCreature->SetVisible(true);
-                }            
-                return;
-                case 33213: uiHodirImage = pCreature->GetGUID();
-                {
-                    InstanceScript *data = pCreature->GetInstanceScript();
-                    pCreature->SetVisible(false);
-                    if (data && data->GetBossState(BOSS_VEZAX) == DONE)
-                        pCreature->SetVisible(true);
-                }
-                return;
+                case 33241: 
+                    uiFreyaImage = pCreature->GetGUID();
+                    {
+                        InstanceScript *data = pCreature->GetInstanceScript();
+                        pCreature->SetVisible(false);
+                        if (data && data->GetBossState(BOSS_VEZAX) == DONE)
+                            pCreature->SetVisible(true);
+                    }
+                    return;
+                case 33242: 
+                    uiThorimImage = pCreature->GetGUID();
+                    {
+                        InstanceScript *data = pCreature->GetInstanceScript();
+                        pCreature->SetVisible(false);
+                        if (data && data->GetBossState(BOSS_VEZAX) == DONE)
+                            pCreature->SetVisible(true);
+                    }
+                    return;
+                case 33244: 
+                    uiMimironImage = pCreature->GetGUID();
+                    {
+                        InstanceScript *data = pCreature->GetInstanceScript();
+                        pCreature->SetVisible(false);
+                        if (data && data->GetBossState(BOSS_VEZAX) == DONE)
+                            pCreature->SetVisible(true);
+                    }            
+                    return;
+                case 33213: 
+                    uiHodirImage = pCreature->GetGUID();
+                    {
+                        InstanceScript *data = pCreature->GetInstanceScript();
+                        pCreature->SetVisible(false);
+                        if (data && data->GetBossState(BOSS_VEZAX) == DONE)
+                            pCreature->SetVisible(true);
+                    }
+                    return;
             }
 
             // Hodir: Alliance npcs are spawned by default
@@ -647,6 +720,24 @@ class instance_ulduar : public InstanceMapScript
                     {
                         HandleGameObject(uiKologarnBridge, false);
                         //KologarnChest->SetRespawnTime(KologarnChest->GetRespawnDelay());
+                    }
+                    if (state != IN_PROGRESS)
+                    {
+                        std::set<uint64>::const_iterator itr;
+                        for (itr = mRubbleSpawns.begin(); itr != mRubbleSpawns.end(); )
+                        {
+                            if (Creature* rubble = instance->GetCreature((*itr)))
+                            {
+                                if (rubble->isSummon())
+                                {
+                                    rubble->DestroyForNearbyPlayers();
+                                    rubble->ToTempSummon()->UnSummon();
+                                }
+                                else
+                                    rubble->DisappearAndDie();
+                            }
+                            mRubbleSpawns.erase(itr++);
+                        }
                     }
                     break;
                 case BOSS_HODIR:
