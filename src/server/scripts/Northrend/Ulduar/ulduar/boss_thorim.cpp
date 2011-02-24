@@ -915,48 +915,6 @@ class thorim_phase_trigger : public CreatureScript
     };
 };
 
-// Thorim Energy Source
-class thorim_energy_source : public CreatureScript
-{
-    public:
-        thorim_energy_source(): CreatureScript("thorim_energy_source") {}
-
-    struct thorim_energy_sourceAI : public Scripted_NoMovementAI
-    {
-        thorim_energy_sourceAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
-        {
-            pInstance = pCreature->GetInstanceScript();
-            pThorim = Unit::GetCreature(*me, pInstance->GetData64(DATA_THORIM));
-        }
-
-        InstanceScript* pInstance;
-        Creature* pThorim;
-        int32 TransferTimer;
-
-        void Reset()
-        {
-            TransferTimer = 0;
-            me->ForcedDespawn(5000);
-            me->SetReactState(REACT_PASSIVE);
-        }
-
-        void UpdateAI(const uint32 uiDiff)
-        {
-            if (!UpdateVictim())
-                return;
-                
-            if (pThorim && pThorim->isAlive())
-                DoCast(pThorim, 2400, true);
-                me->StopMoving();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new thorim_energy_sourceAI(pCreature);
-    };
-};
-
 // Sif (only in Hard-Mode)
 class npc_sif : public CreatureScript
 {
@@ -1043,6 +1001,5 @@ void AddSC_boss_thorim()
     new mob_runic_colossus();
     new mob_rune_giant();
     new thorim_phase_trigger();
-    new thorim_energy_source();
     new npc_sif();
 }
