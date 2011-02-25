@@ -639,6 +639,9 @@ class guild_guard : public CreatureScript
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
 
+            if (who->isGuildMaster())
+                return;
+
             uint32 guild =((Player*)who)->GetGuildId();
 
             uint32 guardguild = GHobj.GetGuildByGuardID(me->GetGUID());
@@ -655,10 +658,12 @@ class guild_guard : public CreatureScript
             ScriptedAI::MoveInLineOfSight(who);
         }
 
+        /*
         void AttackStart(Unit *who) 
         {
             
         }
+        */
 
         void UpdateAI(const uint32 uiDiff)
         {
