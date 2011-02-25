@@ -26,6 +26,7 @@
 #include "Vehicle.h"
 #include "SpellAuras.h"
 #include "MapManager.h"
+#include "Group.h"
 #include "Transport.h"
 #include "Battleground.h"
 #include "WaypointMovementGenerator.h"
@@ -148,16 +149,6 @@ void WorldSession::HandleMoveWorldportAckOpcode()
             GetPlayer()->SpawnCorpseBones();
         }
     }
-    // Trilogy - Revive player enter in istance
-    /*Corpse *corpse = GetPlayer()->GetCorpse();
-    if (mEntry->IsDungeon() && !GetPlayer()->isAlive())
-    {
-        GetPlayer()->ResurrectPlayer(0.5f,false);
-        if (corpse)
-        {
-            GetPlayer()->SpawnCorpseBones();
-        }
-    }*/
 
     bool allowMount = !mEntry->IsDungeon() || mEntry->IsBattlegroundOrArena();
     if (mInstance)
@@ -196,6 +187,10 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     // resummon pet
     GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
+
+    // send group update
+    if (Group* group = GetPlayer()->GetGroup())
+        group->SendUpdate();
 
     //lets process all delayed operations on successful teleport
     GetPlayer()->ProcessDelayedOperations();
