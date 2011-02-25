@@ -394,7 +394,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
             float currentHealthPct = float(me->GetHealth() / me->GetMaxHealth());
             m_bonusHP = uint32(me->GetMaxHealth() * (averageItemLevel * scalingInfo->scalingFactor));
             me->SetMaxHealth(me->GetMaxHealth() + m_bonusHP);
-            me->SetHealth(uint32((me->GetHealth() + m_bonusHP) * currentHealthPct));
+            me->SetHealth(uint32(float(me->GetHealth() + m_bonusHP) * currentHealthPct));
         }
     }
 
