@@ -278,7 +278,7 @@ public:
                     break;
                 case EVENT_SWEEP:
                     if (left)
-                        DoCastAOE(SPELL_ARM_SWEEP, true);
+                        DoCast(me->FindNearestCreature(NPC_ARM_SWEEP_STALKER, 500.0f, true), SPELL_ARM_SWEEP, true);
                     events.RescheduleEvent(EVENT_SWEEP, 15000);
                     break;
                 case EVENT_GRIP:
@@ -524,9 +524,10 @@ class spell_ulduar_rubble_summon : public SpellScriptLoader
                 if (!caster)
                     return;
 
+                uint64 originalCaster = caster->GetInstanceScript() ? caster->GetInstanceScript()->GetData64(DATA_KOLOGARN) : 0;
                 uint32 spellId = GetEffectValue();
                 for (uint8 i = 0; i < 5; ++i)
-                    caster->CastSpell(caster, spellId, true);
+                    caster->CastSpell(caster, spellId, true, NULL, NULL, originalCaster);
             }
 
             void Register()
@@ -606,9 +607,10 @@ class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
 
             void HandleForceCast(SpellEffIndex i)
             {
-                ASSERT (GetCaster()->ToCreature())
                 Player * plr = GetHitPlayer();
-                ASSERT (plr)
+                if (!plr)
+                    return;
+
                 plr->CastSpell(GetTargetUnit(), GetSpellInfo()->EffectTriggerSpell[i], true);     // Don't send m_originalCasterGUID param here or underlying
                 PreventHitEffect(i);                                                                   // AureEffect::HandleAuraControlVehicle will fail on caster == target
             }
@@ -670,6 +672,42 @@ class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
         {
             return new spell_ulduar_cancel_stone_gripSpellScript();
         }
+};
+
+class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
+{
+public:
+    spell_ulduar_squeezed_lifeless() : SpellScriptLoader("spell_ulduar_squeezed_lifeless") { }
+
+    class spell_ulduar_squeezed_lifeless_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_ulduar_squeezed_lifeless_SpellScript);
+
+        void HandleInstaKill(SpellEffIndex /*effIndex*/)
+        {
+            if (!GetHitPlayer()->GetVehicle())
+                return;
+
+            Position pos;
+            pos.m_positionX = 1756.25f + irand(-3, 3);
+            pos.m_positionY = -8.3f + irand(-3, 3);
+            pos.m_positionZ = 448.8f;
+            pos.m_orientation = M_PI;
+            GetHitPlayer()->DestroyForNearbyPlayers();
+            GetHitPlayer()->ExitVehicle(&pos);
+            GetHitPlayer()->UpdateObjectVisibility(false);
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_ulduar_squeezed_lifeless_SpellScript::HandleInstaKill, EFFECT_1, SPELL_EFFECT_INSTAKILL);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_ulduar_squeezed_lifeless_SpellScript();
+    }
 };
 
 class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
@@ -735,20 +773,17 @@ class spell_ulduar_stone_grip : public SpellScriptLoader
                 if (!(mode & AURA_EFFECT_HANDLE_REAL))
                     return;
 
-                Creature* cOwner = GetOwner()->ToCreature();
-                if (!cOwner)
+                if (GetOwner()->GetTypeId() != TYPEID_UNIT)
                     return;
 
                 Player* pCaster = GetCaster() ? GetCaster()->ToPlayer() : NULL;
-                if (!pCaster || !pCaster->IsOnVehicle(cOwner))
+                if (!pCaster || !pCaster->IsOnVehicle(GetOwner()->ToUnit()))
                     return;
 
                 pCaster->RemoveAurasDueToSpell(GetId());
                 pCaster->ExitVehicle();
                 pCaster->GetMotionMaster()->MoveJump(1756.25f + irand(-3, 3), -8.3f + irand(-3, 3), 448.8f, 5.0f, 5.0f);
                 PreventDefaultAction();
-
-                //GetOwner()->ToUnit()->NearTeleportTo(1756.25f + irand(-3, 3), -8.3f + irand(-3, 3), 448.8f, 3.62f);
             }
 
             void Register()
@@ -771,6 +806,7 @@ void AddSC_boss_kologarn()
     new npc_left_arm();
     new npc_right_arm();
     new spell_ulduar_rubble_summon();
+    new spell_ulduar_squeezed_lifeless();
     new spell_ulduar_cancel_stone_grip();
     new spell_ulduar_stone_grip_cast_target();
     new spell_ulduar_stone_grip_absorb();

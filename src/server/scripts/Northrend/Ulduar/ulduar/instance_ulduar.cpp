@@ -43,9 +43,10 @@ enum eGameObjects
 {
     GO_LEVIATHAN_DOOR        = 194905,
     GO_LEVIATHAN_GATE        = 194630,
-    GO_Kologarn_CHEST_HERO   = 195047,
-    GO_Kologarn_CHEST        = 195046,
-    GO_Kologarn_BRIDGE       = 194232,
+    GO_KOLOGARN_CHEST_HERO   = 195047,
+    GO_KOLOGARN_CHEST        = 195046,
+    GO_KOLOGARN_BRIDGE       = 194232,
+    GO_KOLOGARN_DOOR        = 194553,
     GO_Hodir_CHEST_HERO      = 194308,
     GO_Hodir_CHEST           = 194307,
     GO_Hodir_Rare_CHEST      = 194200,
@@ -197,9 +198,9 @@ class instance_ulduar : public InstanceMapScript
                     pLeviathanDoor = pGo;
                     HandleGameObject(NULL, false, pGo);
                     break;
-                //case GO_Kologarn_CHEST_HERO: KologarnChest = add ? pGo : NULL; break;
-                //case GO_Kologarn_CHEST: KologarnChest = add ? pGo : NULL; break;
-                case GO_Kologarn_BRIDGE: 
+                //case GO_KOLOGARN_CHEST_HERO: KologarnChest = add ? pGo : NULL; break;
+                //case GO_KOLOGARN_CHEST: KologarnChest = add ? pGo : NULL; break;
+                case GO_KOLOGARN_BRIDGE: 
                     uiKologarnBridge = pGo->GetGUID(); 
                     HandleGameObject(uiKologarnBridge, true); 
                     break;
