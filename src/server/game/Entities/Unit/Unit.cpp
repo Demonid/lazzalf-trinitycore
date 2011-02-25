@@ -16879,6 +16879,7 @@ void Unit::ExitVehicle(Position const* exitPosition)
     if (GetTypeId() == TYPEID_PLAYER)
     {
         //this->ToPlayer()->SetClientControl(this, 1);
+        this->ToPlayer()->SendTeleportAckPacket();
         this->ToPlayer()->SetFallInformation(0, GetPositionZ());
     }
 
