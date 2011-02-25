@@ -110,7 +110,6 @@ enum eNPCs
     NPC_RUBBLE                  = 33768,
     NPC_LEFT_ARM                = 32933,
     NPC_RIGHT_ARM               = 32934,
-    NPC_RUBBLE                  = 33768,
     NPC_AURIAYA                 = 33515,
     NPC_MIMIRON                 = 33350,
     NPC_HODIR                   = 32845,
