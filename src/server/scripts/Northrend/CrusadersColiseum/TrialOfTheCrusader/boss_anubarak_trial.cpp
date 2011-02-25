@@ -697,14 +697,15 @@ public:
 
         void EnterCombat(Unit *pWho)
         {
-            if (!pWho->ToPlayer())
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true); 
-            m_uiTargetGUID = pWho->GetGUID();
+            Unit* pTarget = pWho;
+            if (!pTarget->ToPlayer())
+                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+            m_uiTargetGUID = pTarget->GetGUID();
             DoCast(pWho, SPELL_MARK);
             me->SetSpeed(MOVE_RUN, 0.5f);
             m_uiSpeed = 0;
             m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
-            me->TauntApply(pWho);
+            me->TauntApply(pTarget);
         }
 
         void DamageTaken(Unit* /*pWho*/, uint32& uiDamage)
