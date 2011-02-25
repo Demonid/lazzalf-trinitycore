@@ -156,8 +156,6 @@ class instance_ulduar : public InstanceMapScript
         uint32 guardiansCount;
         uint32 comingOutTimer;
         uint32 achievementComingOut;
-
-        std::set<uint64> mRubbleSpawns;
             
         GameObject* pLeviathanDoor, /* *KologarnChest,*/ *HodirChest, *HodirRareChest, *ThorimChest, *ThorimRareChest, *pRunicDoor, *pStoneDoor, *pThorimLever,
             *MimironTram, *MimironElevator;
@@ -302,9 +300,6 @@ class instance_ulduar : public InstanceMapScript
                     return;
                 case NPC_KOLOGARN: 
                     uiKologarn = pCreature->GetGUID(); 
-                    return;
-                case NPC_RUBBLE: 
-                    mRubbleSpawns.insert(pCreature->GetGUID()); 
                     return;
                 case NPC_RIGHT_ARM: 
                     uiRightArm = pCreature->GetGUID(); 
@@ -720,24 +715,6 @@ class instance_ulduar : public InstanceMapScript
                     {
                         HandleGameObject(uiKologarnBridge, false);
                         //KologarnChest->SetRespawnTime(KologarnChest->GetRespawnDelay());
-                    }
-                    if (state != IN_PROGRESS)
-                    {
-                        std::set<uint64>::const_iterator itr;
-                        for (itr = mRubbleSpawns.begin(); itr != mRubbleSpawns.end(); )
-                        {
-                            if (Creature* rubble = instance->GetCreature((*itr)))
-                            {
-                                if (rubble->isSummon())
-                                {
-                                    rubble->DestroyForNearbyPlayers();
-                                    rubble->ToTempSummon()->UnSummon();
-                                }
-                                else
-                                    rubble->DisappearAndDie();
-                            }
-                            mRubbleSpawns.erase(itr++);
-                        }
                     }
                     break;
                 case BOSS_HODIR:
