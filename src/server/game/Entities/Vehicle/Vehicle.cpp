@@ -44,18 +44,26 @@ Vehicle::Vehicle(Unit *unit, VehicleEntry const *vehInfo) : me(unit), m_vehicleI
     // Set inmunities since db ones are rewritten with player's ones
     switch (GetVehicleInfo()->m_ID)
     {
+        case 244: // Wintergrasp Turret
+        // case 116: // Wintergrasp Siege Turret        
         case 160:
             me->SetControlled(true, UNIT_STAT_ROOT);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
+        case 79:  // Wintergrasp Catapult
+        case 106: // Wintergrasp Demolisher 
         case 158:
+        //case 117: // Wintergrasp Siege Engine
+        //case 324: // Wintergrasp Siege Engine
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL, true);
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_FEAR, true);
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_PERIODIC_HEAL, true);
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_STUN, true);
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_ROOT, true);
-            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_DECREASE_SPEED, true);
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_BLEED, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
             break;
         default:
@@ -265,7 +273,7 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
                     passenger->ToCreature()->AI()->EnterEvadeMode();
                     return;
                 }
-                else if (passenger->ToTempSummon()->GetSummonType() == TEMPSUMMON_MANUAL_DESPAWN)
+                else if (passenger->ToTempSummon() && passenger->ToTempSummon()->GetSummonType() == TEMPSUMMON_MANUAL_DESPAWN)
                 {
                     passenger->ExitVehicle();
                     passenger->ToTempSummon()->DespawnOrUnsummon();
@@ -294,6 +302,9 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
 bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
 {
     if (unit->GetVehicle() != this)
+        return false;
+
+    if (unit->GetTypeId() == TYPEID_PLAYER && unit->GetMap()->IsBattleArena())
         return false;
 
     SeatMap::iterator seat;
@@ -339,8 +350,22 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         }
     }
 
+    //if (seat->second.seatInfo->m_flags && !(seat->second.seatInfo->m_flags & VEHICLE_SEAT_FLAG_UNK11))
+    //    unit->AddUnitState(UNIT_STAT_ONVEHICLE);
+
     if (seat->second.seatInfo->m_flags && !(seat->second.seatInfo->m_flags & VEHICLE_SEAT_FLAG_UNK11))
-        unit->AddUnitState(UNIT_STAT_ONVEHICLE);
+    {
+        switch (GetVehicleInfo()->m_ID)
+        {
+            //case 342: // Ignis
+            case 353: // XT-002
+            //case 380: // Kologarn's Right Arm
+                break;
+            default: 
+                unit->AddUnitState(UNIT_STAT_ONVEHICLE);
+                break; 
+        }
+    }
 
     unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     VehicleSeatEntry const *veSeat = seat->second.seatInfo;
@@ -361,15 +386,17 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         if (VehicleScalingInfo const *scalingInfo = sObjectMgr->GetVehicleScalingInfo(m_vehicleInfo->m_ID))
         {
             Player *plr = unit->ToPlayer();
-            float averageItemLevel = plr->GetAverageItemLevel();
-            if (averageItemLevel < scalingInfo->baseItemLevel)
-                averageItemLevel = scalingInfo->baseItemLevel;
-            averageItemLevel -= scalingInfo->baseItemLevel;
+            //float averageItemLevel = plr->GetAverageItemLevel();
+            //if (averageItemLevel < scalingInfo->baseItemLevel)
+            //    averageItemLevel = scalingInfo->baseItemLevel;
+            // averageItemLevel -= scalingInfo->baseItemLevel;
+
+            float averageItemLevel = std::max(0.0f, float((plr->GetAverageItemLevel() - (scalingInfo->baseItemLevel + 30.0f)) * 3.0f));
 
             float currentHealthPct = float(me->GetHealth() / me->GetMaxHealth());
             m_bonusHP = uint32(me->GetMaxHealth() * (averageItemLevel * scalingInfo->scalingFactor));
             me->SetMaxHealth(me->GetMaxHealth() + m_bonusHP);
-            me->SetHealth(uint32((me->GetHealth() + m_bonusHP) * currentHealthPct));
+            me->SetHealth(uint32(float(me->GetHealth() + m_bonusHP) * currentHealthPct));
         }
     }
 
@@ -386,7 +413,8 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
                 me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, true);
 
             // update all passenger's positions
-            RelocatePassengers(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+            //RelocatePassengers(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+            RelocatePassengers(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
         }
     }
 
@@ -429,7 +457,7 @@ void Vehicle::RemovePassenger(Unit *unit)
 
         if (m_bonusHP)
         {
-            me->SetHealth(me->GetHealth() - m_bonusHP);
+            me->SetHealth(std::max(1, int32(me->GetHealth() - m_bonusHP)));
             me->SetMaxHealth(me->GetMaxHealth() - m_bonusHP);
             m_bonusHP = 0;
         }
