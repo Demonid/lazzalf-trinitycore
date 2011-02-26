@@ -16907,8 +16907,10 @@ void Unit::ExitVehicle(Position const* exitPosition)
     AddUnitState(UNIT_STAT_MOVE);
 
     if (GetTypeId() == TYPEID_PLAYER)
-        this->ToPlayer()->SendTeleportAckPacket();
+    {
+        //this->ToPlayer()->SendTeleportAckPacket();
         this->ToPlayer()->SetFallInformation(0, GetPositionZ());
+    }
     else if (HasUnitMovementFlag(MOVEMENTFLAG_ROOT))
     {
         WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
