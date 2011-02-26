@@ -667,7 +667,7 @@ class boss_stormcaller_brundir : public CreatureScript
             phase = 1;
             events.ScheduleEvent(EVENT_MOVE_POS, 1000);
             events.ScheduleEvent(EVENT_ENRAGE, 900000);
-            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 2000);
+            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 10000);
             events.ScheduleEvent(EVENT_OVERLOAD, urand(60000, 120000));
 
             // Reset achievement
