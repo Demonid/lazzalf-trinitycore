@@ -47,6 +47,7 @@ EndContentData */
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "World.h"
+#include "Guild.h"
 
 /*########
 # npc_air_force_bots
@@ -1862,6 +1863,61 @@ public:
             // here should be auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcasted by mirror images (stats related?)
             // Clone Me!
             owner->CastSpell(me, 45204, false);
+
+            if (owner->ToPlayer() && owner->ToPlayer()->GetSelectedUnit())
+                me->AI()->AttackStart(owner->ToPlayer()->GetSelectedUnit());
+        }
+
+        void EnterCombat(Unit *who)
+        {
+            if (spells.empty())
+                return;
+
+            for (SpellVct::iterator itr = spells.begin(); itr != spells.end(); ++itr)
+            {
+                if (AISpellInfo[*itr].condition == AICOND_AGGRO)
+                    me->CastSpell(who, *itr, false);
+                else if (AISpellInfo[*itr].condition == AICOND_COMBAT)
+                {
+                    uint32 cooldown = GetAISpellInfo(*itr)->realCooldown;
+                    events.ScheduleEvent(*itr, cooldown);
+                }
+            }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            bool hasCC = false;
+            if (me->GetCharmerOrOwnerGUID() && me->getVictim())
+                hasCC = me->getVictim()->HasAuraType(SPELL_AURA_MOD_CONFUSE);
+
+            if (hasCC)
+            {
+                if (me->HasUnitState(UNIT_STAT_CASTING))
+                    me->CastStop();
+                me->AI()->EnterEvadeMode();
+                return;
+            }
+
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            if (uint32 spellId = events.ExecuteEvent())
+            {
+                if (hasCC)
+                {
+                    events.ScheduleEvent(spellId, 500);
+                    return;
+                }
+                DoCast(spellId);
+                uint32 casttime = me->GetCurrentSpellCastTime(spellId);
+                events.ScheduleEvent(spellId, (casttime ? casttime : 500) + GetAISpellInfo(spellId)->realCooldown);
+            }
         }
 
         // Do not reload Creature templates on evade mode enter - prevent visual lost
@@ -2026,7 +2082,8 @@ public:
         {
             me->SetControlled(true,UNIT_STAT_STUNNED);//disable rotate
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
-
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+            me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
             uiResetTimer = 5000;
             uiDespawnTimer = 15000;
         }
@@ -2042,6 +2099,7 @@ public:
         void DamageTaken(Unit * /*done_by*/, uint32 &damage)
         {
             uiResetTimer = 5000;
+            //me->SetHealth(me->GetMaxHealth());
             damage = 0;
         }
 
@@ -2605,6 +2663,40 @@ public:
     }
 };
 
+#define GOSSIP_ITEM "Vorrei un altro Lovely Charm Collector Kit."
+
+class npc_love_is_in_the_air : public CreatureScript
+{
+public:
+    npc_love_is_in_the_air() : CreatureScript("npc_love_is_in_the_air") { }
+
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        if (pCreature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+        if (!pPlayer->HasItemCount(49661, 1))
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+        pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,pCreature->GetGUID());
+        
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_INFO_DEF:
+                pPlayer->AddItem(49661, 1);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+        }
+        
+        return true;
+    }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots;
@@ -2635,5 +2727,6 @@ void AddSC_npcs_special()
     new npc_locksmith;
     new npc_tabard_vendor;
     new npc_experience;
+    new npc_love_is_in_the_air();
 }
 
