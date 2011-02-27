@@ -312,6 +312,15 @@ void ArenaTeam::SetCaptain(const uint64& guid)
 
 void ArenaTeam::DelMember(uint64 guid)
 {
+    uint32 plPRating = 0;
+
+    if (sWorld->getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING) > 0)
+        plPRating = sWorld->getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING);
+    else if (GetRating() >= 1000)
+        plPRating = 1000;
+
+    uint32 neWplPRating = plPRating;
+
     for (MemberList::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
         if (itr->guid == guid)
         {
@@ -328,6 +337,7 @@ void ArenaTeam::DelMember(uint64 guid)
         sLog->outArena("Player: %s [GUID: %u] left arena team type: %u [Id: %u].", player->GetName(), player->GetGUIDLow(), GetType(), GetId());
     }
     CharacterDatabase.PExecute("DELETE FROM arena_team_member WHERE arenateamid = '%u' AND guid = '%u'", GetId(), GUID_LOPART(guid));
+    CharacterDatabase.PExecute("UPDATE character_arena_stats SET personal_rating = '%u' WHERE guid = '%u' AND slot = '%u'", neWplPRating , GUID_LOPART(guid), GetSlot());
 }
 
 void ArenaTeam::Disband(WorldSession *session)
@@ -762,15 +772,30 @@ void ArenaTeam::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, i
     }
 }
 
-void ArenaTeam::MemberWon(Player * plr, uint32 againstMatchmakerRating, int32 teamratingchange)
+void ArenaTeam::MemberWon(Player * plr, uint32 againstMatchmakerRating, int32 teamratingchange, int32 againstRating)
 {
     // called for each participant after winning a match
     for (MemberList::iterator itr = m_members.begin(); itr !=  m_members.end(); ++itr)
     {
         if (itr->guid == plr->GetGUID())
         {
+            int32 mod = 0;
             // update personal rating
-            int32 mod = GetPersonalRatingMod(teamratingchange, (m_stats.rating - teamratingchange), itr->personal_rating);
+            if ((againstRating != 0) && (m_stats.rating > itr->personal_rating) && ((m_stats.rating - itr->personal_rating) < 32))
+            {
+                int32 enemy_rating = againstRating;
+                if (enemy_rating < 1000)
+                    enemy_rating = 1000;
+                float chance = GetChanceAgainst(itr->personal_rating, enemy_rating);
+                //float K = (itr->personal_rating < 1000) ? 48.0f : 32.0f;
+                // calculate the rating modification (ELO system with k=32 or k=48 if rating<1000)
+                mod = (int32)floor(teamratingchange* (2.0f - chance));
+            }
+            else
+            {
+                // update personal rating
+                mod = GetPersonalRatingMod(teamratingchange, (m_stats.rating - teamratingchange), itr->personal_rating);
+            }
             itr->ModifyPersonalRating(plr, mod, GetSlot());
 
             // update matchmaker rating
@@ -816,6 +841,42 @@ void ArenaTeam::UpdateArenaPointsHelper(std::map<uint32, uint32>& PlayerPoints)
         }
         else
             PlayerPoints[GUID_LOPART(itr->guid)] = points_to_add;
+    }
+}
+
+void ArenaTeam::SaveToDBArenaModTeam(uint32 ArenaTeamId, uint32 EnemyTeamId)
+{
+    if(!EnemyTeamId || !ArenaTeamId)
+        return;
+
+    QueryResult result = CharacterDatabase.PQuery("SELECT wins FROM arena_mod WHERE player_guid ='0' AND player_team_id ='%u' AND enemy_team_id ='%u'", ArenaTeamId, EnemyTeamId);
+
+    if(!result)
+    {
+        CharacterDatabase.PExecute("INSERT INTO arena_mod (player_guid, player_team_id, enemy_team_id, wins) VALUES ('0', '%u', '%u', 1)", ArenaTeamId, EnemyTeamId);
+        return;
+    }
+    else
+    {
+        CharacterDatabase.PExecute("UPDATE arena_mod SET wins = wins + '1' WHERE player_guid ='0' AND player_team_id ='%u' AND enemy_team_id ='%u'", ArenaTeamId, EnemyTeamId);
+    }
+}
+
+void ArenaTeam::SaveToDBArenaModPlayer(uint64 PlayerGuid, uint32 ArenaTeamId, uint32 EnemyTeamId)
+{
+    if(!EnemyTeamId || !PlayerGuid || !ArenaTeamId)
+        return;
+
+    QueryResult result = CharacterDatabase.PQuery("SELECT wins FROM arena_mod WHERE player_guid ='%u' AND player_team_id ='%u' AND enemy_team_id ='%u'", GUID_LOPART(PlayerGuid), ArenaTeamId, EnemyTeamId);
+
+    if(!result)
+    {
+        CharacterDatabase.PExecute("INSERT INTO arena_mod (player_guid, player_team_id, enemy_team_id, wins) VALUES ('%u', '%u', '%u', 1)", GUID_LOPART(PlayerGuid), ArenaTeamId, EnemyTeamId);
+        return;
+    }
+    else
+    {
+        CharacterDatabase.PExecute("UPDATE arena_mod SET wins = wins + '1' WHERE player_guid ='%u' AND player_team_id ='%u' AND enemy_team_id ='%u'", GUID_LOPART(PlayerGuid), ArenaTeamId, EnemyTeamId);
     }
 }
 
