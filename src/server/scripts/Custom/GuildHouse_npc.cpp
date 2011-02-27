@@ -658,17 +658,28 @@ class guild_guard : public CreatureScript
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-        /*
-        void AttackStart(Unit *who) 
+        void DamageTaken(Unit * /*done_by*/, uint32 &damage)
         {
-            
+            damage = 0;
         }
-        */
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim())
                 return;
+
+            if (me->getVictim()->ToPlayer())
+            {
+                uint32 guild =((Player*)me->getVictim())->GetGuildId();
+
+                uint32 guardguild = GHobj.GetGuildByGuardID(me->GetGUID());
+
+                if (guardguild && guild == guardguild)
+                {
+                    EnterEvadeMode();
+                    return;
+                } 
+            }
             
             if (Check_Timer <= uiDiff)
             {
