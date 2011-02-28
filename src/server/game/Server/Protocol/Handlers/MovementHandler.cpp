@@ -25,7 +25,6 @@
 #include "Player.h"
 #include "SpellAuras.h"
 #include "MapManager.h"
-#include "Group.h"
 #include "Transport.h"
 #include "Battleground.h"
 #include "WaypointMovementGenerator.h"
@@ -186,10 +185,6 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     // resummon pet
     GetPlayer()->ResummonPetTemporaryUnSummonedIfAny();
-
-    // send group update
-    if (Group* group = GetPlayer()->GetGroup())
-        group->SendUpdate();
 
     //lets process all delayed operations on successful teleport
     GetPlayer()->ProcessDelayedOperations();
