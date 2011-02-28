@@ -662,7 +662,7 @@ class guild_guard : public CreatureScript
 
             if (Check_Timer <= uiDiff)
             {
-                uint32 guardguild = GHobj.GetGuildByGuardID(me->GetGUID());
+                uint32 guardguild = GHobj.GetGuildByGuardID(me->GetGUIDLow());
                 Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
