@@ -664,7 +664,7 @@ class guild_guard : public CreatureScript
             {
                 uint32 guardguild = GHobj.GetGuildByGuardID(me->GetGUID());
                 Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
-                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); i++)
+                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
                     if (!PlayerList.isEmpty())
                     {
