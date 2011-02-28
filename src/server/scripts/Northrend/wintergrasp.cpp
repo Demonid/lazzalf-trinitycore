@@ -357,9 +357,349 @@ class npc_winterguard : public CreatureScript
     }
 };
 
+
+enum eWintergraspBattleMage
+{
+    SPELL_PORTAL_VISUAL        = 60223,
+    GO_WINTERGRASP_PORTAL    = 193772
+};
+
+class npc_wg_ally_battle_mage : public CreatureScript
+{
+public:
+    npc_wg_ally_battle_mage() : CreatureScript("npc_wg_ally_battle_mage") { }
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_wg_ally_battle_mageAI(creature);
+    }
+
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        if (!sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+            return false;
+
+        if (OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197))
+        {
+            if (pvpWG->isWarTime())
+            {
+                if (pvpWG->getDefenderTeamId() == TEAM_HORDE)
+                    pPlayer->SEND_GOSSIP_MENU(14777, pCreature->GetGUID());
+                else
+                    pPlayer->SEND_GOSSIP_MENU(14781, pCreature->GetGUID());
+            }
+            else
+            {
+                if (pvpWG->getDefenderTeamId() == TEAM_HORDE)
+                    pPlayer->SEND_GOSSIP_MENU(14775, pCreature->GetGUID());
+                else
+                    pPlayer->SEND_GOSSIP_MENU(14782, pCreature->GetGUID());
+            }
+        }
+        return true;
+    }
+
+    struct npc_wg_ally_battle_mageAI : public ScriptedAI
+    {
+        npc_wg_ally_battle_mageAI(Creature* pCreature) : ScriptedAI(pCreature)
+        {
+            uiPortalTimer = 0;
+            uiPortalPhase = 0;
+            Check = true;
+        }
+
+        uint32 uiPortalTimer;
+        uint8 uiPortalPhase;
+        GameObject* WintergraspPortal;
+        bool Player;
+        bool Check;
+        bool Check2;
+
+        void UpdateAI(const uint32 diff)
+        {
+            // If WG is disabled, don't do anything.
+            if (!sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+                return;
+
+            if (OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197))
+            {
+                // Get playerlist if there is.
+                if (pvpWG->isWarTime() && Check == true)
+                {
+                    Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); i)
+                    {
+                        if (!PlayerList.isEmpty())
+                        {
+                            if (i->getSource()->GetDistance2d(me) <= 75)
+                            {
+                                Player = true;
+                                Check = false;
+                            }
+                            else
+                            {
+                                Player = false;
+                                Check = false;
+                                Check2 = true;
+                            }
+                        }
+                        else
+                        {
+                            Player = false;
+                            Check = false;
+                            Check2 = true;
+                        }
+                    }
+                }
+
+                if (pvpWG->m_changeDefender != true) // If wg is switching (.wg switch)
+                {
+                    if (pvpWG->isWarTime())
+                    {
+                        if (Player == true) //(false) If there isn't any player, then, don't cast the portal spell. Just summon gameobject.
+                        {
+                            if (uiPortalTimer <= diff)
+                            {
+                                switch (uiPortalPhase)
+                                {
+                                case 0:
+                                    me->SetOrientation(4.037271f);
+                                    me->SendMovementFlagUpdate();
+                                    uiPortalPhase;
+                                    uiPortalTimer = 100;
+                                    break;
+                                case 1:
+                                    me->AI()->DoCast(SPELL_PORTAL_VISUAL);
+                                    uiPortalPhase;
+                                    uiPortalTimer = 900;
+                                    break;
+                                case 2:
+                                    WintergraspPortal = me->SummonGameObject(GO_WINTERGRASP_PORTAL, 5686.974609f, 773.303711f, 647.753235f, 5.572729f, 0, 0, 0.324484f, -0.945891f, 0);
+                                    me->SetOrientation(5.515240f);
+                                    me->SendMovementFlagUpdate();
+                                    me->MonsterYell("Reinforcements are needed on the Wintergrasp battlefield! I have opened a portal for quick travel to the battle at The Silver Enclave.", LANG_UNIVERSAL, 0);
+                                    uiPortalPhase;
+                                    uiPortalTimer = 1000;
+                                    break;
+                                }
+                            }else uiPortalTimer -= diff;
+                        }
+                        else
+                        {
+                            if (Check2 == true) // If the portal isn't exist
+                            {
+                                WintergraspPortal = me->SummonGameObject(GO_WINTERGRASP_PORTAL, 5686.974609f, 773.303711f, 647.753235f, 5.572729f, 0, 0, 0.324484f, -0.945891f, 0);
+                                Check2 = false;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (pvpWG->getDefenderTeamId() == TEAM_ALLIANCE)
+                        {
+                            if (pvpWG->m_timer <= 3600000) // An hour before battle begin, the portal will disappear.
+                            {
+                                uiPortalTimer = 0;
+                                uiPortalPhase = 0;
+                                Check = true;
+                                Check2 = false;
+                                if (GameObject* WintergraspPortal = me->FindNearestGameObject(GO_WINTERGRASP_PORTAL, 5.0f)) // If the portal is exist
+                                    WintergraspPortal->RemoveFromWorld();
+                            }
+                        }
+                        else
+                        {
+                            uiPortalTimer = 0;
+                            uiPortalPhase = 0;
+                            Check = true;
+                            Check2 = false;
+                            if (GameObject* WintergraspPortal = me->FindNearestGameObject(GO_WINTERGRASP_PORTAL, 5.0f)) // If the portal is exist
+                                WintergraspPortal->RemoveFromWorld();
+                        }
+                    }
+                }
+            }
+        }
+    };
+};
+
+class npc_wg_horde_battle_mage : public CreatureScript
+{
+public:
+    npc_wg_horde_battle_mage() : CreatureScript("npc_wg_horde_battle_mage") { }
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_wg_horde_battle_mageAI(creature);
+    }
+
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        if (!sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+            return false;
+
+        if (OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197))
+        {
+            if (pvpWG->isWarTime())
+            {
+                if (pvpWG->getDefenderTeamId() == TEAM_HORDE)
+                    pPlayer->SEND_GOSSIP_MENU(14777, pCreature->GetGUID());
+                else
+                    pPlayer->SEND_GOSSIP_MENU(14781, pCreature->GetGUID());
+            }
+            else
+            {
+                if (pvpWG->getDefenderTeamId() == TEAM_HORDE)
+                    pPlayer->SEND_GOSSIP_MENU(14775, pCreature->GetGUID());
+                else
+                    pPlayer->SEND_GOSSIP_MENU(14782, pCreature->GetGUID());
+            }
+        }
+        return true;
+    }
+
+    struct npc_wg_horde_battle_mageAI : public ScriptedAI
+    {
+        npc_wg_horde_battle_mageAI(Creature* pCreature) : ScriptedAI(pCreature)
+        {
+            uiPortalTimer = 0;
+            uiPortalPhase = 0;
+            Check = true;
+        }
+
+        uint32 uiPortalTimer;
+        uint8 uiPortalPhase;
+        GameObject* WintergraspPortal;
+        bool Player;
+        bool Check;
+        bool Check2;
+
+        void UpdateAI(const uint32 diff)
+        {
+            // If WG is disabled, don't do anything.
+            if (!sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+                return;
+
+            if (OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197))
+            {
+                // Get playerlist if there is.
+                if (pvpWG->isWarTime() && Check == true)
+                {
+                    Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); i)
+                    {
+                        if (!PlayerList.isEmpty())
+                        {
+                            if (i->getSource()->GetDistance2d(me) <= 75)
+                            {
+                                Player = true;
+                                Check = false;
+                            }
+                            else
+                            {
+                                Player = false;
+                                Check = false;
+                                Check2 = true;
+                            }
+                        }
+                        else
+                        {
+                            Player = false;
+                            Check = false;
+                            Check2 = true;
+                        }
+                    }
+                }
+
+                if (pvpWG->m_changeDefender != true) // If wg is switching (.wg switch)
+                {
+                    if (pvpWG->isWarTime())
+                    {
+                        if (Player == true) //(false) If there isn't any player, then, don't cast the portal spell. Just summon gameobject.
+                        {
+                            if (uiPortalTimer <= diff)
+                            {
+                                switch (uiPortalPhase)
+                                {
+                                case 0:
+                                    me->SetOrientation(4.356160f);
+                                    me->SendMovementFlagUpdate();
+                                    uiPortalPhase;
+                                    uiPortalTimer = 100;
+                                    break;
+                                case 1:
+                                    me->AI()->DoCast(SPELL_PORTAL_VISUAL);
+                                    uiPortalPhase;
+                                    uiPortalTimer = 900;
+                                    break;
+                                case 2:
+                                    WintergraspPortal = me->SummonGameObject(GO_WINTERGRASP_PORTAL, 5924.042969f, 570.354492f, 661.087280f, 5.930885f, 0, 0, 0.324484f, -0.945891f, 0);
+                                    me->SetOrientation(6.003930f);
+                                    me->SendMovementFlagUpdate();
+                                    uiPortalPhase;
+                                    uiPortalTimer = 1000;
+                                    break;
+                                }
+                            }else uiPortalTimer -= diff;
+                        }
+                        else
+                        {
+                            if (Check2 == true) // If the portal isn't exist
+                            {
+                                WintergraspPortal = me->SummonGameObject(GO_WINTERGRASP_PORTAL, 5686.974609f, 773.303711f, 647.753235f, 5.572729f, 0, 0, 0.324484f, -0.945891f, 0);
+                                Check2 = false;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (pvpWG->getDefenderTeamId() == TEAM_HORDE)
+                        {
+                            if (pvpWG->m_timer <= 3600000) // An hour before battle begin, the portal will disappear.
+                            {
+                                uiPortalTimer = 0;
+                                uiPortalPhase = 0;
+                                Check = true;
+                                Check2 = false;
+                                if (GameObject* WintergraspPortal = me->FindNearestGameObject(GO_WINTERGRASP_PORTAL, 5.0f)) // If the portal is exist
+                                    WintergraspPortal->RemoveFromWorld();
+                            }
+                        }
+                        else
+                        {
+                            uiPortalTimer = 0;
+                            uiPortalPhase = 0;
+                            Check = true;
+                            Check2 = false;
+                            if (GameObject* WintergraspPortal = me->FindNearestGameObject(GO_WINTERGRASP_PORTAL, 5.0f)) // If the portal is exist
+                                WintergraspPortal->RemoveFromWorld();
+                        }
+                    }
+                }
+            }
+        }
+    };
+};
+
+/* Wintergrasp Battle-Mage */
+/*
+UPDATE `creature_template` SET `gossip_menu_id`=0 WHERE `entry` in (32169, 32170);
+DELETE FROM `npc_text` WHERE ID In (14775, 14777, 14781, 14782);
+UPDATE `creature` SET `position_x`=5925.341309, `position_y`=573.709961, `position_z`=661.087280 WHERE `id`=32170;
+UPDATE `creature_template` SET `ScriptName`='npc_wg_ally_battle_mage' WHERE `entry`=32169;
+UPDATE `creature_template` SET `ScriptName`='npc_wg_horde_battle_mage' WHERE `entry`=32170;
+UPDATE `trinity_string` SET `content_default`='Before the Battle of  Wintergrasp left 10 minutes!' WHERE `entry`=781;
+DELETE FROM `spell_target_position` WHERE id IN (58633, 58632, 59096);
+INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES 
+(58632, 571, 5095.104980, 2170.985840, 365.603210, 2.367906),
+(58633, 571, 5025.775879, 3673.123779, 362.671295, 4.197887),
+(59096, 571, 5324.776367, 2841.025391, 406.280334, 3.143867);
+*/
 void AddSC_wintergrasp()
 {
-    new npc_demolisher_engineerer;
-    new npc_wg_misc;
-    new npc_winterguard;
+    new npc_demolisher_engineerer();
+    new npc_wg_misc();
+    new npc_winterguard();
+    //new npc_wg_ally_battle_mage();
+    //new npc_wg_horde_battle_mage();
 }

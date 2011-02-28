@@ -1104,7 +1104,7 @@ void OutdoorPvPWG::OnGameObjectCreate(GameObject *go)
 {
     OutdoorPvP::OnGameObjectCreate(go);
 
-    switch(go->GetEntry())
+    switch (go->GetEntry())
     {
         case WG_GO_KEEP_DOOR01_COLLISION:
             m_gate_collision1 = const_cast<GameObject*>(go);
@@ -1115,9 +1115,8 @@ void OutdoorPvPWG::OnGameObjectCreate(GameObject *go)
     }
 
     if (UpdateGameObjectInfo(go))
-    {
         m_gobjects.insert(go);
-    }
+
     //do we need to store building?
     else if (go->GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
     {
@@ -1397,6 +1396,28 @@ bool OutdoorPvPWG::UpdateGameObjectInfo(GameObject *go) const
         case 7967: // Titan relic
             go->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[getAttackerTeamId()]);
             return true;
+        case 5651: // Small Alliance Flag
+        case 5652: // Small Horde Flag
+        case 8256: // Big Alliance Flag
+        case 8257: // Big Horde Flag
+        {
+            uint32 _displayid;
+            bool cArea = (go->GetAreaId() == 4575 || go->GetAreaId() == 4539 || go->GetAreaId() == 4538);
+            if ((cArea && getDefenderTeamId() == TEAM_ALLIANCE) || (!cArea && getDefenderTeamId() == TEAM_HORDE)) // Wintergrasp Fortress - The Broken Temple - The Sunken Ring
+            {
+               TeamPairMap::const_iterator itr = m_goDisplayPair.find(go->GetGOInfo()->displayId);
+               if (itr == m_goDisplayPair.end())
+                  return true;
+               _displayid = itr->second;
+            }
+            else
+               _displayid = go->GetGOInfo()->displayId;
+
+            if (go->GetUInt32Value(GAMEOBJECT_DISPLAYID) != _displayid)
+               go->SetUInt32Value(GAMEOBJECT_DISPLAYID, _displayid);
+
+            return true;
+        }      
         case 8165: // Wintergrasp Keep Door
         case 7877: // Wintergrasp Fortress Wall
         case 7878: // Wintergrasp Keep Tower
@@ -2442,6 +2463,10 @@ void OutdoorPvPWG::EndBattle()
         if ((*itr)->GetSession()->GetSecurity() < SEC_GAMEMASTER)
             (*itr)->CastSpell(*itr, SPELL_TELEPORT_DALARAN, true);
 
+    // update go factions
+    for (GameObjectSet::iterator itr = m_gobjects.begin(); itr != m_gobjects.end(); ++itr)
+       UpdateGameObjectInfo(*itr);
+
     SaveData();
 }
 
@@ -2754,7 +2779,7 @@ void OPvPCapturePointWG::ChangeTeam(TeamId oldTeam)
     else if (m_engineer)
         m_engineer->SetVisible(false);
 
-    sLog->outDebug(LOG_FILTER_TSCR, "Wintergrasp workshop now belongs to %u.", (uint32)m_buildingState->GetTeamId());
+    sLog->outDebug(LOG_FILTER_OUTDOORPVP, "Wintergrasp workshop now belongs to %u.", (uint32)m_buildingState->GetTeamId());
 }
 
 class OutdoorPvP_wintergrasp : public OutdoorPvPScript

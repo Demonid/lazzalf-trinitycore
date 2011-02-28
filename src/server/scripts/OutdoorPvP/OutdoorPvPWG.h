@@ -689,8 +689,10 @@ class OutdoorPvPWG : public OutdoorPvP
         QuestGiverPositionMap m_qgPosMap;
 
         bool m_wartime;
+    public:
         bool m_changeDefender;
         uint64 m_timer;
+    protected:
         uint64 m_clock[2];
         uint32 m_workshopCount[2];
         uint32 m_towerDestroyedCount[2];
