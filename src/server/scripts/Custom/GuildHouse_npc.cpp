@@ -621,16 +621,6 @@ class guild_guard : public CreatureScript
             Check_Timer = 1000;
         }
 
-        void EnterCombat(Unit* who)
-        {
-            if (who->isPet() && who->GetOwner())
-            {
-                me->Kill(who->GetOwner());
-                me->Attack(who->GetOwner(), true);
-            }
-            me->MonsterYell(SAY_AGGRO, LANG_UNIVERSAL, 0);
-        }
-
         void MoveInLineOfSight(Unit *who)
         {
             if (!who)
@@ -669,7 +659,7 @@ class guild_guard : public CreatureScript
                 return;
 
             if (me->getVictim()->ToPlayer())
-            {
+            { 
                 uint32 guild =((Player*)me->getVictim())->GetGuildId();
 
                 uint32 guardguild = GHobj.GetGuildByGuardID(me->GetGUID());
@@ -680,9 +670,12 @@ class guild_guard : public CreatureScript
                     return;
                 } 
             }
+            /*if (me->getVictim()->isPet() && me->getVictim()->GetOwner())
+                    me->Kill(me->getVictim()->GetOwner;*/
             
             if (Check_Timer <= uiDiff)
             {
+                me->MonsterYell(SAY_AGGRO, LANG_UNIVERSAL, 0);
                 me->Kill(me->getVictim());
                 Check_Timer = 1000;
             } else Check_Timer -= uiDiff;
