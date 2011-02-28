@@ -249,7 +249,10 @@ bool GuildHouseObject::AddGuildHouseAdd(uint32 id, uint32 add, uint32 guild)
                         {
                             map->Add(pCreature);                        
                             if (i == 2) //Guard
-                                UpdateGuardMap(pCreature->GetGUID(), guild);
+                            {
+                                UpdateGuardMap(pCreature->GetGUIDLow(), guild);
+                                sLog->outDebug(LOG_FILTER_GUILD, "GuildHouse: insert guard with GUID: %u,Guild: %u", pCreature->GetGUIDLow(), guild);
+                            }
                         }
                     }                           
                 }
@@ -364,7 +367,7 @@ void GuildHouseObject::LoadGuildHouseAdd()
     sLog->outString( ">> Loaded %u GuildHouse Add", GH_AddHouse.size() );
 }
 
-uint32 GuildHouseObject::GetGuildByGuardID(uint64 guid)
+uint32 GuildHouseObject::GetGuildByGuardID(uint32 guid)
 {
     GuildGuardID::const_iterator itr = mGuildGuardID.find(guid);
     if (itr == mGuildGuardID.end()) 
@@ -372,7 +375,7 @@ uint32 GuildHouseObject::GetGuildByGuardID(uint64 guid)
     return itr->second;
 }
 
-void GuildHouseObject::UpdateGuardMap(uint64 guid, uint32 guild)
+void GuildHouseObject::UpdateGuardMap(uint32 guid, uint32 guild)
 {
     GuildGuardID::iterator itr = mGuildGuardID.find(guid);
     if (itr == mGuildGuardID.end()) 
