@@ -685,6 +685,14 @@ class guild_guard : public CreatureScript
                                 me->MonsterYell(SAY_AGGRO, LANG_UNIVERSAL, 0);
                                 me->Kill(i->getSource());
                             }
+                            else if (guardguild)
+                            {
+                                me->MonsterYell("Ok sei della gilda", LANG_UNIVERSAL, 0);
+                            }
+                            else
+                            {
+                                me->MonsterYell("Errore", LANG_UNIVERSAL, 0);
+                            }
                         }
                     }
                 }

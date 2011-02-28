@@ -248,7 +248,7 @@ bool GuildHouseObject::AddGuildHouseAdd(uint32 id, uint32 add, uint32 guild)
                         else
                         {
                             map->Add(pCreature);                        
-                            if (((uint32)1 << (i-1)) == NPC_GUARD) //Guard
+                            if (i == 2) //Guard
                                 UpdateGuardMap(pCreature->GetGUID(), guild);
                         }
                     }                           
