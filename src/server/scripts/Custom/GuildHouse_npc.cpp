@@ -621,6 +621,7 @@ class guild_guard : public CreatureScript
             Check_Timer = 1000;
         }
 
+        /*
         void MoveInLineOfSight(Unit *who)
         {
             if (!who)
@@ -647,6 +648,7 @@ class guild_guard : public CreatureScript
             }        
             ScriptedAI::MoveInLineOfSight(who);
         }
+        */
 
         void DamageTaken(Unit * /*done_by*/, uint32 &damage)
         {
@@ -655,8 +657,41 @@ class guild_guard : public CreatureScript
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim())
-                return;
+            //if (!UpdateVictim())
+            //    return;
+
+            if (Check_Timer <= uiDiff)
+            {
+                uint32 guardguild = GHobj.GetGuildByGuardID(me->GetGUID());
+                Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); i)
+                {
+                    if (!PlayerList.isEmpty())
+                    {
+                        if (!i->getSource())
+                            continue;
+
+                        if (!i->getSource()->isAlive())
+                            continue;
+
+                        if (i->getSource()->isGuildMaster())
+                            continue;
+
+                        if (i->getSource()->GetDistance2d(me) <= 100)
+                        {                            
+                            uint32 guild =((Player*)i->getSource())->GetGuildId();
+                            if (guardguild && guild != guardguild)
+                            {
+                                me->MonsterYell(SAY_AGGRO, LANG_UNIVERSAL, 0);
+                                me->Kill(i->getSource());
+                            }
+                        }
+                    }
+                }
+                Check_Timer = 10000;
+            } else Check_Timer -= uiDiff;
+
+            /*
 
             if (me->getVictim()->ToPlayer())
             { 
@@ -670,8 +705,8 @@ class guild_guard : public CreatureScript
                     return;
                 } 
             }
-            /*if (me->getVictim()->isPet() && me->getVictim()->GetOwner())
-                    me->Kill(me->getVictim()->GetOwner;*/
+            if (me->getVictim()->isPet() && me->getVictim()->GetOwner())
+                    me->Kill(me->getVictim()->GetOwner;
             
             if (Check_Timer <= uiDiff)
             {
@@ -681,6 +716,7 @@ class guild_guard : public CreatureScript
             } else Check_Timer -= uiDiff;
 
             DoMeleeAttackIfReady();
+            */
         }           
     };
 
