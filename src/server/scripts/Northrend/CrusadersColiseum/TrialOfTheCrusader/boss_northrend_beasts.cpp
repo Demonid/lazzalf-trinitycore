@@ -107,7 +107,11 @@ enum BossSpells
     SPELL_TRAMPLE           = 66734,
     SPELL_FROTHING_RAGE     = 66759,
     SPELL_STAGGERED_DAZE    = 66758,
+    SPELL_BERSERK           = 47008, // Mimiron Enrage
 };
+
+#define SNOBOLD_COUNT RAID_MODE(2,4)
+#define ACHI_UPPER_BACK_PAIN RAID_MODE(3797,3813)
 
 class boss_gormok : public CreatureScript
 {
@@ -134,6 +138,8 @@ public:
         uint32 m_uiSummonTimer;
         uint32 m_uiSummonCount;
 
+        uint32 m_uiNextBossTimer;
+
         void Reset()
         {
             m_uiImpaleTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
@@ -146,12 +152,14 @@ public:
             else
                 m_uiSummonCount = 4;
 
+            m_uiNextBossTimer = 160*IN_MILLISECONDS;
+
             Summons.DespawnAll();
         }
 
         void JustDied(Unit* /*pKiller*/)
         {
-            if (m_pInstance)
+            if (m_pInstance && m_uiNextBossTimer)
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_DONE);
         }
 
@@ -194,7 +202,14 @@ public:
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim())
-                return;
+                return;            
+
+            if (IsHeroic() && m_uiNextBossTimer)
+                if (m_uiNextBossTimer <= uiDiff)
+                {
+                    m_uiNextBossTimer = 0;
+                    m_pInstance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_DONE);
+                } else m_uiNextBossTimer -= uiDiff;
 
             if (m_uiImpaleTimer <= uiDiff)
             {
@@ -287,7 +302,11 @@ public:
             {
                 case 0: // JUMP!? Fuck! THAT'S BEEZARR! Would someone PLEASE make MotionMaster->Move* work better?
                     if (m_bTargetDied)
-                        me->DespawnOrUnsummon();
+                    {
+                        me->DespawnOrUnsummon();;
+                        if (m_pInstance)
+                            m_pInstance->SetData(DATA_SNOBOLD_COUNT, DECREASE);
+                    }
                     break;
             }
         }
@@ -375,6 +394,8 @@ struct boss_jormungarAI : public ScriptedAI
         spitTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
         sprayTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
         sweepTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+
+        m_uiNextBossTimer = 160*IN_MILLISECONDS;
     }
 
     void JustDied(Unit* /*pKiller*/)
@@ -385,7 +406,8 @@ struct boss_jormungarAI : public ScriptedAI
             {
                 if (!otherWorm->isAlive())
                 {
-                    instanceScript->SetData(TYPE_NORTHREND_BEASTS, SNAKES_DONE);
+                    if (m_uiNextBossTimer)
+                        instanceScript->SetData(TYPE_NORTHREND_BEASTS, SNAKES_DONE);
 
                     me->DespawnOrUnsummon();
                     otherWorm->DespawnOrUnsummon();
@@ -421,8 +443,24 @@ struct boss_jormungarAI : public ScriptedAI
     }
 
     void UpdateAI(const uint32 uiDiff)
-    {
-        if (!UpdateVictim()) return;
+    {     
+        if (!UpdateVictim()) 
+            return;
+
+        if (IsHeroic() && m_uiNextBossTimer)            
+            if (m_uiNextBossTimer <= uiDiff)
+            {
+                m_uiNextBossTimer = 0;
+                if (Creature* otherWorm = Unit::GetCreature(*me, instanceScript->GetData64(otherWormEntry)))
+                {
+                    if (otherWorm->isAlive())
+                        if (boss_jormungarAI* bossjormungarAI = CAST_AI(boss_jormungarAI, otherWorm->GetAI()))
+                        {
+                            bossjormungarAI->m_uiNextBossTimer = 0;
+                            instanceScript->SetData(TYPE_NORTHREND_BEASTS, SNAKES_DONE);
+                        }
+                }                
+            } else m_uiNextBossTimer -= uiDiff;
 
         if (instanceScript && instanceScript->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL && !enraged)
         {
@@ -549,6 +587,8 @@ struct boss_jormungarAI : public ScriptedAI
     }
 
     InstanceScript* instanceScript;
+
+    uint32 m_uiNextBossTimer;
 
     uint32 otherWormEntry;
 
@@ -696,6 +736,7 @@ public:
         uint32 m_uiWhirlTimer;
         uint32 m_uiMassiveCrashTimer;
         uint32 m_uiTrampleTimer;
+        uint32 m_uiEnrageTimer;
         float  m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ;
         uint64 m_uiTrampleTargetGUID;
         bool   m_bMovementStarted;
@@ -711,6 +752,7 @@ public:
             m_uiWhirlTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             m_uiMassiveCrashTimer = 30*IN_MILLISECONDS;
             m_uiTrampleTimer = IN_MILLISECONDS;
+            m_uiEnrageTimer = 180 * IN_MILLISECONDS;
             m_bMovementStarted = false;
             m_bMovementFinish = false;
             m_bTrampleCasted = false;
@@ -723,8 +765,24 @@ public:
 
         void JustDied(Unit* /*pKiller*/)
         {
+
             if (m_pInstance)
+            {
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_DONE);
+
+                if (int32(m_pInstance->GetData(DATA_SNOBOLD_COUNT)) >= SNOBOLD_COUNT)
+                    m_pInstance->DoCompleteAchievement(ACHI_UPPER_BACK_PAIN);
+            }
+
+            while (Unit* pTarget = me->FindNearestCreature(NPC_SNOBOLD_VASSAL, 150.0f))
+                pTarget->RemoveFromWorld();
+
+            if (Unit* pTarget = me->FindNearestCreature(34796, 150.0f)) // gormok
+                pTarget->RemoveFromWorld();
+            if (Unit* pTarget = me->FindNearestCreature(35144, 150.0f)) // acidmaw
+                pTarget->RemoveFromWorld();
+            if (Unit* pTarget = me->FindNearestCreature(34799, 150.0f)) // dreadscale
+                pTarget->RemoveFromWorld();
         }
 
         void MovementInform(uint32 uiType, uint32 uiId)
@@ -797,6 +855,13 @@ public:
             switch (m_uiStage)
             {
                 case 0:
+                    if (IsHeroic() && m_uiEnrageTimer)
+                        if (m_uiEnrageTimer <= uiDiff)
+                        {
+                            DoCast(me, SPELL_BERSERK, true);
+                            m_uiEnrageTimer = 0;
+                        } else m_uiEnrageTimer -= uiDiff;
+
                     if (m_uiFerociousButtTimer <= uiDiff)
                     {
                         DoCastVictim(SPELL_FEROCIOUS_BUTT);
