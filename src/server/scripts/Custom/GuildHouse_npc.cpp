@@ -133,6 +133,9 @@ class npc_guild_master : public CreatureScript
 
     bool isPlayerHasGuildhouse(Player *player, Creature *_creature, bool whisper = false)
     {
+        if (!player || !_creature)
+            return false;
+
         QueryResult result;
 
         result = WorldDatabase.PQuery("SELECT `comment` FROM `guildhouses` WHERE `guildId` = %u", player->GetGuildId());
@@ -446,6 +449,9 @@ class npc_guild_master : public CreatureScript
 
     void sellGuildhouse(Player *player, Creature *_creature)
     {
+        if (!player)
+            return;
+
         if (isPlayerHasGuildhouse(player, _creature))
         {
             QueryResult result;
@@ -471,6 +477,9 @@ class npc_guild_master : public CreatureScript
 
     bool OnGossipHello(Player *player, Creature *_creature)
     {
+        if (!player)
+            return true;
+
         if (isPlayerMarried(player))
             player->ADD_GOSSIP_ITEM(ICON_GOSSIP_BALOON, MSG_GOSSIP_MARRIED, 
                 GOSSIP_SENDER_MAIN, ACTION_MARRIED);
