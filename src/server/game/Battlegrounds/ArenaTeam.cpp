@@ -665,7 +665,11 @@ int32 ArenaTeam::GetPersonalRatingMod(int32 base_rating, uint32 own_rating, uint
     // max (2 * team rating gain/loss), min 0 gain/loss
     float chance = GetChanceAgainst(own_rating, enemy_rating);
     chance *= 2.0f;
-    return (int32)ceil(float(base_rating) * chance);
+    float bonusChance = chance - 1.0f;
+    if (bonusChance < 0)
+        bonusChance = 0;
+    return (int32)(ceil(float(base_rating) * chance) + ceil(24.0f * bonusChance));
+    //return (int32)ceil(float(base_rating) * chance);
 }
 
 void ArenaTeam::FinishGame(int32 mod)
@@ -781,7 +785,7 @@ void ArenaTeam::MemberWon(Player * plr, uint32 againstMatchmakerRating, int32 te
         {
             int32 mod = 0;
             // update personal rating
-            if ((againstRating != 0) && (m_stats.rating > itr->personal_rating) && ((m_stats.rating - itr->personal_rating) < 32))
+            /*if ((againstRating != 0) && (m_stats.rating > itr->personal_rating) && ((m_stats.rating - itr->personal_rating) < 32))
             {
                 int32 enemy_rating = againstRating;
                 if (enemy_rating < 1000)
@@ -792,10 +796,10 @@ void ArenaTeam::MemberWon(Player * plr, uint32 againstMatchmakerRating, int32 te
                 mod = (int32)floor(teamratingchange* (2.0f - chance));
             }
             else
-            {
+            {*/
                 // update personal rating
                 mod = GetPersonalRatingMod(teamratingchange, (m_stats.rating - teamratingchange), itr->personal_rating);
-            }
+            //}
             itr->ModifyPersonalRating(plr, mod, GetSlot());
 
             // update matchmaker rating
