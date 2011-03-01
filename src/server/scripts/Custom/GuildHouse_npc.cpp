@@ -691,7 +691,8 @@ class guild_guard : public CreatureScript
                             }
                             else
                             {
-                                me->MonsterYell("Errore", LANG_UNIVERSAL, 0);
+                                sLog->outCheat("GuildHouse: Errore guarda guid %u", pCreature->GetGUIDLow());
+                                //me->MonsterYell("Errore", LANG_UNIVERSAL, 0);
                             }
                         }
                     }
