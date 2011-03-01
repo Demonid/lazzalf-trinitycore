@@ -602,53 +602,91 @@ class npc_guild_master : public CreatureScript
 # guild_guard
 #########*/
 
-#define SAY_AGGRO "Tu non fai parte di questa gilda! Muori!"
+#define SAY_AGGRO "Nemico individuato! Obiettivo Eliminato!"
 
 class guild_guard : public CreatureScript
 {
     public:
-
     guild_guard() : CreatureScript("guild_guard") { }
+
+    bool OnGossipHello(Player *player, Creature *_Creature)
+    {
+        uint32 guardguild = GHobj.GetGuildByGuardID(_Creature->GetGUIDLow());
+        uint32 guild = player->GetGuildId();
+        if (guardguild && guild == guardguild)
+        {
+            if (_Creature->GetAI())
+            {
+                if (_Creature->GetAI()->GetData(0))
+                    player->ADD_GOSSIP_ITEM( 5, "Disable Protection", GOSSIP_SENDER_MAIN, 11);
+                else
+                    player->ADD_GOSSIP_ITEM( 5, "Activate Protection", GOSSIP_SENDER_MAIN, 10);            
+            }
+        }
+           
+        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,_Creature->GetGUID());
+        return true;
+    };
+
+    bool OnGossipSelect(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+    {
+        player->PlayerTalkClass->ClearMenus();
+
+        // Main menu
+        if (sender == GOSSIP_SENDER_MAIN)
+        {
+            if (action == 10)
+            {
+                if (_Creature->GetAI())
+                {
+                    _Creature->GetAI()->SetData(0,1);
+                    _Creature->MonsterYell("Protezione Attivata", LANG_UNIVERSAL, 0);
+                }
+
+            }
+            else if (action == 11)
+            {
+                 if (_Creature->GetAI())
+                 {
+                    _Creature->GetAI()->SetData(0,0);
+                    _Creature->MonsterYell("Protezione Disattivata", LANG_UNIVERSAL, 0);
+                 }
+            }
+        }        
+
+        return true;
+    };
 
     struct guild_guardAI : public ScriptedAI
     {
-        guild_guardAI(Creature *c) : ScriptedAI(c) {}
+        guild_guardAI(Creature *c) : ScriptedAI(c) 
+        {
+            activate = true;
+        }
 
+        bool activate;
         uint32 Check_Timer;
+
+        uint32 GetData(uint32 type)
+        {
+            if (activate)
+                return 1;
+            else
+                return 0;
+        }
+
+        void SetData(uint32 id, uint32 value)
+        {
+            if (value)
+                activate = true;
+            else
+                activate = false;
+        }
 
         void Reset()
         {
-            Check_Timer = 1000;
+            Check_Timer = 10000;
         }
-
-        /*
-        void MoveInLineOfSight(Unit *who)
-        {
-            if (!who)
-                return;
-
-            if (who->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            if (who->isGuildMaster())
-                return;
-
-            uint32 guild =((Player*)who)->GetGuildId();
-
-            uint32 guardguild = GHobj.GetGuildByGuardID(me->GetGUID());
-
-            if (guardguild && guild != guardguild && me->Attack(who, true))
-            {
-                me->AddThreat(who, 1);
-
-                if (!me->isInCombat())
-                {
-                    me->SetInCombatWith(who);                
-                }
-            }        
-            ScriptedAI::MoveInLineOfSight(who);
-        }
-        */
 
         void DamageTaken(Unit * /*done_by*/, uint32 &damage)
         {
@@ -657,8 +695,8 @@ class guild_guard : public CreatureScript
 
         void UpdateAI(const uint32 uiDiff)
         {
-            //if (!UpdateVictim())
-            //    return;
+            if (!activate)
+                return;
 
             if (Check_Timer <= uiDiff)
             {
@@ -666,66 +704,31 @@ class guild_guard : public CreatureScript
                 Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
-                    if (!PlayerList.isEmpty())
-                    {
-                        if (!i->getSource())
-                            continue;
+                    if (PlayerList.isEmpty())
+                        break;
 
-                        if (!i->getSource()->isAlive())
-                            continue;
+                    if (!i->getSource())
+                        continue;
 
-                        if (i->getSource()->isGuildMaster())
-                            continue;
+                    if (!i->getSource()->isAlive())
+                        continue;
 
-                        if (i->getSource()->GetDistance2d(me) <= 100)
-                        {                            
-                            uint32 guild =((Player*)i->getSource())->GetGuildId();
-                            if (guardguild && guild != guardguild)
-                            {
-                                me->MonsterYell(SAY_AGGRO, LANG_UNIVERSAL, 0);
-                                me->Kill(i->getSource());
-                            }
-                            else if (guardguild)
-                            {
-                                me->MonsterYell("Ok sei della gilda", LANG_UNIVERSAL, 0);
-                            }
-                            else
-                            {
-                                sLog->outCheat("GuildHouse: Errore guarda guid %u", pCreature->GetGUIDLow());
-                                //me->MonsterYell("Errore", LANG_UNIVERSAL, 0);
-                            }
+                    if (i->getSource()->GetSession() &&
+                        i->getSource()->GetSession()->GetSecurity() >= SEC_GAMEMASTER)
+                        continue;
+
+                    if (i->getSource()->GetDistance2d(me) <= 150)
+                    {                            
+                        uint32 guild =((Player*)i->getSource())->GetGuildId();
+                        if (guardguild && guild != guardguild)
+                        {
+                            me->MonsterYell(SAY_AGGRO, LANG_UNIVERSAL, 0);
+                            me->Kill(i->getSource());
                         }
                     }
                 }
-                Check_Timer = 10000;
+                Check_Timer = 20000;
             } else Check_Timer -= uiDiff;
-
-            /*
-
-            if (me->getVictim()->ToPlayer())
-            { 
-                uint32 guild =((Player*)me->getVictim())->GetGuildId();
-
-                uint32 guardguild = GHobj.GetGuildByGuardID(me->GetGUID());
-
-                if (guardguild && guild == guardguild)
-                {
-                    EnterEvadeMode();
-                    return;
-                } 
-            }
-            if (me->getVictim()->isPet() && me->getVictim()->GetOwner())
-                    me->Kill(me->getVictim()->GetOwner;
-            
-            if (Check_Timer <= uiDiff)
-            {
-                me->MonsterYell(SAY_AGGRO, LANG_UNIVERSAL, 0);
-                me->Kill(me->getVictim());
-                Check_Timer = 1000;
-            } else Check_Timer -= uiDiff;
-
-            DoMeleeAttackIfReady();
-            */
         }           
     };
 

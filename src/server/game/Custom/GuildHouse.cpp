@@ -236,6 +236,12 @@ bool GuildHouseObject::AddGuildHouseAdd(uint32 id, uint32 add, uint32 guild)
                 if (CreatureData const* data = sObjectMgr->GetCreatureData(*itr2))
                 {
                     sObjectMgr->AddCreatureToGrid(*itr2, data);
+                                           
+                    if (i == 2) //Guard
+                    {
+                        UpdateGuardMap(*itr2, guild);
+                        sLog->outDebug(LOG_FILTER_GUILD, "GuildHouse: insert guard with GUID: %u,Guild: %u", *itr2, guild);
+                    }
 
                     Map* map = const_cast<Map*>(sMapMgr->CreateBaseMap(data->mapid));
                     
@@ -247,13 +253,7 @@ bool GuildHouseObject::AddGuildHouseAdd(uint32 id, uint32 add, uint32 guild)
                             delete pCreature;
                         else
                         {
-                            map->Add(pCreature);                        
-                            if (i == 2) //Guard
-                            {
-                                UpdateGuardMap(pCreature->GetGUIDLow(), guild);
-                                sLog->outCheat("GuildHouse: insert guard with GUID: %u,Guild: %u", pCreature->GetGUIDLow(), guild);
-                                //sLog->outDebug(LOG_FILTER_GUILD, "GuildHouse: insert guard with GUID: %u,Guild: %u", pCreature->GetGUIDLow(), guild);
-                            }
+                            map->Add(pCreature);
                         }
                     }                           
                 }
