@@ -1379,6 +1379,9 @@ bool WorldObject::GetDistanceOrder(WorldObject const* obj1, WorldObject const* o
 
 bool WorldObject::IsInRange(WorldObject const* obj, float minRange, float maxRange, bool is3D /* = true */) const
 {
+    if (!obj)
+        return false;
+
     float dx = GetPositionX() - obj->GetPositionX();
     float dy = GetPositionY() - obj->GetPositionY();
     float distsq = dx*dx + dy*dy;
@@ -1726,6 +1729,19 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
         }
         else
             return false;
+    }
+
+    // Traps can only be detected within melee distance
+    if (const GameObject *thisGO = obj->ToGameObject())
+    {
+        if (thisGO->GetGoType() == GAMEOBJECT_TYPE_TRAP && thisGO->GetOwnerGUID() && ToPlayer())
+        {
+            if (thisGO->GetOwner() == ToPlayer() ||
+                obj->IsWithinDist(this, ToPlayer()->HasAura(2836) ? 20.0f : 4.0f, false)) // Detect Traps increases chance to detect traps
+                return true;
+
+            return false;
+        }
     }
 
     if (!obj->isVisibleForInState(this))
