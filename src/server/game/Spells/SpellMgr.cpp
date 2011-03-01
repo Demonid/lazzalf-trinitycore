@@ -3677,8 +3677,12 @@ void SpellMgr::LoadSpellCustomAttr()
         }
 
         switch (i)
-        {        
-		case 5171: 
+        {     
+        case 36350: //They Must Burn Bomb Aura (self)
+            spellInfo->EffectTriggerSpell[0] = 36325; // They Must Burn Bomb Drop (DND)
+            count++;
+            break;   
+	case 5171: 
         case 6774:  // Slice and Dice
         case 49838: // Stop Time
         case 50526: // Wandering Plague
