@@ -618,11 +618,13 @@ class guild_guard : public CreatureScript
             if (_Creature->GetAI())
             {
                 if (_Creature->GetAI()->GetData(0))
-                    player->ADD_GOSSIP_ITEM( 5, "Disable Protection", GOSSIP_SENDER_MAIN, 11);
+                    player->ADD_GOSSIP_ITEM(5, "Disable Protection", GOSSIP_SENDER_MAIN, 11);
                 else
-                    player->ADD_GOSSIP_ITEM( 5, "Activate Protection", GOSSIP_SENDER_MAIN, 10);            
+                    player->ADD_GOSSIP_ITEM(5, "Activate Protection", GOSSIP_SENDER_MAIN, 10);       
             }
         }
+
+        player->ADD_GOSSIP_ITEM(5, "Esci", GOSSIP_SENDER_MAIN, 12);    
            
         player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,_Creature->GetGUID());
         return true;
@@ -652,8 +654,8 @@ class guild_guard : public CreatureScript
                     _Creature->MonsterYell("Protezione Disattivata", LANG_UNIVERSAL, 0);
                  }
             }
-        }        
-
+        }
+        player->CLOSE_GOSSIP_MENU();
         return true;
     };
 
