@@ -606,7 +606,7 @@ class instance_ulduar : public InstanceMapScript
                         steelforgedDefendersCount++;
                     break;
                 case DATA_CANT_WHILE_STUNNED:
-                    if (value == ACHI_FAILED)
+                    if (value == ACHI_FAILED || value == ACHI_COMPLETED)
                         wasHitByLightning = true;
                     else if (value == ACHI_START)
                         wasHitByLightning = false;

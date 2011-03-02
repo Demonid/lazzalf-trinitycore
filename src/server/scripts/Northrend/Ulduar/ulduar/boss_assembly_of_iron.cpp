@@ -267,7 +267,10 @@ class boss_steelbreaker : public CreatureScript
                 pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65195);
 
                 if (pInstance->GetData(DATA_CANT_WHILE_STUNNED) == ACHI_IS_IN_PROGRESS)
+                {
                     pInstance->DoCompleteAchievement(ACHIEVEMENT_CANT_WHILE_STUNNED);
+                    pInstance->SetData(DATA_CANT_WHILE_STUNNED, ACHI_COMPLETED);
+                }
 
                 Map* pMap = me->GetMap();
                 if (pMap && pMap->IsDungeon())
@@ -484,7 +487,10 @@ class boss_runemaster_molgeim : public CreatureScript
                 pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65195);
 
                 if (pInstance->GetData(DATA_CANT_WHILE_STUNNED) == ACHI_IS_IN_PROGRESS)
+                {
                     pInstance->DoCompleteAchievement(ACHIEVEMENT_CANT_WHILE_STUNNED);
+                    pInstance->SetData(DATA_CANT_WHILE_STUNNED, ACHI_COMPLETED);
+                }
 
                 Map* pMap = me->GetMap();
                 if (pMap && pMap->IsDungeon())
@@ -637,6 +643,8 @@ class boss_stormcaller_brundir : public CreatureScript
             me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING | MOVEMENTFLAG_WALKING);
             events.Reset();
             phase = 0;
+
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, false);
             
             // Respawn
             if(Creature* Molgeim = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_MOLGEIM) : 0))
@@ -670,6 +678,8 @@ class boss_stormcaller_brundir : public CreatureScript
             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 10000);
             events.ScheduleEvent(EVENT_OVERLOAD, urand(60000, 120000));
 
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, false);
+
             // Reset achievement
             pInstance->SetData(DATA_CANT_WHILE_STUNNED, ACHI_START);
         }
@@ -685,7 +695,10 @@ class boss_stormcaller_brundir : public CreatureScript
                 pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65195);
 
                 if (pInstance->GetData(DATA_CANT_WHILE_STUNNED) == ACHI_IS_IN_PROGRESS)
+                {
                     pInstance->DoCompleteAchievement(ACHIEVEMENT_CANT_WHILE_STUNNED);
+                    pInstance->SetData(DATA_CANT_WHILE_STUNNED, ACHI_COMPLETED);
+                }
 
                 Map* pMap = me->GetMap();
                 if (pMap && pMap->IsDungeon())
@@ -826,6 +839,7 @@ class boss_stormcaller_brundir : public CreatureScript
                     {
                         me->AddAura(SPELL_STORMSHIELD, me);
                         events.RescheduleEvent(EVENT_LIGHTNING_TENDRILS, 60000);
+                        me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
                     }
                     break;
             }
