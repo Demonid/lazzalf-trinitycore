@@ -858,7 +858,6 @@ public:
 
 };
 
-
 class spell_pool_of_tar : public CreatureScript
 {
 public:
@@ -1040,7 +1039,6 @@ public:
     };
 
 };
-
 
 class npc_hodirs_fury : public CreatureScript
 {
