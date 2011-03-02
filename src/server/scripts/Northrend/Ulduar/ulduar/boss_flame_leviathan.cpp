@@ -93,7 +93,7 @@ enum Towers
     GO_TOWER_OF_STORMS                          = 194377,
     GO_TOWER_OF_FLAMES                          = 194371,
     GO_TOWER_OF_FROST                           = 194370,
-    GO_TOWER_OF_LIFE                            = 194375
+    GO_TOWER_OF_NATURE                          = 194375
 };
 
 enum Events
@@ -242,11 +242,6 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
             me->SetReactState(REACT_PASSIVE);
             
-            towerOfStorms = false;
-            towerOfLife = false;
-            towerOfFlames = false;
-            towerOfFrost = false;
-            
             bActiveTowers = false;
             
             // Summon Ulduar Colossus
@@ -257,7 +252,6 @@ public:
 
         Vehicle* vehicle;
         int32 ShutdownCount;
-        //int32 towerCount;
         int32 ColossusCount;
         bool towerOfStorms;
         bool towerOfLife;
@@ -273,7 +267,6 @@ public:
             InstallAdds(false);
             me->ResetLootMode();
             ColossusCount = 0;
-            //towerCount = 0;
             ShutdownCount = 0;
         }
 
@@ -292,55 +285,59 @@ public:
             ActiveTowers();
         }
 
+        void SetHardMode(bool value)
+        {
+            bActiveTowers = value;
+        }
+
         void ActiveTowers()
         {
             if (instance)
             {
-                if (towerOfStorms)
+                if (instance->GetData(DATA_TOWER_OF_STORMS) == 1)
                 {
-                    //++towerCount;
                     me->AddAura(SPELL_BUFF_TOWER_OF_STORMS, me);
                     events.ScheduleEvent(EVENT_THORIM_S_HAMMER, 30000);
                 }
 
-                if (towerOfFlames)
+                if (instance->GetData(DATA_TOWER_OF_FLAMES) == 1)
                 {
-                    //++towerCount;
                     me->AddAura(SPELL_BUFF_TOWER_OF_FLAMES, me);
                     events.ScheduleEvent(EVENT_MIMIRON_S_INFERNO, 10000);
                 }
 
-                if (towerOfFrost)
+                if (instance->GetData(DATA_TOWER_OF_FROST) == 1)
                 {
-                    //++towerCount;
                     me->AddAura(SPELL_BUFF_TOWER_OF_FROST, me);
                     events.ScheduleEvent(EVENT_HODIR_S_FURY, 5000);
                 }
 
-                if (towerOfLife)
+                if (instance->GetData(DATA_TOWER_OF_NATURE) == 1)
                 {
-                    //++towerCount;
                     me->AddAura(SPELL_BUFF_TOWER_OF_LIFE, me);
                     events.ScheduleEvent(EVENT_FREYA_S_WARD, 1000);
                 }
 
-                //switch (towerCount)
-                switch(instance->GetData(DATA_TOWER_DESTROYED))
+                if (bActiveTowers)
                 {
-                    case 4:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_4);
-                    case 3:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_3);
-                    case 2:
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_2);
-                    case 1:
-                        DoScriptText(SAY_HARDMODE, me);
-                        me->AddLootMode(LOOT_MODE_HARD_MODE_1);
-                        break;
-                    default:
-                        DoScriptText(SAY_TOWER_NONE, me);
-                        me->SetLootMode(LOOT_MODE_DEFAULT);
-                        break;
+                    switch(instance->GetData(DATA_TOWER_DESTROYED))
+                    {
+                        case 0:
+                            me->AddLootMode(LOOT_MODE_HARD_MODE_4);
+                        case 1:
+                            me->AddLootMode(LOOT_MODE_HARD_MODE_3);
+                        case 2:
+                            me->AddLootMode(LOOT_MODE_HARD_MODE_2);
+                        case 3:
+                            DoScriptText(SAY_HARDMODE, me);
+                            me->AddLootMode(LOOT_MODE_HARD_MODE_1);
+                            break;
+                    }
+                }
+                else
+                {
+                    DoScriptText(SAY_TOWER_NONE, me);
+                    me->SetLootMode(LOOT_MODE_DEFAULT);
                 }
             }
         }
@@ -395,19 +392,21 @@ public:
                 }
             }
 
-            //switch (towerCount)
-            switch(instance->GetData(DATA_TOWER_DESTROYED))
+            if (bActiveTowers)
             {
-                case 4:
-                    instance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBIT_UARY, ACHIEV_25_ORBIT_UARY));
-                case 3:
-                    instance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_NUKED_FROM_ORBIT, ACHIEV_25_NUKED_FROM_ORBIT));
-                case 2:
-                    instance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_DEVASTATION, ACHIEV_25_ORBITAL_DEVASTATION));
-                case 1:
-                    instance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_BOMBARDMENT, ACHIEV_25_ORBITAL_BOMBARDMENT));
-                default:
-                    break;
+                switch(instance->GetData(DATA_TOWER_DESTROYED))
+                {
+                    case 0:
+                        instance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBIT_UARY, ACHIEV_25_ORBIT_UARY));
+                    case 1:
+                        instance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_NUKED_FROM_ORBIT, ACHIEV_25_NUKED_FROM_ORBIT));
+                    case 2:
+                        instance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_DEVASTATION, ACHIEV_25_ORBITAL_DEVASTATION));
+                    case 3:
+                        instance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_BOMBARDMENT, ACHIEV_25_ORBITAL_BOMBARDMENT));
+                    default:
+                        break;
+                }
             }
         }
 
@@ -560,28 +559,6 @@ public:
         {
             switch(action)
             {
-                case 0:  // Activate hard-mode setting counter to 4 towers, enable all towers apply buffs on levithian
-                    if (!bActiveTowers)
-                    {
-                        bActiveTowers = true;
-                        towerOfStorms = true;
-                        towerOfLife = true;
-                        towerOfFlames = true;
-                        towerOfFrost = true;
-                    }
-                    break;
-                case ACTION_TOWER_OF_STORMS:
-                    towerOfStorms = false;
-                    break;
-                case ACTION_TOWER_OF_FLAMES:
-                    towerOfFlames = false;
-                    break;
-                case ACTION_TOWER_OF_FROST:
-                    towerOfFrost = false;
-                    break;
-                case ACTION_TOWER_OF_LIFE:
-                    towerOfLife = false;
-                    break;
                 case ACTION_COLOSSUS_COUNT:
                 {
                     ++ColossusCount;
@@ -1219,6 +1196,125 @@ public:
 
 };
 
+class mob_flameleviathan_loot : public CreatureScript
+{
+    public:
+        mob_flameleviathan_loot(): CreatureScript("mob_flameleviathan_loot") {}
+
+    struct mob_flameleviathan_lootAI : public ScriptedAI
+    {
+        mob_flameleviathan_lootAI(Creature* pCreature) : ScriptedAI(pCreature)
+        {
+            pInstance = me->GetInstanceScript();
+            bLeviathan = true;
+            hardMode = false;
+        }
+
+        InstanceScript* pInstance;
+        bool bLeviathan;
+        bool hardMode;
+        uint32 uiExplosion;
+
+        void SetHardMode(bool value)
+        {
+            hardMode = value;
+        }
+
+        void EnterCombat(Unit *who)
+        {
+            uiExplosion = 5000;
+
+            if (!pInstance)
+            {
+                bLeviathan = true;
+                return;
+            }
+
+            if (hardMode)
+            {
+                switch(pInstance->GetData(DATA_TOWER_DESTROYED))
+                {
+                    case 0:
+                        me->AddLootMode(LOOT_MODE_HARD_MODE_4);
+                    case 1:
+                        me->AddLootMode(LOOT_MODE_HARD_MODE_3);
+                    case 2:
+                        me->AddLootMode(LOOT_MODE_HARD_MODE_2);
+                    case 3:                
+                        me->AddLootMode(LOOT_MODE_HARD_MODE_1);
+                        break;
+                    default:                        
+                        break;
+                }
+            }
+            else
+                me->SetLootMode(LOOT_MODE_DEFAULT);
+
+            if (Unit *pLeviathan = Unit::GetUnit(*me, pInstance->GetData64(DATA_LEVIATHAN)))
+            {
+                if (pLeviathan->isAlive())
+                {
+                    bLeviathan = true;   
+                    me->MonsterYell("Rilevato tentativo di Kill Illegale, attivazione sistema di distruzione personaggi", LANG_UNIVERSAL,0);
+                    if (who)
+                        sLog->outCheat("Boss-%s, Tentativo di kill del loot del Flame Leviathan senza aver fatto il boss", who->GetName());
+                    return;
+                }
+            }
+            bLeviathan = false;
+        }
+
+        void DamageTaken(Unit* pKiller, uint32 &damage)
+        {
+            if (bLeviathan)
+                damage = 0;            
+        }
+
+        void JustDied(Unit *victim)
+        {
+            if (pInstance->GetData(DATA_ACHI_UNBROKEN) == ACHI_IS_IN_PROGRESS)
+                pInstance->DoCompleteAchievement(ACHI_UNBROKEN);
+
+            if (hardMode)
+            {
+                switch(pInstance->GetData(DATA_TOWER_DESTROYED))
+                {
+                    case 0:
+                        pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBIT_UARY, ACHIEV_25_ORBIT_UARY));
+                    case 1:
+                        pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_NUKED_FROM_ORBIT, ACHIEV_25_NUKED_FROM_ORBIT));
+                    case 2:
+                        pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_DEVASTATION, ACHIEV_25_ORBITAL_DEVASTATION));
+                    case 3:
+                        pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_BOMBARDMENT, ACHIEV_25_ORBITAL_BOMBARDMENT));
+                    default:
+                        break;
+                }
+            }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;           
+
+            if (bLeviathan)
+                if (uiExplosion < diff)
+                {
+                    DoCast(me, 64487, true); //Ascend to the Heavens
+                    uiExplosion = 5000;
+                } else uiExplosion -= diff;                    
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_flameleviathan_lootAI(pCreature);
+    };
+};
+
 //npc lore keeper
 #define GOSSIP_ITEM_3  "Attack the siege (NORMAL)"
 #define GOSSIP_ITEM_1  "Activate secondary defensive systems (HM)"
@@ -1248,11 +1344,12 @@ public:
             if (pPlayer)
                 pPlayer->CLOSE_GOSSIP_MENU();
 
+            if (Creature* pLeviathanLoot = instance->instance->GetCreature(instance->GetData64(NPC_LEVIATHAN_LOOT)))
+                CAST_AI(mob_flameleviathan_loot::mob_flameleviathan_lootAI, (pLeviathanLoot->AI()))->SetHardMode(true);
+
             if (Creature* pLeviathan = instance->instance->GetCreature(instance->GetData64(BOSS_LEVIATHAN)))
             {    
-                CAST_AI(boss_flame_leviathan::boss_flame_leviathanAI, (pLeviathan->AI()))->DoAction(0); //enable hard mode activating the 4 additional events spawning additional vehicles
-                // in teoria qui dovrebbe ricreare tutte le torri distrutte?
-                instance->SetData(DATA_TOWER_DESTROYED, 0);
+                CAST_AI(boss_flame_leviathan::boss_flame_leviathanAI, (pLeviathan->AI()))->SetHardMode(true); //enable hard mode activating the 4 additional events spawning additional vehicles
 
                 // pCreature->SetVisible(false);
                 pCreature->AI()->DoAction(0); // spawn the vehicles
@@ -1269,6 +1366,12 @@ public:
         case GOSSIP_ACTION_INFO_DEF+3:
             if (pPlayer)
                 pPlayer->CLOSE_GOSSIP_MENU();
+
+            if (Creature* pLeviathan = instance->instance->GetCreature(instance->GetData64(BOSS_LEVIATHAN)))
+                CAST_AI(boss_flame_leviathan::boss_flame_leviathanAI, (pLeviathan->AI()))->SetHardMode(false);
+
+            if (Creature* pLeviathanLoot = instance->instance->GetCreature(instance->GetData64(NPC_LEVIATHAN_LOOT)))
+                CAST_AI(mob_flameleviathan_loot::mob_flameleviathan_lootAI, (pLeviathanLoot->AI()))->SetHardMode(false);
 
             pCreature->AI()->DoAction(0); // spawn the vehicles
             break;
@@ -1352,16 +1455,16 @@ public:
         switch(pGO->GetEntry())
         {
             case GO_TOWER_OF_STORMS:
-                instance->SetData(DATA_TOWER_DESTROYED, 1);
+                instance->SetData(DATA_TOWER_DESTROYED, TOWER_OF_STORM_DESTROYED);
                 break;
+            case GO_TOWER_OF_NATURE:
+                instance->SetData(DATA_TOWER_DESTROYED, TOWER_OF_NATURE_DESTROYED);
+                break;            
             case GO_TOWER_OF_FLAMES:
-                instance->SetData(DATA_TOWER_DESTROYED, 2);
+                instance->SetData(DATA_TOWER_DESTROYED, TOWER_OF_FLAMES_DESTROYED);
                 break;
             case GO_TOWER_OF_FROST:
-                instance->SetData(DATA_TOWER_DESTROYED, 3);
-                break;
-            case GO_TOWER_OF_LIFE:
-                instance->SetData(DATA_TOWER_DESTROYED, 4);
+                instance->SetData(DATA_TOWER_DESTROYED, TOWER_OF_FROST_DESTROYED);
                 break;
         }
 
@@ -1395,111 +1498,6 @@ public:
         return true;
     }
 
-};
-
-class mob_flameleviathan_loot : public CreatureScript
-{
-    public:
-        mob_flameleviathan_loot(): CreatureScript("mob_flameleviathan_loot") {}
-
-    struct mob_flameleviathan_lootAI : public ScriptedAI
-    {
-        mob_flameleviathan_lootAI(Creature* pCreature) : ScriptedAI(pCreature)
-        {
-            pInstance = me->GetInstanceScript();
-            bLeviathan = true;
-        }
-
-        InstanceScript* pInstance;
-        bool bLeviathan;
-        uint32 uiExplosion;
-
-        void EnterCombat(Unit *who)
-        {
-            uiExplosion = 5000;
-
-            if (!pInstance)
-            {
-                bLeviathan = true;
-                return;
-            }
-
-            switch(pInstance->GetData(DATA_TOWER_DESTROYED))
-            {
-                case 4:
-                    me->AddLootMode(LOOT_MODE_HARD_MODE_4);
-                case 3:
-                    me->AddLootMode(LOOT_MODE_HARD_MODE_3);
-                case 2:
-                    me->AddLootMode(LOOT_MODE_HARD_MODE_2);
-                case 1:                
-                    me->AddLootMode(LOOT_MODE_HARD_MODE_1);
-                    break;
-                default:
-                    me->SetLootMode(LOOT_MODE_DEFAULT);
-                    break;
-            }
-
-            if (Unit *pLeviathan = Unit::GetUnit(*me, pInstance->GetData64(DATA_LEVIATHAN)))
-            {
-                if (pLeviathan->isAlive())
-                {
-                    bLeviathan = true;   
-                    me->MonsterYell("Rilevato tentativo di Kill Illegale, attivazione sistema di distruzione personaggi", LANG_UNIVERSAL,0);
-                    if (who)
-                        sLog->outCheat("Boss-%s, Tentativo di kill del loot del Flame Leviathan senza aver fatto il boss", who->GetName());
-                    return;
-                }
-            }
-            bLeviathan = false;
-        }
-
-        void DamageTaken(Unit* pKiller, uint32 &damage)
-        {
-            if (bLeviathan)
-                damage = 0;            
-        }
-
-        void JustDied(Unit *victim)
-        {
-            if (pInstance->GetData(DATA_ACHI_UNBROKEN) == ACHI_IS_IN_PROGRESS)
-                pInstance->DoCompleteAchievement(ACHI_UNBROKEN);
-
-            switch(pInstance->GetData(DATA_TOWER_DESTROYED))
-            {
-                case 4:
-                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBIT_UARY, ACHIEV_25_ORBIT_UARY));
-                case 3:
-                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_NUKED_FROM_ORBIT, ACHIEV_25_NUKED_FROM_ORBIT));
-                case 2:
-                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_DEVASTATION, ACHIEV_25_ORBITAL_DEVASTATION));
-                case 1:
-                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_BOMBARDMENT, ACHIEV_25_ORBITAL_BOMBARDMENT));
-                default:
-                    break;
-            }
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;           
-
-            if (bLeviathan)
-                if (uiExplosion < diff)
-                {
-                    DoCast(me, 64487, true); //Ascend to the Heavens
-                    uiExplosion = 5000;
-                } else uiExplosion -= diff;                    
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new mob_flameleviathan_lootAI(pCreature);
-    };
 };
 
 class mob_steelforged_defender : public CreatureScript

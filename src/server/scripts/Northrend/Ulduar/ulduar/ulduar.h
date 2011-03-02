@@ -41,6 +41,7 @@ enum Encounter
 enum Data
 {
     DATA_LEVIATHAN,
+    DATA_NPC_LEVIATHAN_LOOT,
     DATA_NORGANNON,
     DATA_IGNIS,
     DATA_RAZORSCALE,
@@ -75,6 +76,10 @@ enum Data
 
     DATA_LEVIATHAN_DOOR,
     DATA_TOWER_DESTROYED,
+    DATA_TOWER_OF_STORMS,
+    DATA_TOWER_OF_NATURE,
+    DATA_TOWER_OF_FLAMES,
+    DATA_TOWER_OF_FROST,
     DATA_RUNIC_DOOR,
     DATA_STONE_DOOR,
     DATA_CALL_TRAM,
@@ -97,6 +102,7 @@ enum Data
 enum eNPCs
 {
     NPC_LEVIATHAN               = 33113,
+    NPC_LEVIATHAN_LOOT          = 60029,
     NPC_IGNIS                   = 33118,
     NPC_RAZORSCALE              = 33186,
     NPC_EXPEDITION_COMMANDER    = 33210,
@@ -132,11 +138,19 @@ enum AchievementControl
     ACHI_INCREASE,
 };
 
-enum eTowerEvents
+/*enum eTowerEvents
 {
     EVENT_TOWER_OF_STORM_DESTROYED     = 21031,
     EVENT_TOWER_OF_FROST_DESTROYED     = 21032,
     EVENT_TOWER_OF_FLAMES_DESTROYED    = 21033,
     EVENT_TOWER_OF_LIFE_DESTROYED      = 21030
+};*/
+
+enum eTowerEvents
+{
+    TOWER_OF_STORM_DESTROYED = 1,
+    TOWER_OF_NATURE_DESTROYED,
+    TOWER_OF_FLAMES_DESTROYED,
+    TOWER_OF_FROST_DESTROYED,    
 };
 #endif

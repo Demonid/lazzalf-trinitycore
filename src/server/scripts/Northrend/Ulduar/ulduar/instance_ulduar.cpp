@@ -96,6 +96,7 @@ class instance_ulduar : public InstanceMapScript
         }
 
         uint64 uiLeviathanGUID;
+        uint64 uiLeviathanLoot;
         uint64 uiNorgannon;
         uint64 uiIgnis;
         uint64 uiRazorscale;
@@ -138,7 +139,11 @@ class instance_ulduar : public InstanceMapScript
         uint64 uiLeviathanDoor[7];
         uint8  flag;
         
-        int32 towerCount;
+        int32 towerDestroyedCount;
+        bool towerOfStorms;
+        bool towerOfNature;
+        bool towerOfFlames;
+        bool towerOfFrost;
         // Achievements
         // Unbroken
         bool vehicleRepaired;
@@ -164,7 +169,11 @@ class instance_ulduar : public InstanceMapScript
 
         void Initialize()
         {
-            towerCount = 0;
+            towerDestroyedCount = 0;
+            towerOfStorms = true;
+            towerOfNature = true;
+            towerOfFlames = true;
+            towerOfFrost = true;
             vehicleRepaired = false;
             steelforgedDefendersCount = 0;
             dwarfageddonTimer = 0;
@@ -276,6 +285,9 @@ class instance_ulduar : public InstanceMapScript
             {
                 case NPC_LEVIATHAN: 
                     uiLeviathanGUID = pCreature->GetGUID(); 
+                    return;
+                case NPC_LEVIATHAN_LOOT:
+                    uiLeviathanLoot  = pCreature->GetGUID();
                     return;
                 case 33686: 
                     uiNorgannon = pCreature->GetGUID(); 
@@ -433,6 +445,8 @@ class instance_ulduar : public InstanceMapScript
             {
                 case DATA_LEVIATHAN:
                     return uiLeviathanGUID;
+                case DATA_NPC_LEVIATHAN_LOOT:
+                    return uiLeviathanLoot;
                 case DATA_NORGANNON:
                     return uiNorgannon;
                 case DATA_IGNIS:
@@ -502,39 +516,33 @@ class instance_ulduar : public InstanceMapScript
         void SetData(uint32 id, uint32 value)
         {
             switch(id)
-            {
+            {                
                 case DATA_LEVIATHAN_DOOR:
                     if (pLeviathanDoor)
                         pLeviathanDoor->SetGoState(GOState(value));
                     break;
                 case DATA_TOWER_DESTROYED:
-                    {
-                        if (Creature* pLeviathan = instance->GetCreature(uiLeviathanGUID))
-                        {
-                            switch(value)
-                            {
-                                case 0:
-                                    towerCount = 4;
-                                    break;
-                                case 1: // Tower of Storms
-                                    pLeviathan->AI()->DoAction(1);
-                                    --towerCount;
-                                    break;
-                                case 2: // Tower of Flames
-                                    pLeviathan->AI()->DoAction(2);
-                                    --towerCount;
-                                    break;
-                                case 3: // Tower of Frost
-                                    pLeviathan->AI()->DoAction(3);
-                                    --towerCount;
-                                    break;
-                                case 4: // Tower of Nature
-                                    pLeviathan->AI()->DoAction(4);
-                                    --towerCount;
-                                    break;
-                                default:
-                                    break;
-                            }
+                    {                        
+                        switch(value)
+                        {                                
+                            case TOWER_OF_STORM_DESTROYED:
+                                towerOfStorms = false;
+                                ++towerDestroyedCount;
+                                break;
+                            case TOWER_OF_NATURE_DESTROYED:
+                                towerOfNature = false;
+                                ++towerDestroyedCount;
+                                break;
+                            case TOWER_OF_FLAMES_DESTROYED:
+                                towerOfFlames = false;
+                                ++towerDestroyedCount;
+                                break;
+                            case TOWER_OF_FROST_DESTROYED:
+                                towerOfFrost = false;
+                                ++towerDestroyedCount;
+                                break;
+                            default:
+                                break;
                         }
                     }
                     break;
@@ -656,7 +664,31 @@ class instance_ulduar : public InstanceMapScript
             switch (id)
             {
                 case DATA_TOWER_DESTROYED:
-                    return towerCount;
+                    return towerDestroyedCount;
+                case DATA_TOWER_OF_STORMS:
+                    if (towerOfStorms)
+                        return 1;
+                    else
+                        return 0;
+                    break;
+                case DATA_TOWER_OF_NATURE:
+                    if (towerOfNature)
+                        return 1;
+                    else
+                        return 0;
+                    break;
+                case DATA_TOWER_OF_FLAMES:
+                    if (towerOfFlames)
+                        return 1;
+                    else
+                        return 0;
+                    break;
+                case DATA_TOWER_OF_FROST:
+                    if (towerOfFrost)
+                        return 1;
+                    else
+                        return 0;
+                    break;
                 case DATA_ACHI_UNBROKEN:
                     if (vehicleRepaired == true)
                         return ACHI_FAILED;
