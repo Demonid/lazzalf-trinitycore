@@ -51,7 +51,7 @@
 #define MSG_NOGUILDHOUSE         "La tua gilda non possiede una casa!"
 #define MSG_NOFREEGH             "Purtroppo tutte le case sono occupate oppure non hai abbastanza membri per acquistarne una di quelle libere."
 #define MSG_NOADDGH              "Non hai altre GHAdd da comprare"
-#define MSG_ALREADYHAVEGH        "La tua gilda possiede già una sede. (%s)."
+#define MSG_ALREADYHAVEGH        "La tua gilda possiede già una sede."
 #define MSG_ALREADYHAVEGHADD     "La tua gilda possiede già questo GHAdd."
 #define MSG_NOTENOUGHMONEY       "Non hai abbastanza soldi per acquistare. Hai bisogno di %u gold."
 #define MSG_NOTENOUGHGUILDMEMBERS "Non hai abbastanza membri in gilda per acquistare la casa. Hai bisogno di %u membri."
@@ -136,23 +136,21 @@ class npc_guild_master : public CreatureScript
         if (!player || !_creature)
             return false;
 
-        QueryResult result;
+        uint32 map;
 
-        result = WorldDatabase.PQuery("SELECT `comment` FROM `guildhouses` WHERE `guildId` = %u", player->GetGuildId());
-
-        if (result)
+        if (GHobj.GetGuildHouseMap(player->GetGuildId(), map))
         {
             if (whisper)
             {
                 //whisper to player "already have etc..."
-                Field *fields = result->Fetch();
                 char msg[200];
-                sprintf(msg, MSG_ALREADYHAVEGH, fields[0].GetString());
+                sprintf(msg, MSG_ALREADYHAVEGH);
                 _creature->MonsterWhisper(msg, player->GetGUID());
             }        
             return true;
         }
-        return false;
+        else
+            return false;
     };
 
     void teleportPlayerToGuildHouse(Player *player, Creature *_creature)
@@ -423,12 +421,9 @@ class npc_guild_master : public CreatureScript
             return;
         }
 
-        QueryResult result;
-        result = WorldDatabase.PQuery("SELECT `price` FROM `guildhouses_addtype` WHERE `add_type` = %u ", gh_Add);
+        QueryResult result = WorldDatabase.PQuery("SELECT `price` FROM `guildhouses_addtype` WHERE `add_type` = %u ", gh_Add);
         if (!result)
-        {
             return;
-        }   
         
         Field *fields = result->Fetch();
         int32 price = fields[0].GetInt32();
@@ -558,19 +553,19 @@ class npc_guild_master : public CreatureScript
                 }
                 else if (action > OFFSET_CONFIRM_BUY_ADD_ID_TO_ACTION)
                 {
-                    //player clicked on buy list
-                    player->CLOSE_GOSSIP_MENU();
+                    //player clicked on buy list                    
                     //get guildhouseAddId from action
                     //guildhouseAddId = action - OFFSET_CONFIRM_BUY_ADD_ID_TO_ACTION
                     buyGuildhouseAdd(player, _creature, action - OFFSET_CONFIRM_BUY_ADD_ID_TO_ACTION);
+                    player->CLOSE_GOSSIP_MENU();
                 }
                 else if (action > OFFSET_CONFIRM_BUY_ID_TO_ACTION)
                 {
                     //player clicked on buy list
-                    player->CLOSE_GOSSIP_MENU();
                     //get guildhouseId from action
                     //guildhouseId = action - OFFSET_CONFIRM_BUY_ID_TO_ACTION
                     buyGuildhouse(player, _creature, action - OFFSET_CONFIRM_BUY_ID_TO_ACTION);
+                    player->CLOSE_GOSSIP_MENU();
                 }
                 break;
         }
