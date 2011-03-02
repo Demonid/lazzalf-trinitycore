@@ -676,14 +676,14 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (NapalmTimer <= diff)
+            /*if (NapalmTimer <= diff)
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     if (!me->IsWithinDist(pTarget, 20))
                         DoCast(pTarget, SPELL_NAPALM);
                 NapalmTimer = urand(10000, 15000);
             }
-            else NapalmTimer -= diff;
+            else NapalmTimer -= diff;*/
         }
     };
 };
