@@ -394,6 +394,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
             ASSERT(false);
 
         // hack: should be done by aura system
+        // hack: should be done by aura system
         if (VehicleScalingInfo const *scalingInfo = sObjectMgr->GetVehicleScalingInfo(m_vehicleInfo->m_ID))
         {
             Player *plr = unit->ToPlayer();
@@ -402,10 +403,10 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
                 averageItemLevel = scalingInfo->baseItemLevel;
             averageItemLevel -= scalingInfo->baseItemLevel;
 
-            float currentHealthPct = float(me->GetHealth()) / float(me->GetMaxHealth());
-            m_bonusHP = uint32(float(me->GetMaxHealth()) * (averageItemLevel * scalingInfo->scalingFactor));
+            float currentHealthPct = float(me->GetHealth() / me->GetMaxHealth());
+            m_bonusHP = uint32(me->GetMaxHealth() * (averageItemLevel * scalingInfo->scalingFactor));
             me->SetMaxHealth(me->GetMaxHealth() + m_bonusHP);
-            me->SetHealth(uint32(float(me->GetHealth() + m_bonusHP) * currentHealthPct));
+            me->SetHealth(uint32((me->GetHealth() + m_bonusHP) * currentHealthPct));
         }
     }
 
