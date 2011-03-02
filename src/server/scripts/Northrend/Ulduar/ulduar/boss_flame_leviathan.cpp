@@ -1188,7 +1188,7 @@ public:
     {
         npc_freya_ward_summonAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            for (uint32 i = 0; i < RAID_MODE(3, 5); ++i)
+            for (int32 i = 0; i < RAID_MODE(3, 5); ++i)
                 DoCast(me, SPELL_FREYA_SUMMONS, true);
             pInstance = pCreature->GetInstanceScript();
             me->GetMotionMaster()->MovePoint(0, 259.56f, -17.45f, 409.65f);
