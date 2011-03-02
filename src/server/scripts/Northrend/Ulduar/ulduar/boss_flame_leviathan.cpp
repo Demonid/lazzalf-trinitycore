@@ -413,8 +413,8 @@ public:
 
         void SpellHit(Unit* /*caster*/, const SpellEntry* pSpell)
         {
-            if (pSpell->Id == SPELL_START_THE_ENGINE)
-                vehicle->InstallAllAccessories();
+            //if (pSpell->Id == SPELL_START_THE_ENGINE)
+            //    vehicle->InstallAllAccessories();
 
             if (pSpell->Id == SPELL_ELECTROSHOCK)
                 me->InterruptSpell(CURRENT_CHANNELED_SPELL);
