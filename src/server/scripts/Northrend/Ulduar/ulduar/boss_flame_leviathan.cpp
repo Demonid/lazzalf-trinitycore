@@ -514,7 +514,7 @@ public:
                         me->RemoveAurasDueToSpell(SPELL_GATHERING_SPEED);
                         me->AddUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
                         me->SetReactState(REACT_PASSIVE);
-                        me->StopMoving();
+                        //me->StopMoving();
                         events.CancelEvent(EVENT_SHUTDOWN);
                         events.ScheduleEvent(EVENT_REPAIR, 20000);
                         return;
@@ -858,7 +858,6 @@ public:
 
 };
 
-
 class spell_pool_of_tar : public CreatureScript
 {
 public:
@@ -1040,7 +1039,6 @@ public:
     };
 
 };
-
 
 class npc_hodirs_fury : public CreatureScript
 {
