@@ -294,32 +294,32 @@ public:
         {
             if (instance)
             {
-                if (instance->GetData(DATA_TOWER_OF_STORMS) == 1)
-                {
-                    me->AddAura(SPELL_BUFF_TOWER_OF_STORMS, me);
-                    events.ScheduleEvent(EVENT_THORIM_S_HAMMER, 30000);
-                }
-
-                if (instance->GetData(DATA_TOWER_OF_FLAMES) == 1)
-                {
-                    me->AddAura(SPELL_BUFF_TOWER_OF_FLAMES, me);
-                    events.ScheduleEvent(EVENT_MIMIRON_S_INFERNO, 10000);
-                }
-
-                if (instance->GetData(DATA_TOWER_OF_FROST) == 1)
-                {
-                    me->AddAura(SPELL_BUFF_TOWER_OF_FROST, me);
-                    events.ScheduleEvent(EVENT_HODIR_S_FURY, 5000);
-                }
-
-                if (instance->GetData(DATA_TOWER_OF_NATURE) == 1)
-                {
-                    me->AddAura(SPELL_BUFF_TOWER_OF_LIFE, me);
-                    events.ScheduleEvent(EVENT_FREYA_S_WARD, 1000);
-                }
-
                 if (bActiveTowers)
                 {
+                    if (instance->GetData(DATA_TOWER_OF_STORMS) == 1)
+                    {
+                        me->AddAura(SPELL_BUFF_TOWER_OF_STORMS, me);
+                        events.ScheduleEvent(EVENT_THORIM_S_HAMMER, 30000);
+                    }
+
+                    if (instance->GetData(DATA_TOWER_OF_FLAMES) == 1)
+                    {
+                        me->AddAura(SPELL_BUFF_TOWER_OF_FLAMES, me);
+                        events.ScheduleEvent(EVENT_MIMIRON_S_INFERNO, 10000);
+                    }
+
+                    if (instance->GetData(DATA_TOWER_OF_FROST) == 1)
+                    {
+                        me->AddAura(SPELL_BUFF_TOWER_OF_FROST, me);
+                        events.ScheduleEvent(EVENT_HODIR_S_FURY, 5000);
+                    }
+
+                    if (instance->GetData(DATA_TOWER_OF_NATURE) == 1)
+                    {
+                        me->AddAura(SPELL_BUFF_TOWER_OF_LIFE, me);
+                        events.ScheduleEvent(EVENT_FREYA_S_WARD, 1000);
+                    }
+                
                     switch(instance->GetData(DATA_TOWER_DESTROYED))
                     {
                         case 0:
