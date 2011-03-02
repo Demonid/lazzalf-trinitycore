@@ -397,17 +397,15 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         if (VehicleScalingInfo const *scalingInfo = sObjectMgr->GetVehicleScalingInfo(m_vehicleInfo->m_ID))
         {
             Player *plr = unit->ToPlayer();
-            //float averageItemLevel = plr->GetAverageItemLevel();
-            //if (averageItemLevel < scalingInfo->baseItemLevel)
-            //    averageItemLevel = scalingInfo->baseItemLevel;
-            // averageItemLevel -= scalingInfo->baseItemLevel;
-
-            float averageItemLevel = std::max(0.0f, float((plr->GetAverageItemLevel() - (scalingInfo->baseItemLevel + 30.0f)) * 3.0f));
+            float averageItemLevel = plr->GetAverageItemLevel();
+            if (averageItemLevel < scalingInfo->baseItemLevel)
+                averageItemLevel = scalingInfo->baseItemLevel;
+            averageItemLevel -= scalingInfo->baseItemLevel;
 
             float currentHealthPct = float(me->GetHealth() / me->GetMaxHealth());
             m_bonusHP = uint32(me->GetMaxHealth() * (averageItemLevel * scalingInfo->scalingFactor));
             me->SetMaxHealth(me->GetMaxHealth() + m_bonusHP);
-            me->SetHealth(uint32(float(me->GetHealth() + m_bonusHP) * currentHealthPct));
+            me->SetHealth(uint32((me->GetHealth() + m_bonusHP) * currentHealthPct));
         }
     }
 
