@@ -225,14 +225,14 @@ class boss_auriaya : public CreatureScript
     };
 };
 
-class feral_defender_trigger : public CreatureScript
+class npc_feral_defender_trigger : public CreatureScript
 {
     public:
-        feral_defender_trigger(): CreatureScript("feral_defender_trigger") {}
+        npc_feral_defender_trigger(): CreatureScript("npc_feral_defender_trigger") {}
 
-    struct feral_defender_triggerAI : public ScriptedAI
+    struct npc_feral_defender_triggerAI : public ScriptedAI
     {
-        feral_defender_triggerAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_feral_defender_triggerAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             m_pInstance = pCreature->GetInstanceScript();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_PACIFIED);
@@ -268,18 +268,18 @@ class feral_defender_trigger : public CreatureScript
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new feral_defender_triggerAI(pCreature);
+        return new npc_feral_defender_triggerAI(pCreature);
     };
 };
 
-class mob_sanctum_sentry : public CreatureScript
+class npc_sanctum_sentry : public CreatureScript
 {
     public:
-        mob_sanctum_sentry(): CreatureScript("mob_sanctum_sentry") {}
+        npc_sanctum_sentry(): CreatureScript("npc_sanctum_sentry") {}
 
-    struct mob_sanctum_sentryAI : public ScriptedAI
+    struct npc_sanctum_sentryAI : public ScriptedAI
     {
-        mob_sanctum_sentryAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_sanctum_sentryAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             pInstance = pCreature->GetInstanceScript();
         }
@@ -364,18 +364,18 @@ class mob_sanctum_sentry : public CreatureScript
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new mob_sanctum_sentryAI(pCreature);
+        return new npc_sanctum_sentryAI(pCreature);
     };
 };
 
-class mob_feral_defender : public CreatureScript
+class npc_feral_defender : public CreatureScript
 {
     public:
-        mob_feral_defender(): CreatureScript("mob_feral_defender") {}
+        npc_feral_defender(): CreatureScript("npc_feral_defender") {}
 
-    struct mob_feral_defenderAI : public ScriptedAI
+    struct npc_feral_defenderAI : public ScriptedAI
     {
-        mob_feral_defenderAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_feral_defenderAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             pInstance = pCreature->GetInstanceScript();
         }
@@ -480,19 +480,19 @@ class mob_feral_defender : public CreatureScript
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new mob_feral_defenderAI(pCreature);
+        return new npc_feral_defenderAI(pCreature);
     };
 };
 
 
-class seeping_trigger : public CreatureScript
+class npc_seeping_trigger : public CreatureScript
 {
     public:
-        seeping_trigger(): CreatureScript("seeping_trigger") {}
+        npc_seeping_trigger(): CreatureScript("npc_seeping_trigger") {}
 
-    struct seeping_triggerAI : public ScriptedAI
+    struct npc_seeping_triggerAI : public ScriptedAI
     {
-        seeping_triggerAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_seeping_triggerAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             pInstance = pCreature->GetInstanceScript();
@@ -515,15 +515,15 @@ class seeping_trigger : public CreatureScript
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new seeping_triggerAI(pCreature);
+        return new npc_seeping_triggerAI(pCreature);
     };
 };
 
 void AddSC_boss_auriaya()
 {
     new boss_auriaya();
-    new feral_defender_trigger();
-    new mob_sanctum_sentry();
-    new mob_feral_defender();
-    new seeping_trigger();
+    new npc_feral_defender_trigger();
+    new npc_sanctum_sentry();
+    new npc_feral_defender();
+    new npc_seeping_trigger();
 }

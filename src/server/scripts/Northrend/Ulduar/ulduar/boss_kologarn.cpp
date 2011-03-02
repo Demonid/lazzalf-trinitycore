@@ -52,6 +52,11 @@ EndScriptData */
 #define SPELL_ARM_ENTER_VEHICLE 65343
 #define SPELL_ARM_RESPAWN       64753
 
+// Passive
+#define SPELL_KOLOGARN_REDUCE_PARRY 64651
+#define SPELL_KOLOGARN_PACIFY       63726
+#define SPELL_KOLOGARN_UNK_0        65219   // Not found in DBC
+
 #define SPELL_BERSERK           47008 // guess
 
 #define NPC_RUBBLE_STALKER      33809
@@ -130,10 +135,13 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             SetCombatMovement(false);
             emerged = false;
             eyeBeamHit = false;
+
+            DoCast(SPELL_KOLOGARN_REDUCE_PARRY);
         }
 
         Vehicle *vehicle;
