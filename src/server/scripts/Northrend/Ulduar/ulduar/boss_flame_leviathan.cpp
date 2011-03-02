@@ -257,7 +257,7 @@ public:
 
         Vehicle* vehicle;
         int32 ShutdownCount;
-        int32 towerCount;
+        //int32 towerCount;
         int32 ColossusCount;
         bool towerOfStorms;
         bool towerOfLife;
@@ -273,7 +273,7 @@ public:
             InstallAdds(false);
             me->ResetLootMode();
             ColossusCount = 0;
-            towerCount = 0;
+            //towerCount = 0;
             ShutdownCount = 0;
         }
 
@@ -298,33 +298,34 @@ public:
             {
                 if (towerOfStorms)
                 {
-                    ++towerCount;
+                    //++towerCount;
                     me->AddAura(SPELL_BUFF_TOWER_OF_STORMS, me);
                     events.ScheduleEvent(EVENT_THORIM_S_HAMMER, 30000);
                 }
 
                 if (towerOfFlames)
                 {
-                    ++towerCount;
+                    //++towerCount;
                     me->AddAura(SPELL_BUFF_TOWER_OF_FLAMES, me);
                     events.ScheduleEvent(EVENT_MIMIRON_S_INFERNO, 10000);
                 }
 
                 if (towerOfFrost)
                 {
-                    ++towerCount;
+                    //++towerCount;
                     me->AddAura(SPELL_BUFF_TOWER_OF_FROST, me);
                     events.ScheduleEvent(EVENT_HODIR_S_FURY, 5000);
                 }
 
                 if (towerOfLife)
                 {
-                    ++towerCount;
+                    //++towerCount;
                     me->AddAura(SPELL_BUFF_TOWER_OF_LIFE, me);
                     events.ScheduleEvent(EVENT_FREYA_S_WARD, 1000);
                 }
 
-                switch (towerCount)
+                //switch (towerCount)
+                switch(instance->GetData(DATA_TOWER_DESTROYED))
                 {
                     case 4:
                         me->AddLootMode(LOOT_MODE_HARD_MODE_4);
@@ -394,7 +395,8 @@ public:
                 }
             }
 
-            switch (towerCount)
+            //switch (towerCount)
+            switch(instance->GetData(DATA_TOWER_DESTROYED))
             {
                 case 4:
                     instance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBIT_UARY, ACHIEV_25_ORBIT_UARY));
@@ -1186,8 +1188,8 @@ public:
     {
         npc_freya_ward_summonAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            //for (uint32 i = 0; i < 4; ++i)
-                //DoCast(me, SPELL_FREYA_SUMMONS, true);
+            for (uint32 i = 0; i < RAID_MODE(3, 5); ++i)
+                DoCast(me, SPELL_FREYA_SUMMONS, true);
             pInstance = pCreature->GetInstanceScript();
             me->GetMotionMaster()->MovePoint(0, 259.56f, -17.45f, 409.65f);
             lashTimer = 5000 ;
@@ -1249,7 +1251,9 @@ public:
             if (Creature* pLeviathan = instance->instance->GetCreature(instance->GetData64(BOSS_LEVIATHAN)))
             {    
                 CAST_AI(boss_flame_leviathan::boss_flame_leviathanAI, (pLeviathan->AI()))->DoAction(0); //enable hard mode activating the 4 additional events spawning additional vehicles
-               
+                // in teoria qui dovrebbe ricreare tutte le torri distrutte?
+                instance->SetData(DATA_TOWER_DESTROYED, 0);
+
                 // pCreature->SetVisible(false);
                 pCreature->AI()->DoAction(0); // spawn the vehicles
                 if (Creature* Delorah = pCreature->FindNearestCreature(NPC_DELORAH, 1000, true))
@@ -1275,6 +1279,11 @@ public:
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
         InstanceScript* instance = pCreature->GetInstanceScript();
+
+        if (Creature* pLeviathan = instance->instance->GetCreature(instance->GetData64(BOSS_LEVIATHAN)))
+            if(pLeviathan->isInCombat())
+                return true;
+
         if (instance && instance->GetData(BOSS_LEVIATHAN) !=DONE && pPlayer)
         {
             pPlayer->PrepareGossipMenu(pCreature);
@@ -1312,7 +1321,8 @@ public:
             if (uiAction == 0)
             {
                 summons.DespawnAll();
-                instance->SetData(DATA_ACHI_UNBROKEN, 0);
+                if (!(instance->GetData(DATA_ACHI_UNBROKEN) == ACHI_FAILED))
+                    instance->SetData(DATA_ACHI_UNBROKEN, 0);
                 for (int32 i = 0; i < RAID_MODE(2, 5); ++i)
                     DoSummon(VEHICLE_SIEGE, PosSiege[i], 3000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                 for (int32 i = 0; i < RAID_MODE(2, 5); ++i)
@@ -1414,6 +1424,22 @@ class mob_flameleviathan_loot : public CreatureScript
                 return;
             }
 
+            switch(pInstance->GetData(DATA_TOWER_DESTROYED))
+            {
+                case 4:
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_4);
+                case 3:
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_3);
+                case 2:
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_2);
+                case 1:                
+                    me->AddLootMode(LOOT_MODE_HARD_MODE_1);
+                    break;
+                default:
+                    me->SetLootMode(LOOT_MODE_DEFAULT);
+                    break;
+            }
+
             if (Unit *pLeviathan = Unit::GetUnit(*me, pInstance->GetData64(DATA_LEVIATHAN)))
             {
                 if (pLeviathan->isAlive())
@@ -1438,6 +1464,20 @@ class mob_flameleviathan_loot : public CreatureScript
         {
             if (pInstance->GetData(DATA_ACHI_UNBROKEN) == ACHI_IS_IN_PROGRESS)
                 pInstance->DoCompleteAchievement(ACHI_UNBROKEN);
+
+            switch(pInstance->GetData(DATA_TOWER_DESTROYED))
+            {
+                case 4:
+                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBIT_UARY, ACHIEV_25_ORBIT_UARY));
+                case 3:
+                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_NUKED_FROM_ORBIT, ACHIEV_25_NUKED_FROM_ORBIT));
+                case 2:
+                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_DEVASTATION, ACHIEV_25_ORBITAL_DEVASTATION));
+                case 1:
+                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_BOMBARDMENT, ACHIEV_25_ORBITAL_BOMBARDMENT));
+                default:
+                    break;
+            }
         }
 
         void UpdateAI(const uint32 diff)
@@ -1462,7 +1502,7 @@ class mob_flameleviathan_loot : public CreatureScript
     };
 };
 
-class mob_steelforged_defender : public CreatureScript //33236
+class mob_steelforged_defender : public CreatureScript
 {
     public:
         mob_steelforged_defender() : CreatureScript("mob_steelforged_defender") { }

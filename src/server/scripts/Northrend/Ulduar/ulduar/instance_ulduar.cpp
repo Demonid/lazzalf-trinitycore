@@ -138,6 +138,7 @@ class instance_ulduar : public InstanceMapScript
         uint64 uiLeviathanDoor[7];
         uint8  flag;
         
+        int32 towerCount;
         // Achievements
         // Unbroken
         bool vehicleRepaired;
@@ -163,6 +164,7 @@ class instance_ulduar : public InstanceMapScript
 
         void Initialize()
         {
+            towerCount = 0;
             vehicleRepaired = false;
             steelforgedDefendersCount = 0;
             dwarfageddonTimer = 0;
@@ -511,17 +513,24 @@ class instance_ulduar : public InstanceMapScript
                         {
                             switch(value)
                             {
+                                case 0:
+                                    towerCount = 4;
+                                    break;
                                 case 1: // Tower of Storms
                                     pLeviathan->AI()->DoAction(1);
+                                    --towerCount;
                                     break;
                                 case 2: // Tower of Flames
                                     pLeviathan->AI()->DoAction(2);
+                                    --towerCount;
                                     break;
                                 case 3: // Tower of Frost
                                     pLeviathan->AI()->DoAction(3);
+                                    --towerCount;
                                     break;
                                 case 4: // Tower of Nature
                                     pLeviathan->AI()->DoAction(4);
+                                    --towerCount;
                                     break;
                                 default:
                                     break;
@@ -646,6 +655,8 @@ class instance_ulduar : public InstanceMapScript
         {
             switch (id)
             {
+                case DATA_TOWER_DESTROYED:
+                    return towerCount;
                 case DATA_ACHI_UNBROKEN:
                     if (vehicleRepaired == true)
                         return ACHI_FAILED;
