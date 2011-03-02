@@ -26,8 +26,9 @@ enum Events
     EVENT_BURNING_BREATH,
     EVENT_BURNING_FURY,
     EVENT_FLAME_CINDER_A,
-    EVENT_METEOR_FISTS_A,
-    EVENT_METEOR_FISTS_B,
+    EVENT_METEOR_FISTS,
+    //EVENT_METEOR_FISTS_A,
+    //EVENT_METEOR_FISTS_B,
 
     // Flame Warder
     EVENT_FW_LAVA_BIRST,
@@ -38,10 +39,10 @@ enum Events
 enum Spells
 {
     // Spells Koralon
-    //SPELL_BURNING_BREATH                        = 66665,
-    SPELL_BURNING_BREATH                        = 63677, //Hack    
-    //SPELL_BURNING_BREATH_H                      = 67328,
-    SPELL_BURNING_BREATH_H                      = 64533, //Hack
+    SPELL_BURNING_BREATH                        = 66665,
+    //SPELL_BURNING_BREATH                        = 63677, //Hack    
+    SPELL_BURNING_BREATH_H                      = 67328,
+    //SPELL_BURNING_BREATH_H                      = 64533, //Hack
     SPELL_BURNING_FURY                          = 66721,
     SPELL_FLAME_CINDER_A                        = 66684,
     SPELL_FLAME_CINDER_A_H                      = 67332,
@@ -58,7 +59,11 @@ enum Spells
     SPELL_FW_METEOR_FISTS_A_H                   = 66809,
     SPELL_FW_METEOR_FISTS_B                     = 67331,
     SPELL_FW_METEOR_FISTS_B_H                   = 68160,
+
+    SPELL_METEOR_FISTS                          = 66725,
 };
+
+#define EMOTE_METEOR_FISTS                      "Koralon the Flame Watcher casts Meteor Fists!"
 
 class boss_koralon : public CreatureScript
 {
@@ -135,7 +140,8 @@ class boss_koralon : public CreatureScript
 
             events.ScheduleEvent(EVENT_BURNING_FURY, 20000);    // timer ok
             events.ScheduleEvent(EVENT_BURNING_BREATH, 15000);  // 1st after 15sec, then every 45sec
-            events.ScheduleEvent(EVENT_METEOR_FISTS_A, 30000);  // 1st after 30sec, then every 45sec
+            events.ScheduleEvent(EVENT_METEOR_FISTS, 35000);
+            //events.ScheduleEvent(EVENT_METEOR_FISTS_A, 30000);  // 1st after 30sec, then every 45sec
             events.ScheduleEvent(EVENT_FLAME_CINDER_A, 5000);  // timer ok - TODO: check for RANDOM target
 
             if (pInstance)
@@ -172,14 +178,18 @@ class boss_koralon : public CreatureScript
                         DoCast(me, RAID_MODE(SPELL_BURNING_BREATH,SPELL_BURNING_BREATH_H));
                         events.ScheduleEvent(EVENT_BURNING_BREATH, 45000);
                         return;
-                    case EVENT_METEOR_FISTS_A:
+                    /*case EVENT_METEOR_FISTS_A:
                         DoCast(me, RAID_MODE(SPELL_METEOR_FISTS_A,SPELL_METEOR_FISTS_A_H));
                         events.ScheduleEvent(EVENT_METEOR_FISTS_B, 1500);
                         return;
                     case EVENT_METEOR_FISTS_B:
                         DoCast(me, RAID_MODE(SPELL_METEOR_FISTS_B,SPELL_METEOR_FISTS_B_H));
                         events.ScheduleEvent(EVENT_METEOR_FISTS_A, 45000);
-                        return;
+                        return;*/
+                    case EVENT_METEOR_FISTS:
+                        DoCast(me, SPELL_METEOR_FISTS);
+                        me->MonsterTextEmote(EMOTE_METEOR_FISTS, 0, true);
+                        events.ScheduleEvent(EVENT_METEOR_FISTS, 45000);
                     case EVENT_FLAME_CINDER_A:
                         if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             DoCast(pTarget, RAID_MODE(SPELL_FLAME_CINDER_A,SPELL_FLAME_CINDER_A_H));
@@ -258,6 +268,55 @@ class mob_flame_warder : public CreatureScript
     {
         return new mob_flame_warderAI (pCreature);
     };
+};
+
+class spell_koralon_meteor_fists : public SpellScriptLoader
+{
+    public:
+        spell_koralon_meteor_fists() : SpellScriptLoader("spell_koralon_meteor_fists") { }
+
+        class spell_koralon_meteor_fists_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_koralon_meteor_fists_SpellScript);
+
+            uint32 totalTargets;
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                totalTargets = NULL;
+                for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end(); ++itr)
+                {
+                    Unit *target = (*itr);
+                    if (!target)
+                        continue;
+
+                    if (!target->IsWithinDist(GetTargetUnit(), 10.0f))
+                    {
+                        unitList.remove(target);
+                        continue;
+                    }
+                   
+                    totalTargets++;
+                }
+            }
+
+            void CalculateSplitDamage()
+            {
+                if (totalTargets)
+                    SetHitDamage(GetHitDamage() / totalTargets);
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_koralon_meteor_fists_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_TARGET_ENEMY);
+                OnHit += SpellHitFn(spell_koralon_meteor_fists_SpellScript::CalculateSplitDamage);
+            }
+        };
+
+        SpellScript *GetSpellScript() const
+        {
+            return new spell_koralon_meteor_fists_SpellScript();
+        }
 };
 
 void AddSC_boss_koralon()
