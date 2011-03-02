@@ -299,7 +299,15 @@ class mob_sanctum_sentry : public CreatureScript
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim())
-                return;
+            {
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                {
+                    me->AddThreat(pTarget, 100.0f);
+                    me->AI()->AttackStart(pTarget);
+                }
+                else
+                    return;
+            }
 
             if (RipTimer <= int32(uiDiff))
             {
