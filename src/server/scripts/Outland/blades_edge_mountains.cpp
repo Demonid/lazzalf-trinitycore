@@ -538,6 +538,149 @@ public:
 
 };
 
+/* Support quest: Meeting at the Blackwing Coven */
+
+enum KolphisDarkscaleTexts
+{
+    INTRO = 10539,
+    TEXT_1 = 10541,
+    TEXT_2 = 10542,
+    TEXT_3 = 10543,
+    TEXT_4 = 10544,
+    TEXT_5 = 10545,
+};
+
+#define QUEST_MEETING_BLACKWING_COVEN 10722
+
+class kolphis_darkscale_npc : public CreatureScript
+{
+    public:
+        kolphis_darkscale_npc(): CreatureScript("kolphis_darkscale_npc") {}
+
+    bool OnGossipHello(Player *player, Creature *_Creature)
+    {
+        if (!player)
+            return true;
+
+        if (player->GetQuestStatus(QUEST_MEETING_BLACKWING_COVEN) == QUEST_STATUS_INCOMPLETE)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I'm fine, thank you. You asked for me?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1); 
+            player->SEND_GOSSIP_MENU(INTRO, _Creature->GetGUID());
+            return true;
+        }
+
+        return false;
+    };
+
+    bool OnGossipSelect(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+    {
+        player->PlayerTalkClass->ClearMenus();
+        switch(action)
+        {
+            case GOSSIP_ACTION_INFO_DEF+1:
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Oh, it's not my fault, I can assure you.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                player->SEND_GOSSIP_MENU(TEXT_1, _Creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+2:
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Um, no... no, I don't want that at all.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+                player->SEND_GOSSIP_MENU(TEXT_2, _Creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+3:
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Impressive. When do we attack?", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+                player->SEND_GOSSIP_MENU(TEXT_3, _Creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+4:
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Absolutely!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5); 
+                player->SEND_GOSSIP_MENU(TEXT_4, _Creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+5:
+                player->SEND_GOSSIP_MENU(TEXT_5, _Creature->GetGUID());
+                player->CompleteQuest(QUEST_MEETING_BLACKWING_COVEN);
+                break;
+        }
+        return true;
+    };
+};
+
+/* Support quest: Whispers of the Raven God */
+
+enum GO_Prophecies
+{
+    FIRST_PROPHECY = 184950,
+    SECOND_PROPHECY = 184967,
+    THIRD_PROPHECY = 184968,
+    FOURTH_PROPHECY = 184969,
+};
+
+enum Prophecy_Credits
+{
+    FIRST_PROPHECY_CREDIT = 22798,
+    SECOND_PROPHECY_CREDIT = 22799,
+    THIRD_PROPHECY_CREDIT = 22800,
+    FOURTH_PROPHECY_CREDIT = 22801,
+};
+
+#define QUEST_WHISPERS_RAVEN_GOD 10607
+
+class go_prophecy : public GameObjectScript
+{
+    public:
+        go_prophecy() : GameObjectScript("go_prophecy") { }
+
+    bool OnGossipHello(Player *pPlayer, GameObject *pGO)
+    {
+        if (!pPlayer)
+            return true;
+
+        if (pPlayer->GetQuestStatus(QUEST_WHISPERS_RAVEN_GOD) == QUEST_STATUS_INCOMPLETE)
+        {
+            switch(pGO->GetEntry())
+            {
+                case FIRST_PROPHECY:
+                    pPlayer->KilledMonsterCredit(FIRST_PROPHECY_CREDIT, 0);
+                    break;
+                case SECOND_PROPHECY:
+                    pPlayer->KilledMonsterCredit(SECOND_PROPHECY_CREDIT, 0);
+                    break;
+                case THIRD_PROPHECY:
+                    pPlayer->KilledMonsterCredit(THIRD_PROPHECY_CREDIT, 0);
+                    break;
+                case FOURTH_PROPHECY:
+                    pPlayer->KilledMonsterCredit(FOURTH_PROPHECY_CREDIT, 0);
+                    break;
+            }
+        }
+        return true;
+    };
+};
+
+/* The Thunderspike */
+
+#define QUEST_THE_THUNDERSPIKE 10526
+#define NPC_GOR_GRIMGUT 21319
+
+const Position gor_grimgut_position = {1316.82f, 6689.07f, -18.659f, 6.191f};
+
+class go_the_thunderspike : public GameObjectScript
+{
+    public:
+        go_the_thunderspike() : GameObjectScript("go_the_thunderspike") { }
+
+    bool OnGossipHello(Player *pPlayer, GameObject *pGO)
+    {
+        if (!pPlayer)
+            return true;
+
+        Creature* GorGrimgut = pPlayer->FindNearestCreature(NPC_GOR_GRIMGUT, 60, true);
+
+        if (pPlayer->GetQuestStatus(QUEST_THE_THUNDERSPIKE) == QUEST_STATUS_INCOMPLETE)
+            if (!GorGrimgut)
+                pPlayer->SummonCreature(NPC_GOR_GRIMGUT, gor_grimgut_position, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 180000);
+
+        return true;
+    };
+};
+
 
 /*######
 ## AddSC
@@ -553,4 +696,7 @@ void AddSC_blades_edge_mountains()
     new go_legion_obelisk();
     new npc_bloodmaul_brutebane();
     new npc_ogre_brute();
+    new kolphis_darkscale_npc();
+    new go_prophecy();
+    new go_the_thunderspike();
 }
