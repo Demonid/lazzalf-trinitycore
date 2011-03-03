@@ -125,6 +125,7 @@ class instance_trial_of_the_champion : public InstanceMapScript
 
             return false;
         }
+
             /*
              * 1)alla creazione di una creatura controlla se i players in instance sono ally o horda
              * 2)con uno switch sceglie in base all'entry creatura non so precisamente cosa va ad aggiornare da capire...
@@ -145,53 +146,43 @@ class instance_trial_of_the_champion : public InstanceMapScript
             {
                 // Champions
                 case VEHICLE_MOKRA_SKILLCRUSHER_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT, ALLIANCE);
+                case VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT:
                     VehicleListChampion.push_back(creature->GetGUID());
                     break;
                 case VEHICLE_ERESSEA_DAWNSINGER_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_AMBROSE_BOLTSPARK_MOUNT, ALLIANCE);
+                case VEHICLE_AMBROSE_BOLTSPARK_MOUNT:
                     VehicleListChampion.push_back(creature->GetGUID());
                     break;
                 case VEHICLE_RUNOK_WILDMANE_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_COLOSOS_MOUNT, ALLIANCE);
+                case VEHICLE_COLOSOS_MOUNT:
                     VehicleListChampion.push_back(creature->GetGUID());
                     break;
                 case VEHICLE_ZUL_TORE_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_EVENSONG_MOUNT, ALLIANCE);
+                case VEHICLE_EVENSONG_MOUNT:
                     VehicleListChampion.push_back(creature->GetGUID());
                     break;
                 case VEHICLE_DEATHSTALKER_VESCERI_MOUNT:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_LANA_STOUTHAMMER_MOUNT, ALLIANCE);
+                case VEHICLE_LANA_STOUTHAMMER_MOUNT:
                     VehicleListChampion.push_back(creature->GetGUID());
                     break;
                 case VEHICLE_ORGRIMMAR_WOLF:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_STORMWIND_STEED, ALLIANCE);
+                case VEHICLE_STORMWIND_STEED:
                     VehicleListChampion.push_back(creature->GetGUID());
                     break;
                 case VEHICLE_SILVERMOON_HAWKSTRIDER:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_GNOMEREGAN_MECHANOSTRIDER, ALLIANCE);
+                case VEHICLE_GNOMEREGAN_MECHANOSTRIDER:
                     VehicleListChampion.push_back(creature->GetGUID());
                     break;
                 case VEHICLE_THUNDER_BLUFF_KODO:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_EXODAR_ELEKK, ALLIANCE);
+                case VEHICLE_EXODAR_ELEKK:
                     VehicleListChampion.push_back(creature->GetGUID());
                     break;
                 case VEHICLE_DARKSPEAR_RAPTOR:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_DARNASSIA_NIGHTSABER, ALLIANCE);
+                case VEHICLE_DARNASSIA_NIGHTSABER:
                     VehicleListChampion.push_back(creature->GetGUID());
                     break;  
                 case VEHICLE_FORSAKE_WARHORSE:
-                    if (TeamInInstance == HORDE)
-                        creature->UpdateEntry(VEHICLE_IRONFORGE_RAM, ALLIANCE);
+                case VEHICLE_IRONFORGE_RAM:
                     VehicleListChampion.push_back(creature->GetGUID());
                     break;  
                 case NPC_RISEN_JAEREN:
