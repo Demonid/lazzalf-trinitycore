@@ -134,6 +134,7 @@ class instance_ulduar : public InstanceMapScript
         uint64 uiHodirYS;
         uint64 uiYoggSaronBrain;
         uint64 uiYoggSaron;
+        uint64 uiAlgalon;
 
         uint64 uiLeviathanGateGUID;
         uint64 uiLeviathanDoor[7];
@@ -382,7 +383,10 @@ class instance_ulduar : public InstanceMapScript
                 case NPC_YOGGSARON: 
                     uiYoggSaron = pCreature->GetGUID(); 
                     return;
-                
+                case NPC_ALGALON:
+                    uiAlgalon = pCreature->GetGUID(); 
+                    return;
+
                 // Keeper's Images
                 case 33241: 
                     uiFreyaImage = pCreature->GetGUID();
@@ -509,6 +513,8 @@ class instance_ulduar : public InstanceMapScript
                     return uiYoggSaronBrain;
                 case DATA_YOGGSARON:
                     return uiYoggSaron;
+                case DATA_ALGALON:
+                    return uiAlgalon;
             }
             return 0;
         }
