@@ -10648,7 +10648,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                         continue;
 
                     if ((*i)->GetMiscValue() & (spellProto ? GetSpellSchoolMask(spellProto) : 0))
-                        AddPctN(TakenTotalMod, (*i)->GetAmount());                    
+                        sumNegativeMod += (*i)->GetAmount();                    
                 }
                 break;
             // Ebon Plague
