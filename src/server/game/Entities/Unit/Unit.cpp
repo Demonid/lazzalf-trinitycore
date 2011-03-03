@@ -15615,11 +15615,14 @@ void Unit::SetStunned(bool apply)
         SetUInt64Value(UNIT_FIELD_TARGET, 0);
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         CastStop();
-//        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
+//      AddUnitMovementFlag(MOVEMENTFLAG_ROOT);   
 
         // Creature specific
         if (GetTypeId() != TYPEID_PLAYER)
+        {
+            AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
             this->ToCreature()->StopMoving();
+        }
         else
             SetStandState(UNIT_STAND_STATE_STAND);
 
@@ -15645,7 +15648,8 @@ void Unit::SetStunned(bool apply)
             data << uint32(0);
             SendMessageToSet(&data,true);
 
-//            RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
+            if (GetTypeId() != TYPEID_PLAYER)
+                RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
         }
     }
 }
@@ -15657,7 +15661,7 @@ void Unit::SetRooted(bool apply)
         if (m_rootTimes > 0) //blizzard internal check?
             m_rootTimes++;
 
-        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
+        //AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
         if (Player* thisPlr = this->ToPlayer())
         {
@@ -15668,6 +15672,8 @@ void Unit::SetRooted(bool apply)
         }
         else
         {
+            AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
+
             WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 8);
             data.append(GetPackGUID());
             SendMessageToSet(&data,true);
@@ -15690,9 +15696,9 @@ void Unit::SetRooted(bool apply)
                 WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
                 data.append(GetPackGUID());
                 SendMessageToSet(&data,true);
-            }
 
-            RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
+                RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
+            }            
         }
     }
 }
