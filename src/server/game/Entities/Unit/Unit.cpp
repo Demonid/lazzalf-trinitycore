@@ -10639,6 +10639,18 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                     sumNegativeMod += int32(mod);
                 }
                 break;
+            // Blessing of Sanctuary
+            // Greater Blessing of Sanctuary
+            case 19:
+            case 1804:
+                {
+                    if ((*i)->GetSpellProto()->SpellFamilyName != SPELLFAMILY_PALADIN)
+                        continue;
+
+                    if ((*i)->GetMiscValue() & (spellProto ? GetSpellSchoolMask(spellProto) : 0))
+                        AddPctN(TakenTotalMod, (*i)->GetAmount());                    
+                }
+                break;
             // Ebon Plague
             case 1933:
                 if ((*i)->GetMiscValue() & (spellProto ? GetSpellSchoolMask(spellProto) : 0))
