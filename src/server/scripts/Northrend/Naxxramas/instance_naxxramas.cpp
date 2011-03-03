@@ -365,17 +365,20 @@ public:
         }
     }*/
     
-    void HeiganErupt(uint32 section)
-    {
-        for (uint32 i = 0; i < 4; ++i)
+        void HeiganErupt(uint32 section)
         {
-            if (i == section)
-                continue;
-
-            for (std::set<GameObject*>::iterator itr = HeiganEruption[i].begin(); itr != HeiganEruption[i].end(); ++itr)
+            for (uint32 i = 0; i < 4; ++i)
             {
-                (*itr)->SendCustomAnim();
-                (*itr)->CastSpell(NULL, SPELL_ERUPTION);
+                if (i == section)
+                    continue;
+
+                for (std::set<GameObject*>::iterator itr = HeiganEruption[i].begin(); itr != HeiganEruption[i].end(); ++itr)
+                {
+                    if (*itr)
+                    {
+                        (*itr)->SendCustomAnim((*itr)->GetGoAnimProgress());
+                        (*itr)->CastSpell(NULL, SPELL_ERUPTION);
+                    }
                 }
             }
         }
