@@ -512,7 +512,7 @@ public:
                         me->MonsterTextEmote(EMOTE_OVERLOAD, 0, true);
                         me->AddAura(SPELL_SYSTEMS_SHUTDOWN, me);
                         me->RemoveAurasDueToSpell(SPELL_GATHERING_SPEED);
-                        me->AddUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
+                        //me->AddUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
                         me->SetReactState(REACT_PASSIVE);
                         //me->StopMoving();
                         events.CancelEvent(EVENT_SHUTDOWN);
@@ -521,7 +521,7 @@ public:
                     case EVENT_REPAIR:
                         me->MonsterTextEmote(EMOTE_REPAIR, 0, true);
                         InstallAdds(true);
-                        me->ClearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
+                        //me->ClearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
                         me->SetReactState(REACT_AGGRESSIVE);
                         events.CancelEvent(EVENT_REPAIR);
                         events.ScheduleEvent(EVENT_SHUTDOWN, 90000);
