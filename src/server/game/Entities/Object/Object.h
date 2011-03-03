@@ -576,6 +576,7 @@ class FlaggedValuesArray32
 
 class WorldObject : public Object, public WorldLocation
 {
+    // friend class AntiCheat;
     protected:
         explicit WorldObject();
     public:
@@ -626,10 +627,7 @@ class WorldObject : public Object, public WorldLocation
             GetNearPoint(obj,x,y,z,obj->GetObjectSize(),distance2d,GetAngle(obj));
         }
 
-        float GetObjectSize() const
-        {
-            return (m_valuesCount > UNIT_FIELD_COMBATREACH) ? m_floatValues[UNIT_FIELD_COMBATREACH] : DEFAULT_WORLD_OBJECT_SIZE;
-        }
+        float GetObjectSize() const;
         void UpdateGroundPositionZ(float x, float y, float &z) const;
 
         void GetRandomPoint(const Position &srcPos, float distance, float &rand_x, float &rand_y, float &rand_z) const;

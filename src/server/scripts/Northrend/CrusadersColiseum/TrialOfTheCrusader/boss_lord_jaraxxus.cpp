@@ -81,6 +81,8 @@ enum BossSpells
     SPELL_BERSERK               = 64238,
 };
 
+#define ACHI_PAIN_SPIKE RAID_MODE(3996,3997)
+
 /*######
 ## boss_jaraxxus
 ######*/
@@ -99,6 +101,8 @@ public:
     {
         boss_jaraxxusAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
         {
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             m_pInstance = pCreature->GetInstanceScript();
             Reset();
         }
@@ -121,12 +125,12 @@ public:
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_JARAXXUS, NOT_STARTED);
             SetEquipmentSlots(false, EQUIP_MAIN, EQUIP_OFFHAND, EQUIP_RANGED);
-            m_uiFelFireballTimer = 5*IN_MILLISECONDS;
-            m_uiFelLightningTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
+            m_uiFelFireballTimer = 15*IN_MILLISECONDS;
+            m_uiFelLightningTimer = urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS);
             m_uiIncinerateFleshTimer = urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS);
             m_uiNetherPowerTimer = 40*IN_MILLISECONDS;
             m_uiLegionFlameTimer = 30*IN_MILLISECONDS;
-            m_uiTouchOfJaraxxusTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
+            m_uiTouchOfJaraxxusTimer = urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS);
             m_uiSummonNetherPortalTimer = 1*MINUTE*IN_MILLISECONDS;
             m_uiSummonInfernalEruptionTimer = 2*MINUTE*IN_MILLISECONDS;
             Summons.DespawnAll();
@@ -155,7 +159,12 @@ public:
             Summons.DespawnAll();
             DoScriptText(SAY_DEATH, me);
             if (m_pInstance)
+            {
                 m_pInstance->SetData(TYPE_JARAXXUS, DONE);
+
+                if(m_pInstance->GetData(DATA_MISTRESS_OF_PAIN_COUNT) >= 2)
+                    m_pInstance->DoCompleteAchievement(ACHI_PAIN_SPIKE);
+            }
         }
 
         void JustSummoned(Creature* pSummoned)
@@ -309,18 +318,9 @@ public:
         {
             me->SetReactState(REACT_PASSIVE);
             m_Count = 0;
-            if (!IsHeroic())
-            {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-                m_CountMax = 3;
-                m_Timer = 15*IN_MILLISECONDS;
-            }
-            else
-            {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-                m_CountMax = 0;
-                m_Timer = 0;
-            }
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
+            m_CountMax = 3;
+            m_Timer = 15*IN_MILLISECONDS;
             Summons.DespawnAll();
         }
 
@@ -440,16 +440,8 @@ public:
             me->SetReactState(REACT_PASSIVE);
             m_Timer = 10*IN_MILLISECONDS;
             m_Count = 0;
-            if (!IsHeroic())
-            {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-                m_CountMax = 1;
-            }
-            else
-            {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-                m_CountMax = 0;
-            }
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
+            m_CountMax = 1;
             Summons.DespawnAll();
         }
 
