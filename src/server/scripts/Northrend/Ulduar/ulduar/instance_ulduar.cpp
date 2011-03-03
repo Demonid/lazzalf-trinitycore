@@ -142,7 +142,7 @@ class instance_ulduar : public InstanceMapScript
         
         int32 towerDestroyedCount;
         bool towerOfStorms;
-        bool towerOfNature;
+        bool towerOfLife;
         bool towerOfFlames;
         bool towerOfFrost;
         // Achievements
@@ -172,7 +172,7 @@ class instance_ulduar : public InstanceMapScript
         {
             towerDestroyedCount = 0;
             towerOfStorms = true;
-            towerOfNature = true;
+            towerOfLife = true;
             towerOfFlames = true;
             towerOfFrost = true;
             vehicleRepaired = false;
@@ -535,8 +535,8 @@ class instance_ulduar : public InstanceMapScript
                                 towerOfStorms = false;
                                 ++towerDestroyedCount;
                                 break;
-                            case TOWER_OF_NATURE_DESTROYED:
-                                towerOfNature = false;
+                            case TOWER_OF_LIFE_DESTROYED:
+                                towerOfLife = false;
                                 ++towerDestroyedCount;
                                 break;
                             case TOWER_OF_FLAMES_DESTROYED:
@@ -677,8 +677,8 @@ class instance_ulduar : public InstanceMapScript
                     else
                         return 0;
                     break;
-                case DATA_TOWER_OF_NATURE:
-                    if (towerOfNature)
+                case DATA_TOWER_OF_LIFE:
+                    if (towerOfLife)
                         return 1;
                     else
                         return 0;

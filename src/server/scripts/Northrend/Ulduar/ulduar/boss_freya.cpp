@@ -1379,7 +1379,18 @@ class creature_storm_lasher : public CreatureScript
 
         void UpdateAI(const uint32 diff)
         {
-            if(!UpdateVictim() || (me->HasUnitState(UNIT_STAT_CASTING)))
+            if(!UpdateVictim())
+            {
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                {
+                    me->AddThreat(pTarget, 100.0f);
+                    me->AI()->AttackStart(pTarget);
+                }
+                else
+                    return;
+            }
+
+            if(me->HasUnitState(UNIT_STAT_CASTING))
                 return;
                 
             if(uiLightningLashTimer <= 0)
@@ -1435,8 +1446,16 @@ class creature_snaplasher : public CreatureScript
 
         void UpdateAI(const uint32 diff)
         {
-            if(!UpdateVictim())
-                return;
+            if (!UpdateVictim())
+            {
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                {
+                    me->AddThreat(pTarget, 100.0f);
+                    me->AI()->AttackStart(pTarget);
+                }
+                else
+                    return;
+            }
 
             DoMeleeAttackIfReady();
         }
@@ -1479,8 +1498,16 @@ class creature_ancient_water_spirit : public CreatureScript
 
         void UpdateAI(const uint32 diff)
         {
-            if(!UpdateVictim())
-                return;
+            if (!UpdateVictim())
+            {
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                {
+                    me->AddThreat(pTarget, 100.0f);
+                    me->AI()->AttackStart(pTarget);
+                }
+                else
+                    return;
+            }
 
             if(uiTidalWaveTimer <= 0)
             {

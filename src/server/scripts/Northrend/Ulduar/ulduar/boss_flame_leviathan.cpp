@@ -93,7 +93,7 @@ enum Towers
     GO_TOWER_OF_STORMS                          = 194377,
     GO_TOWER_OF_FLAMES                          = 194371,
     GO_TOWER_OF_FROST                           = 194370,
-    GO_TOWER_OF_NATURE                          = 194375
+    GO_TOWER_OF_LIFE                            = 194375
 };
 
 enum Events
@@ -253,10 +253,6 @@ public:
         Vehicle* vehicle;
         int32 ShutdownCount;
         int32 ColossusCount;
-        bool towerOfStorms;
-        bool towerOfLife;
-        bool towerOfFlames;
-        bool towerOfFrost;
         
         bool bActiveTowers;
 
@@ -314,7 +310,7 @@ public:
                         events.ScheduleEvent(EVENT_HODIR_S_FURY, 5000);
                     }
 
-                    if (instance->GetData(DATA_TOWER_OF_NATURE) == 1)
+                    if (instance->GetData(DATA_TOWER_OF_LIFE) == 1)
                     {
                         me->AddAura(SPELL_BUFF_TOWER_OF_LIFE, me);
                         events.ScheduleEvent(EVENT_FREYA_S_WARD, 1000);
@@ -1422,8 +1418,6 @@ public:
             if (uiAction == 0)
             {
                 summons.DespawnAll();
-                if (!(instance->GetData(DATA_ACHI_UNBROKEN) == ACHI_FAILED))
-                    instance->SetData(DATA_ACHI_UNBROKEN, 0);
                 for (int32 i = 0; i < RAID_MODE(2, 5); ++i)
                     DoSummon(VEHICLE_SIEGE, PosSiege[i], 3000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                 for (int32 i = 0; i < RAID_MODE(2, 5); ++i)
@@ -1455,8 +1449,8 @@ public:
             case GO_TOWER_OF_STORMS:
                 instance->SetData(DATA_TOWER_DESTROYED, TOWER_OF_STORM_DESTROYED);
                 break;
-            case GO_TOWER_OF_NATURE:
-                instance->SetData(DATA_TOWER_DESTROYED, TOWER_OF_NATURE_DESTROYED);
+            case GO_TOWER_OF_LIFE:
+                instance->SetData(DATA_TOWER_DESTROYED, TOWER_OF_LIFE_DESTROYED);
                 break;            
             case GO_TOWER_OF_FLAMES:
                 instance->SetData(DATA_TOWER_DESTROYED, TOWER_OF_FLAMES_DESTROYED);

@@ -36,7 +36,9 @@ enum Spells
     CS_EXPLODION                 = 64122,
     CS_EXPLODION_H               = 65108,
 
-    COSMIC_SMASH_MARKER          = 62293
+    COSMIC_SMASH_MARKER          = 62293,
+
+    KILL_CREDIT                  = 65184,
 };
 
 enum Says
@@ -288,6 +290,9 @@ public:
         void JustDied(Unit *victim)
         {
              space->SetGoState(GO_STATE_READY);
+
+             if (Instance)
+                Instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, KILL_CREDIT);
         }
 		
         void MoveInLineOfSight(Unit* who)

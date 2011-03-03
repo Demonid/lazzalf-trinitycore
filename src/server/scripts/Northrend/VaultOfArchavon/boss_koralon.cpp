@@ -193,7 +193,7 @@ class boss_koralon : public CreatureScript
                     case EVENT_FLAME_CINDER_A:
                         if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             DoCast(pTarget, RAID_MODE(SPELL_FLAME_CINDER_A,SPELL_FLAME_CINDER_A_H));
-                        events.ScheduleEvent(EVENT_FLAME_CINDER_A, 5000);
+                        events.ScheduleEvent(EVENT_FLAME_CINDER_A, 6000);
                         return;
                 }
             }
