@@ -429,30 +429,83 @@ class npc_announcer_toc5 : public CreatureScript
 
         void DoSummonGrandChampion(uint32 uiBoss)
         {
+            
+            uint32 TeamInInstance = 0;
+
+            if (pInstance)
+            {
+                Map::PlayerList const &players = pInstance->instance->GetPlayers();
+                if (!players.isEmpty())
+                {
+                    if (Player* pPlayer = players.begin()->getSource())
+                        TeamInInstance = pPlayer->GetTeam();
+                }
+            }
+
             ++uiSummonTimes;
             uint32 VEHICLE_TO_SUMMON1 = 0;
             uint32 VEHICLE_TO_SUMMON2 = 0;
             switch(uiBoss)
             {
                 case 0:
-                    VEHICLE_TO_SUMMON1 = VEHICLE_MOKRA_SKILLCRUSHER_MOUNT;
-                    VEHICLE_TO_SUMMON2 = VEHICLE_ORGRIMMAR_WOLF;
+                    if (TeamInInstance == HORDE)
+                    {
+                        VEHICLE_TO_SUMMON1 = VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT;
+                        VEHICLE_TO_SUMMON2 = VEHICLE_STORMWIND_STEED;
+                    }
+                    else
+                    {
+                        VEHICLE_TO_SUMMON1 = VEHICLE_MOKRA_SKILLCRUSHER_MOUNT;
+                        VEHICLE_TO_SUMMON2 = VEHICLE_ORGRIMMAR_WOLF;
+                    }
 				    break;
                 case 1:
-                    VEHICLE_TO_SUMMON1 = VEHICLE_ERESSEA_DAWNSINGER_MOUNT;
-                    VEHICLE_TO_SUMMON2 = VEHICLE_SILVERMOON_HAWKSTRIDER;
+                    if (TeamInInstance == HORDE)
+                    {
+                        VEHICLE_TO_SUMMON1 = VEHICLE_AMBROSE_BOLTSPARK_MOUNT;
+                        VEHICLE_TO_SUMMON2 = VEHICLE_GNOMEREGAN_MECHANOSTRIDER;
+                    }
+                    else
+                    {
+                        VEHICLE_TO_SUMMON1 = VEHICLE_ERESSEA_DAWNSINGER_MOUNT;
+                        VEHICLE_TO_SUMMON2 = VEHICLE_SILVERMOON_HAWKSTRIDER;
+                    }
 				    break;
                 case 2:
-                    VEHICLE_TO_SUMMON1 = VEHICLE_RUNOK_WILDMANE_MOUNT;
-                    VEHICLE_TO_SUMMON2 = VEHICLE_THUNDER_BLUFF_KODO;
+                    if (TeamInInstance == HORDE)
+                    {
+                        VEHICLE_TO_SUMMON1 = VEHICLE_COLOSOS_MOUNT;
+                        VEHICLE_TO_SUMMON2 = VEHICLE_EXODAR_ELEKK;
+                    }
+                    else
+                    {
+                        VEHICLE_TO_SUMMON1 = VEHICLE_RUNOK_WILDMANE_MOUNT;
+                        VEHICLE_TO_SUMMON2 = VEHICLE_THUNDER_BLUFF_KODO;
+                    }                    
 				    break;
                 case 3:
-                    VEHICLE_TO_SUMMON1 = VEHICLE_ZUL_TORE_MOUNT;
-                    VEHICLE_TO_SUMMON2 = VEHICLE_DARKSPEAR_RAPTOR;
+                    if (TeamInInstance == HORDE)
+                    {
+                        VEHICLE_TO_SUMMON1 = VEHICLE_EVENSONG_MOUNT;
+                        VEHICLE_TO_SUMMON2 = VEHICLE_DARNASSIA_NIGHTSABER;
+                    }
+                    else
+                    {
+                        VEHICLE_TO_SUMMON1 = VEHICLE_ZUL_TORE_MOUNT;
+                        VEHICLE_TO_SUMMON2 = VEHICLE_DARKSPEAR_RAPTOR;
+                    }
 			        break;
                 case 4:
-                    VEHICLE_TO_SUMMON1 = VEHICLE_DEATHSTALKER_VESCERI_MOUNT;
-                    VEHICLE_TO_SUMMON2 = VEHICLE_FORSAKE_WARHORSE;
+                    if (TeamInInstance == HORDE)
+                    {
+                        VEHICLE_TO_SUMMON1 = VEHICLE_LANA_STOUTHAMMER_MOUNT;
+                        VEHICLE_TO_SUMMON2 = VEHICLE_IRONFORGE_RAM;
+                    }
+                    else
+                    {
+                        VEHICLE_TO_SUMMON1 = VEHICLE_DEATHSTALKER_VESCERI_MOUNT;
+                        VEHICLE_TO_SUMMON2 = VEHICLE_FORSAKE_WARHORSE;
+                    }                    
                     break;
                 default:
                     return;
