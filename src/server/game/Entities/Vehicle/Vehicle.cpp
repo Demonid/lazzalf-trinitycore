@@ -394,7 +394,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
             ASSERT(false);
 
         // hack: should be done by aura system
-        // hack: should be done by aura system
+        /*
         if (VehicleScalingInfo const *scalingInfo = sObjectMgr->GetVehicleScalingInfo(m_vehicleInfo->m_ID))
         {
             Player *plr = unit->ToPlayer();
@@ -407,7 +407,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
             m_bonusHP = uint32(me->GetMaxHealth() * (averageItemLevel * scalingInfo->scalingFactor));
             me->SetMaxHealth(me->GetMaxHealth() + m_bonusHP);
             me->SetHealth(uint32((me->GetHealth() + m_bonusHP) * currentHealthPct));
-        }
+        }*/
     }
 
     if (me->IsInWorld())
