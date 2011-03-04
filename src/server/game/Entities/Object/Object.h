@@ -187,6 +187,15 @@ class Object
             return *((uint64*)&(m_uint32Values[ index ]));
         }
 
+        // HackFix
+        uint64 GetUInt64Value2(uint16 index) const
+        {
+            //ASSERT(index + 1 < m_valuesCount || PrintIndexError(index , false));
+            if (!m_uint32Values || (index + 1 >= m_valuesCount))
+                return uint64(0);
+            return *((uint64*)&(m_uint32Values[ index ]));
+        }
+
         const float& GetFloatValue(uint16 index) const
         {
             ASSERT(index < m_valuesCount || PrintIndexError(index , false));
