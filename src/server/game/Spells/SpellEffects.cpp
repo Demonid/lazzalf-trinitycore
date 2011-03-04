@@ -1229,25 +1229,45 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     return;                                 // implemented in EffectScript[0]
                 case 62324: // Throw Passenger
                 {
-                    if (Vehicle *demolisher = m_caster->GetVehicleKit())
-                        if (Unit *passenger = demolisher->GetPassenger(3))
-                            if (Creature *leviathan = m_caster->FindNearestCreature(33113, 200))
-                                if (!leviathan->HasAura(62475))
-                                    if (Vehicle *vehicle = leviathan->GetVehicleKit())
-                                        for (uint8 i = 0; i < 4; ++i)
-                                        {
-                                            if (vehicle->GetPassenger(i))
-                                                if (Vehicle *seat = vehicle->GetPassenger(i)->GetVehicleKit())
-                                                    if (!seat->GetPassenger(0) && seat->GetPassenger(2))
-                                                        if (!seat->GetPassenger(2)->HasUnitState(UNIT_STAT_CASTING))
-                                                        {
-                                                            passenger->EnterVehicle(vehicle->GetPassenger(i), 0);
-                                                            m_caster->RemoveAurasDueToSpell(62427);
-                                                            return;
-                                                        }
-                                        }
+                    if (m_targets.HasTraj())
+                    {
+                        if (Vehicle *vehicle = m_caster->GetVehicleKit())
+                            if (Unit *passenger = vehicle->GetPassenger(damage - 1))
+                            {
+                                std::list<Unit*> unitList;
+                                // use 99 because it is 3d search
+                                SearchAreaTarget(unitList, 99, PUSH_DST_CENTER, SPELL_TARGETS_ENTRY, 33114);
+                                float minDist = 99 * 99;
+                                Unit *target = NULL;
+                                for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                                {
+                                    if (Vehicle *seat = (*itr)->GetVehicleKit())
+                                        if (!seat->GetPassenger(0))
+                                            if (Unit *device = seat->GetPassenger(2))
+                                                if (!device->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+                                                {
+                                                    float dist = (*itr)->GetExactDistSq(&m_targets.m_dstPos);
+                                                    if (dist < minDist)
+                                                    {
+                                                        minDist = dist;
+                                                        target = (*itr);
+                                                    }
+                                                }
+                                }
+                                if (target && target->IsWithinDist2d(&m_targets.m_dstPos, GetSpellRadius(m_spellInfo, effIndex, false) * 2)) // now we use *2 because the location of the seat is not correct
+                                    passenger->EnterVehicle(target, 0);
+                                else
+                                {
+                                    passenger->ExitVehicle();
+                                    float x, y, z;
+                                    m_targets.m_dstPos.GetPosition(x, y, z);
+                                    passenger->GetMotionMaster()->MoveJump(x, y, z, m_targets.GetSpeedXY(), m_targets.GetSpeedZ());
+                                }
+                            }
+                    }
                     return;
                 }
+
                 case 64385:                                 // Unusual Compass
                 {
                     m_caster->SetOrientation(float(urand(0,62832)) / 10000.0f);
@@ -3255,7 +3275,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
             }
 
             // Hard coded enter vehicle spell
-            m_originalCaster->CastSpell(summon, 46598, true);
+            m_originalCaster->CastSpell(summon, VEHICLE_SPELL_RIDE_HARDCODED, true);
 
             summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
             uint32 faction = properties->Faction;
@@ -5278,7 +5298,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         return;
 
                     // learn random explicit discovery recipe (if any)
-                    if (uint32 discoveredSpell = GetExplicitDiscoverySpell(m_spellInfo->Id, (Player*)m_caster))
+                    if (uint32 discoveredSpell = GetExplicitDiscoverySpell(m_spellInfo->Id, m_caster->ToPlayer()))
                         m_caster->ToPlayer()->learnSpell(discoveredSpell, false);
                     return;
                 }
@@ -5304,7 +5324,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                                 oldContainer->DisappearAndDie();
                             // TODO: a hack, range = 11, should after some time cast, otherwise too far
                             m_caster->CastSpell(seat->GetBase(), 62496, true);
-                            unitTarget->EnterVehicle(seat, 1);
+                            unitTarget->EnterVehicle(m_caster, 1);
                         }
                     }
                     return;
