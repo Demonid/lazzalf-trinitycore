@@ -465,8 +465,7 @@ bool PetAI::_CanAttack(Unit *target)
 
     // Follow
     if (me->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
-        return me->canSeeOrDetect(target);
-        //return true;
+        return true;
 
     // default, though we shouldn't ever get here
     return false;
