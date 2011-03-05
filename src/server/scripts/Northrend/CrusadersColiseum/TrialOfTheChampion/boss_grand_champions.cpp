@@ -145,9 +145,12 @@ bool GrandChampionsOutVehicle(Creature* me)
     if (pGrandChampion1 && pGrandChampion2 && pGrandChampion3)
     {
         if (!pGrandChampion1->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) &&
-            !pGrandChampion2->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) &&
-            !pGrandChampion3->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+            !pGrandChampion2->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT)  &&
+            !pGrandChampion3->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) )
+        {
+            pInstance->SetData(DATA_REMOVE_MOUNT, 0);            
             return true;
+        }
     }
 
     return false;
