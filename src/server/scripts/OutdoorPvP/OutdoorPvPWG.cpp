@@ -14,9 +14,6 @@ uint32 guide_entry;
 uint32 guide_entry_fortress_horde;
 uint32 guide_entry_fortress_alliance;
 
-/* Vehicle teleport system*/
-Map* pMap;
-
 OutdoorPvPWG::OutdoorPvPWG()
 {
     m_TypeId = OUTDOOR_PVP_WG;
@@ -1276,8 +1273,6 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
             }
             return false;
         case CREATURE_SPIRIT_GUIDE:
-            /*Vehicle teleport system*/
-            pMap = creature->GetMap();
             if (isWarTime())
             {
                 if (creature->GetAreaId() == 4575) // Select Fortress Spirit
@@ -1810,231 +1805,6 @@ bool OutdoorPvPWG::Update(uint32 diff)
             OutdoorPvP::Update(diff); // update capture points
 
             /*********************************************************/
-            /***      BATTLEGROUND VEHICLE TELEPORTER SYSTEM       ***/
-            /*********************************************************/
- 
-            /*Vehicle teleport system*/
-            if (pMap)
-            {
-                Map::PlayerList const &PlayerList = pMap->GetPlayers();
-                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                {
-                    if (getDefenderTeamId() == TEAM_ALLIANCE)
-                    {
-                        if (i->getSource()->ToPlayer()->GetTeam() == ALLIANCE)
-                        {
-                            if (i->getSource()->GetDistance2d(5314.51f, 2703.69f) <= 5 && i->getSource()->IsOnVehicle(i->getSource()->GetVehicleCreatureBase()) && i->getSource()->isAlive())
-                            {
-                                Creature* Old = i->getSource()->GetVehicleCreatureBase();
-                                if (Old->GetEntry() == 28319) // Alliance Turret
-                                {
-                                    i->getSource()->ExitVehicle();
-                                    i->getSource()->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-                                    Old->SetVisible(true);
-                                    Old->ToTempSummon()->UnSummon();
-                                }
-                                else
-                                {
-                                    Unit* Driver = Old->GetVehicleKit()->GetPassenger(0);
-								    Unit* Passenger1 = Old->GetVehicleKit()->GetPassenger(1);
-								    Unit* Passenger2 = Old->GetVehicleKit()->GetPassenger(2);
-								    Unit* Passenger3 = Old->GetVehicleKit()->GetPassenger(3);
-								    if (Driver && Driver->isAlive())
-								    {
-                                        Creature* New = i->getSource()->SummonCreature(Old->GetEntry(), 5141.191406f, 2841.045410f, 408.703217f, 3.163321f, TEMPSUMMON_MANUAL_DESPAWN);
-                                        m_vehicles[TEAM_ALLIANCE].insert(New);
-                                        New->SetPower(POWER_MANA, Old->GetPower(POWER_MANA));
-                                        New->SetPower(POWER_RAGE, Old->GetPower(POWER_RAGE));
-                                        New->SetPower(POWER_FOCUS, Old->GetPower(POWER_FOCUS));
-                                        New->SetPower(POWER_ENERGY, Old->GetPower(POWER_ENERGY));
-                                        New->SetHealth(Old->GetHealth());
-                                        New->SetRespawnTime(Old->GetRespawnTime());
-                                        Old->GetVehicleKit()->Uninstall();
-                                        Old->SetVisible(true);
-                                        Old->DespawnOrUnsummon();
-                                        //Vehicle *vehicle = New->GetVehicleKit();
-                                        Driver->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								        Driver->EnterVehicle(New, 0);
-								        if (Passenger1 && Passenger1->isAlive())
-								        {
-								            Passenger1->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								            //Passenger1->EnterVehicle(vehicle, 1); Seatid doesn't work :S
-								        }
-								        if (Passenger2 && Passenger2->isAlive())
-								        {
-								            Passenger2->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								            //Passenger2->EnterVehicle(vehicle, 2); Seatid doesn't work :S
-								        }
-								        if (Passenger3 && Passenger3->isAlive())
-								        {
-								            Passenger3->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								            //Passenger3->EnterVehicle(vehicle, 3); Seatid doesn't work :S
-								        }
-								    }
-                                }
-                            }
-                            if (i->getSource()->GetDistance2d(5316.25f, 2977.04f) <= 5 && i->getSource()->IsOnVehicle(i->getSource()->GetVehicleCreatureBase()))
-                            {
-                                Creature* Old = i->getSource()->GetVehicleCreatureBase();
-                                if (Old->GetEntry() == 28319) // Alliance Turret
-                                {
-                                    i->getSource()->ExitVehicle();
-                                    i->getSource()->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-                                    Old->SetVisible(true);
-                                    Old->ToTempSummon()->UnSummon();
-                                }
-                                else
-                                {
-                                    Unit* Driver = Old->GetVehicleKit()->GetPassenger(0);
-								    Unit* Passenger1 = Old->GetVehicleKit()->GetPassenger(1);
-								    Unit* Passenger2 = Old->GetVehicleKit()->GetPassenger(2);
-								    Unit* Passenger3 = Old->GetVehicleKit()->GetPassenger(3);
-								    if (Driver && Driver->isAlive())
-								    {
-                                        Creature* New = i->getSource()->SummonCreature(Old->GetEntry(), 5141.191406f, 2841.045410f, 408.703217f, 3.163321f, TEMPSUMMON_MANUAL_DESPAWN);
-                                        m_vehicles[TEAM_ALLIANCE].insert(New);
-                                        New->SetPower(POWER_MANA, Old->GetPower(POWER_MANA));
-                                        New->SetPower(POWER_RAGE, Old->GetPower(POWER_RAGE));
-                                        New->SetPower(POWER_FOCUS, Old->GetPower(POWER_FOCUS));
-                                        New->SetPower(POWER_ENERGY, Old->GetPower(POWER_ENERGY));
-                                        New->SetHealth(Old->GetHealth());
-                                        New->SetRespawnTime(Old->GetRespawnTime());
-                                        Old->GetVehicleKit()->Uninstall();
-                                        Old->SetVisible(true);
-                                        Old->DespawnOrUnsummon();
-                                        //Vehicle *vehicle = New->GetVehicleKit();
-                                        Driver->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								        Driver->EnterVehicle(New, 0);
-								        if (Passenger1 && Passenger1->isAlive())
-								        {
-								            Passenger1->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								            //Passenger1->EnterVehicle(vehicle, 1); Seatid doesn't work :S
-								        }
-								        if (Passenger2 && Passenger2->isAlive())
-								        {
-								            Passenger2->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								            //Passenger2->EnterVehicle(vehicle, 2); Seatid doesn't work :S
-								        }
-								        if (Passenger3 && Passenger3->isAlive())
-								        {
-								            Passenger3->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								            //Passenger3->EnterVehicle(vehicle, 3); Seatid doesn't work :S
-								        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (i->getSource()->ToPlayer()->GetTeam() == HORDE)
-                        {
-                            if (i->getSource()->GetDistance2d(5314.51f, 2703.69f) <= 5 && i->getSource()->IsOnVehicle(i->getSource()->GetVehicleCreatureBase()) && i->getSource()->isAlive())
-                            {
-                                Creature* Old = i->getSource()->GetVehicleCreatureBase();
-                                if (Old->GetEntry() == 32629) // Horde Turret
-                                {
-                                    i->getSource()->ExitVehicle();
-                                    i->getSource()->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-                                    Old->SetVisible(true);
-                                    Old->ToTempSummon()->UnSummon();
-                                }
-                                else
-                                {
-                                    Unit* Driver = Old->GetVehicleKit()->GetPassenger(0);
-								    Unit* Passenger1 = Old->GetVehicleKit()->GetPassenger(1);
-								    Unit* Passenger2 = Old->GetVehicleKit()->GetPassenger(2);
-								    Unit* Passenger3 = Old->GetVehicleKit()->GetPassenger(3);
-								    if (Driver && Driver->isAlive())
-								    {
-                                        Creature* New = i->getSource()->SummonCreature(Old->GetEntry(), 5141.191406f, 2841.045410f, 408.703217f, 3.163321f, TEMPSUMMON_MANUAL_DESPAWN);
-                                        m_vehicles[TEAM_HORDE].insert(New);
-                                        New->SetPower(POWER_MANA, Old->GetPower(POWER_MANA));
-                                        New->SetPower(POWER_RAGE, Old->GetPower(POWER_RAGE));
-                                        New->SetPower(POWER_FOCUS, Old->GetPower(POWER_FOCUS));
-                                        New->SetPower(POWER_ENERGY, Old->GetPower(POWER_ENERGY));
-                                        New->SetHealth(Old->GetHealth());
-                                        New->SetRespawnTime(Old->GetRespawnTime());
-                                        Old->GetVehicleKit()->Uninstall();
-                                        Old->SetVisible(true);
-                                        Old->DespawnOrUnsummon();
-                                        //Vehicle *vehicle = New->GetVehicleKit();
-                                        Driver->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-							            Driver->EnterVehicle(New, 0);
-								        if (Passenger1 && Passenger1->isAlive())
-								        {
-								        Passenger1->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								        //Passenger1->EnterVehicle(vehicle, 1); Seatid doesn't work :S
-								        }
-								        if (Passenger2 && Passenger2->isAlive())
-								        {
-								        Passenger2->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								        //Passenger2->EnterVehicle(vehicle, 2); Seatid doesn't work :S
-								        }
-								        if (Passenger3 && Passenger3->isAlive())
-								        {
-								        Passenger3->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								        //Passenger3->EnterVehicle(vehicle, 3); Seatid doesn't work :S
-								        }
-								    }
-                                }
-                            }
-                            if (i->getSource()->GetDistance2d(5316.25f, 2977.04f) <= 5 && i->getSource()->IsOnVehicle(i->getSource()->GetVehicleCreatureBase()))
-                            {
-                                Creature* Old = i->getSource()->GetVehicleCreatureBase();
-                                if (Old->GetEntry() == 32629) // Horde Turret
-                                {
-                                    i->getSource()->ExitVehicle();
-                                    i->getSource()->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-                                    Old->SetVisible(true);
-                                    Old->ToTempSummon()->UnSummon();
-                                }
-                                else
-                                {
-                                    Unit* Driver = Old->GetVehicleKit()->GetPassenger(0);
-								    Unit* Passenger1 = Old->GetVehicleKit()->GetPassenger(1);
-								    Unit* Passenger2 = Old->GetVehicleKit()->GetPassenger(2);
-								    Unit* Passenger3 = Old->GetVehicleKit()->GetPassenger(3);
-								    if (Driver && Driver->isAlive())
-								    {
-                                        Creature* New = i->getSource()->SummonCreature(Old->GetEntry(), 5141.191406f, 2841.045410f, 408.703217f, 3.163321f, TEMPSUMMON_MANUAL_DESPAWN);
-                                        m_vehicles[TEAM_HORDE].insert(New);
-                                        New->SetPower(POWER_MANA, Old->GetPower(POWER_MANA));
-                                        New->SetPower(POWER_RAGE, Old->GetPower(POWER_RAGE));
-                                        New->SetPower(POWER_FOCUS, Old->GetPower(POWER_FOCUS));
-                                        New->SetPower(POWER_ENERGY, Old->GetPower(POWER_ENERGY));
-                                        New->SetHealth(Old->GetHealth());
-                                        New->SetRespawnTime(Old->GetRespawnTime());
-                                        Old->GetVehicleKit()->Uninstall();
-                                        Old->SetVisible(true);
-                                        Old->DespawnOrUnsummon();
-                                        //Vehicle *vehicle = New->GetVehicleKit();
-                                        Driver->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								        Driver->EnterVehicle(New, 0);
-								        if (Passenger1 && Passenger1->isAlive())
-								        {
-								        Passenger1->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								        //Passenger1->EnterVehicle(vehicle, 1); Seatid doesn't work :S
-								        }
-								        if (Passenger2 && Passenger2->isAlive())
-								        {
-								        Passenger2->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								        //Passenger2->EnterVehicle(vehicle, 2); Seatid doesn't work :S
-								        }
-								        if (Passenger3 && Passenger3->isAlive())
-								        {
-								        Passenger3->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								        //Passenger3->EnterVehicle(vehicle, 3); Seatid doesn't work :S
-								        }
-								    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            /*********************************************************/
             /***        BATTLEGROUND RESSURECTION SYSTEM           ***/
             /*********************************************************/
 
@@ -2292,6 +2062,7 @@ void OutdoorPvPWG::EndBattle()
         {
             Creature *veh = *m_vehicles[team].begin();
             m_vehicles[team].erase(m_vehicles[team].begin());
+            veh->DestroyForNearbyPlayers();
             veh->DespawnOrUnsummon();
         }
         while(!m_turrets[team].empty())
