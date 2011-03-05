@@ -1452,7 +1452,7 @@ public:
             DoCast(SPELL_MAGNETIC_CORE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             me->ForcedDespawn(21000);
-            if (Creature *pAerialUnit = me->FindNearestCreature(NPC_AERIAL_UNIT, 40, true))
+            if (Creature *pAerialUnit = me->FindNearestCreature(NPC_AERIAL_UNIT, 50, true))
                 if (!pAerialUnit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE) && pAerialUnit->IsFlying())
                     pAerialUnit->AI()->DoAction(DO_DISABLE_AERIAL);
         }
