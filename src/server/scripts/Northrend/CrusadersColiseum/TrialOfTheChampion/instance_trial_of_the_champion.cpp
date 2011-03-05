@@ -259,6 +259,15 @@ class instance_trial_of_the_champion : public InstanceMapScript
         {
             switch(uiType)
             {
+                case DATA_REMOVE_MOUNT:
+                    if (!VehicleListChampion.empty())
+                    {
+                        for(std::list<uint64>::const_iterator itr = VehicleListChampion.begin(); itr != VehicleListChampion.end(); ++itr)
+                            if (Creature* pSummon = instance->GetCreature(*itr))
+                                pSummon->RemoveFromWorld();
+                        VehicleListChampion.clear();
+                    }
+                    break;
                 case DATA_MOVEMENT_DONE:
                     uiMovementDone = uiData;
                     if (uiMovementDone == 3)
