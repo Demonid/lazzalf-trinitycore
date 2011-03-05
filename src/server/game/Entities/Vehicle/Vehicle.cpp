@@ -191,6 +191,27 @@ void Vehicle::RemoveAllPassengers()
     /*SeatMap::const_iterator itr;
     for (itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
         ASSERT(!itr->second.passenger);*/
+    for (SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+        if (Unit *passenger = ObjectAccessor::GetUnit(*GetBase(), itr->second.passenger))
+        {
+            if (passenger->IsVehicle())
+                passenger->GetVehicleKit()->RemoveAllPassengers();
+
+            if (passenger->GetVehicle() != this)
+                sLog->outCrash("Vehicle %u has invalid passenger %u. Seat: %i", me->GetEntry(), passenger->GetEntry(), itr->first);
+
+            passenger->ExitVehicle();
+
+            if (itr->second.passenger)
+            {
+                sLog->outCrash("Vehicle %u cannot remove passenger %u. "UI64FMTD" is still on vehicle.", me->GetEntry(), passenger->GetEntry(), itr->second.passenger);
+                itr->second.passenger = 0;
+            }
+            // creature passengers mounted on player mounts should be despawned at dismount
+
+            if (GetBase()->GetTypeId() == TYPEID_PLAYER && passenger->ToCreature())
+                passenger->ToCreature()->DespawnOrUnsummon();
+        }
 }
 
 bool Vehicle::HasEmptySeat(int8 seatId) const
