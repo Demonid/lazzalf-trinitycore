@@ -701,7 +701,7 @@ public:
         {
             Unit* pTarget = pWho;
             if (!pTarget->ToPlayer())
-                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
             m_uiTargetGUID = pTarget->GetGUID();
             DoCast(pWho, SPELL_MARK);
             me->SetSpeed(MOVE_RUN, 0.5f);
