@@ -55,6 +55,17 @@ EndScriptData */
 #define NPC_RUBBLE_STALKER      33809
 #define NPC_ARM_SWEEP_STALKER   33661
 
+// Achievements
+#define ACHIEVEMENT_LOOKS_COULD_KILL            RAID_MODE(2955, 2956) // TODO
+#define ACHIEVEMENT_RUBBLE_AND_ROLL             RAID_MODE(2959, 2960)
+#define ACHIEVEMENT_WITH_OPEN_ARMS              RAID_MODE(2951, 2952)
+
+enum KologarnChests
+{
+    CACHE_OF_LIVING_STONE_10                    = 195046,
+    CACHE_OF_LIVING_STONE_25                    = 195047
+};
+
 enum Events
 {
     EVENT_NONE = 0,
@@ -100,7 +111,7 @@ class boss_kologarn : public CreatureScript
 
         struct boss_kologarnAI : public BossAI
         {
-            boss_kologarnAI(Creature *pCreature) : BossAI(pCreature, TYPE_KOLOGARN), vehicle(pCreature->GetVehicleKit()),
+            boss_kologarnAI(Creature *pCreature) : BossAI(pCreature, BOSS_KOLOGARN), vehicle(pCreature->GetVehicleKit()),
                 left(false), right(false)
             {
                 ASSERT(vehicle);
@@ -116,10 +127,13 @@ class boss_kologarn : public CreatureScript
             Vehicle *vehicle;
             bool left, right;
             uint64 eyebeamTarget;
+            uint32 RubbleCount;
 
             void EnterCombat(Unit * who)
             {
                 DoScriptText(SAY_AGGRO, me);
+
+                RubbleCount = 0;
 
                 events.ScheduleEvent(EVENT_MELEE_CHECK, 6000);
                 events.ScheduleEvent(EVENT_SMASH, 5000);
@@ -149,6 +163,19 @@ class boss_kologarn : public CreatureScript
                 me->GetMotionMaster()->MoveTargetedHome();
 
                 _JustDied();
+
+                if (instance)
+                {
+                    // Rubble and Roll
+                    if (RubbleCount > 4)
+                        instance->DoCompleteAchievement(ACHIEVEMENT_RUBBLE_AND_ROLL);
+                    // With Open Arms
+                    if (RubbleCount == 0)
+                        instance->DoCompleteAchievement(ACHIEVEMENT_WITH_OPEN_ARMS);
+                }
+
+                // Chest spawn
+                me->SummonGameObject(RAID_MODE(CACHE_OF_LIVING_STONE_10, CACHE_OF_LIVING_STONE_25),1836.52f,-36.11f,448.81f,0.56f,0,0,1,1,604800);
             }
 
             void KilledUnit(Unit* /*who*/)
@@ -158,7 +185,7 @@ class boss_kologarn : public CreatureScript
 
             void PassengerBoarded(Unit *who, int8 seatId, bool apply)
             {
-                bool isEncounterInProgress = instance->GetBossState(TYPE_KOLOGARN) == IN_PROGRESS;
+                bool isEncounterInProgress = instance->GetBossState(BOSS_KOLOGARN) == IN_PROGRESS;
                 if (who->GetEntry() == NPC_LEFT_ARM)
                 {
                     left = apply;
@@ -289,6 +316,7 @@ class boss_kologarn : public CreatureScript
                     {
                         if (Creature* arm = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_LEFT_ARM) : 0))
                             RespawnArm(arm->ToCreature());
+                        ++RubbleCount;
                         events.CancelEvent(EVENT_RESPAWN_LEFT_ARM);
                         break;
                     }
@@ -296,6 +324,7 @@ class boss_kologarn : public CreatureScript
                     {
                         if (Creature* arm = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_RIGHT_ARM) : 0))
                             RespawnArm(arm->ToCreature());
+                        ++RubbleCount;
                         events.CancelEvent(EVENT_RESPAWN_RIGHT_ARM);
                         break;
                     }
@@ -303,7 +332,7 @@ class boss_kologarn : public CreatureScript
                     {
                         if (right)
                         {
-                            DoCast(SPELL_STONE_GRIP);
+                            //DoCast(SPELL_STONE_GRIP);
                             DoScriptText(SAY_GRAB_PLAYER, me);
                         }
                         events.RepeatEvent(25000);
@@ -326,7 +355,7 @@ class boss_kologarn : public CreatureScript
             void RespawnArm(Creature* arm)
             {
                 if (!arm->isAlive())
-                    arm->Respawn();
+                    arm->Respawn();                
 
                 // HACK: We should send spell SPELL_ARM_ENTER_VEHICLE here, but this will not work, because
                 // the aura system will not allow it to stack from two different casters
@@ -352,7 +381,7 @@ class spell_ulduar_rubble_summon : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                uint64 originalCaster = caster->GetInstanceScript() ? caster->GetInstanceScript()->GetData64(TYPE_KOLOGARN) : 0;
+                uint64 originalCaster = caster->GetInstanceScript() ? caster->GetInstanceScript()->GetData64(DATA_KOLOGARN) : 0;
                 uint32 spellId = GetEffectValue();
                 for (uint8 i = 0; i < 5; ++i)
                     caster->CastSpell(caster, spellId, true, NULL, NULL, originalCaster);
