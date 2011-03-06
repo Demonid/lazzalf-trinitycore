@@ -241,7 +241,7 @@ class boss_ignis : public CreatureScript
                     case EVENT_GRAB_POT:
                         if (Unit* SlagPotTarget = Unit::GetUnit(*me, SlagPotGUID))
                         {
-                            SlagPotTarget->EnterVehicle(me, 0);
+                            SlagPotTarget->_EnterVehicle(vehicle, 0);
                             events.ScheduleEvent(EVENT_CHANGE_POT, 1000);
                         }
                         break;
