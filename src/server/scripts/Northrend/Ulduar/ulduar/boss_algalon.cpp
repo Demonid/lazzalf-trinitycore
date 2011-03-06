@@ -210,8 +210,8 @@ public:
             if (Instance->GetBossState(BOSS_ALGALON) == DONE)
                 return;
 
-            if (me->HasFlag64(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNK_16|UNIT_FLAG_UNK_9))
-                me->RemoveFlag64(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNK_16|UNIT_FLAG_UNK_9);
+            if (me->HasFlag64(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNK_16|UNIT_FLAG_PASSIVE))
+                me->RemoveFlag64(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNK_16|UNIT_FLAG_PASSIVE);
 
             me->SetReactState(REACT_AGGRESSIVE);
             SetCombatMovement(false);
@@ -307,8 +307,8 @@ public:
 
         void EnterCombat(Unit* pWho)
         {
-            if (me->HasFlag64(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNK_16|UNIT_FLAG_UNK_9))
-                me->RemoveFlag64(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNK_16|UNIT_FLAG_UNK_9);
+            if (me->HasFlag64(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNK_16|UNIT_FLAG_PASSIVE))
+                me->RemoveFlag64(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNK_16|UNIT_FLAG_PASSIVE);
 
             DoScriptText(SAY_AGGRO, me);
             DoStartCombat();
@@ -758,7 +758,7 @@ public:
         {
             DoZoneInCombat();
             me->SetReactState(REACT_AGGRESSIVE);
-            me->RemoveFlag64(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNK_16|UNIT_FLAG_UNK_9);
+            me->RemoveFlag64(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNK_16|UNIT_FLAG_PASSIVE);
             AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
             SetCombatMovement(true);
             Fight = true;
@@ -774,7 +774,7 @@ public:
                 me->AttackStop();
             }
 
-            me->SetFlag64(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNK_16|UNIT_FLAG_UNK_9);
+            me->SetFlag64(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNK_16|UNIT_FLAG_PASSIVE);
             SetCombatMovement(false);
             me->GetMotionMaster()->MoveIdle();
             if (end)
@@ -1207,7 +1207,7 @@ public:
         void Reset()
         {
             Timers.clear();
-            me->SetFlag64(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNK_16|UNIT_FLAG_UNK_9|UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag64(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNK_16|UNIT_FLAG_PASSIVE|UNIT_FLAG_NOT_SELECTABLE);
             Summon_Timer = 5000;
             DarkMattery_Count = 0;
         }
