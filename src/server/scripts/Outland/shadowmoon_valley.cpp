@@ -1805,8 +1805,9 @@ public:
 
                      Unit* Owner = totemOspirits->GetOwner();
                      if (Owner && Owner->GetTypeId() == TYPEID_PLAYER)
+                         Owner->ToPlayer()->KilledMonsterCredit(credit, 0);
                          // DoCast(Owner, credit); -- not working!
-                         CAST_PLR(Owner)->KilledMonsterCredit(credit, Summoned->GetGUID());
+                         //CAST_PLR(Owner)->KilledMonsterCredit(credit, Summoned->GetGUID());
                      DoCast(totemOspirits, SPELL_SOUL_CAPTURED);
                  }
             }

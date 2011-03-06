@@ -95,6 +95,7 @@ public:
 
         uint32 uiBubbleCheckerTimer;
         uint32 uiWaterBoltVolleyTimer;
+        uint32 uiSpawn;
 
         InstanceScript* pInstance;
 
@@ -107,6 +108,7 @@ public:
             bAchievement = true;
             uiBubbleCheckerTimer = 1000;
             uiWaterBoltVolleyTimer = urand(10000, 15000);
+            uiSpawn = 0;
 
             me->SetVisible(true);
             DespawnWaterElements();
@@ -171,9 +173,13 @@ public:
                     bAchievement = false;
                     break;
                 case ACTION_WATER_ELEMENT_KILLED:
-                    uint32 damage = me->CountPctFromMaxHealth(3);
-                    me->ModifyHealth(-int32(damage));
-                    me->LowerPlayerDamageReq(damage);
+                    uiSpawn--;
+                    if (bIsExploded)
+                        if (uiSpawn<= 0)
+                        {
+                            DespawnWaterElements();
+                            DoExplodeCompleted();
+                        }
                     break;
             }
         }
@@ -195,8 +201,10 @@ public:
                 DoCast(me, SPELL_PROTECTIVE_BUBBLE, true);
             }
 
-            me->SetVisible(true);
-            me->GetMotionMaster()->MoveChase(me->getVictim());
+            //me->SetVisible(true);
+            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->GetMotionMaster()->MoveChase(me->getVictim());
         }
 
         void MoveInLineOfSight(Unit* /*pWho*/) {}
@@ -222,16 +230,22 @@ public:
                     {
                         if (!me->HasAura(SPELL_PROTECTIVE_BUBBLE, 0))
                         {
-                            DoScriptText(SAY_SHATTER, me);
-                            DoCast(me, SPELL_WATER_BLAST);
+                            DoScriptText(SAY_SHATTER, me);                            
+                            DoCast(me->getVictim(), SPELL_WATER_BLAST);
                             DoCast(me, SPELL_DRAINED);
+                            uint32 damage = me->CountPctFromMaxHealth(30);
+                            me->ModifyHealth(-int32(damage));
+                            me->LowerPlayerDamageReq(damage);
                             bIsExploded = true;
                             me->AttackStop();
-                            me->SetVisible(false);
+                            //me->SetVisible(false);
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            uiSpawn = 0;
                             for (uint8 i = 0; i < 10; i++)
                             {
                                 int tmp = urand(0, MAX_SPAWN_LOC-1);
                                 me->SummonCreature(NPC_ICHOR_GLOBULE, SpawnLoc[tmp], TEMPSUMMON_CORPSE_DESPAWN);
+                                uiSpawn++;
                             }
                         }
                     }
@@ -248,9 +262,12 @@ public:
                                         break;
                                     }
                         }
-
+                    
                         if (!bIsWaterElementsAlive)
+                        {
+                            DespawnWaterElements();
                             DoExplodeCompleted();
+                        }
                     }
                     uiBubbleCheckerTimer = 1000;
                 }
@@ -311,13 +328,12 @@ public:
             }
         }
 
-
         void SummonedCreatureDespawn(Creature *pSummoned)
         {
             if (pSummoned)
             {
                 m_waterElements.remove(pSummoned->GetGUID());
-                pInstance->SetData64(DATA_DEL_TRASH_MOB,pSummoned->GetGUID());
+                pInstance->SetData64(DATA_DEL_TRASH_MOB, pSummoned->GetGUID());
             }
         }
 
