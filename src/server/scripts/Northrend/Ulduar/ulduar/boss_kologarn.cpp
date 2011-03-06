@@ -44,9 +44,7 @@ enum Spells
     SPELL_EYEBEAM_VISUAL_1                      = 63676,
     SPELL_EYEBEAM_VISUAL_2                      = 63702,
     SPELL_EYEBEAM_IMMUNITY                      = 64722,
-    SPELL_ARM_RESPAWN                           = 64753,
-
-    SPELL_ARM_ENTER_VEHICLE                     = 65343,
+    SPELL_ARM_RESPAWN                           = 64753
 };
 
 enum Events
@@ -246,11 +244,9 @@ public:
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
         
             if (Unit* LeftArm = me->SummonCreature(NPC_LEFT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
-                LeftArm->CastCustomSpell(SPELL_ARM_ENTER_VEHICLE, SPELLVALUE_BASE_POINT0, 1, me, true);
-                //LeftArm->EnterVehicle(me, 0);
+                LeftArm->EnterVehicle(me, 0);
             if (Unit* RightArm = me->SummonCreature(NPC_RIGHT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
-                RightArm->CastCustomSpell(SPELL_ARM_ENTER_VEHICLE, SPELLVALUE_BASE_POINT0, 2, me, true);
-                //RightArm->EnterVehicle(me, 1);
+                RightArm->EnterVehicle(me, 1);
         }
 
         void UpdateAI(const uint32 diff)
@@ -336,8 +332,7 @@ public:
                 case EVENT_LEFT:
                     if (Unit* LeftArm = me->SummonCreature(NPC_LEFT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
                     {
-                        LeftArm->CastCustomSpell(SPELL_ARM_ENTER_VEHICLE, SPELLVALUE_BASE_POINT0, 1, me, true);
-                        //LeftArm->EnterVehicle(me, 0);
+                        LeftArm->EnterVehicle(me, 0);
                         DoCast(me, SPELL_ARM_RESPAWN, true);
                         me->MonsterTextEmote(EMOTE_LEFT, 0, true);
                         if (instance)
@@ -348,8 +343,7 @@ public:
                 case EVENT_RIGHT:
                     if (Unit* RightArm = me->SummonCreature(NPC_RIGHT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
                     {
-                        RightArm->CastCustomSpell(SPELL_ARM_ENTER_VEHICLE, SPELLVALUE_BASE_POINT0, 2, me, true);
-                        //RightArm->EnterVehicle(me, 1);
+                        RightArm->EnterVehicle(me, 1);
                         DoCast(me, SPELL_ARM_RESPAWN, true);
                         me->MonsterTextEmote(EMOTE_RIGHT, 0, true);
                         if (instance)
