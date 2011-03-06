@@ -850,6 +850,49 @@ class spell_item_create_heart_candy : public SpellScriptLoader
         }
 };
 
+// INSERT INTO spell_script_names VALUES (-69922,'spell_temper_queldelar')
+
+#define SPELL_RETURN_TEMPERED_QUELDELAR 69956
+
+class spell_temper_queldelar : public SpellScriptLoader
+{
+public:
+    spell_temper_queldelar() : SpellScriptLoader("spell_temper_queldelar") { }
+
+    class spell_temper_queldelar_SpellScript : public SpellScript
+    {
+    public:
+        PrepareSpellScript(spell_temper_queldelar_SpellScript)
+
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            if (!sSpellStore.LookupEntry(SPELL_RETURN_TEMPERED_QUELDELAR))
+                return false;
+            
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            Unit* pCaster = GetCaster();
+            if (pCaster->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            pCaster->CastSpell(pCaster, SPELL_RETURN_TEMPERED_QUELDELAR, true);
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_temper_queldelar_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_temper_queldelar_SpellScript();
+    }
+};
+
 class spell_item_book_of_glyph_mastery : public SpellScriptLoader
 {
     public:
@@ -945,8 +988,8 @@ void AddSC_item_spell_scripts()
     new spell_item_underbelly_elixir();
     new spell_item_shadowmourne();
     new spell_item_red_rider_air_rifle();
-
     new spell_item_create_heart_candy();
+    new spell_temper_queldelar();
     new spell_item_book_of_glyph_mastery();
     new spell_item_gift_of_the_harvester();
 }
