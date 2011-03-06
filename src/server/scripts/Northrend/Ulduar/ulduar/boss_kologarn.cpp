@@ -126,8 +126,9 @@ public:
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-            me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+            //me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
+            //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+            me->SetOrientation(3.1935f);
             SetCombatMovement(false);
             emerged = false;
         }
@@ -145,8 +146,8 @@ public:
             if (!emerged && me->IsWithinDistInMap(who, 40.0f) && who->GetTypeId() == TYPEID_PLAYER && !who->ToPlayer()->isGameMaster())
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->SetStandState(UNIT_STAND_STATE_STAND);
-                me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
+                //me->SetStandState(UNIT_STAND_STATE_STAND);
+                //me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
                 emerged = true;
             }
         }

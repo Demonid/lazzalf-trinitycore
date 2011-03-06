@@ -1028,7 +1028,7 @@ void OutdoorPvPWG::OnCreatureCreate(Creature *creature)
                     else
                     {
                         creature->SetRespawnTime(DAY);
-                        creature->DisappearAndDie();
+                        creature->DespawnOrUnsummon();
                         break;
                     }
                 }
@@ -1312,7 +1312,7 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
         case CREATURE_ENGINEER:
             return false;
         case CREATURE_SIEGE_VEHICLE:
-            creature->DisappearAndDie();
+            creature->DespawnOrUnsummon();
             return false;
         case CREATURE_QUESTGIVER:
             if (creature && creature->GetAI())
@@ -2194,13 +2194,13 @@ void OutdoorPvPWG::StartBattle()
         {
             Creature *veh = *m_vehicles[team].begin();
             m_vehicles[team].erase(m_vehicles[team].begin());
-            veh->DisappearAndDie();
+            veh->DespawnOrUnsummon();
         }
         while(!m_turrets[team].empty())
         {
             Creature *veh = *m_turrets[team].begin();
             m_turrets[team].erase(m_turrets[team].begin());
-            veh->DisappearAndDie();
+            veh->DespawnOrUnsummon();
         }
     }
 
@@ -2292,13 +2292,13 @@ void OutdoorPvPWG::EndBattle()
         {
             Creature *veh = *m_vehicles[team].begin();
             m_vehicles[team].erase(m_vehicles[team].begin());
-            veh->DisappearAndDie();
+            veh->DespawnOrUnsummon();
         }
         while(!m_turrets[team].empty())
         {
             Creature *veh = *m_turrets[team].begin();
             m_turrets[team].erase(m_turrets[team].begin());
-            veh->DisappearAndDie();
+            veh->DespawnOrUnsummon();
         }
 
         if (m_players[team].empty())
