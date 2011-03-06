@@ -288,9 +288,9 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
         {
             sLog->outErrorDb("Vehicle entry %u in vehicle_accessory does not have a valid record in npc_spellclick_spells! Cannot join vehicle.",
                 m_creatureEntry);
-            accessory->EnterVehicle(me, seatId);
-            //accessory->AddObjectToRemoveList();
-            //return;
+            //accessory->EnterVehicle(me, seatId);
+            accessory->AddObjectToRemoveList();
+            return;
         }
 
         if (!accessory->IsOnVehicle(me))
@@ -421,8 +421,8 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
                 me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, true);
 
             // update all passenger's positions
-            //RelocatePassengers(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-            RelocatePassengers(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
+            RelocatePassengers(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+            //RelocatePassengers(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
         }
     }
 
