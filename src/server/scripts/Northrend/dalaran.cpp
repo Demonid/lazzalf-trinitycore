@@ -158,8 +158,58 @@ public:
     }
 };
 
+// Archmage Vargoth
+
+#define PET_TEXT 14194
+#define SCHOOLS_OF_ARCANE_MAGIC 43824
+#define KIRIN_TOR_FAMILIAR 44738
+#define KIRIN_TOR_FAMILIAR_SPELL 61472
+
+class npc_archmage_vargoth : public CreatureScript
+{
+public:
+    npc_archmage_vargoth() : CreatureScript("npc_archmage_vargoth") { }
+
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        if (pCreature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+        if (pCreature->GetMapId() == 571 &&
+            pPlayer->HasItemCount(SCHOOLS_OF_ARCANE_MAGIC, 1) &&
+            !pPlayer->HasItemCount(KIRIN_TOR_FAMILIAR, 1) &&
+            !pPlayer->HasSpell(KIRIN_TOR_FAMILIAR_SPELL))
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Thank you.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1); 
+            pPlayer->SEND_GOSSIP_MENU(PET_TEXT, pCreature->GetGUID());
+        }
+        else
+        {
+            pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, pCreature->GetGUID());
+        }
+
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        pPlayer->PlayerTalkClass->ClearMenus();
+
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_INFO_DEF+1:
+                pPlayer->AddItem(KIRIN_TOR_FAMILIAR, 1);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+        }
+
+        return true;
+    }
+};
+
 void AddSC_dalaran()
 {
     new npc_mageguard_dalaran;
     new npc_hira_snowdawn;
+    new npc_archmage_vargoth();
 }
