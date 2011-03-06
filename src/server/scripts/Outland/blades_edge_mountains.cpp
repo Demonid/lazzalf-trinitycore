@@ -681,6 +681,41 @@ class go_the_thunderspike : public GameObjectScript
     };
 };
 
+#define QUEST_BANISH_THE_DEMONS 11026
+#define QUEST_BANISH_THE_DEMONS_DAILY 11051
+#define AURA_BANISHMENT 40825
+#define BANISH_THE_DEMONS_KILL_CREDIT 23327
+
+class mob_blade_fiend : public CreatureScript
+{
+public:
+    mob_blade_fiend() : CreatureScript("mob_blade_fiend") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_blade_fiendAI (pCreature);
+    }
+
+    struct mob_blade_fiendAI : public ScriptedAI
+    {
+        mob_blade_fiendAI(Creature *c) : ScriptedAI(c) {}
+
+        void JustDied(Unit* killer)
+        {
+            if (killer->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            Player* player = killer->ToPlayer();
+
+            if (player->GetQuestStatus(QUEST_BANISH_THE_DEMONS) == QUEST_STATUS_INCOMPLETE ||
+                player->GetQuestStatus(QUEST_BANISH_THE_DEMONS_DAILY) == QUEST_STATUS_INCOMPLETE)
+                if (player->HasAura(AURA_BANISHMENT))
+                    player->KilledMonsterCredit(BANISH_THE_DEMONS_KILL_CREDIT, 0);
+        }
+    };
+
+};
+
 
 /*######
 ## AddSC
@@ -699,4 +734,5 @@ void AddSC_blades_edge_mountains()
     new kolphis_darkscale_npc();
     new go_prophecy();
     new go_the_thunderspike();
+    new mob_blade_fiend();
 }
