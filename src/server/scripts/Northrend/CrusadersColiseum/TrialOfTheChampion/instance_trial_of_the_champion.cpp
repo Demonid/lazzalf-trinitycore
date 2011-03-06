@@ -273,18 +273,17 @@ class instance_trial_of_the_champion : public InstanceMapScript
                     if (uiMovementDone == 3)
                     {
                         if (Creature* pAnnouncer =  instance->GetCreature(uiAnnouncerGUID))
-                            pAnnouncer->AI()->SetData(DATA_IN_POSITION,0);
+                            pAnnouncer->AI()->SetData(DATA_IN_POSITION, 0);
                     }
                     break;
                 case BOSS_GRAND_CHAMPIONS:
                     m_auiEncounter[0] = uiData;
                     if (uiData == IN_PROGRESS)
                     {
-                        for(std::list<uint64>::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
+                        for (std::list<uint64>::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
                             if (Creature* pSummon = instance->GetCreature(*itr))
-                            {                               
-                                Vehicle* pVehicle=pSummon->GetVehicleKit();
-                                if (pVehicle)
+                            {      
+                                if (Vehicle* pVehicle = pSummon->GetVehicleKit())
                                     pVehicle->Dismiss();
                                 pSummon->SetVisible(false);
                             }
@@ -307,13 +306,13 @@ class instance_trial_of_the_champion : public InstanceMapScript
                         if (Creature* pAnnouncer =  instance->GetCreature(uiAnnouncerGUID))
                         {
                            
-                            for(std::list<uint64>::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
+                            for (std::list<uint64>::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
                                 if (Creature* pSummon = instance->GetCreature(*itr))
                                     pSummon->SetVisible(true);
 
                             //rimuovo le eventuali mount
                             if (!VehicleListChampion.empty())
-                                for(std::list<uint64>::const_iterator itr = VehicleListChampion.begin(); itr != VehicleListChampion.end(); ++itr)
+                                for (std::list<uint64>::const_iterator itr = VehicleListChampion.begin(); itr != VehicleListChampion.end(); ++itr)
                                     if (Creature* pSummon = instance->GetCreature(*itr))
                                         pSummon->RemoveFromWorld();
 
