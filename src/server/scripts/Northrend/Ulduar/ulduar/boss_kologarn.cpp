@@ -542,7 +542,7 @@ public:
 
         void HandleInstaKill(SpellEffIndex /*effIndex*/)
         {
-            if (!GetHitPlayer()->GetVehicle())
+            if (!GetHitPlayer() || !GetHitPlayer()->GetVehicle())
                 return;
 
             Position pos;
