@@ -224,7 +224,7 @@ class boss_black_knight : public CreatureScript
                     me->SetFullHealth();
                     me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                     me->AttackStop();                              
-                            DoScriptText(RAND(SAY_DEATH_1,SAY_DEATH), me);
+                    DoScriptText(RAND(SAY_DEATH_1,SAY_DEATH), me);
                     DoCast(me,SPELL_BLACK_KNIGHT_RES,true);
                     me->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                     uiPhase++;

@@ -699,15 +699,21 @@ public:
 
         void EnterCombat(Unit *pWho)
         {
-            Unit* pTarget = pWho;
-            if (!pTarget->ToPlayer())
-                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-            m_uiTargetGUID = pTarget->GetGUID();
-            DoCast(pWho, SPELL_MARK);
-            me->SetSpeed(MOVE_RUN, 0.5f);
-            m_uiSpeed = 0;
-            m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
-            me->TauntApply(pTarget);
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+            {
+                m_uiTargetGUID = pTarget->GetGUID();
+                DoCast(pTarget, SPELL_MARK);
+                me->SetSpeed(MOVE_RUN, 0.5f);
+                m_uiSpeed = 0;
+                m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
+                me->TauntApply(pTarget);
+            }
+            else
+            {
+                if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ANUBARAK)))
+                    pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);
+                me->DisappearAndDie();
+            }
         }
 
         void DamageTaken(Unit* /*pWho*/, uint32& uiDamage)
