@@ -713,10 +713,13 @@ class npc_announcer_toc5 : public CreatureScript
                         pTemp->SetHomePosition(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation());
                         pTemp->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                         pTemp->SetReactState(REACT_AGGRESSIVE);
-                        if (Unit* vehicle = pPlayer->GetVehicle())
+                        if (Vehicle* pVehicle = pPlayer->GetVehicle())
                         {
-                            pTemp->SetInCombatWith(vehicle);
-                            pTemp->AddThreat(vehicle, 0.0f);
+                            if (Unit* pTarget = pVehicle->GetBase())
+                            {
+                                pTemp->SetInCombatWith(pTarget);
+                                pTemp->AddThreat(pTarget, 0.0f);
+                            }
                         }
                         else
                         {
