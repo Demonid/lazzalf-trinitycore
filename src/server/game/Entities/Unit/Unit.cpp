@@ -15755,7 +15755,6 @@ void Unit::SetRooted(bool apply)
             }
 
 //            RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
-            }            
         }
     }
 }
