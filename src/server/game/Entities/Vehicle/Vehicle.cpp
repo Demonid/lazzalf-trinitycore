@@ -288,8 +288,9 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
         {
             sLog->outErrorDb("Vehicle entry %u in vehicle_accessory does not have a valid record in npc_spellclick_spells! Cannot join vehicle.",
                 m_creatureEntry);
-            accessory->AddObjectToRemoveList();
-            return;
+            accessory->EnterVehicle(me, seatId);
+            //accessory->AddObjectToRemoveList();
+            //return;
         }
 
         if (!accessory->IsOnVehicle(me))
