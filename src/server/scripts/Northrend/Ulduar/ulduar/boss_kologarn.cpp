@@ -332,7 +332,7 @@ class boss_kologarn : public CreatureScript
                     {
                         if (right)
                         {
-                            DoCast(SPELL_STONE_GRIP);
+                            //DoCast(SPELL_STONE_GRIP);
                             DoScriptText(SAY_GRAB_PLAYER, me);
                         }
                         events.RepeatEvent(25000);
