@@ -110,8 +110,8 @@ enum BossSpells
     SPELL_BERSERK           = 47008, // Mimiron Enrage
 };
 
-#define SNOBOLD_COUNT RAID_MODE(2,4)
-#define ACHI_UPPER_BACK_PAIN RAID_MODE(3797,3813)
+#define SNOBOLD_COUNT RAID_MODE(2, 4, 2, 4)
+#define ACHI_UPPER_BACK_PAIN RAID_MODE(3797, 3813, 3797, 3813)
 
 class boss_gormok : public CreatureScript
 {
@@ -781,7 +781,10 @@ public:
             }
 
             while (Unit* pTarget = me->FindNearestCreature(NPC_SNOBOLD_VASSAL, 150.0f))
+            {
+                pTarget->CombatStop();
                 pTarget->RemoveFromWorld();
+            }
 
             if (Unit* pTarget = me->FindNearestCreature(34796, 150.0f)) // gormok
                 pTarget->RemoveFromWorld();

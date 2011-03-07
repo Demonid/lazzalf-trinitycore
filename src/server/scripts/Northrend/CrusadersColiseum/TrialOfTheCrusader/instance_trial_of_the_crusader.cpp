@@ -455,7 +455,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                     if (Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_10MAN_NORMAL || Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_10MAN_HEROIC)
                                        achievementNotOneButTwoJormungars = ACHIEVEMENT_NOT_ONE_BUT_TWO_10;
                                     if (Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_25MAN_NORMAL || Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_25MAN_HEROIC)
-                                       achievementNotOneButTwoJormungars = ACHIEVEMENT_NOT_ONE_BUT_TWO_25;
+                                       achievementNotOneButTwoJormungars = ACHIEVEMENT_NOT_ONE_BUT_TWO_25;                                    
 
                                     AchievementEntry const *AchievNotOneButTwo = GetAchievementStore()->LookupEntry(achievementNotOneButTwoJormungars);
                                     if (AchievNotOneButTwo)
@@ -505,6 +505,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     case DATA_TRAITOR_KING_COUNT:
                         if (data == ACHI_INCREASE)
                             scarabsCount++;
+                        break;
                     case DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE:
                         TributeToImmortalityElegible = false;
                         break;
