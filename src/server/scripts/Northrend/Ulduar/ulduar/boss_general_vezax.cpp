@@ -197,10 +197,10 @@ class boss_general_vezax : public CreatureScript
                 {
                     case EVENT_SHADOW_CRASH:
                         {
-                            Unit* pTarget = CheckPlayersInRange(1, 15.0f, 100.f);
+                            Unit* pTarget = CheckPlayersInRange(1, 15.0f, 120.f);
                             if (!pTarget)
                                 pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100, true);
-                            if (!pTarget->IsWithinDist(me, 15))
+                            if (pTarget && !pTarget->IsWithinDist(me, 15))
                                 DoCast(pTarget, SPELL_SHADOW_CRASH);
                             events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(6000, 10000));
                         }
@@ -221,10 +221,11 @@ class boss_general_vezax : public CreatureScript
                                 However, if there are not at least 5 people outside of 15 yards 
                                 he will start casting it on players inside 15 yards melee and tank included.
                             */
-                            Unit* pTarget = CheckPlayersInRange(RAID_MODE(2,5), 15.0f, 100.f);
+                            Unit* pTarget = CheckPlayersInRange(RAID_MODE(2,5), 15.0f, 120.f);
                             if (!pTarget)
-                                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true); 
-                            DoCast(pTarget, SPELL_MARK_OF_THE_FACELESS);
+                                pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100, true); 
+                            if (pTarget)
+                                DoCast(pTarget, SPELL_MARK_OF_THE_FACELESS);
                             events.ScheduleEvent(EVENT_MARK, urand(35000, 40000));
                         }
                         break;

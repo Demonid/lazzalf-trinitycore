@@ -551,7 +551,7 @@ public:
 
                 switch (urand(0, 8))
                 {
-                    case 0: case: 5
+                    case 0: case 5:
                         if (Unit *pTarget = urand(0, chance) ? friendly : myself)
                             DoCast(pTarget, SPELL_LIFEBLOOM);
                         break;
