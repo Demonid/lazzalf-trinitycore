@@ -252,7 +252,7 @@ class mob_flame_warder : public CreatureScript
                         return;
                     case EVENT_FW_METEOR_FISTS_A:
                         DoCast(me, RAID_MODE(SPELL_FW_METEOR_FISTS_A,SPELL_FW_METEOR_FISTS_A_H));
-                        events.ScheduleEvent(EVENT_FW_METEOR_FISTS_B, 1500);
+                        events.ScheduleEvent(EVENT_FW_METEOR_FISTS_B, 2000);
                         return;
                     case EVENT_FW_METEOR_FISTS_B:
                         DoCast(me, RAID_MODE(SPELL_FW_METEOR_FISTS_B,SPELL_FW_METEOR_FISTS_B_H));
