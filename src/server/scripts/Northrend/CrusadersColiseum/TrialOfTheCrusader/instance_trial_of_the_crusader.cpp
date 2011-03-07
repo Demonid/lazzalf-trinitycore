@@ -376,28 +376,42 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
                                 {
                                     if (TrialCounter >= 50)
+                                    {
                                         tributeChest = GO_TRIBUTE_CHEST_10H_99;
+                                        tributeCheck = 3;
+                                    }
+                                    else if (TrialCounter >= 45)
+                                    {
+                                        tributeChest = GO_TRIBUTE_CHEST_10H_50;
+                                        tributeCheck = 2;
+                                    }
+                                    else if (TrialCounter >= 25)
+                                    {
+                                        tributeChest = GO_TRIBUTE_CHEST_10H_45;
+                                        tributeCheck = 1;
+                                    }
                                     else
-                                        if (TrialCounter >= 45)
-                                            tributeChest = GO_TRIBUTE_CHEST_10H_50;
-                                        else
-                                            if (TrialCounter >= 25)
-                                                tributeChest = GO_TRIBUTE_CHEST_10H_45;
-                                            else
-                                                tributeChest = GO_TRIBUTE_CHEST_10H_25;
+                                        tributeChest = GO_TRIBUTE_CHEST_10H_25;
                                 }
                                 else if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
                                 {
                                     if (TrialCounter >= 50)
+                                    {
                                         tributeChest = GO_TRIBUTE_CHEST_25H_99;
+                                        tributeCheck = 3;
+                                    }
+                                    else if (TrialCounter >= 45)
+                                    {
+                                        tributeChest = GO_TRIBUTE_CHEST_25H_50;
+                                        tributeCheck = 2;
+                                    }
+                                    else if (TrialCounter >= 25)
+                                    {
+                                        tributeChest = GO_TRIBUTE_CHEST_25H_45;
+                                        tributeCheck = 1;
+                                    }
                                     else
-                                        if (TrialCounter >= 45)
-                                            tributeChest = GO_TRIBUTE_CHEST_25H_50;
-                                        else
-                                            if (TrialCounter >= 25)
-                                                tributeChest = GO_TRIBUTE_CHEST_25H_45;
-                                            else
-                                                tributeChest = GO_TRIBUTE_CHEST_25H_25;
+                                        tributeChest = GO_TRIBUTE_CHEST_25H_25;
                                 }
                                 if (tributeChest)
                                     if (Creature* tirion =  instance->GetCreature(TirionGUID))
