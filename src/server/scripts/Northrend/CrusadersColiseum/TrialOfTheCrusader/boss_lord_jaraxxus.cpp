@@ -81,7 +81,7 @@ enum BossSpells
     SPELL_BERSERK               = 64238,
 };
 
-#define ACHI_PAIN_SPIKE RAID_MODE(3996,3997)
+#define ACHI_PAIN_SPIKE RAID_MODE(3996, 3997, 3996, 3997)
 
 /*######
 ## boss_jaraxxus
@@ -319,7 +319,8 @@ public:
         {
             me->SetReactState(REACT_PASSIVE);
             m_Count = 0;
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
+            if (!IsHeroic())
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             m_CountMax = 3;
             m_Timer = 15*IN_MILLISECONDS;
             Summons.DespawnAll();
@@ -340,7 +341,7 @@ public:
         {
             if (m_Timer <= uiDiff)
             {
-                if (m_CountMax && m_CountMax == m_Count)
+                if (!IsHeroic() && m_CountMax && m_CountMax == m_Count)
                     me->DespawnOrUnsummon();
                 else
                 {
@@ -441,7 +442,8 @@ public:
             me->SetReactState(REACT_PASSIVE);
             m_Timer = 10*IN_MILLISECONDS;
             m_Count = 0;
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
+            if (!IsHeroic())
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             m_CountMax = 1;
             Summons.DespawnAll();
         }
@@ -456,7 +458,7 @@ public:
         {
             if (m_Timer <= uiDiff)
             {
-                if (m_CountMax && m_CountMax == m_Count)
+                if (!IsHeroic() && m_CountMax && m_CountMax == m_Count)
                     me->DespawnOrUnsummon();
                 else
                 {
