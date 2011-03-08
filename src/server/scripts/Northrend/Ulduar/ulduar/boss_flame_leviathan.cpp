@@ -258,7 +258,11 @@ public:
 
         void Reset()
         {
-            _Reset();
+            _Reset();           
+
+            if (me->GetVehicleKit())
+                me->GetVehicleKit()->Reset();
+
             me->SetReactState(REACT_DEFENSIVE);
             InstallAdds(false);
             me->ResetLootMode();
