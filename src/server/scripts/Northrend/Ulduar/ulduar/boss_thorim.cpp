@@ -332,7 +332,7 @@ class boss_thorim : public CreatureScript
             _EnterCombat();
             
             // Spawn Thunder Orbs
-            for(uint8 n = 0; n < 7; n++)
+            for (uint8 n = 0; n < 7; n++)
                 me->SummonCreature(33378, PosOrbs[n], TEMPSUMMON_CORPSE_DESPAWN);
             
             FirstTime = false;
@@ -350,6 +350,9 @@ class boss_thorim : public CreatureScript
         {
             if (!UpdateVictim())
                 return;
+
+            if (me->GetHealth() == 1 && me->getVictim())
+                me->getVictim()->Kill(me);
             
             if (phase == PHASE_2 && !IN_ARENA(me))
             {
@@ -481,7 +484,7 @@ class boss_thorim : public CreatureScript
                     me->SummonCreature(ARENA_PHASE_ADD[3], Pos[rand()%7], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
                     break;
                 case 1:
-                    for(uint8 n = 0; n < 7; n++)
+                    for (uint8 n = 0; n < 7; n++)
                         me->SummonCreature(ARENA_PHASE_ADD[1], Pos[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
                     break;
             }
