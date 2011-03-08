@@ -121,6 +121,8 @@ void Vehicle::Install()
                 break;
         }
     }
+    
+    Reset(); // Rimosso da Trinity
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
         sScriptMgr->OnInstall(this);

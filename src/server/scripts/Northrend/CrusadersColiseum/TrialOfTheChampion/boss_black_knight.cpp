@@ -522,11 +522,13 @@ class npc_black_knight_skeletal_gryphon : public CreatureScript
             Start(false,true,0,NULL);
         }
 
+        /*
         void Reset()
         {
             if (me->GetVehicleKit())
                 me->GetVehicleKit()->Reset();
         }
+        */
 
         void WaypointReached(uint32 uiPointId)
         {
