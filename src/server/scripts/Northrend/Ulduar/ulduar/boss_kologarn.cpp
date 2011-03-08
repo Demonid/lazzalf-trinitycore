@@ -160,9 +160,7 @@ class boss_kologarn : public CreatureScript
             {
                 DoScriptText(SAY_DEATH, me);
                 DoCast(SPELL_KOLOGARN_PACIFY);
-                me->GetMotionMaster()->MoveTargetedHome();
-
-                _JustDied();
+                me->GetMotionMaster()->MoveTargetedHome();               
 
                 if (instance)
                 {
@@ -176,6 +174,8 @@ class boss_kologarn : public CreatureScript
 
                 // Chest spawn
                 me->SummonGameObject(RAID_MODE(CACHE_OF_LIVING_STONE_10, CACHE_OF_LIVING_STONE_25),1836.52f,-36.11f,448.81f,0.56f,0,0,1,1,604800);
+
+                _JustDied();
             }
 
             void KilledUnit(Unit* /*who*/)
