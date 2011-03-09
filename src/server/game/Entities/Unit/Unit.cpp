@@ -8480,37 +8480,51 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                     //Item - Coliseum 25 Normal Caster Trinket
                     case 67712:
                     {
-                        if(!pVictim || !pVictim->isAlive())
+                        if (!pVictim || !pVictim->isAlive() || !this->ToPlayer())
                             return false;
-                        // stacking
-                        CastSpell(this, 67713, true, NULL, triggeredByAura);
 
                         Aura * dummy = GetAura(67713);
                         // release at 3 aura in stack (cont contain in basepoint of trigger aura)
-                        if(!dummy || dummy->GetStackAmount() < triggerAmount)
-                            return false;
+                        if (!dummy || dummy->GetStackAmount() < triggerAmount)
+                        {
+                            trigger_spell_id = 67713;
+                            target = this;
+                        }
+                        else
+                        {
+                            if (this->ToPlayer()->HasSpellCooldown(67713))
+                                return false;
 
-                        RemoveAurasDueToSpell(67713);
-                        trigger_spell_id = 67714;
-                        target = pVictim;
+                            this->ToPlayer()->AddSpellCooldown(67713,0,time(NULL) + cooldown);
+                            RemoveAurasDueToSpell(67713);
+                            trigger_spell_id = 67714;
+                            target = pVictim;
+                        }
                         break;
                     }
                     //Item - Coliseum 25 Heroic Caster Trinket
                     case 67758:
                     {
-                        if(!pVictim || !pVictim->isAlive())
+                        if (!pVictim || !pVictim->isAlive() || !this->ToPlayer())
                             return false;
-                        // stacking
-                        CastSpell(this, 67759, true, NULL, triggeredByAura);
 
                         Aura * dummy = GetAura(67759);
                         // release at 3 aura in stack (cont contain in basepoint of trigger aura)
-                        if(!dummy || dummy->GetStackAmount() < triggerAmount)
-                            return false;
+                        if (!dummy || dummy->GetStackAmount() < triggerAmount)
+                        {
+                            trigger_spell_id = 67759;
+                            target = this;
+                        }
+                        else
+                        {
+                            if (this->ToPlayer()->HasSpellCooldown(67759))
+                                return false;
 
-                        RemoveAurasDueToSpell(67759);
-                        trigger_spell_id = 67760;
-                        target = pVictim;
+                            this->ToPlayer()->AddSpellCooldown(67759,0,time(NULL) + cooldown);
+                            RemoveAurasDueToSpell(67759);
+                            trigger_spell_id = 67760;
+                            target = pVictim;
+                        }
                         break;
                     }
                     default:
