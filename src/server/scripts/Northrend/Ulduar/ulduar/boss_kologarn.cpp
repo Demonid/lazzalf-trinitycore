@@ -153,8 +153,8 @@ class boss_kologarn : public CreatureScript
             {
                 _Reset();
 
-                if (me->GetVehicleKit())
-                    me->GetVehicleKit()->Reset();
+                //if (me->GetVehicleKit())
+                //    me->GetVehicleKit()->Reset();
 
                 eyebeamTarget = 0;
             }
