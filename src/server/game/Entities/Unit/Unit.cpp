@@ -8485,12 +8485,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
 
                         Aura * dummy = GetAura(67713);
                         // release at 3 aura in stack (cont contain in basepoint of trigger aura)
-                        if (!dummy || dummy->GetStackAmount() < triggerAmount)
-                        {
-                            trigger_spell_id = 67713;
-                            target = this;
-                        }
-                        else
+                        if (dummy && dummy->GetStackAmount() >= (triggerAmount - 1))
                         {
                             if (this->ToPlayer()->HasSpellCooldown(67713))
                                 return false;
@@ -8498,7 +8493,12 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                             this->ToPlayer()->AddSpellCooldown(67713,0,time(NULL) + cooldown);
                             RemoveAurasDueToSpell(67713);
                             trigger_spell_id = 67714;
-                            target = pVictim;
+                            target = pVictim;                            
+                        }
+                        else
+                        {
+                            trigger_spell_id = 67713;
+                            target = this;                            
                         }
                         break;
                     }
@@ -8510,12 +8510,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
 
                         Aura * dummy = GetAura(67759);
                         // release at 3 aura in stack (cont contain in basepoint of trigger aura)
-                        if (!dummy || dummy->GetStackAmount() < triggerAmount)
-                        {
-                            trigger_spell_id = 67759;
-                            target = this;
-                        }
-                        else
+                        if (dummy && dummy->GetStackAmount() >= (triggerAmount - 1))
                         {
                             if (this->ToPlayer()->HasSpellCooldown(67759))
                                 return false;
@@ -8523,7 +8518,12 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                             this->ToPlayer()->AddSpellCooldown(67759,0,time(NULL) + cooldown);
                             RemoveAurasDueToSpell(67759);
                             trigger_spell_id = 67760;
-                            target = pVictim;
+                            target = pVictim;                            
+                        }
+                        else
+                        {
+                            trigger_spell_id = 67759;
+                            target = this;                            
                         }
                         break;
                     }
