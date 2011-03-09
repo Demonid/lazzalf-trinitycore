@@ -8443,38 +8443,51 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                     // Lightning Capacitor
                     case 37657:
                     {
-                        if (!pVictim || !pVictim->isAlive())
+                        if (!pVictim || !pVictim->isAlive() || !this->ToPlayer())
                             return false;
-                        // stacking
-                        CastSpell(this, 37658, true, NULL, triggeredByAura);
 
                         Aura * dummy = GetAura(37658);
                         // release at 3 aura in stack (cont contain in basepoint of trigger aura)
-                        if (!dummy || dummy->GetStackAmount() < triggerAmount)
-                            return false;
+                        if (dummy && dummy->GetStackAmount() >= (triggerAmount - 1))
+                        {
+                            if (this->ToPlayer()->HasSpellCooldown(37658))
+                                return false;
 
-                        RemoveAurasDueToSpell(37658);
-                        trigger_spell_id = 37661;
-                        target = pVictim;
+                            this->ToPlayer()->AddSpellCooldown(37658,0,time(NULL) + cooldown);
+                            RemoveAurasDueToSpell(37658);
+                            trigger_spell_id = 37661;
+                            target = pVictim;
+                        }
+                        else
+                        {
+                            trigger_spell_id = 37658;
+                            target = this;
+                        }
                         break;
                     }
                     // Thunder Capacitor
                     case 54841:
                     {
-                        if (!pVictim || !pVictim->isAlive())
+                        if (!pVictim || !pVictim->isAlive() || !this->ToPlayer())
                             return false;
-                        // stacking
-                        CastSpell(this, 54842, true, NULL, triggeredByAura);
 
-                        // counting
                         Aura * dummy = GetAura(54842);
                         // release at 3 aura in stack (cont contain in basepoint of trigger aura)
-                        if (!dummy || dummy->GetStackAmount() < triggerAmount)
-                            return false;
+                        if (dummy && dummy->GetStackAmount() >= (triggerAmount - 1))
+                        {
+                            if (this->ToPlayer()->HasSpellCooldown(54842))
+                                return false;
 
-                        RemoveAurasDueToSpell(54842);
-                        trigger_spell_id = 54843;
-                        target = pVictim;
+                            this->ToPlayer()->AddSpellCooldown(54842,0,time(NULL) + cooldown);
+                            RemoveAurasDueToSpell(54842);
+                            trigger_spell_id = 54843;
+                            target = pVictim;
+                        }
+                        else
+                        {
+                            trigger_spell_id = 54842;
+                            target = this;
+                        }
                         break;
                     }
                     //Item - Coliseum 25 Normal Caster Trinket
@@ -8493,12 +8506,12 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                             this->ToPlayer()->AddSpellCooldown(67713,0,time(NULL) + cooldown);
                             RemoveAurasDueToSpell(67713);
                             trigger_spell_id = 67714;
-                            target = pVictim;                            
+                            target = pVictim;
                         }
                         else
                         {
                             trigger_spell_id = 67713;
-                            target = this;                            
+                            target = this;
                         }
                         break;
                     }
