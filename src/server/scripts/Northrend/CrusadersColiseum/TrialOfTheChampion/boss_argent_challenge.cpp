@@ -512,7 +512,7 @@ class npc_memory : public CreatureScript
 
             if (uiOldWoundsTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                 {
                     if (pTarget && pTarget->isAlive())
                         DoCast(pTarget, DUNGEON_MODE(SPELL_OLD_WOUNDS,SPELL_OLD_WOUNDS_H));
@@ -528,7 +528,7 @@ class npc_memory : public CreatureScript
 
             if (uiShadowPastTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,1))
                 {
                     if (pTarget && pTarget->isAlive())
                         DoCast(pTarget,DUNGEON_MODE(SPELL_SHADOWS_PAST,SPELL_SHADOWS_PAST_H));

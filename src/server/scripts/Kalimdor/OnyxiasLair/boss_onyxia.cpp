@@ -213,7 +213,7 @@ public:
         void JustSummoned(Creature *pSummoned)
         {
             pSummoned->SetInCombatWithZone();
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                 pSummoned->AI()->AttackStart(pTarget);
 
             switch (pSummoned->GetEntry())
@@ -480,7 +480,7 @@ public:
                 {
                     if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE)
                     {
-                        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_FIREBALL);
 
                         m_uiFireballTimer = 8000;

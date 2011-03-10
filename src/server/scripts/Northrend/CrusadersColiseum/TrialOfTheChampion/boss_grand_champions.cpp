@@ -700,7 +700,7 @@ class boss_mage_toc5 : public CreatureScript
 
             if (uiPolymorphTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, DUNGEON_MODE(SPELL_POLYMORPH,SPELL_POLYMORPH_H));
                 uiPolymorphTimer = 22000;
             } else uiPolymorphTimer -= uiDiff;
@@ -865,7 +865,7 @@ class boss_shaman_toc5 : public CreatureScript
 
             if (uiChainLightningTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget,DUNGEON_MODE(SPELL_CHAIN_LIGHTNING,SPELL_CHAIN_LIGHTNING_H));
 
                 uiChainLightningTimer = 23000;
@@ -1271,7 +1271,7 @@ class boss_rouge_toc5 : public CreatureScript
 
             if (uiPosionBottleTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                 DoCast(pTarget,SPELL_POISON_BOTTLE);
                 uiPosionBottleTimer = 19000;
             } else uiPosionBottleTimer -= uiDiff;
