@@ -724,42 +724,42 @@ class npc_argent_soldier : public CreatureScript
     			
             if (uiCleaveTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget,SPELL_STRIKE);				
                 uiCleaveTimer = 20000;
             } else uiCleaveTimer -= uiDiff;	
     		
             if (uiStrikeTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget,SPELL_CLEAVE);				
                 uiStrikeTimer = 25000;
             } else uiStrikeTimer -= uiDiff;	
     		
             if (uiPummelTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget,SPELL_PUMMEL);				
                 uiPummelTimer = 35000;
             } else uiPummelTimer -= uiDiff;	
     		
             if (uiPainTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget,SPELL_PAIN);				
                 uiPainTimer = 30000;
             } else uiPainTimer -= uiDiff;	
     		
             if (uiMindTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget,SPELL_MIND);				
                 uiMindTimer = 90000;
             } else uiMindTimer -= uiDiff;
     		
             if (uiSsmiteTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget,SPELL_SSMITE);				
                 uiSsmiteTimer = 25000;
             } else uiSsmiteTimer -= uiDiff;

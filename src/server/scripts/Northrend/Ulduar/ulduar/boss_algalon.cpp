@@ -487,7 +487,7 @@ public:
             {
                 if (!Target)
                 {
-                    Unit* pT = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                    Unit* pT = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     float fX = pT->GetPositionX();
                     float fY = pT->GetPositionY();
                     float fZ = pT->GetPositionZ();
@@ -498,7 +498,7 @@ public:
 
                     if (me->GetMap()->IsHeroic())
                     {
-                        Unit* pT2 = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                        Unit* pT2 = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         float fX2 = pT2->GetPositionX();
                         float fY2 = pT2->GetPositionY();
                         float fZ2 = pT2->GetPositionZ();
@@ -507,7 +507,7 @@ public:
                         Target2GUID = target2->GetGUID();
                         DoCast(target2, COSMIC_SMASH_MARKER);
 
-                        Unit* pT3 = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                        Unit* pT3 = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         float fX3 = pT3->GetPositionX();
                         float fY3 = pT3->GetPositionY();
                         float fZ3 = pT3->GetPositionZ();
@@ -759,7 +759,7 @@ public:
             DoZoneInCombat();
             me->SetReactState(REACT_AGGRESSIVE);
             me->RemoveFlag64(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_UNK_16|UNIT_FLAG_PASSIVE);
-            AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
+            AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
             SetCombatMovement(true);
             Fight = true;
         }
@@ -847,7 +847,7 @@ public:
                 {
                     Unit* target;
                     do{
-                        target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     }while (target->GetTypeId() != TYPEID_PLAYER);
                     if (target)
                         pAdd->AI()->AttackStart(target);
@@ -860,7 +860,7 @@ public:
                 {
                     Unit* target;
                     do{
-                        target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     }while (target->GetTypeId() != TYPEID_PLAYER);
                     if (target)
                         pAdd->AI()->AttackStart(target);
@@ -873,7 +873,7 @@ public:
                 {
                     Unit* target;
                     do{
-                        target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     }while (target->GetTypeId() != TYPEID_PLAYER);
                     if (target)
                         pAdd->AI()->AttackStart(target);
@@ -886,7 +886,7 @@ public:
                 {
                     Unit* target;
                     do{
-                        target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     }while (target->GetTypeId() != TYPEID_PLAYER);
                     if (target)
                         pAdd->AI()->AttackStart(target);
@@ -935,7 +935,7 @@ public:
                 {
                     Unit* target;
                     do{
-                        target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     }while (target->GetTypeId() != TYPEID_PLAYER);
                     if (target)
                         pAdd->AI()->AttackStart(target);
@@ -948,7 +948,7 @@ public:
                 {
                     Unit* target;
                     do{
-                        target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     }while (target->GetTypeId() != TYPEID_PLAYER);
                     if (target)
                         pAdd->AI()->AttackStart(target);
@@ -961,7 +961,7 @@ public:
                 {
                     Unit* target;
                     do{
-                        target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     }while (target->GetTypeId() != TYPEID_PLAYER);
                     if (target)
                         pAdd->AI()->AttackStart(target);

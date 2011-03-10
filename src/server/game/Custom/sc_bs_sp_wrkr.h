@@ -108,7 +108,7 @@ class BossSpellWorker
         Unit* doSummon(uint32 SpellID, float fPosX, float fPosY, float fPosZ, TempSummonType type = TEMPSUMMON_CORPSE_TIMED_DESPAWN, uint32 delay = 60000);
         CanCastResult BSWSpellSelector(uint32 SpellID, Unit* pTarget = NULL);
         CanCastResult BSWDoCast(uint32 SpellID, Unit* pTarget);
-        Unit*  SelectUnit(SelectAggroTarget target = SELECT_TARGET_RANDOM, uint32 uiPosition = 0);
+        Unit*  SelectTarget(SelectAggroTarget target = SELECT_TARGET_RANDOM, uint32 uiPosition = 0);
         Unit* SelectLowHPFriendly(float fRange = 40.0f, uint32 uiMinHPDiff = 0);
         uint8 bossSpellCount();
 
@@ -129,7 +129,7 @@ class BossSpellWorker
         bool          _QuerySpellPeriod(uint8 m_uiSpellIdx, uint32 diff);
         CanCastResult _DoCastSpellIfCan(Unit* pTarget, uint32 uiSpell, uint32 uiCastFlags = 0, uint64 uiOriginalCasterGUID = 0);
         CanCastResult _CanCastSpell(Unit* pTarget, const SpellEntry *pSpell, bool isTriggered = false);
-        Unit*         _SelectUnit(SelectAggroTarget target, uint32 uiPosition);
+        Unit*         _SelectTarget(SelectAggroTarget target, uint32 uiPosition);
         bool          _doRemove(uint8 m_uiSpellIdx, Unit* pTarget = NULL, SpellEffectIndex index = EFFECT_INDEX_0);
         bool          _hasAura(uint8 m_uiSpellIdx, Unit* pTarget);
         void          _fillEmptyDataField();

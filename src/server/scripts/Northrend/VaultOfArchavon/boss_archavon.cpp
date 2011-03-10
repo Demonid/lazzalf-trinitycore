@@ -151,12 +151,12 @@ class boss_archavon : public CreatureScript
                 switch(eventId)
                 {
                     case EVENT_ROCK_SHARDS:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_ROCK_SHARDS);
                         events.ScheduleEvent(EVENT_ROCK_SHARDS, 15000);
                         return;
                     case EVENT_CHOKING_CLOUD:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_CRUSHING_LEAP, true); //10y~80y, ignore range
                         events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30000);
                         return;
@@ -227,7 +227,7 @@ class mob_archavon_warder : public CreatureScript
                 {
                     case EVENT_ROCK_SHOWER:
                     {
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_ROCK_SHOWER);
                         events.ScheduleEvent(EVENT_ROCK_SHARDS, 6000);
                         return;

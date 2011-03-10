@@ -95,9 +95,9 @@ CanCastResult BossSpellWorker::BSWDoCast(uint32 SpellID, Unit* pTarget)
     return _BSWDoCast(FindSpellIDX(SpellID), pTarget);
 };
 
-Unit*  BossSpellWorker::SelectUnit(SelectAggroTarget target, uint32 uiPosition)
+Unit*  BossSpellWorker::SelectTarget(SelectAggroTarget target, uint32 uiPosition)
 {
-    return  _SelectUnit(target, uiPosition);
+    return  _SelectTarget(target, uiPosition);
 };
 
 uint8 BossSpellWorker::bossSpellCount()
@@ -269,12 +269,12 @@ CanCastResult BossSpellWorker::_BSWSpellSelector(uint8 m_uiSpellIdx, Unit* pTarg
                    break;
 
             case CAST_ON_RANDOM:
-                   pTarget = SelectUnit(SELECT_TARGET_RANDOM);
+                   pTarget = SelectTarget(SELECT_TARGET_RANDOM);
                    return _BSWCastOnTarget(pTarget, m_uiSpellIdx);
                    break;
 
             case CAST_ON_BOTTOMAGGRO:
-                   pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                   pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                    return _BSWCastOnTarget(pTarget, m_uiSpellIdx);
                    break;
 
@@ -645,7 +645,7 @@ CanCastResult BossSpellWorker::_DoCastSpellIfCan(Unit* pTarget, uint32 uiSpell, 
 
 // Copypasting from sc_creature.cpp :( Hung if call from bossAI->
 
-Unit*  BossSpellWorker::_SelectUnit(SelectAggroTarget target, uint32 uiPosition)
+Unit*  BossSpellWorker::_SelectTarget(SelectAggroTarget target, uint32 uiPosition)
 {
     //ThreatList m_threatlist;
     std::list<HostileReference*> const& threatlist = boss->getThreatManager().getThreatList();
@@ -739,8 +739,8 @@ Unit* BossSpellWorker::_doSelect(uint32 SpellID, bool spellsearchtype, float ran
 
 #include "precompiled.h" to  #include "ScriptedPch.h"
 
-pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0); -> pTarget = bsw->SelectUnit();
-pTarget= me->SelectAttackingTarget(SELECT_TARGET_RANDOM, 0) -> Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0) )
+pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0); -> pTarget = bsw->SelectTarget();
+pTarget= me->SelectAttackingTarget(SELECT_TARGET_RANDOM, 0) -> Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0) )
 
 m_creature->AddSplineFlag -> AddUnitMovementFlag (unit.cpp enum MovementFlags )
 
