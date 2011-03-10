@@ -1065,7 +1065,7 @@ class boss_hunter_toc5 : public CreatureScript
     		
             if (uiLightningArrowsTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget,SPELL_LIGHTNING_ARROWS);
     				
                 uiLightningArrowsTimer = 15000;

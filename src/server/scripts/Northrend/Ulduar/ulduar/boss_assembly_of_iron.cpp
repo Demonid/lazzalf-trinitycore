@@ -569,7 +569,7 @@ class boss_runemaster_molgeim : public CreatureScript
                     case EVENT_RUNE_OF_DEATH:
                     {
                         DoScriptText(SAY_MOLGEIM_RUNE_DEATH, me);
-                        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_RUNE_OF_DEATH);
                         events.ScheduleEvent(EVENT_RUNE_OF_DEATH, 30000);
                     }
@@ -577,7 +577,7 @@ class boss_runemaster_molgeim : public CreatureScript
                     case EVENT_RUNE_OF_SUMMONING:
                     {
                         DoScriptText(SAY_MOLGEIM_SUMMON, me);
-                        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_RUNE_OF_SUMMONING);
                         events.ScheduleEvent(EVENT_RUNE_OF_SUMMONING, urand(40000, 50000));
                     }
@@ -760,7 +760,7 @@ class boss_stormcaller_brundir : public CreatureScript
                         DoCast(SPELL_BERSERK);
                     break;
                     case EVENT_CHAIN_LIGHTNING:
-                        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
                         events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(4000, 6000));
                     break;
@@ -790,7 +790,7 @@ class boss_stormcaller_brundir : public CreatureScript
                         events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS, 90000);
                     break;
                     case EVENT_FLIGHT:
-                        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             me->GetMotionMaster()->MovePoint(0, pTarget->GetPositionX(), pTarget->GetPositionY(), 440);
                         events.ScheduleEvent(EVENT_FLIGHT, 6000);
                     break;
