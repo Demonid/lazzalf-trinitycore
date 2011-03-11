@@ -1768,6 +1768,16 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
 
             break;
         }
+        case 5374: // Mutilate and ranks
+        case 34414:
+        case 34416:        
+        case 34419:
+        case 48662:
+        case 48665:
+        {
+            unitTarget->RemoveAurasDueToSpell(67210); // Item - Rogue T9 2P Bonus
+            break;
+        }
         // Vanish (not exist)
         case 18461:
         {
