@@ -716,8 +716,8 @@ public:
             me->SetReactState(REACT_PASSIVE);
             me->RemoveAllAuras();
 
-            if (me->GetVehicleKit())
-                me->GetVehicleKit()->Reset();
+            //if (me->GetVehicleKit())
+            //    me->GetVehicleKit()->Reset();
 
             phase = PHASE_NULL;
             events.SetPhase(PHASE_NULL);
@@ -725,7 +725,10 @@ public:
 
         void JustReachedHome()
         {
-            if (Creature *turret = CAST_CRE(me->GetVehicleKit()->GetPassenger(3)))
+            if (vehicle->HasEmptySeat(3) && !me->isInCombat())
+                vehicle->Reset();
+
+            if (Creature *turret = CAST_CRE(vehicle->GetPassenger(3))
             {
                 turret->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 turret->SetReactState(REACT_PASSIVE);
