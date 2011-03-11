@@ -388,7 +388,7 @@ class boss_steelbreaker : public CreatureScript
                     if (Player * pPlayer = itr->getSource())
                     {
                         float uiDistance = pPlayer->GetDistance(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-                        if (uiRangeMin < uiDistance || uiDistance > uiRangeMax)
+                        if (uiDistance < uiRangeMin || uiRangeMax < uiDistance)
                             continue;
 
                         uplayerfound++;
