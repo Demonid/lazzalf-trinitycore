@@ -699,7 +699,16 @@ public:
 
         void EnterCombat(Unit *pWho)
         {
-            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+            if (pWho->ToPlayer())
+            {
+                m_uiTargetGUID = pWho->GetGUID();
+                DoCast(pWho, SPELL_MARK);
+                me->SetSpeed(MOVE_RUN, 0.5f);
+                m_uiSpeed = 0;
+                m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
+                me->TauntApply(pWho);
+            }
+            else if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 140, true))
             {
                 m_uiTargetGUID = pTarget->GetGUID();
                 DoCast(pTarget, SPELL_MARK);
@@ -707,12 +716,6 @@ public:
                 m_uiSpeed = 0;
                 m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
                 me->TauntApply(pTarget);
-            }
-            else
-            {
-                if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ANUBARAK)))
-                    pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);
-                me->DisappearAndDie();
             }
         }
 
