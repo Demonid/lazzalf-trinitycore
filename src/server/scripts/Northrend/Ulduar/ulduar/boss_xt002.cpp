@@ -213,6 +213,8 @@ class boss_xt002 : public CreatureScript
 
             phase = 1;
             heart_exposed = 0;
+
+            vehicle->Reset();
         }
 
         void EnterCombat(Unit* who)
