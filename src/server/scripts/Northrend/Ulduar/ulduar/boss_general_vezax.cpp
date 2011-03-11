@@ -199,7 +199,7 @@ class boss_general_vezax : public CreatureScript
                         {
                             Unit* pTarget = CheckPlayersInRange(1, 15.0f, 120.f);
                             if (!pTarget)
-                                pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100, true);
+                                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                             if (pTarget && !pTarget->IsWithinDist(me, 15))
                                 DoCast(pTarget, SPELL_SHADOW_CRASH);
                             events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(6000, 10000));
@@ -223,7 +223,7 @@ class boss_general_vezax : public CreatureScript
                             */
                             Unit* pTarget = CheckPlayersInRange(RAID_MODE(2,5), 15.0f, 120.f);
                             if (!pTarget)
-                                pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100, true); 
+                                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true); 
                             if (pTarget)
                                 DoCast(pTarget, SPELL_MARK_OF_THE_FACELESS);
                             events.ScheduleEvent(EVENT_MARK, urand(35000, 40000));
@@ -301,7 +301,7 @@ class boss_general_vezax : public CreatureScript
                     if (Player * pPlayer = itr->getSource())
                     {
                         float uiDistance = pPlayer->GetDistance(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-                        if (uiRangeMin < uiDistance || uiDistance > uiRangeMax)
+                        if (uiDistance < uiRangeMin || uiRangeMax < uiDistance)
                             continue;
 
                         uplayerfound++;
