@@ -30,6 +30,8 @@
 #include "WaypointMovementGenerator.h"
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
+#include "World.h"
+#include "AntiCheat.h"
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recv_data*/)
 {
@@ -319,10 +321,13 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
                 movementInfo.flags &= ~MOVEMENTFLAG_ONTRANSPORT;
         }
     }
-    else if (plMover && plMover->GetTransport())                // if we were on a transport, leave
+    else if (plMover && plMover->GetTransport())
     {
-        plMover->m_transport->RemovePassenger(plMover);
-        plMover->m_transport = NULL;
+        if (plMover->m_transport)
+        {
+            plMover->m_transport->RemovePassenger(plMover);
+            plMover->m_transport = NULL;
+        }
         movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
         movementInfo.t_time = 0;
         movementInfo.t_seat = -1;
@@ -338,7 +343,18 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
         plMover->SetInWater(!plMover->IsInWater() || plMover->GetBaseMap()->IsUnderWater(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ()));
     }
 
-    /*----------------------*/
+   /*----------------------*/
+
+    // begin anti cheat
+    bool check_passed = true;   
+
+    if (plMover && sWorld->getBoolConfig(CONFIG_AC_ENABLE))
+    {
+        check_passed = plMover->GetAntiCheat()->DoAntiCheatCheck(opcode, movementInfo, mover);
+    }
+
+    if (check_passed)
+    {
 
     /* process position-change */
     WorldPacket data(opcode, recv_data.size());
@@ -388,6 +404,19 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
                 plMover->RepopAtGraveyard();
             }
         }
+    }
+    /*else                                                    // creature charmed
+    {
+        if (mover->canFly())
+        {
+            bool flying = mover->IsFlying();
+            if (flying != ((mover->GetByteValue(UNIT_FIELD_BYTES_1, 3) & 0x02) ? true : false))
+                mover->SetFlying(flying);
+        }
+    }*/
+
+    //sLog->outString("Receive Movement Packet %s:", opcodeTable[recv_data.GetOpcode()]);
+    //mover->OutMovementInfo();
     }
 }
 
