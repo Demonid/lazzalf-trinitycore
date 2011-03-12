@@ -118,7 +118,6 @@ class boss_kologarn : public CreatureScript
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                me->SetReactState(REACT_PASSIVE);
 
                 DoCast(SPELL_KOLOGARN_REDUCE_PARRY);
                 SetCombatMovement(false);                
@@ -137,7 +136,6 @@ class boss_kologarn : public CreatureScript
                 // Birth animation
                 if (!emerged && me->IsWithinDistInMap(who, 40.0f) && who->GetTypeId() == TYPEID_PLAYER && !who->ToPlayer()->isGameMaster())
                 {
-                    me->SetReactState(REACT_AGGRESSIVE);
                     emerged = true;
                 }
             }
@@ -297,8 +295,8 @@ class boss_kologarn : public CreatureScript
 
                 events.Update(diff);
 
-                if (events.GetTimer() > 15000 && !me->IsWithinMeleeRange(me->getVictim()))
-                    DoCastAOE(SPELL_PETRIFY_BREATH, true);
+                //if (events.GetTimer() > 15000 && !me->IsWithinMeleeRange(me->getVictim()))
+                //    DoCastAOE(SPELL_PETRIFY_BREATH, true);
 
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
@@ -306,8 +304,8 @@ class boss_kologarn : public CreatureScript
                 switch (events.GetEvent())
                 {
                     case EVENT_MELEE_CHECK:
-                        //if (!me->IsWithinMeleeRange(me->getVictim()))
-                        //    DoCast(SPELL_PETRIFY_BREATH);
+                        if (!me->IsWithinMeleeRange(me->getVictim()))
+                            DoCast(SPELL_PETRIFY_BREATH);
                         events.RepeatEvent(1000);
                         break;
                     case EVENT_SWEEP:
