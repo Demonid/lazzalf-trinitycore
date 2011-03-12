@@ -276,7 +276,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     // TODO: pets should be summoned from real cast instead of just faking it?
     if (GetUInt32Value(UNIT_CREATED_BY_SPELL))
     {
-        WorldPacket data(SMSG_SPELL_GO, (8+8+1+4+4+4));
+        WorldPacket data(SMSG_SPELL_GO, (8+8+4+4+2));
+        //WorldPacket data(SMSG_SPELL_GO, (8+8+1+4+4+4));
         data.append(owner->GetPackGUID());
         data.append(owner->GetPackGUID());
         data << uint8(0);
