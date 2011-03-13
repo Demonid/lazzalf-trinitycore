@@ -269,7 +269,6 @@ class boss_sartharion : public CreatureScript
             if (pVesperon && pVesperon->isAlive())
                 pVesperon->ResetLootMode();
 
-            me->ResetLootMode();
             me->SetHomePosition(3246.57f, 551.263f, 58.6164f, 4.66003f); 
 
             achievProgress = 0;
