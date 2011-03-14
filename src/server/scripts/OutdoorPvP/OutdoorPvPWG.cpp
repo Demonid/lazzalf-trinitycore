@@ -2123,14 +2123,14 @@ bool OutdoorPvPWG::Update(uint32 diff)
             if (m_timer != 1) // 1 = forceStartBattle
                 sWorld->SendZoneText(NORTHREND_WINTERGRASP, sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_WG_BATTLE_STARTS));
  	            
-            if (!m_players[getDefenderTeamId()].empty() && !m_players[getAttackerTeamId()].empty())
+            if (m_players[getDefenderTeamId()].size() >= 5 && m_players[getAttackerTeamId()].size() >= 5)
                 StartBattle();
             else
             {
                 m_timer = sWorld->getIntConfig(CONFIG_OUTDOORPVP_WINTERGRASP_INTERVAL) * MINUTE * IN_MILLISECONDS;
                 sWorld->SendZoneText(NORTHREND_WINTERGRASP, sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_WG_NOT_ENOUGH_PLAYERS));
 
-                if (m_players[getDefenderTeamId()].empty())
+                if (m_players[getDefenderTeamId()].size() >= 5)
                     forceChangeTeam();
             }
         }
