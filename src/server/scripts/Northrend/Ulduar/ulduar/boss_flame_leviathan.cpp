@@ -367,10 +367,16 @@ public:
                         if (Vehicle *pSeat = vehicle->GetPassenger(i)->GetVehicleKit())
                         {
                             if (Unit* pTurret = (pSeat->GetPassenger(SEAT_TURRET)))
+                            {
+                                pTurret->CombatStop();
                                 pTurret->RemoveFromWorld();
+                            }
 
                             if (Unit* pDevice = (pSeat->GetPassenger(SEAT_DEVICE)))
+                            {
+                                pTurret->CombatStop();
                                 pDevice->RemoveFromWorld();
+                            }
                         }
                 }
             }
