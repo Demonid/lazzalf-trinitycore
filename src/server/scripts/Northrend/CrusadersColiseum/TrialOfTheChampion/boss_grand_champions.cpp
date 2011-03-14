@@ -183,6 +183,7 @@ class generic_vehicleAI_toc5 : public CreatureScript
 	    bool hasBeenInCombat;
 
         uint32 uiShieldBreakerTimer;
+        uint32 uiChargeTimer;
     	
 	    uint32 uiTimerSpell1;
 	    uint32 uiTimerSpell2;
@@ -195,6 +196,7 @@ class generic_vehicleAI_toc5 : public CreatureScript
         void Reset()
         {
             uiShieldBreakerTimer = 8000;
+            uiChargeTimer = 5000;
             uiBuffTimer = urand(30000,60000);
 		    uiTimerSpell1= urand(4000,10000);
 		    uiTimerSpell2= urand(4000,10000);
@@ -288,64 +290,10 @@ class generic_vehicleAI_toc5 : public CreatureScript
         void UpdateAI(const uint32 uiDiff)
         {
             npc_escortAI::UpdateAI(uiDiff);
-    		
-		    if (uiCheckTimer <= uiDiff)
-            {
-			    if(!CheckPlayersAlive())
-				    if(pInstance)
-				    {
-					    //DoScriptText(SAY_START2, me);
-					    pInstance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
-					    GameObject* GO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1));
-					    if(GO)
-						    pInstance->HandleGameObject(GO->GetGUID(),true);
-    			 
-					    me->RemoveFromWorld();
-				    }
-    				
-		        uiCheckTimer = 5000;
-		    }else uiCheckTimer -= uiDiff;
-    		
+
             if (!UpdateVictim())
                 return;
 
-		    if (uiTimerSpell1 <= uiDiff)
-            {
-			    DoCast(SPELL_THRUST);
-			    uiTimerSpell1 = urand(7000,20000);
-
-		    }else uiTimerSpell1-=uiDiff;
-
-		    if (uiTimerSpell2 <= uiDiff)
-            {
-			    DoCast(SPELL_SHIELD_1);
-			    uiTimerSpell2 = urand(30000,45000);
-
-		    }else uiTimerSpell2-=uiDiff;
-
-    /*
-		    if (uiTimerSpell3 <= uiDiff)
-            {
-			    uiTimerSpell2=urand(10000,20000);
-			    Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                    if (me->GetMap()->IsDungeon() && !players.isEmpty())
-                    {
-                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                        {
-                            Player* pPlayer = itr->getSource();
-                            if (pPlayer && !pPlayer->isGameMaster() && me->IsInRange(pPlayer,5.0f,30.0f,false))
-                            {
-                                me->CastSpell(pPlayer,SPELL_CHARGE,true);
-                                break;
-                            }
-                        }
-                    }
-    			
-    	
-    			
-
-		    }else uiTimerSpell3-=uiDiff;
-    */
             if (uiBuffTimer <= uiDiff)
             {
                 if (!me->HasAura(SPELL_SHIELD))
@@ -354,27 +302,49 @@ class generic_vehicleAI_toc5 : public CreatureScript
                 uiBuffTimer = urand(30000,45000);
             }else uiBuffTimer -= uiDiff;
 
+            if (uiChargeTimer <= uiDiff)
+            {
+                Map::PlayerList const& players = me->GetMap()->GetPlayers();
+                if (me->GetMap()->IsDungeon() && !players.isEmpty())
+                {
+                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    {
+                        Player* pPlayer = itr->getSource();
+                        if (pPlayer && !pPlayer->isGameMaster() && me->IsInRange(pPlayer,8.0f,25.0f,false) && pPlayer->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+                        {
+                            Creature* pVehicle = pPlayer->GetVehicleBase()->ToCreature();
+                            if (pVehicle)
+                            {
+                                DoResetThreat();
+                                me->AddThreat(pVehicle,1.0f);
+                                DoCast(pVehicle, SPELL_CHARGE);
+                            }
+                            break;
+                        }
+                    }
+                }
+                uiChargeTimer = 5000;
+            }else uiChargeTimer -= uiDiff;
+
             //dosen't work at all
             if (uiShieldBreakerTimer <= uiDiff)
             {
-                Vehicle *pVehicle = me->GetVehicleKit();
-                if (!pVehicle)
-				    return;
-
-
-                if (Unit* pPassenger = pVehicle->GetPassenger(SEAT_ID_0))
+                Map::PlayerList const& players = me->GetMap()->GetPlayers();
+                if (me->GetMap()->IsDungeon() && !players.isEmpty())
                 {
-                    Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                    if (me->GetMap()->IsDungeon() && !players.isEmpty())
+                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
-                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        Player* pPlayer = itr->getSource();
+                        if (pPlayer && !pPlayer->isGameMaster() && me->IsInRange(pPlayer,10.0f,30.0f,false) && pPlayer->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
                         {
-                            Player* pPlayer = itr->getSource();
-                            if (pPlayer && !pPlayer->isGameMaster() && me->IsInRange(pPlayer,10.0f,30.0f,false))
+                            Creature* pVehicle = pPlayer->GetVehicleBase()->ToCreature();
+                            if (pVehicle)
                             {
-                                pPassenger->CastSpell(pPlayer,SPELL_SHIELD_BREAKER,true);
-                                break;
+                                DoResetThreat();
+                                me->AddThreat(pVehicle,1.0f);
+                                DoCast(pVehicle,SPELL_SHIELD_BREAKER);
                             }
+                            break;
                         }
                     }
                 }
