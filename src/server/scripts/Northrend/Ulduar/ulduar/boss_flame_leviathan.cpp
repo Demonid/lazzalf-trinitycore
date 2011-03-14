@@ -374,7 +374,7 @@ public:
 
                             if (Unit* pDevice = (pSeat->GetPassenger(SEAT_DEVICE)))
                             {
-                                pTurret->CombatStop();
+                                pDevice->CombatStop();
                                 pDevice->RemoveFromWorld();
                             }
                         }
