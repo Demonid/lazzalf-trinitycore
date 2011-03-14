@@ -281,7 +281,7 @@ class boss_hodir : public CreatureScript
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             if (pTarget->isAlive())
                                 DoCast(pTarget, SPELL_ICICLE);
-                        events.ScheduleEvent(EVENT_ICICLE, 2000);
+                        events.ScheduleEvent(EVENT_ICICLE, RAID_MODE(4000,2000));
                         break;
                     case EVENT_FLASH_CAST:
                         DoScriptText(SAY_FLASH_FREEZE, me);
