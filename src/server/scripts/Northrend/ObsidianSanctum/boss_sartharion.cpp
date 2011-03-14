@@ -367,7 +367,10 @@ class boss_sartharion : public CreatureScript
                 }*/
 
                 while (Unit* pTarget = me->FindNearestCreature(NPC_LAVA_BLAZE, 100.0f))
+                {
+                    pTarget->CombatStop();
                     pTarget->RemoveFromWorld();
+                }
             }
         }
 

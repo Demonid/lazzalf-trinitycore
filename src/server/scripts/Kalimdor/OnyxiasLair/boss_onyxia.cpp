@@ -207,7 +207,10 @@ public:
 
             Summons.DespawnAll();
             while (Unit* pTarget = me->FindNearestCreature(NPC_WHELP,100.0f))
+            {
+                pTarget->CombatStop();
                 pTarget->RemoveFromWorld();
+            }
         }
 
         void JustSummoned(Creature *pSummoned)
