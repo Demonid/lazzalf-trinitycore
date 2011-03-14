@@ -600,8 +600,8 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
     // We also must check the map because the movementFlag can be modified by the client.
     // If we just check the flag, they could always add that flag and always skip the speed hacking detection.
     // 369 == DEEPRUN TRAM
-    if (m_Players[key].GetLastMovementInfo().HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && player->GetMapId() == 369)
-        return;
+    if (pOldPacket.HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && plMover->GetMapId() == 369)
+        return true;
 
 	if (uDistance2D > 0 && uClientSpeedRate > uSpeedRate)    
 	{          
