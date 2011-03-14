@@ -597,6 +597,12 @@ bool AntiCheat::CheckAntiSpeed(MovementInfo& pOldPacket, MovementInfo& pNewPacke
     if (plMover->HasAuraType(SPELL_AURA_FEATHER_FALL) || plMover->HasAuraType(SPELL_AURA_SAFE_FALL))
         return true;
 
+    // We also must check the map because the movementFlag can be modified by the client.
+    // If we just check the flag, they could always add that flag and always skip the speed hacking detection.
+    // 369 == DEEPRUN TRAM
+    if (m_Players[key].GetLastMovementInfo().HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && player->GetMapId() == 369)
+        return;
+
 	if (uDistance2D > 0 && uClientSpeedRate > uSpeedRate)    
 	{          
         cheat_find = true;
