@@ -154,6 +154,18 @@ enum eCreature
 enum eAchievments
 {
     ACHIEV_TIMED_START_EVENT                      = 17726,
+    ACHI_MY_GIRL_LOVES                            = 2156,
+};
+
+enum AchievementControl
+{
+    ACHI_IS_NOT_STARTED,
+    ACHI_START,
+    ACHI_IS_IN_PROGRESS,
+    ACHI_COMPLETED,
+    ACHI_FAILED,
+    ACHI_RESET,
+    ACHI_INCREASE,
 };
 
 class boss_skadi : public CreatureScript
@@ -186,6 +198,8 @@ public:
         uint32 m_uiMountTimer;
         uint32 m_uiSummonTimer;
         uint8  m_uiSpellHitCount;
+        uint8  achiStatus;
+        uint32 achiTimer;
         bool   m_bSaidEmote;
 
         eCombatPhase Phase;
@@ -201,6 +215,8 @@ public:
             m_uiWaypointId = 0;
             m_bSaidEmote = false;
             m_uiSpellHitCount = 0;
+            achiStatus = ACHI_IS_NOT_STARTED;
+            achiTimer = 10 * IN_MILLISECONDS;
 
             Phase = SKADI;
 
@@ -280,6 +296,9 @@ public:
         {
             if (spell->Id == SPELL_HARPOON_DAMAGE)
             {
+                if (achiStatus == ACHI_IS_NOT_STARTED)
+                    achiStatus = ACHI_IS_IN_PROGRESS;
+
                 m_uiSpellHitCount++;
                 if (m_uiSpellHitCount >= 3)
                 {
@@ -293,6 +312,7 @@ public:
                     }
                     me->GetMotionMaster()->MoveJump(Location[4].GetPositionX(), Location[4].GetPositionY(), Location[4].GetPositionZ(), 5.0f, 10.0f);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                    me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     DoScriptText(SAY_DRAKE_DEATH, me);
                     m_uiCrushTimer = 8000;
                     m_uiPoisonedSpearTimer = 10000;
@@ -305,13 +325,29 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
+            if (achiStatus == ACHI_IS_IN_PROGRESS)
+            {
+                if (achiTimer)
+                {
+                    if (achiTimer <= diff)
+                    {
+                        if (m_uiSpellHitCount == 3)
+                            achiStatus = ACHI_COMPLETED;
+                        else
+                            achiStatus = ACHI_FAILED;
+                    }
+                    else
+                        achiTimer -= diff;
+                }
+            }
+
             switch(Phase)
             {
                 case FLYING:
                     if (!UpdateVictim())
                         return;
 
-                    if (me->GetPositionX() >= 519)
+                    if (me->GetPositionX() >= 475)
                     {
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                         if (!m_bSaidEmote)
@@ -411,9 +447,15 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
-            Summons.DespawnAll();
+            Summons.DespawnAll();           
+
             if (m_pInstance)
+            {
+                if (IsHeroic() && achiStatus == ACHI_COMPLETED)
+                    m_pInstance->DoCompleteAchievement(ACHI_MY_GIRL_LOVES);
+
                 m_pInstance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, DONE);
+            }
         }
 
         void KilledUnit(Unit * /*victim*/)
