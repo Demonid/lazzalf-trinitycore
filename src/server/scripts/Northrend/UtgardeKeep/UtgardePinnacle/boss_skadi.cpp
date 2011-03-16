@@ -159,13 +159,10 @@ enum eAchievments
 
 enum AchievementControl
 {
-    ACHI_IS_NOT_STARTED,
-    ACHI_START,
+    ACHI_IS_NOT_STARTED = 1,
     ACHI_IS_IN_PROGRESS,
     ACHI_COMPLETED,
     ACHI_FAILED,
-    ACHI_RESET,
-    ACHI_INCREASE,
 };
 
 class boss_skadi : public CreatureScript
@@ -216,7 +213,7 @@ public:
             m_bSaidEmote = false;
             m_uiSpellHitCount = 0;
             achiStatus = ACHI_IS_NOT_STARTED;
-            achiTimer = 10 * IN_MILLISECONDS;
+            achiTimer = 0;
 
             Phase = SKADI;
 
@@ -297,7 +294,10 @@ public:
             if (spell->Id == SPELL_HARPOON_DAMAGE)
             {
                 if (achiStatus == ACHI_IS_NOT_STARTED)
+                {
                     achiStatus = ACHI_IS_IN_PROGRESS;
+                    achiTimer = 10 * IN_MILLISECONDS;
+                }
 
                 m_uiSpellHitCount++;
                 if (m_uiSpellHitCount >= 3)
@@ -325,20 +325,19 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (achiStatus == ACHI_IS_IN_PROGRESS)
+            if (achiTimer)
             {
-                if (achiTimer)
+                if (achiTimer <= diff)
                 {
-                    if (achiTimer <= diff)
-                    {
-                        if (m_uiSpellHitCount == 3)
-                            achiStatus = ACHI_COMPLETED;
-                        else
-                            achiStatus = ACHI_FAILED;
-                    }
+                    if (m_uiSpellHitCount == 3)
+                        achiStatus = ACHI_COMPLETED;
                     else
-                        achiTimer -= diff;
+                        achiStatus = ACHI_FAILED;
+
+                    achiTimer = 0;
                 }
+                else
+                    achiTimer -= diff;
             }
 
             switch(Phase)

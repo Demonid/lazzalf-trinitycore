@@ -29,7 +29,9 @@ Script Data End */
 enum Spells
 {
     SPELL_BANE                                = 48294,
+    SPELL_BANE_DMG                            = 48295,
     H_SPELL_BANE                              = 59301,
+    H_SPELL_BANE_DMG                          = 59302,
     SPELL_DARK_SLASH                          = 48292,
     SPELL_FETID_ROT                           = 48291,
     H_SPELL_FETID_ROT                         = 59300,
@@ -193,7 +195,7 @@ public:
 
         void SpellHitTarget(Unit* /*pTarget*/, const SpellEntry *spell)
         {
-            if (spell->Id == SPELL_BANE)
+            if (spell->Id == DUNGEON_MODE(SPELL_BANE_DMG, H_SPELL_BANE_DMG))
                 hitByBane = true;
         }
 
