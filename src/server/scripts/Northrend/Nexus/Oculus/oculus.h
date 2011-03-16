@@ -48,7 +48,9 @@ enum Bosses
 
 enum GameObjects
 {
-    GO_DRAGON_CAGE_DOOR                           = 193995
+    GO_DRAGON_CAGE_DOOR                           = 193995,
+    GO_CACHE_OF_EREGOS_N                          = 191349,
+    GO_CACHE_OF_EREGOS_H                          = 193603,
 };
 
 enum SpellEvents
