@@ -58,7 +58,7 @@ class boss_toravon : public CreatureScript
         {
             pInstance = c->GetInstanceScript();
 
-            if (getDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+            if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
                 num_orbs = 3;
             else
                 num_orbs = 1;
