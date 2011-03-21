@@ -178,7 +178,7 @@ void Vehicle::RemoveAllPassengers()
     // Passengers always cast an aura with SPELL_AURA_CONTROL_VEHICLE on the vehicle
     // We just remove the aura and the unapply handler will make the target leave the vehicle.
     // We don't need to iterate over m_Seats
-    me->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE);
+    //me->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE);
 
     // Following the above logic, this assertion should NEVER fail.
     // Even in 'hacky' cases, there should at least be VEHICLE_SPELL_RIDE_HARDCODED on us.
@@ -195,16 +195,11 @@ void Vehicle::RemoveAllPassengers()
                 sLog->outCrash("Vehicle %u has invalid passenger %u. Seat: %i", me->GetEntry(), passenger->GetEntry(), itr->first);
 
             passenger->ExitVehicle();
-
             if (itr->second.passenger)
             {
                 sLog->outCrash("Vehicle %u cannot remove passenger %u. "UI64FMTD" is still on vehicle.", me->GetEntry(), passenger->GetEntry(), itr->second.passenger);
                 itr->second.passenger = 0;
             }
-            // creature passengers mounted on player mounts should be despawned at dismount
-
-            if (GetBase()->GetTypeId() == TYPEID_PLAYER && passenger->ToCreature())
-                passenger->ToCreature()->DespawnOrUnsummon();
         }
 }
 

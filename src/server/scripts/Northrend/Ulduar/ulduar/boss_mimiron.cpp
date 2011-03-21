@@ -238,7 +238,7 @@ public:
                 instance->SetData(DATA_MIMIRON_ELEVATOR, GO_STATE_ACTIVE);
                 instance->SetBossState(BOSS_MIMIRON, FAIL);
                 
-                for (uint8 data = DATA_LEVIATHAN_MK_II; data <= DATA_AERIAL_UNIT; ++data)
+                for (uint8 data = DATA_VX_001; data <= DATA_AERIAL_UNIT; ++data)
                 {
                     if (Creature *pCreature = me->GetCreature(*me, instance->GetData64(data)))
                     {
@@ -721,19 +721,9 @@ public:
 
             phase = PHASE_NULL;
             events.SetPhase(PHASE_NULL);
-        }
 
-        void JustReachedHome()
-        {
-            if (vehicle->HasEmptySeat(3) && !me->isInCombat())
-                vehicle->Reset();
-
-            if (Creature *turret = CAST_CRE(vehicle->GetPassenger(3)))
-            {
-                turret->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                turret->SetReactState(REACT_PASSIVE);
-                turret->AI()->EnterEvadeMode();
-            }
+            if (vehicle->HasEmptySeat(3))
+                 vehicle->Reset();
         }
 
         void KilledUnit(Unit *who)
@@ -911,6 +901,7 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            me->SetReactState(REACT_PASSIVE);
             uiNapalmShell = urand(4000, 8000);
         }
 
