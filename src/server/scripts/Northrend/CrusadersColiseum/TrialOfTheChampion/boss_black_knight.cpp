@@ -520,6 +520,8 @@ class npc_black_knight_skeletal_gryphon : public CreatureScript
         npc_black_knight_skeletal_gryphonAI(Creature* pCreature) : npc_escortAI(pCreature)
         {
             Start(false,true,0,NULL);
+            if (me->GetVehicleKit())
+                me->GetVehicleKit()->Reset();
         }
 
         /*
