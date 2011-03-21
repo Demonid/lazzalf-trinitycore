@@ -337,7 +337,7 @@ static bool HandleGameObjectAddGuildCommand(ChatHandler* handler, const char* ar
         else
         {
             std::ostringstream eventFilter;
-            eventFilter << " AND (event IS NULL ";
+            eventFilter << " AND (eventEntry IS NULL ";
             bool initString = true;
 
             for (GameEventMgr::ActiveEvents::const_iterator itr = activeEventsList.begin(); itr != activeEventsList.end(); ++itr)
