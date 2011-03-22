@@ -3665,7 +3665,7 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectTriggerSpell[0] = 36325; // They Must Burn Bomb Drop (DND)
             count++;
             break;   
-	case 5171: 
+	    case 5171: 
         case 6774:  // Slice and Dice
         case 49838: // Stop Time
         case 50526: // Wandering Plague
@@ -3704,11 +3704,6 @@ void SpellMgr::LoadSpellCustomAttr()
         // Bloodlust
         case 2825:
             spellInfo->excludeCasterAuraSpell = 57724; // Sated
-            count++;
-            break;
-        // Titanic Storm
-        case 64172:
-            spellInfo->excludeTargetAuraSpell = 65294; // Empowered
             count++;
             break;
         // Heart of the Crusader
@@ -3801,34 +3796,11 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetA[1] = TARGET_DST_CASTER;
             count++;
             break;
-        case 63830: // Malady of the Mind
-        case 63881: // Malady of the Mind proc
-        case 63795: // Psychosis
-            spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
-            spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_TARGET_ANY;
-            spellInfo->EffectImplicitTargetB[2] = TARGET_UNIT_TARGET_ANY;
-            count++;
-            break;
-        case 63802: // Brain Link
-            spellInfo->MaxAffectedTargets = 2;
-            spellInfo->EffectRadiusIndex[0] = 12; // 100 yard
-            count++;
-            break;
         case 62714:     // Shadow Nova
         case 65209:     // Shadow Nova
              spellInfo->Effect[0] = 0;
              count++;
              break;
-        case 64145:     // Diminish Power
-            spellInfo->AttributesEx |= SPELL_ATTR1_STACK_FOR_DIFF_CASTERS;
-            count++;
-            break;
-        case 63882:     // Death Ray Warning Visual
-        case 63886:     // Death Ray Damage Visual
-            spellInfo->AttributesEx |= SPELL_ATTR1_STACK_FOR_DIFF_CASTERS;
-            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ALLY;
-            count++;
-            break;
         case 41376: // Spite
         case 39992: // Needle Spine
         case 29576: // Multi-Shot
@@ -4164,6 +4136,33 @@ void SpellMgr::LoadSpellCustomAttr()
         //
         case 63342: // Focused Eyebeam Summon Trigger
             spellInfo->MaxAffectedTargets = 1;
+            count++;
+            break;
+        case 64145: // Diminish Power
+        case 63882: // Death Ray Warning Visual
+        case 63886: // Death Ray Damage Visual
+            spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+            count++;
+            break;
+        case 64172: // Titanic Storm
+            spellInfo->excludeTargetAuraSpell = 65294; // Empowered
+            count++;
+            break;
+        case 63830: // Malady of the Mind
+        case 63881: // Malady of the Mind proc
+        case 63795: // Psychosis
+            spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
+            spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_TARGET_ANY;
+            spellInfo->EffectImplicitTargetB[2] = TARGET_UNIT_TARGET_ANY;
+            count++;
+            break;
+        case 63802: // Brain Link
+            spellInfo->MaxAffectedTargets = 2;
+            spellInfo->EffectRadiusIndex[0] = 12; // 100 yard
+            count++;
+            break;
+        case 63050: // Sanity
+            spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
             count++;
             break;
         // ENDOF ULDUAR SPELLS

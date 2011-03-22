@@ -1290,28 +1290,29 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                             }
                         }
                         break;
-                    // Malady of the Mind will attempt to jump to a nearby friend when removed
-                    case 63830:
-                    case 63881:                
-                        if (removeMode == AURA_REMOVE_BY_EXPIRE)
+                    case 63830: // Malady of the Mind
+                    case 63881:
+                    {
+                        if (removeMode != AURA_REMOVE_BY_EXPIRE)
+                            break;
+                        // it will attempt to jump to a nearby friend when removed
+                        std::list<Unit*> unitList;
+                        target->GetRaidMember(unitList, 10);
+                        for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
                         {
-                            std::list<Unit*> unitList;
-                            target->GetRaidMember(unitList, 10);
-                            for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
-                            {
-                                Unit* pUnit = *itr;
-                                if (pUnit == target)
-                                    continue;
-                                    
-                                pUnit->CastSpell(pUnit, 63881, true, 0, 0);
-                                return;
-                            }
+                            Unit* pUnit = *itr;
+                            if (!pUnit || pUnit == target)
+                                continue;
+
+                            pUnit->CastSpell(pUnit, 63881, true, 0, 0);
+                            return;
                         }
                         break;
-                    // Shadow Beacon
-                    case 64465:
-                        if (removeMode == AURA_REMOVE_BY_EXPIRE)
-                            target->CastSpell(target, 64468, true, 0, 0, GetCasterGUID());
+                    }
+                    case 64465: // Shadow Beacon
+                        if (removeMode != AURA_REMOVE_BY_EXPIRE)
+                            break;
+                        target->CastSpell(target, 64468, true, 0, 0, GetCasterGUID());
                         break;
                 }
                 break;
