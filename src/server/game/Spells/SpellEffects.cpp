@@ -4549,6 +4549,38 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
     {
         case SPELLFAMILY_GENERIC:
         {
+            if (unitTarget && unitTarget->HasAura(63050))
+            {
+                // reduces Sanity by %
+                uint32 sanityCount = 0;
+                switch(m_spellInfo->Id)
+                {
+                    case 63803: // Brain Link
+                    case 64168: // Lunatic Gaze
+                        sanityCount = 2; break;
+                    case 63830: // Malady of the Mind 10
+                    case 63881: // Malady of the Mind 25
+                        sanityCount = 3; break;
+                    case 64164: // Lunatic Gaze P3
+                        sanityCount = 4; break;
+                    case 63795: // Psychosis
+                        sanityCount = 9; break;
+                    case 64059: // Induce Madness
+                        sanityCount = 100; break;
+                }
+                if (sanityCount)
+                {
+                    if (Aura *aur = unitTarget->GetAura(63050))
+                    {
+                        int32 stack = aur->GetStackAmount() - sanityCount;
+                        if (stack <= 0)
+                            unitTarget->RemoveAurasDueToSpell(63050);
+                        else
+                            unitTarget->SetAuraStack(63050, unitTarget, stack);
+                    }
+                }
+            }
+
             switch(m_spellInfo->Id)
             {
                 //Teleport to Lake Wintergrasp
@@ -5339,80 +5371,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                             m_caster->CastSpell(seat->GetBase(), 62496, true);
                             unitTarget->EnterVehicle(m_caster, 1);
                         }
-                    }
-                    return;
-                }
-                case 63803: // Brain Link
-                case 64168: // Lunatic Gaze
-                {
-                    if (AuraEffect *aur=unitTarget->GetAuraEffect(63050, 0))
-                    {
-                        int32 stack = aur->GetBase()->GetStackAmount() - 2;
-                        if (stack <= 0)
-                            unitTarget->RemoveAurasDueToSpell(63050);
-                        else
-                            unitTarget->SetAuraStack(63050, unitTarget, stack);
-                    }
-                    return;
-                }
-                case 63830: // Malady of the Mind 10
-                case 63881: // Malady of the Mind 25
-                {
-                    if (AuraEffect *aur=unitTarget->GetAuraEffect(63050, 0))
-                    {
-                        int32 stack = aur->GetBase()->GetStackAmount() - 3;
-                        if (stack <= 0)
-                            unitTarget->RemoveAurasDueToSpell(63050);
-                        else
-                            unitTarget->SetAuraStack(63050, unitTarget, stack);
-                    }
-                    return;
-                }
-                case 64164: // Lunatic Gaze P3
-                {
-                    if (AuraEffect *aur=unitTarget->GetAuraEffect(63050, 0))
-                    {
-                        int32 stack = aur->GetBase()->GetStackAmount() - 4;
-                        if (stack <= 0)
-                            unitTarget->RemoveAurasDueToSpell(63050);
-                        else
-                            unitTarget->SetAuraStack(63050, unitTarget, stack);
-                    }
-                    return;
-                }
-                case 65301: // Psychosis 10
-                {
-                    if (AuraEffect *aur=unitTarget->GetAuraEffect(63050, 0))
-                    {
-                        int32 stack = aur->GetBase()->GetStackAmount() - 12;
-                        if (stack <= 0)
-                            unitTarget->RemoveAurasDueToSpell(63050);
-                        else
-                            unitTarget->SetAuraStack(63050, unitTarget, stack);
-                    }
-                    return;
-                }
-                case 63795: // Psychosis 25
-                {
-                    if (AuraEffect *aur=unitTarget->GetAuraEffect(63050, 0))
-                    {
-                        int32 stack = aur->GetBase()->GetStackAmount() - 9;
-                        if (stack <= 0)
-                            unitTarget->RemoveAurasDueToSpell(63050);
-                        else
-                            unitTarget->SetAuraStack(63050, unitTarget, stack);
-                    }
-                    return;
-                }
-                case 64059: // Induce Madness
-                {
-                    if (AuraEffect *aur=unitTarget->GetAuraEffect(63050, 0))
-                    {
-                        int32 stack = aur->GetBase()->GetStackAmount() - 100;
-                        if (stack <= 0)
-                            unitTarget->RemoveAurasDueToSpell(63050);
-                        else
-                            unitTarget->SetAuraStack(63050, unitTarget, stack);
                     }
                     return;
                 }
