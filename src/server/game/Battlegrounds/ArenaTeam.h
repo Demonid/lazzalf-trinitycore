@@ -184,6 +184,9 @@ class ArenaTeam
         bool LoadMembersFromDB(QueryResult arenaTeamMembersResult);
         void LoadStatsFromDB(uint32 ArenaTeamId);
 
+		void SaveToDBArenaModPlayer(uint64 PlayerGuid, uint32 ArenaTeamId, uint32 EnemyTeamId);
+        void SaveToDBArenaModTeam(uint32 ArenaTeamId, uint32 EnemyTeamId);
+
         void SaveToDB();
 
         void BroadcastPacket(WorldPacket *packet);
@@ -199,7 +202,7 @@ class ArenaTeam
         int32 GetPersonalRatingMod(int32 base_rating, uint32 own_rating, uint32 enemy_rating);
         float GetChanceAgainst(uint32 own_rating, uint32 enemy_rating);
         int32 WonAgainst(uint32 againstRating);
-        void MemberWon(Player * plr, uint32 againstMatchmakerRating, int32 teamratingchange = 12);
+        void MemberWon(Player * plr, uint32 againstMatchmakerRating, int32 teamratingchange = 12, int32 againstRating = 0);
         int32 LostAgainst(uint32 againstRating);
         void MemberLost(Player * plr, uint32 againstMatchmakerRating, int32 teamratingchange = -12);
         void OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, int32 teamratingchange = -12);
