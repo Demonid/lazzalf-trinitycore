@@ -467,8 +467,6 @@ void AddSC_boss_xevozz();
 void AddSC_boss_zuramat();
 void AddSC_instance_violet_hold();
 void AddSC_violet_hold();
-void AddSC_instance_eye_of_eternity();   // Malygos
-void AddSC_boss_malygos(); 
 void AddSC_instance_forge_of_souls();   //Forge of Souls
 void AddSC_forge_of_souls();
 void AddSC_boss_bronjahm();
