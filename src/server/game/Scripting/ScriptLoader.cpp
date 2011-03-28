@@ -1174,8 +1174,6 @@ void AddNorthrendScripts()
     AddSC_boss_zuramat();
     AddSC_instance_violet_hold();
     AddSC_violet_hold();
-    AddSC_instance_eye_of_eternity();   // Malygos
-    AddSC_boss_malygos();
     AddSC_instance_forge_of_souls();   //Forge of Souls
     AddSC_forge_of_souls();
     AddSC_boss_bronjahm();
