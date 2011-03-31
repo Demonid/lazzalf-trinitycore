@@ -145,14 +145,12 @@ public:
                 case DATA_EMALON_EVENT:     uiEncounters[1] = data; break;
                 case DATA_KORALON_EVENT:    uiEncounters[2] = data; break;
                 case DATA_TORAVON_EVENT:    uiEncounters[3] = data; break;
-                case DATA_EWF_START:
+                case DATA_EWF:
                     if (data == ACHI_START)
                         timer = EWF_MAX_TIMER;
                     else if (data == ACHI_FAILED || data == ACHI_COMPLETED)
                         timer = 0;
-                    break;
-                case DATA_EWF_COUNT:
-                    if (data == ACHI_INCREASE)
+                    else if (data == ACHI_INCREASE)
                         watchersCount++;
                     break;
             }
@@ -177,11 +175,11 @@ public:
                     if (AchievEWF)
                         DoCompleteAchievement(achievementEWF);
 
-                    SetData(DATA_EWF_START, ACHI_COMPLETED);
+                    SetData(DATA_EWF, ACHI_COMPLETED);
                 }
 
                 if (timer <= diff)
-                    SetData(DATA_EWF_START, ACHI_FAILED);
+                    SetData(DATA_EWF, ACHI_FAILED);
                 else timer -= diff;
             }
         }

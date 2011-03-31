@@ -27,8 +27,7 @@ enum
     DATA_SNOBOLD_COUNT                   = 301,
     DATA_MISTRESS_OF_PAIN_COUNT          = 302,
     DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE = 303,
-    DATA_TRAITOR_KING_START              = 304,
-    DATA_TRAITOR_KING_COUNT              = 305,
+    DATA_TRAITOR_KING                    = 304,
 
     INCREASE                    = 501,
     DECREASE                    = 502,
@@ -278,24 +277,6 @@ enum eAchievementData
 
     // Timed events
     EVENT_START_TWINS_FIGHT                 = 21853,
-
-    // Trial of the crusader 25 - boss credits - 3916
-    ICEHOWL_25                              = 11679,
-    JARAXXUS_25                             = 11680,
-    TWIN_25                                 = 11682,
-    ANUB_25                                 = 11683,
-
-    // Trial of the grand crusader 10 - boss credits - 3918
-    ICEHOWL_10H                             = 11689,
-    JARAXXUS_10H                            = 11690,
-    TWIN_10H                                = 11692,
-    ANUB_10H                                = 11693,
-
-    // Trial of the grand crusader 25 - boss credits - 3812
-    ICEHOWL_25H                             = 11542,
-    JARAXXUS_25H                            = 11546,
-    TWIN_25H                                = 11547,
-    ANUB_25H                                = 11549
 };
 
 enum AchievementControl

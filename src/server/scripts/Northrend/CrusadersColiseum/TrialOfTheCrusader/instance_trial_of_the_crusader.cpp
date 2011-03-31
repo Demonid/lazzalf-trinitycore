@@ -493,19 +493,17 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         else if (data == DECREASE)
                             --MistressOfPainCount;
                         break;
-                    case DATA_TRAITOR_KING_START:
+                    case DATA_TRAITOR_KING:
                         if (data == ACHI_START)
                             traitorKingTimer = TRAITOR_KING_MAX_TIMER;
+                        else if (data == ACHI_INCREASE)
+                            scarabsCount++;
                         else if (data == ACHI_RESET)
                         {
                             traitorKingTimer = 0;
                             scarabsCount = 0;
                         }
-                        break;
-                    case DATA_TRAITOR_KING_COUNT:
-                        if (data == ACHI_INCREASE)
-                            scarabsCount++;
-                        break;
+                        break;                    
                     case DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE:
                         TributeToImmortalityElegible = false;
                         break;
@@ -738,7 +736,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         return SnoboldCount;
                     case DATA_MISTRESS_OF_PAIN_COUNT: 
                         return MistressOfPainCount;
-                    case DATA_TRAITOR_KING_START:
+                    case DATA_TRAITOR_KING:
                         if (traitorKingTimer > 0)
                             return ACHI_IS_IN_PROGRESS;
                         else
@@ -788,11 +786,11 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         if (AchievTraitorKing)
                             DoCompleteAchievement(achievementTraitorKing);
 
-                        SetData(DATA_TRAITOR_KING_START, ACHI_RESET);
+                        SetData(DATA_TRAITOR_KING, ACHI_RESET);
                     }
 
                     if (traitorKingTimer <= diff)
-                        SetData(DATA_TRAITOR_KING_START, ACHI_RESET);
+                        SetData(DATA_TRAITOR_KING, ACHI_RESET);
                     else 
                         traitorKingTimer -= diff;
                 }

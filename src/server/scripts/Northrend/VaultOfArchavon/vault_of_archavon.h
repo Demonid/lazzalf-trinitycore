@@ -34,8 +34,7 @@ enum Data
     DATA_EMALON_EVENT,
     DATA_KORALON_EVENT,
     DATA_TORAVON_EVENT,
-    DATA_EWF_START,
-    DATA_EWF_COUNT,
+    DATA_EWF,
 };
 
 enum Data64
