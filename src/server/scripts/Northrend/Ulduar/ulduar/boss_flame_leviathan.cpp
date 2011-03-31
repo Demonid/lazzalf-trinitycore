@@ -392,7 +392,10 @@ public:
                 {
                     Player* pPlayer = itr->getSource();
                     if (pPlayer)
+                    {
                         me->GetMap()->ToInstanceMap()->PermBindAllPlayers(pPlayer);
+                        pPlayer->KilledMonsterCredit(33113,0);
+                    }
                 }
             }
 
@@ -1456,15 +1459,19 @@ public:
         {
             case GO_TOWER_OF_STORMS:
                 instance->SetData(DATA_TOWER_DESTROYED, TOWER_OF_STORM_DESTROYED);
+                pGO->MonsterTextEmote("Tower of Storms destroyed!", 0, true);
                 break;
             case GO_TOWER_OF_LIFE:
                 instance->SetData(DATA_TOWER_DESTROYED, TOWER_OF_LIFE_DESTROYED);
+                pGO->MonsterTextEmote("Tower of Life destroyed!", 0, true);
                 break;            
             case GO_TOWER_OF_FLAMES:
                 instance->SetData(DATA_TOWER_DESTROYED, TOWER_OF_FLAMES_DESTROYED);
+                pGO->MonsterTextEmote("Tower of Flames destroyed!", 0, true);
                 break;
             case GO_TOWER_OF_FROST:
                 instance->SetData(DATA_TOWER_DESTROYED, TOWER_OF_FROST_DESTROYED);
+                pGO->MonsterTextEmote("Tower of Frost destroyed!", 0, true);
                 break;
         }
 
@@ -1516,10 +1523,10 @@ class mob_steelforged_defender : public CreatureScript
 
        void JustDied(Unit *victim)
        {
-           if(pInstance->GetData(DATA_DWARFAGEDDON_START) == ACHI_IS_NOT_STARTED)
-               pInstance->SetData(DATA_DWARFAGEDDON_START, ACHI_START);
+           if(pInstance->GetData(DATA_DWARFAGEDDON) == ACHI_IS_NOT_STARTED)
+               pInstance->SetData(DATA_DWARFAGEDDON, ACHI_START);
            
-           pInstance->SetData(DATA_DWARFAGEDDON_COUNT, ACHI_INCREASE);
+           pInstance->SetData(DATA_DWARFAGEDDON, ACHI_INCREASE);
        }
     };
 
@@ -1638,6 +1645,63 @@ class ulduar_repair_npc : public CreatureScript
     };
 };
 
+// criteria_id = 10046 (10) / 10049 (25)
+class achievement_three_car_garage_chopper : public AchievementCriteriaScript
+{
+    public:
+        achievement_three_car_garage_chopper() : AchievementCriteriaScript("achievement_three_car_garage_chopper") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            if (Creature* vehicle = source->GetVehicleCreatureBase())
+                if (vehicle->GetEntry() == VEHICLE_CHOPPER)
+                    return true;
+
+            return false;
+        }
+};
+
+// criteria_id = 10047 (10) / 10050 (25)
+class achievement_three_car_garage_siege : public AchievementCriteriaScript
+{
+    public:
+        achievement_three_car_garage_siege() : AchievementCriteriaScript("achievement_three_car_garage_siege") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            if (Creature* vehicle = source->GetVehicleCreatureBase())
+                if (vehicle->GetEntry() == VEHICLE_SIEGE)
+                    return true;
+
+            return false;
+        }
+};
+
+// criteria_id = 10048 (10) / 10051 (25)
+class achievement_three_car_garage_demolisher : public AchievementCriteriaScript
+{
+    public:
+        achievement_three_car_garage_demolisher() : AchievementCriteriaScript("achievement_three_car_garage_demolisher") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            if (Creature* vehicle = source->GetVehicleCreatureBase())
+                if (vehicle->GetEntry() == VEHICLE_DEMOLISHER)
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_flame_leviathan()
 {
     new boss_flame_leviathan();
@@ -1660,4 +1724,7 @@ void AddSC_boss_flame_leviathan()
     new mob_flameleviathan_loot();
     new mob_steelforged_defender();
     new ulduar_repair_npc();
+    new achievement_three_car_garage_chopper();
+    new achievement_three_car_garage_siege();
+    new achievement_three_car_garage_demolisher();
 }

@@ -164,6 +164,10 @@ class instance_ulduar : public InstanceMapScript
         uint32 guardiansCount;
         uint32 comingOutTimer;
         uint32 achievementComingOut;
+        // Set Up Us the Bomb
+        bool proximityMineHit;
+        bool bombBotHit;
+        bool rocketStrikeHit;
             
         GameObject* pLeviathanDoor, /* *KologarnChest,*/ *HodirChest, *HodirRareChest, *ThorimChest, *ThorimRareChest, *pRunicDoor, *pStoneDoor, *pThorimLever,
             *MimironTram, *MimironElevator;
@@ -186,9 +190,12 @@ class instance_ulduar : public InstanceMapScript
             conspeedatoryTimer = 0;
             guardiansCount = 0;
             comingOutTimer = 0;
-            achievementComingOut  = 0;
-            uiLeviathanGateGUID   = 0;
-            flag                  = 0;
+            achievementComingOut = 0;
+            proximityMineHit = false;
+            bombBotHit = false;
+            rocketStrikeHit = false;
+            uiLeviathanGateGUID = 0;
+            flag = 0;
             memset(&uiLeviathanDoor, 0, sizeof(uiLeviathanDoor));
         }
 
@@ -615,52 +622,67 @@ class instance_ulduar : public InstanceMapScript
                     if (value == ACHI_FAILED)
                         vehicleRepaired = true;
                     break;
-                case DATA_DWARFAGEDDON_START:
+                case DATA_DWARFAGEDDON:
                     if (value == ACHI_START)
                         dwarfageddonTimer = DWARFAGEDDON_MAX_TIMER;
+                    else if (value == ACHI_INCREASE)
+                        steelforgedDefendersCount++;
                     else if (value == ACHI_RESET)
                     {
                         dwarfageddonTimer = 0;
                         steelforgedDefendersCount = 0;
                     }
-                    break;
-                case DATA_DWARFAGEDDON_COUNT:
-                    if (value == ACHI_INCREASE)
-                        steelforgedDefendersCount++;
-                    break;
+                    break;                    
                 case DATA_CANT_WHILE_STUNNED:
                     if (value == ACHI_FAILED || value == ACHI_COMPLETED)
                         wasHitByLightning = true;
                     else if (value == ACHI_START)
                         wasHitByLightning = false;
                     break;
-                case DATA_LUMBERJACKED_START:
+                case DATA_LUMBERJACKED:
                     if (value == ACHI_START)
                         lumberjackedTimer = LUMBERJACKED_MAX_TIMER;
                     else if (value == ACHI_FAILED || value == ACHI_COMPLETED)
                         lumberjackedTimer = 0;
-                    break;
-                case DATA_LUMBERJACKED_COUNT:
-                    if (value == ACHI_INCREASE)
+                    else if (value == ACHI_INCREASE)
                         eldersCount++;
+                    break;                    
                 case DATA_CONSPEEDATORY:
                     if (value == ACHI_START)
                         conspeedatoryTimer = CONSPEEDATORY_MAX_TIMER;
                     else if (value == ACHI_FAILED || value == ACHI_COMPLETED)
                         conspeedatoryTimer = 0;
                     break;
-                case DATA_COMING_OUT_START:
+                case DATA_COMING_OUT:
                     if (value == ACHI_START)
                         comingOutTimer = COMING_OUT_MAX_TIMER;
+                    else if (value == ACHI_INCREASE)
+                        guardiansCount++;
                     else if (value == ACHI_RESET)
                     {
                         comingOutTimer = 0;
                         guardiansCount = 0;
                     }
                     break;
-                case DATA_COMING_OUT_COUNT:
-                    if (value == ACHI_INCREASE)
-                        guardiansCount++;
+                case DATA_CRITERIA_PROXIMITY_MINE:
+                    if (value == CRITERIA_NOT_MEETED)
+                        proximityMineHit = true;
+                    else if (value == ACHI_RESET)
+                        proximityMineHit = false;
+                    break;
+                case DATA_CRITERIA_BOMB_BOT:
+                    if (value == CRITERIA_NOT_MEETED)
+                        bombBotHit = true;
+                    else if (value == ACHI_RESET)
+                        bombBotHit = false;
+                    break;
+                case DATA_CRITERIA_ROCKET_STRIKE:
+                    if (value == CRITERIA_NOT_MEETED)
+                        rocketStrikeHit = true;
+                    else if (value == ACHI_RESET)
+                        rocketStrikeHit = false;
+                    break;
+                default:
                     break;
             }
         }
@@ -700,7 +722,7 @@ class instance_ulduar : public InstanceMapScript
                         return ACHI_FAILED;
                     else
                         return ACHI_IS_IN_PROGRESS;
-                case DATA_DWARFAGEDDON_START:
+                case DATA_DWARFAGEDDON:
                     if (dwarfageddonTimer > 0)
                         return ACHI_IS_IN_PROGRESS;
                     else
@@ -710,7 +732,7 @@ class instance_ulduar : public InstanceMapScript
                         return ACHI_FAILED;
                     else
                         return ACHI_IS_IN_PROGRESS;
-                case DATA_LUMBERJACKED_START:
+                case DATA_LUMBERJACKED:
                     if (lumberjackedTimer > 0)
                         return ACHI_IS_IN_PROGRESS;
                     else
@@ -720,11 +742,26 @@ class instance_ulduar : public InstanceMapScript
                         return ACHI_IS_IN_PROGRESS;
                     else
                         return ACHI_IS_NOT_STARTED;
-                case DATA_COMING_OUT_START:
+                case DATA_COMING_OUT:
                     if (comingOutTimer > 0)
                         return ACHI_IS_IN_PROGRESS;
                     else
                         return ACHI_IS_NOT_STARTED;
+                case DATA_CRITERIA_PROXIMITY_MINE:
+                    if (proximityMineHit)
+                        return CRITERIA_NOT_MEETED;
+                    else
+                        return CRITERIA_MEETED;
+                case DATA_CRITERIA_BOMB_BOT:
+                    if (bombBotHit)
+                        return CRITERIA_NOT_MEETED;
+                    else
+                        return CRITERIA_MEETED;
+                case DATA_CRITERIA_ROCKET_STRIKE:
+                    if (rocketStrikeHit)
+                        return CRITERIA_NOT_MEETED;
+                    else
+                        return CRITERIA_MEETED;
                 default:
                     return 0;
             }
@@ -829,12 +866,12 @@ class instance_ulduar : public InstanceMapScript
                     if (AchievDwarfageddon)
                         DoCompleteAchievement(achievementDwarfageddon);
 
-                    SetData(DATA_DWARFAGEDDON_START, ACHI_RESET);
+                    SetData(DATA_DWARFAGEDDON, ACHI_RESET);
                     return;
                 }
 
                 if (dwarfageddonTimer <= diff)
-                    SetData(DATA_DWARFAGEDDON_START, ACHI_RESET);
+                    SetData(DATA_DWARFAGEDDON, ACHI_RESET);
                 else dwarfageddonTimer -= diff;
             }
 
@@ -849,15 +886,15 @@ class instance_ulduar : public InstanceMapScript
                         achievementLumberjacked = ACHIEVEMENT_LUMBERJACKED_25;
 
                     AchievementEntry const *AchievLumberjacked = GetAchievementStore()->LookupEntry(achievementLumberjacked);
-                    if (AchievLumberjacked)
+                    if (AchievLumberjacked)                        
                         DoCompleteAchievement(achievementLumberjacked);
 
-                    SetData(DATA_LUMBERJACKED_START, ACHI_COMPLETED);
+                    SetData(DATA_LUMBERJACKED, ACHI_COMPLETED);
                     return;
                 }
 
                 if (lumberjackedTimer <= diff)
-                    SetData(DATA_LUMBERJACKED_START, ACHI_FAILED);
+                    SetData(DATA_LUMBERJACKED, ACHI_FAILED);
                 else lumberjackedTimer -= diff;
             }
 
@@ -883,12 +920,12 @@ class instance_ulduar : public InstanceMapScript
                     if (AchievComingOut)
                         DoCompleteAchievement(achievementComingOut);
 
-                    SetData(DATA_COMING_OUT_START, ACHI_RESET);
+                    SetData(DATA_COMING_OUT, ACHI_RESET);
                     return;
                 }
 
                 if (comingOutTimer <= diff)
-                    SetData(DATA_COMING_OUT_START, ACHI_RESET);
+                    SetData(DATA_COMING_OUT, ACHI_RESET);
                 else comingOutTimer -= diff;
             }
         }

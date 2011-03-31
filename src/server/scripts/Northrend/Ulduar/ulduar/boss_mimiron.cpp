@@ -167,8 +167,7 @@ bool MimironHardMode;
 
 // Achievements
 #define ACHIEVEMENT_FIREFIGHTER                 RAID_MODE(3180, 3189)
-#define ACHIEVEMENT_NOT_SO_FRIENDLY_FIRE        RAID_MODE(3138, 2995)
-#define ACHIEVEMENT_SET_UP_US_THE_BOMB          RAID_MODE(2989, 3237) // TODO
+#define ACHIEVEMENT_NOT_SO_FRIENDLY_FIRE_SPELL  65040
 
 enum MimironChests
 {
@@ -237,6 +236,9 @@ public:
             {
                 instance->SetData(DATA_MIMIRON_ELEVATOR, GO_STATE_ACTIVE);
                 instance->SetBossState(BOSS_MIMIRON, FAIL);
+                instance->SetData(DATA_CRITERIA_PROXIMITY_MINE, ACHI_RESET);
+                instance->SetData(DATA_CRITERIA_BOMB_BOT, ACHI_RESET);
+                instance->SetData(DATA_CRITERIA_ROCKET_STRIKE, ACHI_RESET);
                 
                 for (uint8 data = DATA_VX_001; data <= DATA_AERIAL_UNIT; ++data)
                 {
@@ -306,7 +308,7 @@ public:
             if (!UpdateVictim())
                 return;
                 
-            if (EnrageTimer<= diff && !Enraged)
+            if (EnrageTimer <= diff && !Enraged)
             {
                 DoScriptText(SAY_BERSERK, me);
                 for (uint8 data = DATA_LEVIATHAN_MK_II; data <= DATA_AERIAL_UNIT; ++data)
@@ -364,7 +366,12 @@ public:
                                             me->Kill(me, false);
                                             Map::PlayerList const &players = instance->instance->GetPlayers();
                                             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                                                itr->getSource()->KilledMonsterCredit(33432, 0);
+                                            {
+                                                Player* player = itr->getSource();
+                                                if (!player)
+                                                    continue;
+                                                player->KilledMonsterCredit(33432, 0);
+                                            }
                                             checkBotAlive = true;
                                         }
                 }
@@ -680,7 +687,6 @@ public:
 
 };
 
-
 /*---------------------------------------------*
  *              Leviathan MK II                *
  *---------------------------------------------*/
@@ -787,7 +793,7 @@ public:
             
             if (Creature *turret = CAST_CRE(me->GetVehicleKit()->GetPassenger(3)))
             {
-                turret->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                //turret->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 turret->SetReactState(REACT_AGGRESSIVE);
                 turret->AI()->DoZoneInCombat();
             }
@@ -957,6 +963,18 @@ public:
             }
         }
 
+        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
+        {
+            if (pTarget->GetTypeId() != TYPEID_PLAYER)
+                return;              
+
+            if (spell->Id == SPELL_EXPLOSION)
+            {
+                if (InstanceScript* pInstance = me->GetInstanceScript())
+                    pInstance->SetData(DATA_CRITERIA_PROXIMITY_MINE, CRITERIA_NOT_MEETED);
+            }
+        }
+
         void UpdateAI(const uint32 diff)
         {
             if (uiBoomTimer <= diff)
@@ -972,7 +990,6 @@ public:
         }
     };
 };
-
 
 /*---------------------------------------------*
  *                    VX-001                   *
@@ -1071,7 +1088,7 @@ public:
                     DoCast(me, SPELL_BERSERK, true);
                     break;
             }
-        }
+        }        
 
         void DamageTaken(Unit *who, uint32 &damage)
         {
@@ -1181,17 +1198,28 @@ public:
         return new npc_rocket_strikeAI (pCreature);
     }
 
-    struct npc_rocket_strikeAI : public Scripted_NoMovementAI
+    struct npc_rocket_strikeAI : public ScriptedAI
     {
-        npc_rocket_strikeAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
+        npc_rocket_strikeAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             me->ForcedDespawn(10000);
             DoCast(me, SPELL_ROCKET_STRIKE_AURA);
         }
+
+        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
+        { 
+            if (spell->Id == SPELL_ROCKET_STRIKE_DMG)
+            {
+                if (pTarget->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                if (InstanceScript* pInstance = me->GetInstanceScript())
+                    pInstance->SetData(DATA_CRITERIA_ROCKET_STRIKE, CRITERIA_NOT_MEETED);
+            }
+        }
     };
 };
-
 
 /*---------------------------------------------*
  *             Aerial Command Unit             *
@@ -1457,6 +1485,64 @@ public:
     };
 };
 
+class mob_boom_bot : public CreatureScript
+{
+    public:
+        mob_boom_bot(): CreatureScript("mob_boom_bot") {}
+
+    struct mob_boom_botAI : public ScriptedAI
+    {
+        mob_boom_botAI(Creature* pCreature) : ScriptedAI(pCreature)
+        {
+            pInstance = me->GetInstanceScript();
+            if (MimironHardMode)
+                DoCast(me, SPELL_EMERGENCY_MODE);
+        }
+
+        InstanceScript* pInstance;
+
+        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
+        {
+            if (pTarget->GetTypeId() != TYPEID_PLAYER)
+                return;              
+
+            if (spell->Id == SPELL_BOOM_BOT)
+                if (pInstance)
+                    pInstance->SetData(DATA_CRITERIA_BOMB_BOT, CRITERIA_NOT_MEETED);
+        }
+
+        void JustDied(Unit* /*victim*/)
+        {
+            DoCast(me, SPELL_BOOM_BOT, true);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_boom_botAI (pCreature);
+    };
+};
+
+class mob_junk_bot : public CreatureScript
+{
+    public:
+        mob_junk_bot(): CreatureScript("mob_junk_bot") {}
+
+    struct mob_junk_botAI : public ScriptedAI
+    {
+        mob_junk_botAI(Creature* pCreature) : ScriptedAI(pCreature)
+        {
+            if (MimironHardMode)
+                DoCast(me, SPELL_EMERGENCY_MODE);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_junk_botAI (pCreature);
+    };
+};
+
 class npc_assault_bot : public CreatureScript
 {
 public:
@@ -1498,11 +1584,12 @@ public:
             DoMeleeAttackIfReady();
         }
         
-        void SpellHit(Unit *caster, const SpellEntry *spell)
+        void SpellHit(Unit* /*caster*/, const SpellEntry* spell)
         {
             // Achievement Not-So-Friendly Fire
-            if (spell->Id == 63041 && pInstance)
-                pInstance->DoCompleteAchievement(ACHIEVEMENT_NOT_SO_FRIENDLY_FIRE);
+            if (spell->Id == SPELL_ROCKET_STRIKE_DMG)
+                if (pInstance)
+                    pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, ACHIEVEMENT_NOT_SO_FRIENDLY_FIRE_SPELL);
         }
     };
 
@@ -1698,6 +1785,74 @@ public:
 
 };
 
+#define ULDUAR_MAP 603
+
+class achievement_criteria_proximity_mine : public AchievementCriteriaScript
+{
+    public:
+        achievement_criteria_proximity_mine() : AchievementCriteriaScript("achievement_criteria_proximity_mine") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* pInstance = source->GetInstanceScript();
+
+            if (!pInstance || source->GetMapId() != ULDUAR_MAP)
+                return false;
+
+            if (pInstance->GetData(DATA_CRITERIA_PROXIMITY_MINE) == CRITERIA_MEETED)
+                return true;
+
+            return false;
+        }
+};
+
+class achievement_criteria_bomb_bot : public AchievementCriteriaScript
+{
+    public:
+        achievement_criteria_bomb_bot() : AchievementCriteriaScript("achievement_criteria_bomb_bot") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* pInstance = source->GetInstanceScript();
+
+            if (!pInstance || source->GetMapId() != ULDUAR_MAP)
+                return false;
+
+            if (pInstance->GetData(DATA_CRITERIA_BOMB_BOT) == CRITERIA_MEETED)
+                return true;
+
+            return false;
+        }
+};
+
+class achievement_criteria_rocket_strike : public AchievementCriteriaScript
+{
+    public:
+        achievement_criteria_rocket_strike() : AchievementCriteriaScript("achievement_criteria_rocket_strike") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* pInstance = source->GetInstanceScript();
+
+            if (!pInstance || source->GetMapId() != ULDUAR_MAP)
+                return false;
+
+            if (pInstance->GetData(DATA_CRITERIA_ROCKET_STRIKE) == CRITERIA_MEETED)
+                return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_mimiron()
 {
     new boss_mimiron();
@@ -1709,9 +1864,14 @@ void AddSC_boss_mimiron()
     new boss_aerial_unit();
     new npc_magnetic_core();
     new npc_assault_bot();
+    new mob_boom_bot();
+    new mob_junk_bot();
     new npc_emergency_bot();
     new go_not_push_button();
     new npc_mimiron_flame_trigger();
     new npc_mimiron_flame_spread();
     new npc_frost_bomb();
+    new achievement_criteria_proximity_mine();
+    new achievement_criteria_bomb_bot();
+    new achievement_criteria_rocket_strike();
 }

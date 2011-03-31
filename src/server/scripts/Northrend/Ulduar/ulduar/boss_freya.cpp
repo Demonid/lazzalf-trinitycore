@@ -429,21 +429,22 @@ class boss_freya : public CreatureScript
 
             // Achievement Deforestation control             
             if (checkDeforestation)
+            {
                 deforestationTimer += diff;
 
-            if (deforestationTimer > DEFORESTATION_MAX_TIMER)
-            {
-                checkDeforestation = false;
-                deforestationTimer = 0;
-                deforestationCount = 0;
-            }
-
-            // this achievement is awarded while fighting freya, not when the boss is killed.
-            if (checkDeforestation && deforestationCount == 6 && deforestationTimer <= DEFORESTATION_MAX_TIMER)
-            {
-                pInstance->DoCompleteAchievement(ACHIEVEMENT_DEFORESTATION);
-                // after awarding the achievent, prevent further controls
-                checkDeforestation = false;
+                if (deforestationTimer > DEFORESTATION_MAX_TIMER)
+                {
+                    checkDeforestation = false;
+                    deforestationTimer = 0;
+                    deforestationCount = 0;
+                }
+                // this achievement is awarded while fighting freya, not when the boss is killed.
+                else if (deforestationCount == 6)
+                {
+                    pInstance->DoCompleteAchievement(ACHIEVEMENT_DEFORESTATION);
+                    // after awarding the achievent, prevent further controls
+                    checkDeforestation = false;
+                }
             }
 
             if (me->HasAura(SPELL_ATTUNED_TO_NATURE))
@@ -720,9 +721,9 @@ class boss_elder_brightleaf : public CreatureScript
             if (m_pInstance)
             {
                 if (EldersCount == 2)
-                    m_pInstance->SetData(DATA_LUMBERJACKED_START, ACHI_START);
+                    m_pInstance->SetData(DATA_LUMBERJACKED, ACHI_START);
 
-                m_pInstance->SetData(DATA_LUMBERJACKED_COUNT, ACHI_INCREASE);
+                m_pInstance->SetData(DATA_LUMBERJACKED, ACHI_INCREASE);
 
                 if (m_pInstance->GetData(DATA_CONSPEEDATORY) == ACHI_IS_NOT_STARTED)
                     m_pInstance->SetData(DATA_CONSPEEDATORY, ACHI_START);
@@ -902,9 +903,9 @@ class boss_elder_ironbranch : public CreatureScript
             if (m_pInstance)
             {
                 if (EldersCount == 2)
-                    m_pInstance->SetData(DATA_LUMBERJACKED_START, ACHI_START);
+                    m_pInstance->SetData(DATA_LUMBERJACKED, ACHI_START);
 
-                m_pInstance->SetData(DATA_LUMBERJACKED_COUNT, ACHI_INCREASE);
+                m_pInstance->SetData(DATA_LUMBERJACKED, ACHI_INCREASE);
 
                 if (m_pInstance->GetData(DATA_CONSPEEDATORY) == ACHI_IS_NOT_STARTED)
                     m_pInstance->SetData(DATA_CONSPEEDATORY, ACHI_START);
@@ -1040,9 +1041,9 @@ class boss_elder_stonebark : public CreatureScript
             if (m_pInstance)
             {
                 if (EldersCount == 2)
-                    m_pInstance->SetData(DATA_LUMBERJACKED_START, ACHI_START);
+                    m_pInstance->SetData(DATA_LUMBERJACKED, ACHI_START);
 
-                m_pInstance->SetData(DATA_LUMBERJACKED_COUNT, ACHI_INCREASE);
+                m_pInstance->SetData(DATA_LUMBERJACKED, ACHI_INCREASE);
             }
         }
 
