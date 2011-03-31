@@ -906,7 +906,7 @@ public:
 
         DrakuruImage = pPlayer->FindNearestCreature(drakuruImageID, 50, true);
         if (!DrakuruImage)
-            pPlayer->SummonCreature(drakuruImageID, pPlayer->GetPositionX() + 1.f, pPlayer->GetPositionY() + 1.f, pPlayer->GetPositionZ() + 1.f, pPlayer->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+            pPlayer->SummonCreature(drakuruImageID, pPlayer->GetPositionX() + 1.f, pPlayer->GetPositionY() + 1.f, pPlayer->GetPositionZ(), pPlayer->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
 
         return true;
     }
@@ -933,6 +933,115 @@ class go_seer_of_zebhalak : public GameObjectScript
     };
 };
 
+/* Support for quest Runes of Compulsion */
+
+enum RunesOfCompulsion
+{
+    // Directional Runes
+    DIRECTIONAL_RUNE_1 = 188471,
+    DIRECTIONAL_RUNE_2 = 188505,
+    DIRECTIONAL_RUNE_3 = 188506,
+    DIRECTIONAL_RUNE_4 = 188507,
+
+    // Creatures
+    DIRECTIONAL_RUNE = 26785,
+    OVERSEER_DURVAL = 26920,
+    OVERSEER_KORGAN = 26921,
+    OVERSEER_LOCHLI = 26922,
+    OVERSEER_BRUNON = 26923,
+
+    ACTION_WEAVER_KILLED = 1,
+};
+
+/* Directional Rune - entry 26785 */
+
+class npc_directional_rune : public CreatureScript
+{
+public:
+    npc_directional_rune() : CreatureScript("npc_directional_rune") { }
+
+    CreatureAI *GetAI(Creature *pCreature) const
+    {
+        return new npc_directional_runeAI(pCreature);
+    }
+
+    struct npc_directional_runeAI : public ScriptedAI
+    {
+        npc_directional_runeAI(Creature *pCreature) : ScriptedAI(pCreature) { }
+
+        uint8 runeWeaverCounter;
+        GameObject* rune;
+
+        void Reset()
+        {
+            runeWeaverCounter = 0;
+        }
+
+        void DoAction(const int32 action)
+        {
+            if (action == ACTION_WEAVER_KILLED)
+            {
+                ++runeWeaverCounter;
+
+                if (runeWeaverCounter == 4)
+                {
+                    if (rune = me->FindNearestGameObject(DIRECTIONAL_RUNE_1, 5.0f))
+                    {
+                        me->SummonCreature(OVERSEER_DURVAL, me->GetPositionX() + 1.f, me->GetPositionY() + 1.f, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+                        runeWeaverCounter = 0;
+                        return;
+                    }
+
+                    if (rune = me->FindNearestGameObject(DIRECTIONAL_RUNE_2, 5.0f))
+                    {
+                        me->SummonCreature(OVERSEER_KORGAN, me->GetPositionX() + 1.f, me->GetPositionY() + 1.f, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+                        runeWeaverCounter = 0;
+                        return;
+                    }
+
+                    if (rune = me->FindNearestGameObject(DIRECTIONAL_RUNE_3, 5.0f))
+                    {
+                        me->SummonCreature(OVERSEER_LOCHLI, me->GetPositionX() + 1.f, me->GetPositionY() + 1.f, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+                        runeWeaverCounter = 0;
+                        return;
+                    }
+
+                    if (rune = me->FindNearestGameObject(DIRECTIONAL_RUNE_4, 5.0f))
+                    {
+                        me->SummonCreature(OVERSEER_BRUNON, me->GetPositionX() + 1.f, me->GetPositionY() + 1.f, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+                        runeWeaverCounter = 0;
+                        return;
+                    }
+                }
+            }
+        }
+    };
+};
+
+/* Iron Rune-Weaver - entry 26820 */
+
+class npc_iron_rune_weaver : public CreatureScript
+{
+public:
+    npc_iron_rune_weaver() : CreatureScript("npc_iron_rune_weaver") { }
+
+    CreatureAI *GetAI(Creature *pCreature) const
+    {
+        return new npc_iron_rune_weaverAI(pCreature);
+    }
+
+    struct npc_iron_rune_weaverAI : public ScriptedAI
+    {
+        npc_iron_rune_weaverAI(Creature *pCreature) : ScriptedAI(pCreature) { }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (Creature* rune = me->FindNearestCreature(DIRECTIONAL_RUNE, 40, true))
+                CAST_AI(npc_directional_rune::npc_directional_runeAI,rune->AI())->DoAction(ACTION_WEAVER_KILLED);
+        }
+    };
+};
+
 void AddSC_grizzly_hills()
 {
     new npc_orsonn_and_kodian;
@@ -947,4 +1056,6 @@ void AddSC_grizzly_hills()
     new npc_drakuru();
     new item_drakuru_elixir();
     new go_seer_of_zebhalak();
+    new npc_directional_rune();
+    new npc_iron_rune_weaver();
 }

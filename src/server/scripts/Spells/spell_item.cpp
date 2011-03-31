@@ -1006,6 +1006,55 @@ class spell_item_map_of_the_geyser_fields : public SpellScriptLoader
         }
 };
 
+// Spell Gavrock's Runebreaker (47604) for quest Free at Last (12099) 
+
+enum Giants
+{
+    RUNED_GIANT = 26417,
+    FREED_GIANT = 26783,
+};
+
+class spell_gavrock_runebreaker : public SpellScriptLoader
+{
+public:
+    spell_gavrock_runebreaker() : SpellScriptLoader("spell_gavrock_runebreaker") { }
+
+    class spell_gavrock_runebreaker_SpellScript : public SpellScript
+    {
+    public:
+        PrepareSpellScript(spell_gavrock_runebreaker_SpellScript)
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* pCaster = GetCaster())
+            {
+                if (pCaster->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                if (Unit* target = pCaster->getVictim())
+                {
+                    if ((target->GetEntry() == RUNED_GIANT) && urand(0,1))
+                    {
+                        target->ToCreature()->UpdateEntry(FREED_GIANT);
+                        pCaster->ToPlayer()->KilledMonsterCredit(FREED_GIANT, 0);
+                        target->ToCreature()->ForcedDespawn(5000);                        
+                    }
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_gavrock_runebreaker_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gavrock_runebreaker_SpellScript();
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -1034,4 +1083,5 @@ void AddSC_item_spell_scripts()
     new spell_item_book_of_glyph_mastery();
     new spell_item_gift_of_the_harvester();
     new spell_item_map_of_the_geyser_fields();
+    new spell_gavrock_runebreaker();
 }
