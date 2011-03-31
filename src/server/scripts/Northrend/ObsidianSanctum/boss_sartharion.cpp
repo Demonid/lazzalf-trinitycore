@@ -54,6 +54,7 @@ enum eEnums
     SPELL_TAIL_LASH_H                           = 58957,    // A sweeping tail strike hits all enemies behind the caster, inflicting 4375 to 5625 damage and stunning them for 2 sec.
     SPELL_WILL_OF_SARTHARION                    = 61254,    // Sartharion's presence bolsters the resolve of the Twilight Drakes, increasing their total health by 25%. This effect also increases Sartharion's health by 25%.
     SPELL_LAVA_STRIKE                           = 57571,    // (Real spell casted should be 57578) 57571 then trigger visual missile, then summon Lava Blaze on impact(spell 57572)
+    SPELL_LAVA_STRIKE_DMG                       = 57591,
 
     SPELL_TWILIGHT_REVENGE                      = 60639,
     NPC_FIRE_CYCLONE                            = 30648,
@@ -238,6 +239,7 @@ class boss_sartharion : public CreatureScript
         uint32 achievProgress;
         uint32 Acolytes;
 
+        std::list<Creature*> pFireCyclonesList;
         std::set<uint64> lLavaStriked;
 
         void Reset()
@@ -274,6 +276,7 @@ class boss_sartharion : public CreatureScript
             achievProgress = 0;
             Acolytes = 2;
 
+            pFireCyclonesList.clear();
             lLavaStriked.clear();
 
             while (Unit* pTarget = me->FindNearestCreature(NPC_LAVA_BLAZE, 100.0f))
@@ -353,7 +356,7 @@ class boss_sartharion : public CreatureScript
                 if (achievProgress == 3)
                     instance->DoCompleteAchievement(RAID_MODE(ACHIEV_TWILIGHT_ZONE,H_ACHIEV_TWILIGHT_ZONE));
 
-                /*AchievementEntry const *achievGonnaGo = GetAchievementStore()->LookupEntry(RAID_MODE(ACHIEV_GONNA_GO, H_ACHIEV_GONNA_GO));
+                AchievementEntry const *achievGonnaGo = GetAchievementStore()->LookupEntry(RAID_MODE(ACHIEV_GONNA_GO, H_ACHIEV_GONNA_GO));
                 if (achievGonnaGo)
                 {
                     Map::PlayerList const &players = instance->instance->GetPlayers();
@@ -364,13 +367,26 @@ class boss_sartharion : public CreatureScript
                         else
                             itr->getSource()->CompletedAchievement(achievGonnaGo);
                     }
-                }*/
+                }
 
                 while (Unit* pTarget = me->FindNearestCreature(NPC_LAVA_BLAZE, 100.0f))
                 {
                     pTarget->CombatStop();
                     pTarget->RemoveFromWorld();
                 }
+
+                std::list<Creature*>::iterator itr = pFireCyclonesList.begin();
+
+                if (!pFireCyclonesList.empty())
+                    for(uint32 i = 0; i < pFireCyclonesList.size(); ++i)
+                    {
+                        if (*itr)
+                        {
+                            (*itr)->CombatStop();
+                            (*itr)->DisappearAndDie();
+                        }
+                        ++itr;
+                    }
             }
         }
 
@@ -583,9 +599,9 @@ class boss_sartharion : public CreatureScript
 
         // Selects a random Fire Cyclone and makes it cast Lava Strike.
         // FIXME: Frequency of the casts reduced to compensate 100% chance of spawning a Lava Blaze add
-        void CastLavaStrikeOnTarget(Unit* target)
+        void CastLavaStrike()
         {
-            std::list<Creature*> pFireCyclonesList;
+            //std::list<Creature*> pFireCyclonesList;
             Trinity::AllCreaturesOfEntryInRange checker(me, NPC_FIRE_CYCLONE, 200.0f);
             Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, pFireCyclonesList, checker);
             me->VisitNearbyObject(200.0f, searcher);
@@ -598,14 +614,13 @@ class boss_sartharion : public CreatureScript
 
             for(uint32 i = 0; i < rnd; ++i)
                 ++itr;
-            (*itr)->CastSpell(target, SPELL_LAVA_STRIKE, true);
+            (*itr)->AI()->DoZoneInCombat();
+            (*itr)->AI()->DoAction(EVENT_LAVA_STRIKE);
         }
 
-        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
+        void InsertPlayerStriked(uint64 guid)
         {
-            if (spell->Id == SPELL_LAVA_STRIKE)
-                if (pTarget->GetTypeId() == TYPEID_PLAYER)
-                    lLavaStriked.insert(pTarget->ToPlayer()->GetGUID());
+            lLavaStriked.insert(guid);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -675,13 +690,10 @@ class boss_sartharion : public CreatureScript
                         DoCast(me->getVictim(), SPELL_CLEAVE);
                         events.ScheduleEvent(EVENT_CLEAVE, urand(7000,10000));
                         break;
-                    case EVENT_LAVA_STRIKE:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        {
-                            CastLavaStrikeOnTarget(pTarget);
-                            if(urand(0,5) == 0)
-                                DoScriptText(RAND(SAY_SARTHARION_SPECIAL_1,SAY_SARTHARION_SPECIAL_2,SAY_SARTHARION_SPECIAL_3), me);
-                        }
+                    case EVENT_LAVA_STRIKE:                        
+                        CastLavaStrike();
+                        if(urand(0,5) == 0)
+                            DoScriptText(RAND(SAY_SARTHARION_SPECIAL_1,SAY_SARTHARION_SPECIAL_2,SAY_SARTHARION_SPECIAL_3), me);
                         events.ScheduleEvent(EVENT_LAVA_STRIKE, (m_bIsSoftEnraged ? urand(1400, 2000) : urand(5000,20000)));
                         break;
                     case EVENT_CALL_TENEBRON:
@@ -709,6 +721,60 @@ class boss_sartharion : public CreatureScript
     CreatureAI* GetAI(Creature* pCreature) const
     {
         return new boss_sartharionAI(pCreature);
+    };
+};
+
+class mob_fire_cyclone : public CreatureScript
+{
+    public:
+        mob_fire_cyclone(): CreatureScript("mob_fire_cyclone") {}
+
+    struct mob_fire_cycloneAI : public ScriptedAI
+    {
+        mob_fire_cycloneAI(Creature* pCreature) : ScriptedAI(pCreature)
+        {
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            me->SetReactState(REACT_PASSIVE);
+            pInstance = me->GetInstanceScript();
+            cast = false;
+        }
+
+        bool cast;
+
+        InstanceScript* pInstance;
+
+        void DoAction(const int32 action)
+        {
+            if (action == EVENT_LAVA_STRIKE)
+                cast = true;
+        }
+
+        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
+        {
+            if (pTarget->GetTypeId() != TYPEID_PLAYER)
+                return; 
+
+            if (spell->Id == SPELL_LAVA_STRIKE_DMG)
+            {
+                if (Creature* pSartharion = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_SARTHARION) : 0))
+                    CAST_AI(boss_sartharion::boss_sartharionAI,pSartharion->AI())->InsertPlayerStriked(pTarget->ToPlayer()->GetGUID());
+            }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (cast)
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                {
+                    me->CastSpell(pTarget, SPELL_LAVA_STRIKE, true);
+                    cast = false;
+                }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_fire_cycloneAI (pCreature);
     };
 };
 
@@ -1772,6 +1838,7 @@ class mob_twilight_whelp : public CreatureScript
 void AddSC_boss_sartharion()
 {
     new boss_sartharion();
+    new mob_fire_cyclone();
     new mob_vesperon();
     new mob_shadron();
     new mob_tenebron();
