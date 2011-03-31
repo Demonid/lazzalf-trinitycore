@@ -41,6 +41,14 @@ enum NPCs // All outdoor guards are within 35.0f of these NPCs
     NPC_SWEETBERRY_H = 29715,
 };
 
+enum Disguises
+{
+    SILVER_COVENANT_DISGUISE_F = 70971,
+    SILVER_COVENANT_DISGUISE_M = 70972,
+    SUNREAVER_DISGUISE_F = 70973,
+    SUNREAVER_DISGUISE_M = 70974,    
+};
+
 class npc_mageguard_dalaran : public CreatureScript
 {
 public:
@@ -72,6 +80,13 @@ public:
             Player *pPlayer = pWho->GetCharmerOrOwnerPlayerOrPlayerItself();
 
             if (!pPlayer || pPlayer->isGameMaster() || pPlayer->IsBeingTeleported())
+                return;
+
+            // Check for disguise (needed for quests An Audience With The Arcanist / A Meeting With The Magister)
+            if (pPlayer->HasAura(SILVER_COVENANT_DISGUISE_F) || 
+                pPlayer->HasAura(SILVER_COVENANT_DISGUISE_M) || 
+                pPlayer->HasAura(SUNREAVER_DISGUISE_F) || 
+                pPlayer->HasAura(SUNREAVER_DISGUISE_M))
                 return;
 
             switch (me->GetEntry())
