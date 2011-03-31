@@ -28,6 +28,9 @@
 4 - Infinite Corruptor (Heroic only)
 */
 
+#define ACHIEVEMENT_ZOMBIEFEST 1872
+#define ZOMBIEFEST_MIN_COUNT   100
+
 class instance_culling_of_stratholme : public InstanceMapScript
 {
 public:
@@ -60,6 +63,10 @@ public:
         uint32 tMinutes;
         uint32 EventTimer;
 
+        // Zombiefest!
+        uint32 zombiesCount;
+        uint32 zombieFestTimer;
+
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;
 
@@ -83,6 +90,9 @@ public:
             LastTimer = 1500000;
             Minute = 60000;
             tMinutes = 0;
+
+            zombiesCount = 0;
+            zombieFestTimer = 0;
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -178,6 +188,17 @@ public:
                         DoUpdateWorldState(WORLD_STATE_TIME_COUNTER, 0);
                     }
                     break;
+                case DATA_ZOMBIEFEST:
+                    if (data == ACHI_START)
+                        zombieFestTimer = 60 * IN_MILLISECONDS;
+                    else if (data == ACHI_INCREASE)
+                        ++zombiesCount;
+                    else if (data == ACHI_RESET)
+                    {
+                        zombiesCount = 0;
+                        zombieFestTimer = 0;
+                    }
+                    break;
             }
 
             if (data == DONE)
@@ -193,6 +214,11 @@ public:
                 case DATA_EPOCH_EVENT:                return m_auiEncounter[2];
                 case DATA_MAL_GANIS_EVENT:            return m_auiEncounter[3];
                 case DATA_INFINITE_EVENT:             return m_auiEncounter[4];
+                case DATA_ZOMBIEFEST:
+                    if (zombieFestTimer == 0)
+                        return ACHI_IS_NOT_STARTED;
+                    else
+                        return ACHI_IS_IN_PROGRESS;
             }
             return 0;
         }
@@ -237,6 +263,23 @@ public:
            }
            else 
                Minute -= diff;
+
+            // Achievement Zombiefest! control            
+            if (zombieFestTimer)
+            {
+                if (zombiesCount >= ZOMBIEFEST_MIN_COUNT)
+                {
+                    DoCompleteAchievement(ACHIEVEMENT_ZOMBIEFEST);
+
+                    SetData(DATA_ZOMBIEFEST, ACHI_RESET);
+                    return;
+                }
+
+                if (zombieFestTimer <= diff)
+                    SetData(DATA_ZOMBIEFEST, ACHI_RESET);
+                else zombieFestTimer -= diff;
+            }
+
            return;
         }
 
