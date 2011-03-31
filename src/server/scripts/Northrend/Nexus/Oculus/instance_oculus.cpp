@@ -164,6 +164,7 @@ public:
                         if(instance)
                             if(GameObject* Ec = instance->GetGameObject(eregosCacheGUID))
                                 Ec->SetRespawnTime(Ec->GetRespawnDelay());
+                    break;
             }
 
             return true;
