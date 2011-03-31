@@ -74,6 +74,11 @@ class instance_trial_of_the_champion : public InstanceMapScript
         uint64 uiBlackLootChestH;
         uint64 uiBlackLootChestN;
 
+        bool warriorKilled;
+        bool mageKilled;
+        bool hunterKilled;
+        bool shamanKilled;
+        bool rogueKilled;
 
         std::list<uint64> VehicleList;
         std::list<uint64> VehicleListChampion;
@@ -103,6 +108,12 @@ class instance_trial_of_the_champion : public InstanceMapScript
             uiArgentChampionGUID          = 0;
             uiBlackLootChestH			  = 0;
             uiBlackLootChestN			  = 0;
+
+            warriorKilled = false;
+            mageKilled = false;
+            hunterKilled = false;
+            shamanKilled = false;
+            rogueKilled = false;
 
             bDone = false;
 
@@ -424,6 +435,36 @@ class instance_trial_of_the_champion : public InstanceMapScript
                             pAnnouncer->SummonGameObject(instance->IsHeroic()? GO_PALETRESS_LOOT_H : GO_PALETRESS_LOOT,746.59f,618.49f,411.09f,1.42f,0, 0, 0, 0,90000000);
                         }
                     break;
+                case DATA_WARRIOR_KILLED:
+                    if (uiData == DONE)
+                        warriorKilled = true;
+                    else
+                        warriorKilled = false;
+                    break;
+                case DATA_MAGE_KILLED:
+                    if (uiData == DONE)
+                        mageKilled = true;
+                    else
+                        mageKilled = false;
+                    break;
+                case DATA_SHAMAN_KILLED:
+                    if (uiData == DONE)
+                        shamanKilled = true;
+                    else
+                        shamanKilled = false;
+                    break;
+                case DATA_HUNTER_KILLED:
+                    if (uiData == DONE)
+                        hunterKilled = true;
+                    else
+                        hunterKilled = false;
+                    break;
+                case DATA_ROGUE_KILLED:
+                    if (uiData == DONE)
+                        rogueKilled = true;
+                    else
+                        rogueKilled = false;
+                    break;
             }
 
             if (uiGrandChampionsDeaths == 3)
@@ -440,6 +481,36 @@ class instance_trial_of_the_champion : public InstanceMapScript
                 case BOSS_BLACK_KNIGHT: return m_auiEncounter[3];                       
                 case DATA_MOVEMENT_DONE: return uiMovementDone;
                 case DATA_ARGENT_SOLDIER_DEFEATED: return uiArgentSoldierDeaths;
+                case DATA_WARRIOR_KILLED:
+                    if (warriorKilled)
+                        return DONE;
+                    else
+                        return NOT_STARTED;
+                    break;
+                case DATA_MAGE_KILLED:
+                    if (mageKilled)
+                        return DONE;
+                    else
+                        return NOT_STARTED;
+                    break;
+                case DATA_SHAMAN_KILLED:
+                    if (shamanKilled)
+                        return DONE;
+                    else
+                        return NOT_STARTED;
+                    break;
+                case DATA_HUNTER_KILLED:
+                    if (hunterKilled)
+                        return DONE;
+                    else
+                        return NOT_STARTED;
+                    break;
+                case DATA_ROGUE_KILLED:
+                    if (rogueKilled)
+                        return DONE;
+                    else
+                        return NOT_STARTED;
+                    break;
             }
 
             return 0;

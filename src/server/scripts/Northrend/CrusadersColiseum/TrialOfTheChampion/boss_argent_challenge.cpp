@@ -34,6 +34,7 @@ enum eSpells
     SPELL_HAMMER_RIGHTEOUS      = 66867,
     SPELL_RADIANCE              = 66935,
     SPELL_VENGEANCE             = 66865,
+    EADRIC_KILL_CREDIT          = 68575,
 
     //Paletress
     SPELL_SMITE                 = 66536,
@@ -45,6 +46,7 @@ enum eSpells
     SPELL_HOLY_NOVA             = 66546,
     SPELL_SHIELD                = 66515,
     SPELL_CONFESS               = 66680,
+    PALESTRESS_KILL_CREDIT      = 68574,
 	
 	//Npc_argent_soldier
 	SPELL_STRIKE                = 67237,
@@ -158,7 +160,7 @@ class boss_eadric : public CreatureScript
                         pInstance->HandleGameObject(pGO->GetGUID(),true);		
 					    if (pInstance)
                 pInstance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
-                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 68575);
+                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, EADRIC_KILL_CREDIT);
 		    }
         }
 
@@ -335,7 +337,7 @@ class boss_paletress : public CreatureScript
                 pInstance->SetData(BOSS_ARGENT_CHALLENGE_P, DONE);
                 if (IsHeroic())
                     pInstance->DoCompleteAchievement(ACHIEV_CONF);
-                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 68574);
+                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, PALESTRESS_KILL_CREDIT);
 		    }
         }
 
