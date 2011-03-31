@@ -72,8 +72,9 @@ enum eSpells
 
     SPELL_BLACK_KNIGHT_RES  = 67693,
 
-    SPELL_LEAP                          = 67749,
-    SPELL_LEAP_H                        = 67880
+    SPELL_LEAP              = 67749,
+    SPELL_LEAP_H            = 67880,
+    BN_KILL_CREDIT          = 68663,
 };
 
 enum eModels
@@ -415,14 +416,15 @@ class boss_black_knight : public CreatureScript
         void JustDied(Unit* pKiller)
         {
             //uiState=ENABLE;
-            DoScriptText(SAY_DEATH_3, me);
-            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
-                pInstance->HandleGameObject(pGO->GetGUID(),true);
+            DoScriptText(SAY_DEATH_3, me);            
                    
             if (pInstance)
             {
+                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+                    pInstance->HandleGameObject(pGO->GetGUID(),true);
+
                 pInstance->SetData(BOSS_BLACK_KNIGHT, DONE);
-                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 68663);
+                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, BN_KILL_CREDIT);
                 
                 if (IsHeroic())
                     pInstance->DoCompleteAchievement(ACHIEV_WORSE);

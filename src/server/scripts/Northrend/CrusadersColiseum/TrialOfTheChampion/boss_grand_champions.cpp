@@ -79,7 +79,9 @@ enum eSpells
     SPELL_EVISCERATE                = 67709,
     SPELL_EVISCERATE_H              = 68317,
     SPELL_FAN_OF_KNIVES             = 67706,
-    SPELL_POISON_BOTTLE             = 67701
+    SPELL_POISON_BOTTLE             = 67701,
+
+    KILL_CREDIT                     = 68572,
 };
 enum eEnums
 {
@@ -413,23 +415,21 @@ class boss_warrior_toc5 : public CreatureScript
 			    Map::PlayerList const &players = pMap->GetPlayers();
 			    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
 			    {
-					    if(itr->getSource() && itr->getSource()->isAlive() && !itr->getSource()->isGameMaster())
-					    return; //se almeno un player è vivo, esce						
+				    if(itr->getSource() && itr->getSource()->isAlive() && !itr->getSource()->isGameMaster())
+				        return; //se almeno un player è vivo, esce						
 			    }
     			
 			    if(pInstance)
-			     pInstance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
-    			 	 
-			    if(pInstance)
 			    {
-				    GameObject* GO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1));
-			    if(GO)
-				    pInstance->HandleGameObject(GO->GetGUID(),true);
-    			 
-			    // pInstance->SetData(BOSS_GRAND_CHAMPIONS, NOT_STARTED);
+                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
+                    pInstance->SetData(DATA_WARRIOR_KILLED, FAIL);
+
+			        if(GameObject* GO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+                        pInstance->HandleGameObject(GO->GetGUID(),true);
+    			
 			    }
 			    me->RemoveFromWorld();
-			    //ResetEncounter();
+                //ResetEncounter();
 		    }
 	    }
 
@@ -525,12 +525,12 @@ class boss_warrior_toc5 : public CreatureScript
 	 	    hasBeenInCombat = false;	
 		    DoScriptText(SAY_START, me);	
             if (pInstance)
+            {
                 pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+                pInstance->SetData(DATA_WARRIOR_KILLED, DONE);
+                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, KILL_CREDIT);
+            }
         }
-    	
-
-
-
     };
 
     CreatureAI* GetAI(Creature* pCreature) const
@@ -591,24 +591,21 @@ class boss_mage_toc5 : public CreatureScript
 			    Map::PlayerList const &players = pMap->GetPlayers();
 			    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
 			    {
-					    if(itr->getSource() && itr->getSource()->isAlive() && !itr->getSource()->isGameMaster())
-					    return; //se almeno un player è vivo, esce						
-			    }
-    			
-			    //ResetEncounter();
-			    if(pInstance)
-				     pInstance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
-
-    			 	 
+				    if(itr->getSource() && itr->getSource()->isAlive() && !itr->getSource()->isGameMaster())
+				        return; //se almeno un player è vivo, esce						
+			    }    			
+			    
 			    if(pInstance)
 			    {
-				    GameObject* GO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1));
-			    if(GO)
-				    pInstance->HandleGameObject(GO->GetGUID(),true);
-    			 
+                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
+                    pInstance->SetData(DATA_MAGE_KILLED, FAIL);
+
+			        if(GameObject* GO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+                        pInstance->HandleGameObject(GO->GetGUID(),true);
+    			
 			    }
-			    // pInstance->SetData(BOSS_GRAND_CHAMPIONS, NOT_STARTED);
-			     me->RemoveFromWorld();
+			    me->RemoveFromWorld();
+                //ResetEncounter();
 		    }
 	    }
         void JustReachedHome()
@@ -697,11 +694,12 @@ class boss_mage_toc5 : public CreatureScript
 	 	    hasBeenInCombat = false;	
 		    DoScriptText(SAY_START, me);	
             if (pInstance)
+            {
                 pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+                pInstance->SetData(DATA_MAGE_KILLED, DONE);
+                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, KILL_CREDIT);
+            }
         }
-
-
-
     };
 
     CreatureAI* GetAI(Creature* pCreature) const
@@ -762,22 +760,20 @@ class boss_shaman_toc5 : public CreatureScript
 			    Map::PlayerList const &players = pMap->GetPlayers();
 			    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
 			    {
-					    if(itr->getSource() && itr->getSource()->isAlive() && !itr->getSource()->isGameMaster())
-					    return; //se almeno un player è vivo, esce						
+				    if(itr->getSource() && itr->getSource()->isAlive() && !itr->getSource()->isGameMaster())
+				        return; //se almeno un player è vivo, esce						
 			    }
-		     if(pInstance)
-			    pInstance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
-    		 	 
-		     if(pInstance)
-		     {
-			    GameObject* GO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1));
-		     if(GO)
-			    pInstance->HandleGameObject(GO->GetGUID(),true);
-    		  
-		     }
-		    // pInstance->SetData(BOSS_GRAND_CHAMPIONS, NOT_STARTED);
-		     //pInstance->SetData(DATA_MOVEMENT_DONE,DONE);
-		     me->RemoveFromWorld();
+
+		        if(pInstance)
+			    {
+                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
+                    pInstance->SetData(DATA_SHAMAN_KILLED, FAIL);
+
+			        if(GameObject* GO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+                        pInstance->HandleGameObject(GO->GetGUID(),true);
+    			
+			    }
+			    me->RemoveFromWorld();
 			    //ResetEncounter();
 		    }
 	    }
@@ -878,12 +874,15 @@ class boss_shaman_toc5 : public CreatureScript
 		    DoScriptText(SAY_START, me);	
     			
             if (pInstance)
+            {
                 pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+                pInstance->SetData(DATA_SHAMAN_KILLED, DONE);
+                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, KILL_CREDIT);
 
-		    //what a nonsense! -.-
-		    if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
-                        pInstance->HandleGameObject(pGO->GetGUID(),true);   		
-
+                //what a nonsense! -.-
+		        if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+                    pInstance->HandleGameObject(pGO->GetGUID(),true); 
+            }
         }
     };
 
@@ -952,22 +951,20 @@ class boss_hunter_toc5 : public CreatureScript
 			    Map::PlayerList const &players = pMap->GetPlayers();
 			    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
 			    {
-					    if(itr->getSource() && itr->getSource()->isAlive() && !itr->getSource()->isGameMaster())
-					    return; //se almeno un player è vivo, esce						
+				    if(itr->getSource() && itr->getSource()->isAlive() && !itr->getSource()->isGameMaster())
+				        return; //se almeno un player è vivo, esce						
 			    }
     			
-			     if(pInstance)
-				    pInstance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
-			     if(pInstance)
-			     {
-				    GameObject* GO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1));
-			     if(GO)
-				    pInstance->HandleGameObject(GO->GetGUID(),true);
+			    if(pInstance)
+			    {
+                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
+                    pInstance->SetData(DATA_HUNTER_KILLED, FAIL);
+
+			        if(GameObject* GO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+                        pInstance->HandleGameObject(GO->GetGUID(),true);
     			
-			    // pInstance->SetData(BOSS_GRAND_CHAMPIONS, NOT_STARTED);
-			     }
-    			
-			     me->RemoveFromWorld();
+			    }
+			    me->RemoveFromWorld();
 			    //ResetEncounter();
 		    }
 	    }
@@ -1089,16 +1086,17 @@ class boss_hunter_toc5 : public CreatureScript
 	 	    hasBeenInCombat = false;	
 		    DoScriptText(SAY_START, me);	
             if (pInstance)
+            {
                 pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+                pInstance->SetData(DATA_HUNTER_KILLED, DONE);
+                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, KILL_CREDIT);
 
-		    //what a nonsense! -.-
-		    if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
-                        pInstance->HandleGameObject(pGO->GetGUID(),true);
-        }
-    		
-    	
+                //what a nonsense! -.-
+		        if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+                    pInstance->HandleGameObject(pGO->GetGUID(),true);
+            }
 
-    	
+        }    	
     };
 
     CreatureAI* GetAI(Creature* pCreature) const
@@ -1159,18 +1157,18 @@ class boss_rouge_toc5 : public CreatureScript
 			    {
 				    if(itr->getSource() && itr->getSource()->isAlive() && !itr->getSource()->isGameMaster())
 					    return; //se almeno un player è vivo, esce						
-			    }
-			    if(pInstance)
-				    pInstance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
+			    }		   
     				 
 			    if(pInstance)
 			    {
-				    GameObject* GO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1));
-			    if(GO)
-				    pInstance->HandleGameObject(GO->GetGUID(),true);
+                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, FAIL);
+                    pInstance->SetData(DATA_ROGUE_KILLED, FAIL);
+
+			        if(GameObject* GO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+                        pInstance->HandleGameObject(GO->GetGUID(),true);
     			
 			    }
-			     me->RemoveFromWorld();
+			    me->RemoveFromWorld();
 			    //ResetEncounter();
 		    }
     		
@@ -1254,20 +1252,134 @@ class boss_rouge_toc5 : public CreatureScript
 		    hasBeenInCombat = false;
 		    DoScriptText(SAY_START, me);	
             if (pInstance)
+            {
                 pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+                pInstance->SetData(DATA_ROGUE_KILLED, DONE);
+                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, KILL_CREDIT);
 
-		    //where's the sense in that?
-		    if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
-                        pInstance->HandleGameObject(pGO->GetGUID(),true);
+                //what a nonsense! -.-
+		        if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+                    pInstance->HandleGameObject(pGO->GetGUID(),true);
+            }
         }
-    	
-
     };
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
         return new boss_rouge_toc5AI(pCreature);
     };
+};
+
+#define TOC5_MAP 650
+
+class achievement_criteria_warrior_toc5 : public AchievementCriteriaScript
+{
+    public:
+        achievement_criteria_warrior_toc5() : AchievementCriteriaScript("achievement_criteria_warrior_toc5") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* pInstance = source->GetInstanceScript();
+
+            if (!pInstance || source->GetMapId() != TOC5_MAP)
+                return false;
+
+            if (pInstance->GetData(DATA_WARRIOR_KILLED) == DONE)
+                return true;
+
+            return false;
+        }
+};
+
+class achievement_criteria_mage_toc5 : public AchievementCriteriaScript
+{
+    public:
+        achievement_criteria_mage_toc5() : AchievementCriteriaScript("achievement_criteria_mage_toc5") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* pInstance = source->GetInstanceScript();
+
+            if (!pInstance || source->GetMapId() != TOC5_MAP)
+                return false;
+
+            if (pInstance->GetData(DATA_MAGE_KILLED) == DONE)
+                return true;
+
+            return false;
+        }
+};
+
+class achievement_criteria_shaman_toc5 : public AchievementCriteriaScript
+{
+    public:
+        achievement_criteria_shaman_toc5() : AchievementCriteriaScript("achievement_criteria_shaman_toc5") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* pInstance = source->GetInstanceScript();
+
+            if (!pInstance || source->GetMapId() != TOC5_MAP)
+                return false;
+
+            if (pInstance->GetData(DATA_SHAMAN_KILLED) == DONE)
+                return true;
+
+            return false;
+        }
+};
+
+class achievement_criteria_hunter_toc5 : public AchievementCriteriaScript
+{
+    public:
+        achievement_criteria_hunter_toc5() : AchievementCriteriaScript("achievement_criteria_hunter_toc5") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* pInstance = source->GetInstanceScript();
+
+            if (!pInstance || source->GetMapId() != TOC5_MAP)
+                return false;
+
+            if (pInstance->GetData(DATA_HUNTER_KILLED) == DONE)
+                return true;
+
+            return false;
+        }
+};
+
+class achievement_criteria_rogue_toc5 : public AchievementCriteriaScript
+{
+    public:
+        achievement_criteria_rogue_toc5() : AchievementCriteriaScript("achievement_criteria_rogue_toc5") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* pInstance = source->GetInstanceScript();
+
+            if (!pInstance || source->GetMapId() != TOC5_MAP)
+                return false;
+
+            if (pInstance->GetData(DATA_ROGUE_KILLED) == DONE)
+                return true;
+
+            return false;
+        }
 };
 
 void AddSC_boss_grand_champions()
@@ -1278,4 +1390,9 @@ void AddSC_boss_grand_champions()
     new boss_shaman_toc5();
     new boss_hunter_toc5();
     new boss_rouge_toc5();
+    new achievement_criteria_warrior_toc5();
+    new achievement_criteria_mage_toc5();
+    new achievement_criteria_shaman_toc5();
+    new achievement_criteria_hunter_toc5();
+    new achievement_criteria_rogue_toc5();
 }
