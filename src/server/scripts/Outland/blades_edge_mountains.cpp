@@ -433,7 +433,9 @@ enum eBloodmaul
 {
     NPC_OGRE_BRUTE        = 19995,
     NPC_QUEST_CREDIT      = 21241,
-    GO_KEG                = 184315
+    GO_KEG                = 184315,
+    QUEST_BLADESPIRE_H    = 10545,
+    QUEST_BLADESPIRE_A    = 10512,
 };
 
 class npc_bloodmaul_brutebane : public CreatureScript
@@ -498,7 +500,9 @@ public:
         {
             if (!who || (!who->isAlive())) return;
 
-            if (me->IsWithinDistInMap(who, 50.0f) && (who->GetTypeId() == TYPEID_PLAYER) && who->ToPlayer()->GetQuestStatus(10512) == QUEST_STATUS_INCOMPLETE)
+            if (me->IsWithinDistInMap(who, 50.0f) && (who->GetTypeId() == TYPEID_PLAYER) && 
+                ((who->ToPlayer()->GetQuestStatus(QUEST_BLADESPIRE_H) == QUEST_STATUS_INCOMPLETE) || 
+                 (who->ToPlayer()->GetQuestStatus(QUEST_BLADESPIRE_A) == QUEST_STATUS_INCOMPLETE)))
             {
                 PlayerGUID = who->GetGUID();
             }
@@ -517,7 +521,7 @@ public:
                 me->GetMotionMaster()->MoveTargetedHome();
                 Creature* Credit = me->FindNearestCreature(NPC_QUEST_CREDIT, 50, true);
                 if (pPlayer && Credit)
-                    pPlayer->KilledMonsterCredit(NPC_QUEST_CREDIT, 0);
+                    pPlayer->KilledMonster(Credit->GetCreatureInfo(), Credit->GetGUID());
             }
         }
 
@@ -709,6 +713,61 @@ public:
 
 };
 
+// Support for quest A Curse Upon Both of Your Clans! (10544)
+// NOTE: spells that are supposed to be used to summon the npcs to kill don't seem to exist in dbc
+
+enum Quest10544_Data
+{
+    NPC_BLADESPIRE_EVIL_SPIRIT = 21446,
+    NPC_BLOODMAUL_EVIL_SPIRIT = 21452,
+    BLADESPIRE_HOLD_AREA = 3773,
+    BLOODMAUL_OUTPOST_AREA = 3776,
+};
+
+class spell_wicked_strong_fetish : public SpellScriptLoader
+{
+public:
+    spell_wicked_strong_fetish() : SpellScriptLoader("spell_wicked_strong_fetish") { }
+
+    class spell_wicked_strong_fetish_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_wicked_strong_fetish_SpellScript)
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+                return;            
+
+            if (Player* player = GetCaster()->ToPlayer())
+            {
+                if (player->GetAreaId() == BLADESPIRE_HOLD_AREA)
+                {
+                    player->SummonCreature(NPC_BLADESPIRE_EVIL_SPIRIT, player->GetPositionX() + 1.f, player->GetPositionY() + 1.f, player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+                    return;
+                }
+
+                if (player->GetAreaId() == BLOODMAUL_OUTPOST_AREA)
+                {
+                    player->SummonCreature(NPC_BLOODMAUL_EVIL_SPIRIT, player->GetPositionX() + 1.f, player->GetPositionY() + 1.f, player->GetPositionZ(), player->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+                    return;
+                }
+            }
+
+            return;
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_wicked_strong_fetish_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_wicked_strong_fetish_SpellScript();
+    }
+};
+
 /*######
 ## AddSC
 ######*/
@@ -727,4 +786,5 @@ void AddSC_blades_edge_mountains()
     new go_prophecy();
     new go_the_thunderspike();
     new mob_blade_fiend();
+    new spell_wicked_strong_fetish();
 }
