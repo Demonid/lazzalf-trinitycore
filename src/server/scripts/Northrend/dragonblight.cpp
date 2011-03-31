@@ -344,7 +344,7 @@ public:
                             me->MonsterWhisper("Wait... WAIT! What is it that you want to know? I know you're the $C named $N.", player->GetGUID());
                             break;
                         case 3:
-                            me->MonsterWhisper("OW...NO! We know that you've been stealing our armor and weapons and horses!",player->GetGUID());
+                            me->MonsterWhisper("OW...NO! We know that you've been stealing our armor and weapons and horses!", player->GetGUID());
                             break;
                         case 4:
                             me->MonsterWhisper("We know... that you don't... know why we're immune... to your so-called blight. Grand Admiral Westwind somehow gave the high abbot that prayer. I beg you... no more... please?", player->GetGUID());

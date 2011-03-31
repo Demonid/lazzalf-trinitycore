@@ -113,20 +113,20 @@ class boss_koralon : public CreatureScript
 
         void JustDied(Unit* /*Killer*/)
         {
-            if (Creature* Emalon = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EMALON) : 0))
-                if (Emalon->isAlive()) 
-                    WatchersCount++;
-                
-            if (Creature* Archavon = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_ARCHAVON) : 0))
-                if (Archavon->isAlive())
-                    WatchersCount++;
-
             if (pInstance)
             {
-                if (WatchersCount == 2)
-                    pInstance->SetData(DATA_EWF_START, ACHI_START);                
+                if (Creature* Emalon = Unit::GetCreature(*me, pInstance->GetData64(DATA_EMALON)))
+                    if (Emalon->isAlive()) 
+                        WatchersCount++;
+                
+                if (Creature* Archavon = Unit::GetCreature(*me, pInstance->GetData64(DATA_ARCHAVON)))
+                    if (Archavon->isAlive())
+                        WatchersCount++;
 
-                pInstance->SetData(DATA_EWF_COUNT, ACHI_INCREASE);
+                if (WatchersCount == 2)
+                    pInstance->SetData(DATA_EWF, ACHI_START);                
+
+                pInstance->SetData(DATA_EWF, ACHI_INCREASE);
                 pInstance->SetData(DATA_KORALON_EVENT, DONE);
                 pInstance->SaveToDB();
             }

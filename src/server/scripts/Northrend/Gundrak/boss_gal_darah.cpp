@@ -258,18 +258,25 @@ public:
                 {
                     Map::PlayerList const &players = pInstance->instance->GetPlayers();
 
-                    if (lImpaledPlayers.size() == players.getSize())
+                    if (lImpaledPlayers.size() == 5)
                         pInstance->DoCompleteAchievement(ACHIEV_SHARE_THE_LOVE);
 
                     AchievementEntry const *achievWhatTheEck = GetAchievementStore()->LookupEntry(ACHIEV_WHAT_THE_ECK);
                     if (achievWhatTheEck)
                     {
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                            if (itr->getSource()->HasAura(SPELL_ECK_RESIDUE))
+                        {
+                            Player* player = itr->getSource();
+
+                            if (!player)
+                                continue;
+
+                            if (player->HasAura(SPELL_ECK_RESIDUE))
                             {
-                                itr->getSource()->CompletedAchievement(achievWhatTheEck);
-                                itr->getSource()->RemoveAura(SPELL_ECK_RESIDUE);
+                                player->CompletedAchievement(achievWhatTheEck);
+                                player->RemoveAura(SPELL_ECK_RESIDUE);
                             }
+                        }
                     }
                 }
 

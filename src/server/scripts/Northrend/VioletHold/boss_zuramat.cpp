@@ -205,13 +205,22 @@ public:
 
     struct mob_void_sentryAI : public ScriptedAI
     {
-        mob_void_sentryAI(Creature *c) : ScriptedAI(c) {}
+        mob_void_sentryAI(Creature *c) : ScriptedAI(c) 
+        {
+            pInstance = c->GetInstanceScript();
+        }
+
+        InstanceScript* pInstance;
 
         void JustDied(Unit* killer)
         {
-            if (IsHeroic())
-                if (Creature* pZuramat = me->FindNearestCreature(CREATURE_ZURAMAT,60,true))
-                    CAST_AI(boss_zuramat::boss_zuramatAI,pZuramat->AI())->KilledVoidSentry = true;
+            if (pInstance)
+            {
+                if (IsHeroic())
+                    if (Creature* pZuramat = Unit::GetCreature(*me, pInstance->GetData64(DATA_ZURAMAT)))
+                        if (pZuramat->isAlive())
+                            CAST_AI(boss_zuramat::boss_zuramatAI,pZuramat->AI())->KilledVoidSentry = true;
+            }
         }
     };
 
