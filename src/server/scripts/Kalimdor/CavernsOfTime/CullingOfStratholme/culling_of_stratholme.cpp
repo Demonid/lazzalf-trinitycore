@@ -1217,7 +1217,37 @@ public:
 
 };
 
+class mob_risen_zombie : public CreatureScript
+{
+    public:
+        mob_risen_zombie() : CreatureScript("mob_risen_zombie") { }
+
+    struct mob_risen_zombieAI : public ScriptedAI
+    {
+       mob_risen_zombieAI(Creature *c) : ScriptedAI(c)
+       {
+           pInstance = me->GetInstanceScript();
+       }
+
+       InstanceScript* pInstance;
+
+       void JustDied(Unit *victim)
+       {
+           if(pInstance->GetData(DATA_ZOMBIEFEST) == ACHI_IS_NOT_STARTED)
+               pInstance->SetData(DATA_ZOMBIEFEST, ACHI_START);
+           
+           pInstance->SetData(DATA_ZOMBIEFEST, ACHI_INCREASE);
+       }
+    };
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_risen_zombieAI (pCreature);
+    };
+};
+
 void AddSC_culling_of_stratholme()
 {
     new npc_arthas();
+    new mob_risen_zombie();
 }
