@@ -269,7 +269,7 @@ public:
             {
                 if (zombiesCount >= ZOMBIEFEST_MIN_COUNT)
                 {
-                    DoCompleteAchievement(ACHIEVEMENT_ZOMBIEFEST);
+                    //DoCompleteAchievement(ACHIEVEMENT_ZOMBIEFEST);
 
                     SetData(DATA_ZOMBIEFEST, ACHI_RESET);
                     return;
