@@ -356,7 +356,7 @@ public:
     {
         npc_argent_tournament_postAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
-        void UpdateAI(const uint32 /*uiDiff*/)
+        void UpdateAI(const uint32 uiDiff)
         {
             if (me->IsNonMeleeSpellCasted(false))
                 return;
