@@ -76,7 +76,6 @@ class instance_serpent_shrine : public InstanceMapScript
         {
             instance_serpentshrine_cavern_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
             {
-                Initialize();
             }
 
             void Initialize()
