@@ -10,11 +10,14 @@
 #define WG_MIN_SAVE                 300000
 #define WG_STALKER_CHECKTIME        5000
 
+const uint8 CapturePointArtKit[3] = {2, 1, 21};
 const uint32 WintergraspFaction[3] = {1732, 1735, 35};
 const uint32 WG_MARK_OF_HONOR = 43589;
 const uint32 VehNumWorldState[2] = {3680,3490};
 const uint32 MaxVehNumWorldState[2] = {3681,3491};
 const uint32 ClockWorldState[2] = {3781,4354};
+
+char const *fmtstring(char const *format, ...);
 
 /* Not used / Not implemented
 
