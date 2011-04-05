@@ -49,7 +49,7 @@ class instance_trial_of_the_champion : public InstanceMapScript
 
     struct instance_trial_of_the_champion_InstanceMapScript : public InstanceScript
     {
-        instance_trial_of_the_champion_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();}
+        instance_trial_of_the_champion_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         //4 incontri
         uint32 m_auiEncounter[MAX_ENCOUNTER];

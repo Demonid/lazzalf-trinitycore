@@ -339,7 +339,7 @@ public:
 /*######
 ## npc_argent_tournament_post
 ######*/
-
+/*
 enum eArgentTournamentPost
 {
     SPELL_ROPE_BEAM                 = 63413,
@@ -376,7 +376,7 @@ public:
     {
         return new npc_argent_tournament_postAI(creature);
     };
-};
+};*/
 
 /*######
 ## npc_alorah_and_grimmin
@@ -630,7 +630,7 @@ void AddSC_icecrown()
     new npc_squire_david();
     new npc_squire_danny;
     new npc_argent_valiant();
-    new npc_argent_tournament_post();
+    //new npc_argent_tournament_post();
     new npc_alorah_and_grimmin();
     new npc_argent_champion();
     new npc_lake_frog();
