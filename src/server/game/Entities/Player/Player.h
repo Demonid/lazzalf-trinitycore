@@ -36,6 +36,7 @@
 #include "Unit.h"
 #include "Util.h"                                           // for Tokens typedef
 #include "WorldSession.h"
+#include "../../Custom/AntiCheat.h"
 
 #include<string>
 #include<vector>
@@ -1030,6 +1031,7 @@ private:
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
+    friend class AntiCheat;
     friend void Item::AddToUpdateQueueOf(Player *player);
     friend void Item::RemoveFromUpdateQueueOf(Player *player);
     public:
@@ -1526,7 +1528,7 @@ class Player : public Unit, public GridObject<Player>
 
         RewardedQuestSet& getRewardedQuests() { return m_RewardedQuests; }
         QuestStatusMap& getQuestStatusMap() { return m_QuestStatus; };
-
+ 
         const uint64& GetSelection() const { return m_curSelection; }
         Unit *GetSelectedUnit() const;
         Player *GetSelectedPlayer() const;
@@ -1608,6 +1610,7 @@ class Player : public Unit, public GridObject<Player>
         void AddTemporarySpell(uint32 spellId);
         void RemoveTemporarySpell(uint32 spellId);
         void SetReputation(uint32 factionentry, uint32 value);
+        void SetOneFactionReputation(uint32 factionentry, uint32 value);
         uint32 GetReputation(uint32 factionentry);
         std::string GetGuildName();
         uint32 GetFreeTalentPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS1); }
@@ -1844,7 +1847,7 @@ class Player : public Unit, public GridObject<Player>
         float GetSpellCritFromIntellect();
         float OCTRegenHPPerSpirit();
         float OCTRegenMPPerSpirit();
-        float GetRatingCoefficient(CombatRating cr) const;
+        float GetRatingMultiplier(CombatRating cr) const;
         float GetRatingBonusValue(CombatRating cr) const;
         uint32 GetBaseSpellPowerBonus() { return m_baseSpellPower; }
         int32 GetSpellPenetrationItemMod() const { return m_spellPenetrationItemMod; }
@@ -2213,6 +2216,23 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         uint32 EnvironmentalDamage(EnviromentalDamage type, uint32 damage);
+	    // Char datas...
+		bool m_jail_warning;
+		bool m_jail_amnestie;
+		bool m_jail_isjailed;           // Is this player jailed?
+		std::string m_jail_char;        // Name of jailed char
+		uint32 m_jail_guid;             // guid of the jailed char
+		uint32 m_jail_release;          // When is the player a free man/woman?
+		std::string m_jail_reason;      // Why was the char jailed?
+		uint32 m_jail_times;			// How often was the player jailed?
+  	    uint32 m_jail_amnestietime;
+		uint32 m_jail_gmacc;            // Used GM acc
+		std::string m_jail_gmchar;      // Used GM char
+		std::string m_jail_lasttime;    // Last jail time
+		uint32 m_jail_duration;         // Duration of the jail
+		// Load / save functions...
+		void _LoadJail(void);           // Loads the jail datas
+		void _SaveJail(void);           // Saves the jail datas
 
         /*********************************************************/
         /***               FLOOD FILTER SYSTEM                 ***/
@@ -2653,6 +2673,15 @@ class Player : public Unit, public GridObject<Player>
         float m_rest_bonus;
         RestType rest_type;
         ////////////////////Rest System/////////////////////
+
+        // AntiCheat
+        private:
+            AntiCheat* m_anticheat; // AntiCheat
+        
+        public:
+            AntiCheat* GetAntiCheat() { return m_anticheat; }
+        // End AntiCheat
+        
         uint32 m_resetTalentsCost;
         time_t m_resetTalentsTime;
         uint32 m_usedTalentCount;
