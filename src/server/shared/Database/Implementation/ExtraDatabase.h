@@ -30,7 +30,7 @@ class ExtraDatabaseConnection : public MySQLConnection
 
 
         //- Loads databasetype specific prepared statements
-        bool Open();
+        void DoPrepareStatements();
 };
 
 typedef DatabaseWorkerPool<ExtraDatabaseConnection> ExtraDatabaseWorkerPool;
