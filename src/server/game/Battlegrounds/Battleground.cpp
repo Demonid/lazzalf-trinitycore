@@ -794,7 +794,7 @@ void Battleground::EndBattleground(uint32 winner)
                 if (member)
                     plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, member->PersonalRating);
 
-                winner_arena_team->MemberWon(plr, loser_matchmaker_rating, winner_change, loser_arena_team->GetRating());
+                winner_arena_team->MemberWon(plr, loser_matchmaker_rating, winner_change);
             }
             else
             {

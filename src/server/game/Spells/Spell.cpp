@@ -4687,7 +4687,7 @@ void Spell::TakeRunePower(bool didHit)
         {
             // Blood Boil should generate Runic Power when caster is in combat
             if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] & 0x40000)
-                if (plr->isInCombat())
+                if (player->isInCombat())
                     rp = 100;    	
 
             player->ModifyPower(POWER_RUNIC_POWER, int32(rp));

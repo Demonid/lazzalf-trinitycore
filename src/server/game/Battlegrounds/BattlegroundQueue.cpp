@@ -58,7 +58,7 @@ BattlegroundQueue::~BattlegroundQueue()
 
 bool BattlegroundQueue::TeamsAreAllowedToFight(uint32 TeamId1, uint32 TeamId2)
 {
-    if(TeamId1 && TeamId2 && (TeamId1 != TeamId2)) // teamId1 only != 0 if rated/arena
+   if (TeamId1 && TeamId2 && (TeamId1 != TeamId2)) // teamId1 only != 0 if rated/arena
     {
         //get arenateams and configs
         ArenaTeam *at1 = sObjectMgr->GetArenaTeamById(TeamId1);
@@ -70,32 +70,32 @@ bool BattlegroundQueue::TeamsAreAllowedToFight(uint32 TeamId1, uint32 TeamId2)
         uint32 maxPlayerWinsTeam = sWorld->getIntConfig(CONFIG_ARENAMOD_MAX_PLAYER_WIN_AGAINST_TEAM);
 
         //check if arenamod is enabled
-        if(enabled)
+        if (enabled)
         {
             //get arenamod's mode
-            if(mode & 1)
+            if (mode & 1)
             {
-                if(at1 && at2)
+                if (at1 && at2)
                 {
                     //iterate through arenateam1's members and check if they can fight
-                    for(ArenaTeam::MemberList::iterator itr = at1->m_membersBegin(); itr !=  at1->m_membersEnd(); ++itr)
+                    for (ArenaTeam::MemberList::iterator itr = at1->m_membersBegin(); itr !=  at1->m_membersEnd(); ++itr)
                     {
-                        if(itr->guid)
+                        if (itr->Guid)
                         {
-                            Player *plr = sObjectMgr->GetPlayer(itr->guid);
-                            if(plr)
+                            Player *plr = sObjectMgr->GetPlayer(itr->Guid);
+                            if (plr)
                             {
                                 //check if player is really in the group joining the arena match
-                                if((plr->InBattlegroundQueueForBattlegroundQueueType(BATTLEGROUND_QUEUE_2v2) && at1->GetType() == ARENA_TEAM_2v2 && !at1->IsFighting()) ||
+                                if ((plr->InBattlegroundQueueForBattlegroundQueueType(BATTLEGROUND_QUEUE_2v2) && at1->GetType() == ARENA_TEAM_2v2 && !at1->IsFighting()) ||
                                     (plr->InBattlegroundQueueForBattlegroundQueueType(BATTLEGROUND_QUEUE_3v3) && at1->GetType() == ARENA_TEAM_3v3 && !at1->IsFighting()) ||
                                     (plr->InBattlegroundQueueForBattlegroundQueueType(BATTLEGROUND_QUEUE_5v5) && at1->GetType() == ARENA_TEAM_5v5 && !at1->IsFighting()))
                                 {
                                     //database query : get all wins of player against at2 and add them
                                     // in order to be able to check if that amount is bigger
                                     // than allowed, if so return false
-                                    QueryResult result = CharacterDatabase.PQuery("SELECT wins FROM arena_mod WHERE player_guid='%u' AND enemy_team_id='%u'", GUID_LOPART(itr->guid), TeamId2);
+                                    QueryResult result = CharacterDatabase.PQuery("SELECT wins FROM arena_mod WHERE player_guid='%u' AND enemy_team_id='%u'", GUID_LOPART(itr->Guid), TeamId2);
 
-                                    if(!result)
+                                    if (!result)
                                     {
                                         continue;
                                     }
@@ -108,9 +108,9 @@ bool BattlegroundQueue::TeamsAreAllowedToFight(uint32 TeamId1, uint32 TeamId2)
                                             uint32 wins = fields[0].GetUInt32();
                                             
                                             allwins += wins;
-                                        }while(result->NextRow());
+                                        } while(result->NextRow());
 
-                                        if(allwins >= maxPlayerWinsTeam)
+                                        if (allwins >= maxPlayerWinsTeam)
                                         {
                                             return false;
                                         }
@@ -121,24 +121,24 @@ bool BattlegroundQueue::TeamsAreAllowedToFight(uint32 TeamId1, uint32 TeamId2)
                     }
 
                     //iterate through arenateam2's members and check if they can fight
-                    for(ArenaTeam::MemberList::iterator itr = at2->m_membersBegin(); itr !=  at2->m_membersEnd(); ++itr)
+                    for (ArenaTeam::MemberList::iterator itr = at2->m_membersBegin(); itr !=  at2->m_membersEnd(); ++itr)
                     {
-                        if(itr->guid)
+                        if (itr->Guid)
                         {
-                            Player *plr = sObjectMgr->GetPlayer(itr->guid);
-                            if(plr)
+                            Player *plr = sObjectMgr->GetPlayer(itr->Guid);
+                            if (plr)
                             {
                                 //check if player is really in the group joining the arena match
-                                if((plr->InBattlegroundQueueForBattlegroundQueueType(BATTLEGROUND_QUEUE_2v2) && at2->GetType() == ARENA_TEAM_2v2 && !at2->IsFighting()) ||
+                                if ((plr->InBattlegroundQueueForBattlegroundQueueType(BATTLEGROUND_QUEUE_2v2) && at2->GetType() == ARENA_TEAM_2v2 && !at2->IsFighting()) ||
                                     (plr->InBattlegroundQueueForBattlegroundQueueType(BATTLEGROUND_QUEUE_3v3) && at2->GetType() == ARENA_TEAM_3v3 && !at2->IsFighting()) ||
                                     (plr->InBattlegroundQueueForBattlegroundQueueType(BATTLEGROUND_QUEUE_5v5) && at2->GetType() == ARENA_TEAM_5v5 && !at2->IsFighting()))
                                 {
                                     //database query : get all wins of player against at2 and add them
                                     // in order to be able to check if that amount is bigger
                                     // than allowed, if so return false
-                                    QueryResult result = CharacterDatabase.PQuery("SELECT wins FROM arena_mod WHERE player_guid='%u' AND enemy_team_id='%u'", GUID_LOPART(itr->guid), TeamId1);
-
-                                    if(!result)
+                                    QueryResult result = CharacterDatabase.PQuery("SELECT wins FROM arena_mod WHERE player_guid='%u' AND enemy_team_id='%u'", GUID_LOPART(itr->Guid), TeamId1);
+ 
+                                    if (!result)
                                     {
                                         continue;
                                     }
@@ -151,9 +151,9 @@ bool BattlegroundQueue::TeamsAreAllowedToFight(uint32 TeamId1, uint32 TeamId2)
                                             uint32 wins = fields[0].GetUInt32();
                                             
                                             allwins += wins;
-                                        }while(result->NextRow());
+                                        } while(result->NextRow());
 
-                                        if(allwins >= maxPlayerWinsTeam)
+                                        if (allwins >= maxPlayerWinsTeam)
                                         {
                                             return false;
                                         }
@@ -165,20 +165,20 @@ bool BattlegroundQueue::TeamsAreAllowedToFight(uint32 TeamId1, uint32 TeamId2)
                 }
             }
 
-            if(mode & 2)
+            if (mode & 2)
             {
                 //database query : get all wins of team1 against team2
                 // in order to be able to check if that amount is bigger
                 // than allowed, if so return false
                 QueryResult result = CharacterDatabase.PQuery("SELECT wins FROM arena_mod WHERE player_guid='0' AND player_team_id='%u' AND enemy_team_id='%u'", TeamId1, TeamId2);
 
-                if(result)
+                if (result)
                 {
                     uint32 wins = 0;
                     Field *fields = result->Fetch();
                     wins = fields[0].GetUInt32();
 
-                    if(wins >= maxTeamWinsTeam)
+                    if (wins >= maxTeamWinsTeam)
                     {
                         return false;
                     }
@@ -189,13 +189,13 @@ bool BattlegroundQueue::TeamsAreAllowedToFight(uint32 TeamId1, uint32 TeamId2)
                 // than allowed, if so return false
                 result = CharacterDatabase.PQuery("SELECT wins FROM arena_mod WHERE player_guid='0' AND player_team_id='%u' AND enemy_team_id='%u'", TeamId2, TeamId1);
 
-                if(result)
+                if (result)
                 {
                     uint32 wins = 0;
                     Field *fields = result->Fetch();
                     wins = fields[0].GetUInt32();
 
-                    if(wins >= maxTeamWinsTeam)
+                    if (wins >= maxTeamWinsTeam)
                     {
                         return false;
                     }
