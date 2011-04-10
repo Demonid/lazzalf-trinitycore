@@ -49,6 +49,8 @@ public:
             uromGUID = 0;
             eregosGUID = 0;
 
+            eregosCacheGUID = 0;
+
             platformUrom = 0;
             centrifugueConstructCounter = 0;
 
@@ -133,6 +135,9 @@ public:
 
                 gameObjectList.push_back(go->GetGUID());
             }
+
+            if ((go->GetEntry() == GO_CACHE_OF_EREGOS_N) || (go->GetEntry() == GO_CACHE_OF_EREGOS_H))
+                eregosCacheGUID = go->GetGUID();
         }
 
         bool SetBossState(uint32 type, EncounterState state)
@@ -153,6 +158,12 @@ public:
                 case DATA_VAROS_EVENT:
                     if (state == DONE)
                         DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW,0);
+                    break;
+                case DATA_EREGOS_EVENT:
+                    if (state == DONE)
+                        if(instance)
+                            if(GameObject* Ec = instance->GetGameObject(eregosCacheGUID))
+                                Ec->SetRespawnTime(Ec->GetRespawnDelay());
                     break;
             }
 
@@ -253,6 +264,8 @@ public:
             uint64 varosGUID;
             uint64 uromGUID;
             uint64 eregosGUID;
+
+            uint64 eregosCacheGUID;
 
             uint8 platformUrom;
             uint8 centrifugueConstructCounter;
