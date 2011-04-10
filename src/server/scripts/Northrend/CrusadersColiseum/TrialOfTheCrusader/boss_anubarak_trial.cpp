@@ -291,7 +291,7 @@ public:
                     if (m_uiSummonNerubianTimer <= uiDiff && (IsHeroic() || !m_bReachedPhase3))
                     {
                         me->CastCustomSpell(SPELL_SUMMON_BURROWER, SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 2, 2, 4));
-                        m_uiSummonNerubianTimer = 45*IN_MILLISECONDS;
+                        m_uiSummonNerubianTimer = 90*IN_MILLISECONDS;
                     } else m_uiSummonNerubianTimer -= uiDiff;
 
                     if (IsHeroic() && m_uiNerubianShadowStrikeTimer <= uiDiff)
@@ -344,6 +344,12 @@ public:
                         // Just to make sure it won't happen again in this phase
                         m_uiSummonScarabTimer = 90*IN_MILLISECONDS;*/
                     } else m_uiSummonScarabTimer -= uiDiff;
+
+                    if (m_uiSummonNerubianTimer <= uiDiff && (IsHeroic() || !m_bReachedPhase3))
+                    {
+                        me->CastCustomSpell(SPELL_SUMMON_BURROWER, SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 2, 2, 4));
+                        m_uiSummonNerubianTimer = 90*IN_MILLISECONDS;
+                    } else m_uiSummonNerubianTimer -= uiDiff;
 
                     if (m_uiSubmergeTimer <= uiDiff)
                     {
@@ -425,6 +431,11 @@ public:
         mob_swarm_scarabAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            if (IsHeroic())
+            {
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
+            }
         }
 
         InstanceScript* m_pInstance;

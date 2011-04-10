@@ -4049,6 +4049,8 @@ void SpellMgr::LoadSpellCustomAttr()
         case 65876:     // Twin Pact (Light)
         case 66532:     // Fel Fireball 10
         case 66963:     // Fel Fireball 25
+        case 66964:     // Fel Fireball 10H
+        case 66965:     // Fel Fireball 25H
         case 68982:     // Phantom Blast (FoS normal)
         case 70322:     // Phantom Blast (FoS heroic)
             spellInfo->InterruptFlags = 47;

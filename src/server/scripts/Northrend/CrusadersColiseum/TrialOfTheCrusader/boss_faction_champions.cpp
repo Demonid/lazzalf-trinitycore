@@ -272,6 +272,11 @@ struct boss_faction_championsAI : public ScriptedAI
     {
         m_pInstance = (InstanceScript *) pCreature->GetInstanceScript();
         mAIType = aitype;
+        if (IsHeroic())
+        {
+            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
+        }
     }
 
     InstanceScript* m_pInstance;

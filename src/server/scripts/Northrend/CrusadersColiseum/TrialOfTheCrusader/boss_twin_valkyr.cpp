@@ -532,6 +532,15 @@ public:
         {
             if (saltAndPepperTimer <= SALT_AND_PEPPER_MAX_TIMER)
                 m_pInstance->DoCompleteAchievement(ACHIEVEMENT_SALT_AND_PEPPER);
+
+            Map::PlayerList const &players = m_pInstance->instance->GetPlayers();
+            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            {
+                Player* player = itr->getSource();
+                if (!player)
+                    continue;
+                player->KilledMonsterCredit(34496, 0);
+            }
             
             boss_twin_baseAI::JustDied(pKiller);
         }
@@ -585,6 +594,18 @@ public:
             HomeLocation = ToCCommonLoc[9];
             EssenceLocation[0] = TwinValkyrsLoc[0];
             EssenceLocation[1] = TwinValkyrsLoc[1];
+        }
+
+        void JustDied(Unit* /*pKiller*/)
+        {
+            Map::PlayerList const &players = m_pInstance->instance->GetPlayers();
+            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            {
+                Player* player = itr->getSource();
+                if (!player)
+                    continue;
+                player->KilledMonsterCredit(34497, 0);
+            }
         }
     };
 

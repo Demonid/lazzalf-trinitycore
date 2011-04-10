@@ -132,8 +132,8 @@ public:
             m_uiNetherPowerTimer = 40*IN_MILLISECONDS;
             m_uiLegionFlameTimer = 30*IN_MILLISECONDS;
             m_uiTouchOfJaraxxusTimer = urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS);
-            m_uiSummonNetherPortalTimer = 1*MINUTE*IN_MILLISECONDS;
-            m_uiSummonInfernalEruptionTimer = 2*MINUTE*IN_MILLISECONDS;
+            m_uiSummonNetherPortalTimer = 15*IN_MILLISECONDS;
+            m_uiSummonInfernalEruptionTimer = 45*IN_MILLISECONDS;
             Summons.DespawnAll();
         }
 
