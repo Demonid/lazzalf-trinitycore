@@ -122,7 +122,7 @@ void PetAI::UpdateAI(const uint32 diff)
         return;
 
     // Autocast (casted only in combat or persistent spells in any state)
-    if (!me->HasUnitState(UNIT_STAT_CASTING))
+    if (!me->HasUnitState(UNIT_STAT_CASTING) && !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
     {
         typedef std::vector<std::pair<Unit*, Spell*> > TargetSpellList;
         TargetSpellList targetSpellStore;
