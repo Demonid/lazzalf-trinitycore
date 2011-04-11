@@ -4329,6 +4329,7 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
         if (attackType == OFF_ATTACK && !(m_triggeredByAuraSpell && m_triggeredByAuraSpell->SpellIconID == 2023)) // Off-Hand fixed_bonus is not reduced by Off-Hand Penality (50%)
  	            weapon_total_pct *= 2;
 
+        
         if (fixed_bonus)
         {
             fixed_bonus = int32(fixed_bonus * weapon_total_pct);
@@ -4343,6 +4344,7 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
                 }
             }
         }
+        
 
         if (spell_bonus)
             spell_bonus = int32(spell_bonus * weapon_total_pct);
