@@ -660,14 +660,14 @@ public:
         {
             listOfMobs.Summon(pSummoned);
             if (pSummoned)
-                pInstance->SetData64(DATA_ADD_TRASH_MOB,pSummoned->GetGUID());
+                pInstance->SetData64(DATA_ADD_TRASH_MOB, pSummoned->GetGUID());
         }
 
         void SummonedMobDied(Creature *pSummoned)
         {
             listOfMobs.Despawn(pSummoned);
             if (pSummoned)
-                pInstance->SetData64(DATA_DEL_TRASH_MOB,pSummoned->GetGUID());
+                pInstance->SetData64(DATA_DEL_TRASH_MOB, pSummoned->GetGUID());
         }
     };
 

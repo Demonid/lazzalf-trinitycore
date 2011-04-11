@@ -507,6 +507,13 @@ void BattlegroundSA::TeleportPlayers()
             }
 
             plr->ResetAllPowers();
+
+            plr->RemoveAurasWithMechanic(MECHANIC_HORROR);
+            plr->RemoveAurasWithMechanic(MECHANIC_POLYMORPH);
+            plr->RemoveAurasWithMechanic(MECHANIC_DISORIENTED);
+            plr->RemoveAurasWithMechanic(MECHANIC_FEAR);
+            plr->RemoveAurasWithMechanic(MECHANIC_CHARM);            
+
             plr->CombatStopWithPets(true);
 
             if (plr->GetTeamId() == Attackers)
