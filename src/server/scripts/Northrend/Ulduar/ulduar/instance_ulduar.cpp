@@ -169,7 +169,7 @@ class instance_ulduar : public InstanceMapScript
         bool bombBotHit;
         bool rocketStrikeHit;
             
-        GameObject* pLeviathanDoor, /* *KologarnChest,*/ *HodirChest, *HodirRareChest, *ThorimChest, *ThorimRareChest, *pRunicDoor, *pStoneDoor, *pThorimLever,
+        GameObject* pLeviathanDoor, *KologarnChest, *HodirChest, *HodirRareChest, *ThorimChest, *ThorimRareChest, *pRunicDoor, *pStoneDoor, *pThorimLever,
             *MimironTram, *MimironElevator;
 
         void Initialize()
@@ -217,8 +217,12 @@ class instance_ulduar : public InstanceMapScript
                     pLeviathanDoor = pGo;
                     HandleGameObject(NULL, false, pGo);
                     break;
-                //case GO_KOLOGARN_CHEST_HERO: KologarnChest = add ? pGo : NULL; break;
-                //case GO_KOLOGARN_CHEST: KologarnChest = add ? pGo : NULL; break;
+                case GO_KOLOGARN_CHEST_HERO: 
+                    KologarnChest = pGo;
+                    break;
+                case GO_KOLOGARN_CHEST: 
+                    KologarnChest = pGo;
+                    break;
                 case GO_KOLOGARN_BRIDGE: 
                     uiKologarnBridge = pGo->GetGUID(); 
                     HandleGameObject(uiKologarnBridge, true); 
@@ -801,7 +805,7 @@ class instance_ulduar : public InstanceMapScript
                     if (state == DONE)
                     {
                         HandleGameObject(uiKologarnBridge, false);
-                        //KologarnChest->SetRespawnTime(KologarnChest->GetRespawnDelay());
+                        KologarnChest->SetRespawnTime(KologarnChest->GetRespawnDelay());
                     }
                     break;
                 case BOSS_HODIR:

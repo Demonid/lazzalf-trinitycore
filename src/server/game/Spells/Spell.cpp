@@ -5543,6 +5543,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                                 return SPELL_FAILED_TARGET_LOCKED_TO_RAID_INSTANCE;
                         }
 
+                    //if (map->IsRaid())
                     //if (InstancePlayerBind* targetBind = target->GetBoundInstance(mapId, difficulty))
                     //    if (targetBind->perm && targetBind != m_caster->ToPlayer()->GetBoundInstance(mapId, difficulty))
                     //        return SPELL_FAILED_TARGET_LOCKED_TO_RAID_INSTANCE;
