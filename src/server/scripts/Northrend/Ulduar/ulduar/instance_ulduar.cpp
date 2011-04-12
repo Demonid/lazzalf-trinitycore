@@ -174,6 +174,7 @@ class instance_ulduar : public InstanceMapScript
 
         void Initialize()
         {
+            KologarnChest = NULL;
             towerDestroyedCount = 0;
             towerOfStorms = true;
             towerOfLife = true;
@@ -805,7 +806,8 @@ class instance_ulduar : public InstanceMapScript
                     if (state == DONE)
                     {
                         HandleGameObject(uiKologarnBridge, false);
-                        KologarnChest->SetRespawnTime(KologarnChest->GetRespawnDelay());
+                        if (KologarnChest)
+                            KologarnChest->SetRespawnTime(KologarnChest->GetRespawnDelay());
                     }
                     break;
                 case BOSS_HODIR:
