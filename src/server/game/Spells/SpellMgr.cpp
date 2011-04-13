@@ -4342,6 +4342,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->DurationIndex = 42;
             count++;
             break;
+        case 61875: // Spring Fling
+            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_SUMMONER;
+            count++;
+            break;
         default:
             break;
         }
