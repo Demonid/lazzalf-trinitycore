@@ -297,11 +297,20 @@ class boss_freya : public CreatureScript
             _JustDied();
 
             if (Creature* Ironbranch = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_IRONBRANCH) : 0))
+            {
+                Ironbranch->CombatStop();
                 Ironbranch->RemoveFromWorld();
+            }
             if (Creature* Stonebark = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_STONEBARK) : 0))
+            {  
+                Stonebark->CombatStop();
                 Stonebark->RemoveFromWorld();
+            }
             if (Creature* Ironbranch = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_IRONBRANCH) : 0))
+            {  
+                Ironbranch->CombatStop();
                 Ironbranch->RemoveFromWorld();
+            }
             
             me->setFaction(35);
             
@@ -1107,17 +1116,22 @@ class creature_eonars_gift : public CreatureScript
         int32 uiScaleTimer;
 
         void UpdateAI(const uint32 diff)
-        {
-            if(uiLifebindersGiftTimer <= 0)
+        {            
+            if (uiLifebindersGiftTimer <= 0)
             {
-                DoCast(me, RAID_MODE(RAID_10_SPELL_LIFEBINDERS_GIFT, RAID_25_SPELL_LIFEBINDERS_GIFT), true);
-                uiLifebindersGiftTimer = 12000;
-                me->SetFloatValue(OBJECT_FIELD_SCALE_X, 0);
+                if (m_pInstance)
+                    if (Creature* pFreya = m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_FREYA)))
+                        if ((me->GetPositionZ() + 40.0f) > pFreya->GetPositionZ())
+                        {
+                            DoCast(me, RAID_MODE(RAID_10_SPELL_LIFEBINDERS_GIFT, RAID_25_SPELL_LIFEBINDERS_GIFT), true);
+                            uiLifebindersGiftTimer = 12000;
+                            me->SetFloatValue(OBJECT_FIELD_SCALE_X, 0);
+                        }
                 me->ForcedDespawn(1000);
             }
             else uiLifebindersGiftTimer -= diff;
 
-            if(uiScaleTimer <= 0)
+            if (uiScaleTimer <= 0)
             {
                 fScale += 0.025f;
                 me->SetFloatValue(OBJECT_FIELD_SCALE_X, fScale);
