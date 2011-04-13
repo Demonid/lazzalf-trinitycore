@@ -459,7 +459,8 @@ struct boss_twin_baseAI : public ScriptedAI
         else
             m_uiBerserkTimer -= uiDiff;
 
-        DoMeleeAttackIfReady();
+        if (!me->HasUnitState(UNIT_STAT_CASTING))
+            DoMeleeAttackIfReady();
     }
 };
 
