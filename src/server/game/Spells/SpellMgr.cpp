@@ -4338,6 +4338,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->MaxAffectedTargets = 1;
             count++;
             break;
+        case 61716: // Rabbit Costume
+            spellInfo->DurationIndex = 42;
+            count++;
+            break;
         default:
             break;
         }
