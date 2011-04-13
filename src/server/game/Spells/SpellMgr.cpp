@@ -4045,8 +4045,14 @@ void SpellMgr::LoadSpellCustomAttr()
         case 61915:     // Lightning Whirl 10
         case 63483:     // Lightning Whirl 25
         case 55098:     // Transformation
-        case 65875:     // Twin Pact (Dark)
-        case 65876:     // Twin Pact (Light)
+        case 65875:     // Twin Pact (Dark) 10
+        case 67303:     // Twin Pact (Dark) 25
+        case 67304:     // Twin Pact (Dark) 10H
+        case 67305:     // Twin Pact (Dark) 25H
+        case 65876:     // Twin Pact (Light) 10
+        case 67306:     // Twin Pact (Light) 25
+        case 67307:     // Twin Pact (Light) 10H
+        case 67308:     // Twin Pact (Light) 25H
         case 66532:     // Fel Fireball 10
         case 66963:     // Fel Fireball 25
         case 66964:     // Fel Fireball 10H
