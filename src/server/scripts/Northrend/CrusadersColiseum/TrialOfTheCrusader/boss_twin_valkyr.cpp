@@ -607,6 +607,8 @@ public:
                     continue;
                 player->KilledMonsterCredit(34497, 0);
             }
+
+            boss_twin_baseAI::JustDied(pKiller);
         }
     };
 
