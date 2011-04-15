@@ -597,7 +597,7 @@ public:
             EssenceLocation[1] = TwinValkyrsLoc[1];
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* pKiller)
         {
             Map::PlayerList const &players = m_pInstance->instance->GetPlayers();
             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
