@@ -1661,7 +1661,7 @@ public:
         if (!pInstance)
             return false;
 
-        if ((pInstance->GetBossState(BOSS_MIMIRON) != IN_PROGRESS || pInstance->GetBossState(BOSS_MIMIRON) != DONE) && pPlayer)
+        if ((pInstance->GetBossState(BOSS_MIMIRON) != IN_PROGRESS && pInstance->GetBossState(BOSS_MIMIRON) != DONE) && pPlayer)
             if (Creature *pMimiron = pPlayer->GetCreature((*pPlayer), pInstance->GetData64(DATA_MIMIRON)))
             {
                 pMimiron->AI()->DoAction(DO_ACTIVATE_HARD_MODE);
