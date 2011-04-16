@@ -146,7 +146,7 @@ class instance_molten_core : public InstanceMapScript
                     return false;
 
                 if (state == DONE && bossId < BOSS_MAJORDOMO_EXECUTUS)
-                    ++_deadBossCount == 8;
+                    ++_deadBossCount;
 
                 if (_isLoading)
                     return true;
