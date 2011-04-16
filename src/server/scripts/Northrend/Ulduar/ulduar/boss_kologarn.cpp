@@ -243,6 +243,7 @@ public:
             if (instance)
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
 
+            vehicle->RemoveAllPassengers();
             vehicle->Reset();
         }
 
@@ -326,7 +327,7 @@ public:
                             EyeBeam->AI()->AttackStart(pTarget);
                         }
                     }
-                    events.RescheduleEvent(EVENT_EYEBEAM, 20000);
+                    events.RescheduleEvent(EVENT_EYEBEAM, 25000);
                     break;
                 case EVENT_LEFT:
                     if (Unit* LeftArm = me->SummonCreature(NPC_LEFT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
