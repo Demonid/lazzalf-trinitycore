@@ -243,7 +243,6 @@ public:
             if (instance)
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
 
-            vehicle->RemoveAllPassengers();
             vehicle->Reset();
         }
 
@@ -330,7 +329,7 @@ public:
                     events.RescheduleEvent(EVENT_EYEBEAM, 25000);
                     break;
                 case EVENT_LEFT:
-                    if (Unit* LeftArm = me->SummonCreature(NPC_LEFT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
+                    if (Unit* LeftArm = me->SummonCreature(NPC_LEFT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN))
                     {
                         LeftArm->_EnterVehicle(vehicle, 0);
                         DoCast(me, SPELL_ARM_RESPAWN, true);
@@ -341,7 +340,7 @@ public:
                     events.CancelEvent(EVENT_LEFT);
                     break;                
                 case EVENT_RIGHT:
-                    if (Unit* RightArm = me->SummonCreature(NPC_RIGHT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
+                    if (Unit* RightArm = me->SummonCreature(NPC_RIGHT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN))
                     {
                         RightArm->_EnterVehicle(vehicle, 1);
                         DoCast(me, SPELL_ARM_RESPAWN, true);
