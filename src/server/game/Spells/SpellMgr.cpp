@@ -4339,7 +4339,7 @@ void SpellMgr::LoadSpellCustomAttr()
             count++;
             break;
         case 61716: // Rabbit Costume
-            spellInfo->DurationIndex = 42;
+            spellInfo->DurationIndex = 30;
             count++;
             break;
         case 61875: // Spring Fling
