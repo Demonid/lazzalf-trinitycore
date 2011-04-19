@@ -723,7 +723,7 @@ class guild_guard : public CreatureScript
                         i->getSource()->GetSession()->GetSecurity() >= SEC_GAMEMASTER)
                         continue;
 
-                    if (i->getSource()->GetDistance2d(me) <= 150)
+                    if (i->getSource()->GetDistance2d(me) <= 120)
                     {                            
                         uint32 guild =((Player*)i->getSource())->GetGuildId();
                         if (guardguild && guild != guardguild)
