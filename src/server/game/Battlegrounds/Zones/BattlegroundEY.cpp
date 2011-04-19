@@ -109,6 +109,8 @@ void BattlegroundEY::StartingEventCloseDoors()
         SpawnBGObject(i, RESPAWN_ONE_DAY);
 }
 
+#define NPC_FEL_REAVER_TRIGGER      4455461
+
 void BattlegroundEY::StartingEventOpenDoors()
 {
     SpawnBGObject(BG_EY_OBJECT_DOOR_A, RESPAWN_ONE_DAY);
@@ -122,6 +124,9 @@ void BattlegroundEY::StartingEventOpenDoors()
         uint8 buff = urand(0, 2);
         SpawnBGObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER + buff + i * 3, RESPAWN_IMMEDIATELY);
     }
+
+    if (AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(TR_FEL_REAVER_POINT))
+        AddCreature(NPC_FEL_REAVER_TRIGGER, EY_TRIGGER_FEL_REAVER_FLAG, 0, atEntry->x, atEntry->y, atEntry->z, 0.0f);
 }
 
 void BattlegroundEY::AddPoints(uint32 Team, uint32 Points)
