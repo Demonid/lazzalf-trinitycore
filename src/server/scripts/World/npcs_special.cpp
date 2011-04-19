@@ -2695,6 +2695,42 @@ public:
     }
 };
 
+#define EOTS_FEL_REAVER_AREATRIGGER     4514
+class npc_eye_of_storm_trigger : public CreatureScript
+{
+public:
+    npc_eye_of_storm_trigger() : CreatureScript("npc_eye_of_storm_trigger") { }
+    struct npc_eye_of_storm_triggerAI : public ScriptedAI
+    {
+        npc_eye_of_storm_triggerAI(Creature* c) : ScriptedAI(c) {}
+        void MoveInLineOfSight(Unit *who)
+        {
+            Player *pl = who->ToPlayer();
+            if (!pl)
+                return;
+            AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(EOTS_FEL_REAVER_AREATRIGGER);
+            if (!atEntry)
+                return;
+
+            if (pl->GetMapId() != atEntry->mapid)
+                return;
+
+            // delta is safe radius
+            const float delta = 5.0f;
+            // check if player in the range of areatrigger
+            float dist = pl->GetDistance(atEntry->x, atEntry->y, atEntry->z);
+            if (dist <= atEntry->radius + delta)
+                if (pl->GetBattleground())
+                    pl->GetBattleground()->HandleAreaTrigger(pl, EOTS_FEL_REAVER_AREATRIGGER);
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_eye_of_storm_triggerAI(creature);
+    }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots;
