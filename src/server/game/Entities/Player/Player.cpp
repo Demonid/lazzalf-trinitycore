@@ -626,6 +626,26 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
 #pragma warning(default:4355)
 #endif
 
+    // Jail
+	m_jail_guid     = 0;
+	m_jail_char     = "";
+	m_jail_amnestie = false;
+	m_jail_warning  = false;
+	m_jail_isjailed = false;
+	m_jail_amnestietime =0;
+	m_jail_release  = 0;
+	m_jail_times    = 0;
+	m_jail_reason   = "";
+	m_jail_gmacc    = 0;
+	m_jail_gmchar   = "";
+	m_jail_lasttime = "";
+    m_jail_duration = 0;
+	// Jail end
+
+    // AntiCheat
+    m_anticheat = new AntiCheat(this); // AntiCheat
+    // End AntiCheat
+
     m_speakTime = 0;
     m_speakCount = 0;
 
@@ -879,6 +899,7 @@ Player::~Player ()
 
     delete m_declinedname;
     delete m_runes;
+    delete m_anticheat;
 
     sWorld->DecreasePlayerCount();
 }
@@ -1411,7 +1432,7 @@ void Player::HandleDrowning(uint32 time_diff)
                     EnvironmentalDamage(DAMAGE_LAVA, damage);
                 // need to skip Slime damage in Undercity,
                 // maybe someone can find better way to handle environmental damage
-                else if (m_zoneUpdateId != 1497)
+                else if (m_zoneUpdateId != 1497 && m_zoneUpdateId != 3968)
                     EnvironmentalDamage(DAMAGE_SLIME, damage);
             }
         }
@@ -1484,6 +1505,9 @@ void Player::Update(uint32 p_time)
     if (!IsInWorld())
         return;
 
+    // AntiCheat
+    GetAntiCheat()->UpdateDiffAntiCheat(p_time);
+
     // undelivered mail
     if (m_nextMailDelivereTime && m_nextMailDelivereTime <= time(NULL))
     {
@@ -1520,6 +1544,77 @@ void Player::Update(uint32 p_time)
     SetCanDelayTeleport(true);
     Unit::Update(p_time);
     SetCanDelayTeleport(false);
+
+	if(m_jail_isjailed)
+    {
+        time_t localtime;
+        localtime = time(NULL);
+		
+        if (m_jail_release <= localtime)
+        {
+            m_jail_isjailed = false;
+            m_jail_release = 0;
+
+            _SaveJail();
+            
+            sWorld->SendWorldText(LANG_JAIL_CHAR_FREE, GetName());
+            
+			CastSpell(this,8690,false);
+
+            return;
+        }
+
+        if (m_team == ALLIANCE)
+        {
+            if (GetDistance(sObjectMgr->m_jailconf_ally_x, sObjectMgr->m_jailconf_ally_y, sObjectMgr->m_jailconf_ally_z) > sObjectMgr->m_jailconf_radius)
+            {
+                TeleportTo(sObjectMgr->m_jailconf_ally_m, sObjectMgr->m_jailconf_ally_x,
+                    sObjectMgr->m_jailconf_ally_y, sObjectMgr->m_jailconf_ally_z, sObjectMgr->m_jailconf_ally_o);
+                return;
+            }
+        }
+        else
+        {
+            if (GetDistance(sObjectMgr->m_jailconf_horde_x, sObjectMgr->m_jailconf_horde_y, sObjectMgr->m_jailconf_horde_z) > sObjectMgr->m_jailconf_radius)
+            {
+                TeleportTo(sObjectMgr->m_jailconf_horde_m, sObjectMgr->m_jailconf_horde_x,
+                    sObjectMgr->m_jailconf_horde_y, sObjectMgr->m_jailconf_horde_z, sObjectMgr->m_jailconf_horde_o);
+                return;
+            }
+			
+        }
+    }
+	
+	if(m_jail_warning == true)
+	{
+		m_jail_warning = false;
+		
+		if(sObjectMgr->m_jailconf_warn_player && sObjectMgr->m_jailconf_warn_player == m_jail_times)
+		{
+			if (((sObjectMgr->m_jailconf_max_jails - 1) == (m_jail_times - 1)) && (sObjectMgr->m_jailconf_ban - 1))
+			{
+				ChatHandler(this).PSendSysMessage(LANG_JAIL_WARNING_BAN, m_jail_times , sObjectMgr->m_jailconf_max_jails-1);
+			}
+			else
+			{
+				ChatHandler(this).PSendSysMessage(LANG_JAIL_WARNING, m_jail_times , sObjectMgr->m_jailconf_max_jails);
+			}		        
+		}
+		return;
+	}
+    if(m_jail_amnestie == true && sObjectMgr->m_jailconf_amnestie > 0 )
+    {
+	    m_jail_amnestie =false;
+    	time_t localtime;
+        localtime    = time(NULL);
+	
+    	if(localtime >  m_jail_amnestietime)
+    	{   
+    		CharacterDatabase.PExecute("DELETE FROM `jail` WHERE `guid` = '%u'",GetGUIDLow());
+    		ChatHandler(this).PSendSysMessage(LANG_JAIL_AMNESTII);
+    	}
+        return;
+    }
 
     time_t now = time(NULL);
 
@@ -1701,9 +1796,17 @@ void Player::Update(uint32 p_time)
     }
 
     if (m_deathState == JUST_DIED)
-        KillPlayer();
+	{
+    // Prevent death of jailed players
+        if (!m_jail_isjailed) KillPlayer();
+        else
+        {
+            m_deathState = ALIVE;
+            RegenerateAll();
+        }
+    }
 
-    if (m_nextSave > 0)
+    if(m_nextSave > 0 && !m_jail_isjailed)
     {
         if (p_time >= m_nextSave)
         {
@@ -2071,6 +2174,8 @@ void Player::TeleportOutOfMap(Map *oldMap)
 
 bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
 {
+    GetAntiCheat()->SetSleep(7000); //AntiCheat Sleep
+
     if (!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))
     {
         sLog->outError("TeleportTo: invalid map (%d) or invalid coordinates (X: %f, Y: %f, Z: %f, O: %f) given when teleporting player (GUID: %u, name: %s, map: %d, X: %f, Y: %f, Z: %f, O: %f).",
@@ -2140,7 +2245,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     if (duel && GetMapId() != mapid && GetMap()->GetGameObject(GetUInt64Value(PLAYER_DUEL_ARBITER)))
         DuelComplete(DUEL_FLED);
 
-    if ((GetMapId() == mapid && !m_transport) || (GetTransport() && GetMapId() == 628))
+    if (GetMapId() == mapid) //if ((GetMapId() == mapid && !m_transport) || (GetTransport() && GetMapId() == 628))
     {
         //lets reset far teleport flag if it wasn't reset during chained teleports
         SetSemaphoreTeleportFar(false);
@@ -2197,10 +2302,28 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         // this check not dependent from map instance copy and same for all instance copies of selected map
         if (!sMapMgr->CanPlayerEnter(mapid, this, false))
             return false;
+ 
+
+        // Start dalaran teleport Fix
+        // Get the instance id if exists
+        InstancePlayerBind *pBind = this->GetBoundInstance(mapid, this->GetDifficulty(mEntry->IsRaid()));
+        InstanceSave *pSave = pBind ? pBind->save : NULL;
+        // the player's permanent player bind is taken into consideration first
+        // then the player's group bind and finally the solo bind.
+        if (!pBind || !pBind->perm)
+        {
+            InstanceGroupBind *groupBind = NULL;
+            Group *group = this->GetGroup();
+            // use the player's difficulty setting (it may not be the same as the group's)
+            if (group && (groupBind = group->GetBoundInstance(this)))
+                pSave = groupBind->save;
+        }
+        uint32 instanceId = pSave ? pSave->GetInstanceId() : 0;
+        // End dalaran teleport Fix
 
         // If the map is not created, assume it is possible to enter it.
         // It will be created in the WorldPortAck.
-        Map *map = sMapMgr->FindMap(mapid);
+        Map *map = sMapMgr->FindMap(mapid, instanceId); //Map *map = sMapMgr->FindMap(mapid);
         if (!map || map->CanEnter(this))
         {
             //lets reset near teleport flag if it wasn't reset during chained teleports
@@ -2447,11 +2570,11 @@ void Player::RegenerateAll()
     if (m_regenTimerCount >= 2000)
     {
         // Not in combat or they have regeneration
-        if (!isInCombat() || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT) ||
-            HasAuraType(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT) || IsPolymorphed())
-        {
+        //if (!isInCombat() || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT) ||
+        //    HasAuraType(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT) || IsPolymorphed())
+        //{
             RegenerateHealth();
-        }
+        //}
 
         Regenerate(POWER_RAGE);
         if (getClass() == CLASS_DEATH_KNIGHT)
@@ -2588,11 +2711,6 @@ void Player::RegenerateHealth()
     if (curValue >= maxValue)
         return;
 
-    float HealthIncreaseRate = sWorld->getRate(RATE_HEALTH);
-
-    if (getLevel() < 15)
-        HealthIncreaseRate = sWorld->getRate(RATE_HEALTH) * (2.066f - (getLevel() * 0.066f));
-
     float addvalue = 0.0f;
 
     // polymorphed case
@@ -2600,7 +2718,12 @@ void Player::RegenerateHealth()
         addvalue = (float)GetMaxHealth()/3;
     // normal regen case (maybe partly in combat case)
     else if (!isInCombat() || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT))
-    {
+    {        
+        float HealthIncreaseRate = sWorld->getRate(RATE_HEALTH);
+
+        if (getLevel() < 15)
+            HealthIncreaseRate = sWorld->getRate(RATE_HEALTH) * (2.066f - (getLevel() * 0.066f));
+
         addvalue = OCTRegenHPPerSpirit()* HealthIncreaseRate;
         if (!isInCombat())
         {
@@ -4894,6 +5017,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             trans->PAppend("DELETE FROM character_queststatus_daily WHERE guid = '%u'",guid);
             trans->PAppend("DELETE FROM character_talent WHERE guid = '%u'",guid);
             trans->PAppend("DELETE FROM character_skills WHERE guid = '%u'",guid);
+            trans->PAppend("DELETE FROM jail WHERE guid = '%u'",guid);
 
             CharacterDatabase.CommitTransaction(trans);
             break;
@@ -5443,11 +5567,19 @@ void Player::RepopAtGraveyard()
 
     AreaTableEntry const *zone = GetAreaEntryByAreaID(GetAreaId());
 
+    bool bResurrect = false;
     // Such zones are considered unreachable as a ghost and the player must be automatically revived
     if ((!isAlive() && zone && zone->flags & AREA_FLAG_NEED_FLY) || GetTransport() || GetPositionZ() < -500.0f)
     {
-        ResurrectPlayer(0.5f);
         SpawnCorpseBones();
+        bResurrect = true;
+    }
+
+    // Naxxramas is unreachable as a ghost and the player must be automatically revived - HACK
+    if ((!isAlive() && zone && zone->ID == 4188 && GetPositionZ() > 240))
+    {
+        SpawnCorpseBones();
+        bResurrect = true;
     }
 
     WorldSafeLocsEntry const *ClosestGrave = NULL;
@@ -5478,6 +5610,10 @@ void Player::RepopAtGraveyard()
     }
     else if (GetPositionZ() < -500.0f)
         TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
+
+    // player must be resurrected after teleport to avoid aggroing creatures at death location
+    if (bResurrect)
+        ResurrectPlayer(0.5f);
 }
 
 bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone)
@@ -5780,7 +5916,7 @@ float Player::GetSpellCritFromIntellect()
     return crit*100.0f;
 }
 
-float Player::GetRatingCoefficient(CombatRating cr) const
+float Player::GetRatingMultiplier(CombatRating cr) const
 {
     uint8 level = getLevel();
 
@@ -5788,15 +5924,17 @@ float Player::GetRatingCoefficient(CombatRating cr) const
         level = GT_MAX_LEVEL;
 
     GtCombatRatingsEntry const *Rating = sGtCombatRatingsStore.LookupEntry(cr*GT_MAX_LEVEL+level-1);
-    if (Rating == NULL)
+    // gtOCTClassCombatRatingScalarStore.dbc starts with 1, CombatRating with zero, so cr+1
+    GtOCTClassCombatRatingScalarEntry const *classRating = sGtOCTClassCombatRatingScalarStore.LookupEntry((getClass()-1)*GT_MAX_RATING+cr+1);    
+    if (!Rating || !classRating)
         return 1.0f;                                        // By default use minimum coefficient (not must be called)
 
-    return Rating->ratio;
+    return classRating->ratio / Rating->ratio;
 }
 
 float Player::GetRatingBonusValue(CombatRating cr) const
 {
-    return float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr)) / GetRatingCoefficient(cr);
+    return float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr)) * GetRatingMultiplier(cr);
 }
 
 float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
@@ -5864,20 +6002,20 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
     {
         case CR_HASTE_MELEE:
         {
-            float RatingChange = value / GetRatingCoefficient(cr);
+            float RatingChange = value * GetRatingMultiplier(cr);
             ApplyAttackTimePercentMod(BASE_ATTACK,RatingChange,apply);
             ApplyAttackTimePercentMod(OFF_ATTACK,RatingChange,apply);
             break;
         }
         case CR_HASTE_RANGED:
         {
-            float RatingChange = value / GetRatingCoefficient(cr);
+            float RatingChange = value * GetRatingMultiplier(cr);
             ApplyAttackTimePercentMod(RANGED_ATTACK, RatingChange, apply);
             break;
         }
         case CR_HASTE_SPELL:
         {
-            float RatingChange = value / GetRatingCoefficient(cr);
+            float RatingChange = value * GetRatingMultiplier(cr);
             ApplyCastTimePercentMod(RatingChange,apply);
             break;
         }
@@ -7153,14 +7291,16 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, int32 honor, bool pvpt
 
     if (uVictim != NULL)
     {
+        honor *= sWorld->getRate(RATE_HONOR);
+
         if (groupsize > 1)
             honor_f /= groupsize;
 
         // apply honor multiplier from aura (not stacking-get highest)
         AddPctN(honor_f, GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HONOR_GAIN_PCT));
     }
-
-    honor_f *= sWorld->getRate(RATE_HONOR);
+    
+    //honor_f *= sWorld->getRate(RATE_HONOR);
     // Back to int now
     honor = int32(honor_f);
     // honor - for show honor points in log
@@ -7584,6 +7724,12 @@ void Player::DuelComplete(DuelCompleteType type)
     else if (duel->opponent->GetComboTarget() == GetPetGUID())
         duel->opponent->ClearComboPoints();
 
+    if (type != DUEL_INTERUPTED)
+    {
+        RemoveArenaSpellCooldowns();
+        duel->opponent->RemoveArenaSpellCooldowns();
+    }
+
     // Honor points after duel (the winner) - ImpConfig
     if (uint32 amount = sWorld->getIntConfig(CONFIG_HONOR_AFTER_DUEL))
         duel->opponent->RewardHonor(NULL,1,amount);
@@ -7815,6 +7961,9 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto, uint8 slot, bool appl
             case ITEM_MOD_SPELL_POWER:
                 ApplySpellPowerBonus(int32(val), apply);
                 break;
+            case ITEM_MOD_BLOCK_VALUE:
+                HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, float(val), apply);
+                break;
             case ITEM_MOD_HEALTH_REGEN:
                 ApplyHealthRegenBonus(int32(val), apply);
                 break;
@@ -7997,6 +8146,9 @@ void Player::_ApplyWeaponDependentAuraMods(Item *item,WeaponAttackType attackTyp
             mod += (*itr)->GetAmount();
 
     SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT, mod/100.0f);
+    UpdateDamagePhysical(BASE_ATTACK);
+    UpdateDamagePhysical(OFF_ATTACK);
+    UpdateDamagePhysical(RANGED_ATTACK);
 }
 
 void Player::_ApplyWeaponDependentAuraCritMod(Item *item, WeaponAttackType attackType, AuraEffect const* aura, bool apply)
@@ -8300,8 +8452,23 @@ void Player::CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 
             {
                 if (IsPositiveSpell(pEnchant->spellid[s]))
                     CastSpell(this, pEnchant->spellid[s], true, item);
-                else
+                else 
+                {
                     CastSpell(target, pEnchant->spellid[s], true, item);
+                    // Deadly Poison
+                    if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE && spellInfo->SpellFamilyFlags[0] == 0x10000 && spellInfo->SpellFamilyFlags[1] == 0x80000) 
+                    {
+                        if (Aura * aur = target->GetAura(pEnchant->spellid[s], GetGUID()))
+                            if (aur->GetStackAmount() == 5)
+                                if (Item* Weapon = GetWeaponForAttack(attType == BASE_ATTACK ? OFF_ATTACK : BASE_ATTACK, true))
+                                    if (SpellItemEnchantmentEntry const *Poison = sSpellItemEnchantmentStore.LookupEntry(Weapon->GetEnchantmentId(EnchantmentSlot(TEMP_ENCHANTMENT_SLOT)))) 
+                                    {
+                                        SpellEntry const* poisonEntry = sSpellStore.LookupEntry(Poison->spellid[s]);
+                                        if(poisonEntry && poisonEntry->Dispel == DISPEL_POISON)
+                                            CastSpell(target, poisonEntry, true, Weapon);
+                                    }
+                    }
+                }
             }
         }
     }
@@ -11884,6 +12051,17 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
         for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
             if (proto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE && proto->Spells[i].SpellId > 0) // On obtain trigger
                 CastSpell(this, proto->Spells[i].SpellId, true, pItem);
+                            
+        // Item Logging & Stats
+        // Log only interesting items
+        if (pItem->GetProto()->Quality >= ITEM_QUALITY_EPIC && (pItem->GetProto()->ItemLevel >= 200 || (pItem->GetProto()->Class == ITEM_CLASS_MISC && pItem->GetProto()->ItemLevel >= 80)))
+        {
+            PreparedStatement* stmt = ExtraDatabase.GetPreparedStatement(EXTRA_ADD_ITEMSTAT);
+            stmt->setUInt32(0, GetGUIDLow());
+            stmt->setUInt32(1, pItem->GetEntry());
+            stmt->setUInt32(2, 0);
+            ExtraDatabase.Execute(stmt);
+        }
 
         if (allowedLooters && pItem->GetProto()->GetMaxStackSize() == 1 && pItem->IsSoulBound())
         {
@@ -13776,7 +13954,7 @@ void Player::ApplyEnchantment(Item *item, EnchantmentSlot slot, bool apply, bool
                         case ITEM_MOD_SPELL_POWER:
                             ApplySpellPowerBonus(enchant_amount, apply);
                             sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u SPELL_POWER", enchant_amount);
-                            break;
+                            break;                        
                         case ITEM_MOD_HEALTH_REGEN:
                             ApplyHealthRegenBonus(enchant_amount, apply);
                             sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u HEALTH_REGENERATION", enchant_amount);
@@ -14950,7 +15128,8 @@ void Player::RewardQuest(Quest const *pQuest, uint32 reward, Object* questGiver,
             GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST, quest_id);
             GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST_DAILY, quest_id);
         }
-    } else if (pQuest->IsWeekly())
+    } 
+    else if (pQuest->IsWeekly())
         SetWeeklyQuestStatus(quest_id);
 
     RemoveActiveQuest(quest_id);
@@ -16243,6 +16422,8 @@ void Player::_LoadArenaTeamInfo(PreparedQueryResult result)
             SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_GAMES_WEEK, uint32(fields[1].GetUInt16()));
             SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_GAMES_SEASON, uint32(fields[2].GetUInt16()));
             SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_WINS_SEASON, uint32(fields[3].GetUInt16()));
+            //CharacterDatabase.PExecute("INSERT INTO character_arena_stats (guid, slot, personal_rating, matchmaker_rating) VALUES (%u, %u, 1000, 1500)", GetGUIDLow(), slot);
+            //SetArenaTeamInfoField(slot, ARENA_TEAM_PERSONAL_RATING, 1000);
         }
         while (result->NextRow());
     }
@@ -16552,10 +16733,10 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
         if (player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
         {
-            BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(currentBg->GetTypeID(true), currentBg->GetArenaType());
+            BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(currentBg->GetTypeID(false), currentBg->GetArenaType());
             AddBattlegroundQueueId(bgQueueTypeId);
 
-            m_bgData.bgTypeID = currentBg->GetTypeID(true);
+            m_bgData.bgTypeID = currentBg->GetTypeID(false);
 
             //join player to battleground group
             currentBg->EventPlayerLoggedIn(this);
@@ -16683,6 +16864,10 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
             RelocateToHomebind();
         }
 
+    // Vault of Archavon
+    if (mapEntry->MapID == 624 && !sOutdoorPvPMgr->CanEnterVaultOfArchavon(this))
+  	    RelocateToHomebind();
+
         // fix crash (because of if (Map *map = _FindMap(instanceId)) in MapInstanced::CreateInstance)
         if (instanceId)
             if (InstanceSave * save = GetInstanceSave(mapId, mapEntry->IsRaid()))
@@ -16726,8 +16911,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
         }
     }
 
-    // if the player is in an instance and it has been reset in the meantime teleport him to the entrance
-    if (instanceId && !sInstanceSaveMgr->GetInstanceSave(instanceId))
+    // if the player is in an instance (not a bg) and it has been reset in the meantime teleport him to the entrance
+    if (instanceId && !m_bgData.bgInstanceID && !sInstanceSaveMgr->GetInstanceSave(instanceId))
     {
         AreaTrigger const* at = sObjectMgr->GetMapEntranceTrigger(mapId);
         if (at)
@@ -17000,9 +17185,77 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     m_achievementMgr.CheckAllAchievementCriteria();
 
+    // Loads the jail datas and if jailed it corrects the position to the corresponding jail    
+    _LoadJail();
+    
     _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
 
     return true;
+
+}
+
+void Player::_LoadJail(void)
+{
+    QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `jail` WHERE `guid`='%u' LIMIT 1", GetGUIDLow());
+
+    if (!result)
+    {
+		m_jail_times = 0;
+        m_jail_isjailed = false;
+        return;
+    }
+
+		Field *fields = result->Fetch();
+		m_jail_warning = true;
+		m_jail_isjailed = true;
+		m_jail_guid = fields[0].GetUInt32();
+		m_jail_char = fields[1].GetString();
+		m_jail_release = fields[2].GetUInt32();
+		m_jail_amnestietime = fields[3].GetUInt32();
+		m_jail_reason = fields[4].GetString();
+		m_jail_times = fields[5].GetUInt32();
+		m_jail_gmacc = fields[6].GetUInt32();
+		m_jail_gmchar = fields[7].GetString();
+		m_jail_lasttime = fields[8].GetString();
+		m_jail_duration = fields[9].GetUInt32();
+
+    if (m_jail_release == 0)
+    {
+        m_jail_isjailed = false;
+        return;
+    }
+
+    time_t localtime;
+    localtime = time(NULL);
+
+    if (m_jail_release <= localtime)
+    {
+        m_jail_isjailed = false;
+        m_jail_release = 0;
+
+        _SaveJail();
+
+        sWorld->SendWorldText(LANG_JAIL_CHAR_FREE, GetName());
+
+        CastSpell(this,8690,false);
+        return;
+    }
+
+    if (m_jail_isjailed)
+    {
+        if (m_team == ALLIANCE)
+        {
+            TeleportTo(sObjectMgr->m_jailconf_ally_m, sObjectMgr->m_jailconf_ally_x,
+                sObjectMgr->m_jailconf_ally_y, sObjectMgr->m_jailconf_ally_z, sObjectMgr->m_jailconf_ally_o);
+        }
+        else
+        {
+            TeleportTo(sObjectMgr->m_jailconf_horde_m, sObjectMgr->m_jailconf_horde_x,
+                sObjectMgr->m_jailconf_horde_y, sObjectMgr->m_jailconf_horde_z, sObjectMgr->m_jailconf_horde_o);
+        }
+         
+        sWorld->SendWorldText(LANG_JAIL_CHAR_TELE, GetName() );
+    }
 }
 
 bool Player::isAllowedToLoot(const Creature* creature)
@@ -18149,8 +18402,24 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
 /***                   SAVE SYSTEM                     ***/
 /*********************************************************/
 
+// Saves the jail datas (added by WarHead).
+void Player::_SaveJail(void)
+{
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    QueryResult result = CharacterDatabase.PQuery("SELECT `guid` FROM `jail` WHERE `guid`='%u' LIMIT 1", m_jail_guid);
+    if (!result) 
+        trans->PAppend("INSERT INTO `jail` VALUES ('%u','%s','%u', '%u','%s','%u','%u','%s',CURRENT_TIMESTAMP,'%u')", m_jail_guid, m_jail_char.c_str(), m_jail_release, m_jail_amnestietime, m_jail_reason.c_str(), m_jail_times, m_jail_gmacc, m_jail_gmchar.c_str(), m_jail_duration);
+    else 
+        trans->PAppend("UPDATE `jail` SET `release`='%u', `amnestietime`='%u',`reason`='%s',`times`='%u',`gmacc`='%u',`gmchar`='%s',`duration`='%u' WHERE `guid`='%u' LIMIT 1", m_jail_release, m_jail_amnestietime, m_jail_reason.c_str(), m_jail_times, m_jail_gmacc, m_jail_gmchar.c_str(), m_jail_duration, m_jail_guid);
+    CharacterDatabase.CommitTransaction(trans);
+}
+
+
 void Player::SaveToDB()
 {
+	// Jail: Prevent saving of jailed players
+    if (m_jail_isjailed) 
+        return;
     // delay auto save at any saves (manual, in code, or autosave)
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
 
@@ -18514,6 +18783,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
                 if (Item* test2 = GetItemByPos(INVENTORY_SLOT_BAG_0, item->GetBagSlot()))
                     bagTestGUID = test2->GetGUIDLow();
                 sLog->outError("Player(GUID: %u Name: %s)::_SaveInventory - the bag(%u) and slot(%u) values for the item with guid %u (state %d) are incorrect, the player doesn't have an item at that position!", lowGuid, GetName(), item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow(), (int32)item->GetState());
+                sLog->outCheat("Player(GUID: %u Name: %s)::_SaveInventory - the bag(%d) and slot(%d) values for the item with guid %d (state %d) are incorrect, the player doesn't have an item at that position!", GetGUIDLow(), GetName(), item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow(), (int32)item->GetState());
                 // according to the test that was just performed nothing should be in this slot, delete
                 trans->PAppend("DELETE FROM character_inventory WHERE bag=%u AND slot=%u AND guid=%u", bagTestGUID, item->GetSlot(), lowGuid);
                 // also THIS item should be somewhere else, cheat attempt
@@ -18525,6 +18795,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
             else if (test != item)
             {
                 sLog->outError("Player(GUID: %u Name: %s)::_SaveInventory - the bag(%u) and slot(%u) values for the item with guid %u are incorrect, the item with guid %u is there instead!", lowGuid, GetName(), item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow(), test->GetGUIDLow());
+                sLog->outCheat("Player(GUID: %u Name: %s)::_SaveInventory - the bag(%d) and slot(%d) values for the item with guid %d are incorrect, the item with guid %d is there instead!", lowGuid, GetName(), item->GetBagSlot(), item->GetSlot(), item->GetGUIDLow(), test->GetGUIDLow());
                 // save all changes to the item...
                 if (item->GetState() != ITEM_NEW) // only for existing items, no dupes
                     item->SaveToDB(trans);
@@ -18741,8 +19012,11 @@ void Player::_SaveSpells(SQLTransaction& trans)
             trans->PAppend("DELETE FROM character_spell WHERE guid = '%u' and spell = '%u'", GetGUIDLow(), itr->first);
 
         // add only changed/new not dependent spells
+        //if (!itr->second->dependent && (itr->second->state == PLAYERSPELL_NEW || itr->second->state == PLAYERSPELL_CHANGED))
+        //    trans->PAppend("INSERT INTO character_spell (guid,spell,active,disabled) VALUES ('%u', '%u', '%u', '%u')", GetGUIDLow(), itr->first, itr->second->active ? 1 : 0,itr->second->disabled ? 1 : 0);
+
         if (!itr->second->dependent && (itr->second->state == PLAYERSPELL_NEW || itr->second->state == PLAYERSPELL_CHANGED))
-            trans->PAppend("INSERT INTO character_spell (guid,spell,active,disabled) VALUES ('%u', '%u', '%u', '%u')", GetGUIDLow(), itr->first, itr->second->active ? 1 : 0,itr->second->disabled ? 1 : 0);
+            trans->PAppend("REPLACE INTO character_spell (guid,spell,active,disabled) VALUES ('%u', '%u', '%u', '%u')", GetGUIDLow(), itr->first, itr->second->active ? 1 : 0,itr->second->disabled ? 1 : 0);
 
         if (itr->second->state == PLAYERSPELL_REMOVED)
         {
@@ -19116,7 +19390,7 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
             return;
     }
 
-    if (returnreagent && (pet || m_temporaryUnsummonedPetNumber) && !InBattleground())
+    if (returnreagent && (pet || m_temporaryUnsummonedPetNumber) /*&& !InBattleground()*/)
     {
         //returning of reagents only for players, so best done here
         uint32 spellId = pet ? pet->GetUInt32Value(UNIT_CREATED_BY_SPELL) : m_oldpetspell;
@@ -19280,7 +19554,8 @@ void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
         // announce to player that player he is whispering to is dnd and cannot receive his message
         ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName(), rPlayer->dndMsg.c_str());
 
-    if (!isAcceptWhispers() && !isGameMaster() && !rPlayer->isGameMaster())
+    // if (!isAcceptWhispers() && !isGameMaster() && !rPlayer->isGameMaster())
+    if (!isAcceptWhispers() && !(isGameMaster() && rPlayer->isGameMaster()))
     {
         SetAcceptWhispers(true);
         ChatHandler(this).SendSysMessage(LANG_COMMAND_WHISPERON);
@@ -20903,7 +21178,7 @@ bool Player::canSeeAlways(WorldObject const* obj) const
 {
     if (Unit::canSeeAlways(obj))
         return true;
-
+    
     // Always can see self
     if (m_mover == obj)
         return true;
@@ -22882,6 +23157,14 @@ void Player::AddGlobalCooldown(SpellEntry const *spellInfo, Spell *spell)
     else if (IsRangedWeaponSpell(spellInfo) && !spell->IsAutoRepeat())
         cdTime *= m_modAttackSpeedPct[RANGED_ATTACK];
 
+    // Fix global cooldown
+    Unit::AuraEffectList const& gcd_mod_auras = GetAuraEffectsByType(SPELL_AURA_ADD_FLAT_MODIFIER);
+    for (Unit::AuraEffectList::const_iterator itr = gcd_mod_auras.begin(); itr != gcd_mod_auras.end(); ++itr)
+    {
+        if ((*itr)->GetMiscValue() == 21 && (*itr)->IsAffectedOnSpell(spellInfo))
+            cdTime += (*itr)->GetAmount();
+    }
+
     if (cdTime > 1500.0f)
         cdTime = 1500.0f;
 
@@ -22967,7 +23250,7 @@ void Player::ResyncRunes(uint8 count)
     for (uint32 i = 0; i < count; ++i)
     {
         data << uint8(GetCurrentRune(i));                   // rune type
-        data << uint8(255 - (GetRuneCooldown(i) * 51));     // passed cooldown time (0-255)
+        data << uint8(255 - (GetRuneCooldown(i) / 39.2f));     // passed cooldown time (0-255)
     }
     GetSession()->SendPacket(&data);
 }
@@ -24195,6 +24478,9 @@ void Player::ActivateSpec(uint8 spec)
     if (spec > GetSpecsCount())
         return;
 
+    if (HasAura(28682)) // HackFix for remove Combustion
+        RemoveAurasDueToSpell(28682);
+
     if (IsNonMeleeSpellCasted(false))
         InterruptNonMeleeSpells(false);
 
@@ -24213,6 +24499,11 @@ void Player::ActivateSpec(uint8 spec)
     /*RemoveAllAurasOnDeath();
     if (GetPet())
         GetPet()->RemoveAllAurasOnDeath();*/
+
+    // Hack: Remove DK Presences, to avoid some exploits
+    RemoveAurasDueToSpell(48263);
+    RemoveAurasDueToSpell(48265);
+    RemoveAurasDueToSpell(48266);
 
     //RemoveAllAuras(GetGUID(), NULL, false, true); // removes too many auras
     //ExitVehicle(); // should be impossible to switch specs from inside a vehicle..
@@ -24351,6 +24642,10 @@ void Player::SendTimeSync()
 void Player::SetReputation(uint32 factionentry, uint32 value)
 {
     GetReputationMgr().SetReputation(sFactionStore.LookupEntry(factionentry),value);
+}
+void Player::SetOneFactionReputation(uint32 factionentry, uint32 value)
+{
+    GetReputationMgr().SetOneFactionReputation(sFactionStore.LookupEntry(factionentry),value);
 }
 uint32 Player::GetReputation(uint32 factionentry)
 {

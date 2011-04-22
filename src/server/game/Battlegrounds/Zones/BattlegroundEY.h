@@ -146,7 +146,9 @@ enum EYBattlegroundCreaturesTypes
     EY_TRIGGER_DRAENEI_RUINS    = 8,
     EY_TRIGGER_MAGE_TOWER       = 9,
 
-    BG_EY_CREATURES_MAX        = 10
+    EY_TRIGGER_FEL_REAVER_FLAG  = 10,
+
+    BG_EY_CREATURES_MAX        = 11
 };
 
 enum EYBattlegroundObjectTypes
@@ -409,6 +411,8 @@ class BattlegroundEY : public Battleground
 
         int32 m_PointAddingTimer;
         uint32 m_HonorTics;
+
+        int32 m_CheatersCheckTimer;
 };
 #endif
 
