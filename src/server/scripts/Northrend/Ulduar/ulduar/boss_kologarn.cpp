@@ -243,7 +243,7 @@ public:
             if (instance)
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
 
-            vehicle->Reset();
+            //vehicle->Reset();
         }
 
         void UpdateAI(const uint32 diff)
