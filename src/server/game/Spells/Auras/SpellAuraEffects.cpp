@@ -6227,7 +6227,8 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                     switch(GetId())
                     {
                         case 59628: // Tricks of the Trade
-                           caster->SetReducedThreatPercent(0, 0);
+                            if (caster)
+                                caster->SetReducedThreatPercent(0, 0);
                             break;
                         default:
                             break;
