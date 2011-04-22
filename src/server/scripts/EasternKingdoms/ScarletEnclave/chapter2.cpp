@@ -199,13 +199,11 @@ public:
         npc_koltira_deathweaverAI(Creature *pCreature) : npc_escortAI(pCreature)
         {
             me->SetReactState(REACT_DEFENSIVE);
-            m_uiDie_Timer = 0;
         }
 
         uint32 m_uiWave;
         uint32 m_uiWave_Timer;
         uint64 m_uiValrothGUID;
-        uint32 m_uiDie_Timer;
 
         void Reset()
         {
@@ -277,16 +275,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            npc_escortAI::UpdateAI(uiDiff); 
+            npc_escortAI::UpdateAI(uiDiff);
 
-            if (m_uiDie_Timer && m_uiDie_Timer < uiDiff)
-            {
-                me->Kill(me);
-                return;
-            }
-            else
-                m_uiDie_Timer -= uiDiff;                       
-            
             if (HasEscortState(STATE_ESCORT_PAUSED))
             {
                 if (m_uiWave_Timer <= uiDiff)
@@ -297,7 +287,6 @@ public:
                             DoScriptText(SAY_BREAKOUT3, me);
                             SummonAcolyte(3);
                             m_uiWave_Timer = 20000;
-                            m_uiDie_Timer = 600000;
                             break;
                         case 1:
                             DoScriptText(SAY_BREAKOUT4, me);
@@ -337,9 +326,8 @@ public:
                             m_uiWave_Timer = 2500;
                             break;
                         case 6:
-                            DoScriptText(SAY_BREAKOUT10, me);                            
+                            DoScriptText(SAY_BREAKOUT10, me);
                             SetEscortPaused(false);
-                            me->CombatStop();
                             break;
                     }
 
