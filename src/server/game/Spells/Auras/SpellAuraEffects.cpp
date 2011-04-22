@@ -5715,7 +5715,7 @@ void AuraEffect::HandleModDamagePercentDone(AuraApplication const * aurApp, uint
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
-    /*
+
     Player* target = aurApp->GetTarget()->ToPlayer();
     if (!target)
         return;
@@ -5727,27 +5727,6 @@ void AuraEffect::HandleModDamagePercentDone(AuraApplication const * aurApp, uint
         aurApp->GetTarget()->UpdateDamagePhysical(OFF_ATTACK);
         aurApp->GetTarget()->UpdateDamagePhysical(RANGED_ATTACK);
     }
-    */
-
-    Unit* target = aurApp->GetTarget(); 
-    if (Player* player = target->ToPlayer()) 
- 	{ 
- 	    if (player->HasItemFitToSpellRequirements(GetSpellProto())) 
-        {
- 	        target->ApplyModSignedFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT, GetAmount()/100.0f, apply);
-            target->UpdateDamagePhysical(BASE_ATTACK);
-            target->UpdateDamagePhysical(OFF_ATTACK);
-            target->UpdateDamagePhysical(RANGED_ATTACK);
-        }
- 	} 
- 	else if (GetSpellProto()->EquippedItemClass == -1) 
- 	{ 
- 	    target->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, float(GetAmount()), apply); 
- 	    target->HandleStatModifier(UNIT_MOD_DAMAGE_OFFHAND, TOTAL_PCT, float(GetAmount()), apply); 
- 	    target->HandleStatModifier(UNIT_MOD_DAMAGE_RANGED, TOTAL_PCT, float(GetAmount()), apply); 
- 	    if (Guardian* pet = target->ToPet()) 
- 	        pet->UpdateAttackPowerAndDamage(); 
- 	} 
 }
 
 void AuraEffect::HandleModOffhandDamagePercent(AuraApplication const * aurApp, uint8 mode, bool apply) const
