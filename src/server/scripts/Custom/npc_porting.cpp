@@ -324,10 +324,10 @@ class npc_porting : public CreatureScript
                         Field *fields = result->Fetch();
                         if (fields[0].GetInt32() == 1)
                         {
-                            GM_Ticket *ticket = sTicketMgr->GetGMTicketByPlayer(pPlayer->GetGUID());
-                            if (ticket && ticket->closed == 0 && !ticket->completed)
+                            GmTicket *ticket = sTicketMgr->GetTicketByPlayer(pPlayer->GetGUID());
+                            if (ticket && !ticket->IsClosed() && !ticket->IsCompleted())
                             {
-                                sTicketMgr->RemoveGMTicket(ticket, pPlayer->GetGUID());
+                                sTicketMgr->RemoveTicket(ticket->GetId());
 
                                 // send abandon ticket
                                 WorldPacket deleteTicket(SMSG_GMTICKET_DELETETICKET, 4);
@@ -342,12 +342,12 @@ class npc_porting : public CreatureScript
                         }
                         else if (fields[0].GetInt32() == 2)
                         {
-                            GM_Ticket *ticket = sTicketMgr->GetGMTicketByPlayer(pPlayer->GetGUID());
-                            if (ticket && ticket->closed == 0 && !ticket->completed)
+                            GmTicket *ticket = sTicketMgr->GetTicketByPlayer(pPlayer->GetGUID());
+                            if (ticket && !ticket->IsClosed() && !ticket->IsCompleted())
                             {
                                 std::string ticketText(fields[1].GetString());
-                                ticket->message = ticketText;
-                                sTicketMgr->AddOrUpdateGMTicket(*ticket, true);
+                                ticket->SetMessage(ticketText);
+                                sTicketMgr->AddTicket(ticket);
                                 std::string msg = "Porting completato in parte! Ticket editato in automatico per completare il porting con un GM!";
                                 pCreature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
                             }
@@ -452,16 +452,18 @@ class npc_porting : public CreatureScript
             Field *fields = result->Fetch();
             if (fields[0].GetInt32() == 1)
             {
-                GM_Ticket *ticket = sTicketMgr->GetGMTicketByPlayer(pPlayer->GetGUID());
-                if (ticket && ticket->closed == 0 && !ticket->completed)
+                GmTicket *ticket = sTicketMgr->GetTicketByPlayer(pPlayer->GetGUID());
+                if (ticket && !ticket->IsClosed() && !ticket->IsCompleted())
                 {
-                    sTicketMgr->RemoveGMTicket(ticket, pPlayer->GetGUID());
+                    sTicketMgr->RemoveTicket(ticket->GetId());
 
                     // send abandon ticket
-                    WorldPacket deleteTicket(SMSG_GMTICKET_DELETETICKET, 4);
-                    deleteTicket << uint32(GMTICKET_RESPONSE_TICKET_DELETED);
-                    pPlayer->GetSession()->SendPacket(&deleteTicket);
-
+                    if (pPlayer->IsInWorld())
+                    {
+                        WorldPacket deleteTicket(SMSG_GMTICKET_DELETETICKET, 4);
+                        deleteTicket << uint32(GMTICKET_RESPONSE_TICKET_DELETED);
+                        pPlayer->GetSession()->SendPacket(&deleteTicket);
+                    }
                     sTicketMgr->UpdateLastChange();
                 }
 
@@ -470,12 +472,12 @@ class npc_porting : public CreatureScript
             }
             else if (fields[0].GetInt32() == 2)
             {
-                GM_Ticket *ticket = sTicketMgr->GetGMTicketByPlayer(pPlayer->GetGUID());
-                if (ticket && ticket->closed == 0 && !ticket->completed)
+                GmTicket *ticket = sTicketMgr->GetTicketByPlayer(pPlayer->GetGUID());
+                if (ticket && !ticket->IsClosed() && !ticket->IsCompleted())
                 {
                     std::string ticketText(fields[1].GetString());
-                    ticket->message = ticketText;
-                    sTicketMgr->AddOrUpdateGMTicket(*ticket, true);
+                    ticket->SetMessage(ticketText);
+                    sTicketMgr->AddTicket(ticket);
                     std::string msg = "Porting completato in parte! Ticket editato in automatico per completare il porting con un GM!";
                     pCreature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
                 }
