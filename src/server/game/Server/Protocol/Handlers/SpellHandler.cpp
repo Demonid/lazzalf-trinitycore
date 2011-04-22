@@ -143,6 +143,13 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
                 }
             }
         }
+
+        // Prevent potion drink if another potion in processing (client have potions disabled in like case) 
+        if (pItem->IsPotion() && pUser->GetLastPotionId()) 
+        { 
+            pUser->SendEquipError(EQUIP_ERR_OBJECT_IS_BUSY,pItem,NULL); 
+            return; 
+        } 
     }
 
     // check also  BIND_WHEN_PICKED_UP and BIND_QUEST_ITEM for .additem or .additemset case by GM (not binded at adding to inventory)
@@ -315,7 +322,8 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
     if (!go->IsWithinDistInMap(_player,INTERACTION_DISTANCE))
         return;
 
-    go->AI()->GossipHello(_player);
+    if (go->AI())
+        go->AI()->GossipHello(_player);
 
     _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT, go->GetEntry());
 }
@@ -330,6 +338,13 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
     // ignore for remote control state (for player case)
     Unit* mover = _player->m_mover;
+
+    //HACK: you should be able to use your spells on some vehicles you move
+    if (mover->GetVehicleKit())
+        if (const VehicleEntry* vehInfo = mover->GetVehicleKit()->GetVehicleInfo())
+            if (vehInfo->m_ID == 223) //hover disk
+                mover = _player;
+
     if (mover != _player && mover->GetTypeId() == TYPEID_PLAYER)
     {
         recvPacket.rfinish(); // prevent spam at ignore packet
