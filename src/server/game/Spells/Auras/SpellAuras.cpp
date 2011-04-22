@@ -1127,11 +1127,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                         break;
                 }
                 break;
-            case SPELLFAMILY_DRUID:
-                // Cat Form, Bear Form, Dire Bear Form - exploit fix
-                if (GetSpellProto()->SpellFamilyFlags[0] & 0xC0000000)
-                    target->RemoveAurasDueToSpell(64904); // Hymn of Hope
-                break;
             case SPELLFAMILY_PRIEST:
                 if (!caster)
                     break;
@@ -1170,8 +1165,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
             case SPELLFAMILY_DRUID:
                 if (!caster)
                     break;
+                // Cat Form, Bear Form, Dire Bear Form - exploit fix
+                if (GetSpellProto()->SpellFamilyFlags[0] & 0xC0000000)
+                    target->RemoveAurasDueToSpell(64904); // Hymn of Hope
                 // Rejuvenation
-                if (GetSpellProto()->SpellFamilyFlags[0] & 0x10 && GetEffect(0))
+                else if (GetSpellProto()->SpellFamilyFlags[0] & 0x10 && GetEffect(0))
                 {
                     // Druid T8 Restoration 4P Bonus
                     if (AuraEffect* aurEff = caster->GetAuraEffect(64760,0))
