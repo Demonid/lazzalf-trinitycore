@@ -1667,18 +1667,31 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                     break;
             }
             if (GetSpellSpecific(GetSpellProto()) == SPELL_SPECIFIC_AURA)
-	        {
-                // Improved devotion aura
-                if (caster->HasAura(20140) || caster->HasAura(20138) || caster->HasAura(20139))
-                    if (apply)
-                        caster->CastSpell(target, 63514, true);
-                    else target->RemoveAura(63514);
-                // 63531 - linked aura for both Sanctified Retribution and Swift Retribution talents
-                // Not allow for Retribution Aura (prevent stacking)
-                if ((GetSpellProto()->SpellIconID != 555) && (caster->HasAura(53648) || caster->HasAura(53484) || caster->HasAura(53379) || caster->HasAura(31869)))
-                    if (apply)
-                        caster->CastSpell(target, 63531, true);
-                    else target->RemoveAura(63531);
+            {
+                if (GetCasterGUID() == target->GetGUID())
+                {
+                    // Sanctified Retribution
+                    if (target->HasAura(31869))
+                    {
+                        target->RemoveAurasDueToSpell(63531);
+                        if (apply)
+                            target->CastSpell(target, 63531, true);
+                    }
+                    // Improved Devotion Aura
+                    if (target->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_PALADIN, 291, 1))
+                    {
+                        target->RemoveAurasDueToSpell(63514);
+                        if (apply)
+                            target->CastSpell(target, 63514, true);
+                    }
+                    // Improved Concentration Aura
+                    if (target->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_PALADIN, 1487, 0))
+                    {
+                        target->RemoveAurasDueToSpell(63510);
+                        if (apply)
+                            target->CastSpell(target, 63510, true);
+                    }
+                }
             }
             break;
         case SPELLFAMILY_DEATHKNIGHT:
