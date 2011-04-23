@@ -203,9 +203,6 @@ class generic_vehicleAI_toc5 : public CreatureScript
 		    uiTimerSpell1= urand(4000,10000);
 		    uiTimerSpell2= urand(4000,10000);
 		    uiTimerSpell3= urand(1000,2000);
-
-            if (me->GetVehicleKit())
-                me->GetVehicleKit()->Reset();
         }
 
         void SetData(uint32 uiType, uint32 uiData)

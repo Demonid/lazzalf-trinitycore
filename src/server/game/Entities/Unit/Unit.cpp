@@ -4076,6 +4076,27 @@ void Unit::RemoveAllAurasRequiringDeadTarget()
     }
 }
 
+void Unit::RemoveAllAurasExceptVehicle()
+{
+    for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
+    {
+        Aura const* aura = iter->second->GetBase();
+        if (!IsSpellHaveAura(aura->GetSpellProto(), SPELL_AURA_CONTROL_VEHICLE))
+            _UnapplyAura(iter, AURA_REMOVE_BY_DEFAULT);
+        else
+            ++iter;
+    }
+
+    for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
+    {
+        Aura* aura = iter->second;
+        if (!IsSpellHaveAura(aura->GetSpellProto(), SPELL_AURA_CONTROL_VEHICLE))
+            RemoveOwnedAura(iter, AURA_REMOVE_BY_DEFAULT);
+        else
+            ++iter;
+    }
+}
+
 void Unit::HandleAuraEffectsWithMechanic(bool apply, uint32 mechanic_mask, AuraRemoveMode removemode, uint32 except)
 {
     if (apply)
@@ -12099,7 +12120,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
                 plr->GetSession()->SendPacket(&data);
 
                 // mounts can also have accessories
-                GetVehicleKit()->InstallAllAccessories();
+                GetVehicleKit()->InstallAllAccessories(false);
             }
         }
     }
