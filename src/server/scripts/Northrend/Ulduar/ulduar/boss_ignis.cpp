@@ -266,7 +266,7 @@ class boss_ignis : public CreatureScript
                             }
 
                             SlagPotTarget = NULL;
-                            SlagPotGUID = NULL;
+                            SlagPotGUID = 0;
                         }
                         break;
                     case EVENT_SCORCH:
