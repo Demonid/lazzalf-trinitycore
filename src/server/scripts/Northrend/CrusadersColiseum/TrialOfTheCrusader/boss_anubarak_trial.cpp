@@ -534,8 +534,9 @@ public:
             switch (actionId)
             {
                 case ACTION_SHADOW_STRIKE:
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, SPELL_SHADOW_STRIKE);
+                    if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE) && !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(pTarget, SPELL_SHADOW_STRIKE);
                     break;
             }
         }
