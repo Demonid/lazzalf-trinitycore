@@ -2540,10 +2540,14 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
             case 65923:
                 {
                     Unit *permafrostCaster = NULL;
-                    if (caster->HasAura(66193)) permafrostCaster = caster->GetAura(66193)->GetCaster();
-                    if (caster->HasAura(67855)) permafrostCaster = caster->GetAura(67855)->GetCaster();
-                    if (caster->HasAura(67856)) permafrostCaster = caster->GetAura(67856)->GetCaster();
-                    if (caster->HasAura(67857)) permafrostCaster = caster->GetAura(67857)->GetCaster();
+                    if (caster->HasAura(66193)) 
+                        permafrostCaster = caster->GetAura(66193)->GetCaster();
+                    else if (caster->HasAura(67855)) 
+                        permafrostCaster = caster->GetAura(67855)->GetCaster();
+                    else if (caster->HasAura(67856)) 
+                        permafrostCaster = caster->GetAura(67856)->GetCaster();
+                    else if (caster->HasAura(67857)) 
+                        permafrostCaster = caster->GetAura(67857)->GetCaster();
 
                     if (permafrostCaster)
                     {
