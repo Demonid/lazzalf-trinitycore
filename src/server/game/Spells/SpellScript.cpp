@@ -471,7 +471,7 @@ int32 SpellScript::GetTrueDamage()
     if (!IsInAfterHitPhase())
     {
         sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitHeal was called while spell not in after-hit phase!", m_scriptName, m_scriptSpellId);
-        return NULL;
+        return 0;
     }
     return m_spell->m_true_damage;
 }
