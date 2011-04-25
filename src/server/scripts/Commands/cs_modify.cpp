@@ -44,6 +44,7 @@ public:
             { "speed",          SEC_MODERATOR,      false, &HandleModifySpeedCommand,         "", NULL },
             { "swim",           SEC_MODERATOR,      false, &HandleModifySwimCommand,          "", NULL },
             { "scale",          SEC_MODERATOR,      false, &HandleModifyScaleCommand,         "", NULL },
+            { "scaleall",       SEC_MODERATOR,      false, &HandleModifyScaleAllCommand,      "", NULL },
             { "bit",            SEC_MODERATOR,      false, &HandleModifyBitCommand,           "", NULL },
             { "bwalk",          SEC_MODERATOR,      false, &HandleModifyBWalkCommand,         "", NULL },
             { "fly",            SEC_MODERATOR,      false, &HandleModifyFlyCommand,           "", NULL },
@@ -58,6 +59,7 @@ public:
             { "drunk",          SEC_MODERATOR,      false, &HandleModifyDrunkCommand,         "", NULL },
             { "standstate",     SEC_GAMEMASTER,     false, &HandleModifyStandStateCommand,    "", NULL },
             { "morph",          SEC_GAMEMASTER,     false, &HandleModifyMorphCommand,         "", NULL },
+            { "morphall",       SEC_GAMEMASTER,     false, &HandleModifyMorphAllCommand,      "", NULL },
             { "phase",          SEC_ADMINISTRATOR,  false, &HandleModifyPhaseCommand,         "", NULL },
             { "gender",         SEC_GAMEMASTER,     false, &HandleModifyGenderCommand,        "", NULL },
             { NULL,             0,                  false, NULL,                                           "", NULL }
@@ -711,6 +713,33 @@ public:
         return true;
     }
 
+    //Edit Player Scale
+    static bool HandleModifyScaleAllCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        float Scale = (float)atof((char*)args);
+        if (Scale > 10.0f || Scale < 0.1f)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        SessionMap::const_iterator itr;
+        for (itr = sWorld->GetAllSessions().begin(); itr != sWorld->GetAllSessions().end(); ++itr)
+            if (itr->second && itr->second->GetPlayer() && itr->second->GetPlayer()->IsInWorld())
+            {
+                if (handler->HasLowerSecurity(itr->second->GetPlayer(), 0))
+                    continue;
+
+                itr->second->GetPlayer()->SetFloatValue(OBJECT_FIELD_SCALE_X, Scale);
+            }
+
+        return true;
+    }
+
     //Enable Player mount
     static bool HandleModifyMountCommand(ChatHandler* handler, const char* args)
     {
@@ -1224,7 +1253,7 @@ public:
             return false;
         }
 
-        target->GetReputationMgr().SetReputation(factionEntry,amount);
+        target->GetReputationMgr().SetOneFactionReputation(factionEntry,amount);
         handler->PSendSysMessage(LANG_COMMAND_MODIFY_REP, factionEntry->name[handler->GetSessionDbcLocale()], factionId,
             handler->GetNameLink(target).c_str(), target->GetReputationMgr().GetReputation(factionEntry));
         return true;
@@ -1247,6 +1276,27 @@ public:
             return false;
 
         target->SetDisplayId(display_id);
+
+        return true;
+    }
+
+    //morph all player
+    static bool HandleModifyMorphAllCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        uint16 display_id = (uint16)atoi((char*)args);
+        
+        SessionMap::const_iterator itr;
+        for (itr = sWorld->GetAllSessions().begin(); itr != sWorld->GetAllSessions().end(); ++itr)
+            if (itr->second && itr->second->GetPlayer() && itr->second->GetPlayer()->IsInWorld())
+            {
+                if (handler->HasLowerSecurity(itr->second->GetPlayer(), 0))
+                    continue;
+
+                itr->second->GetPlayer()->SetDisplayId(display_id);
+            }
 
         return true;
     }

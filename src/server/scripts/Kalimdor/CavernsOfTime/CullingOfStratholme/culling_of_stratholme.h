@@ -25,7 +25,9 @@ enum Data
     DATA_EPOCH_EVENT,
     DATA_MAL_GANIS_EVENT,
     DATA_INFINITE_EVENT,
-    DATA_ARTHAS_EVENT
+    DATA_ARTHAS_EVENT,
+    DATA_INFINITE_EVENT_START,
+    DATA_ZOMBIEFEST,
 };
 
 enum Data64
@@ -63,5 +65,25 @@ enum GameObjects
     GO_EXIT_GATE                                           = 191788,
     GO_MALGANIS_CHEST_N                                    = 190663,
     GO_MALGANIS_CHEST_H                                    = 193597
+};
+ 
+enum Culling_WorldStates
+{
+    WORLD_STATE_TIMER              = 3932,
+    WORLD_STATE_TIME_COUNTER       = 3931,
+    WORLD_STATE_WAVES              = 3504,
+    WORLD_STATE_CRATES             = 3479,
+    WORLD_STATE_CRATES_2           = 3480
+};
+
+enum AchievementControl
+{
+    ACHI_IS_NOT_STARTED = 1,
+    ACHI_START,
+    ACHI_IS_IN_PROGRESS,
+    ACHI_COMPLETED,
+    ACHI_FAILED,
+    ACHI_RESET,
+    ACHI_INCREASE,
 };
 #endif
