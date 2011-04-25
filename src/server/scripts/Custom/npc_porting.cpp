@@ -143,6 +143,8 @@ static Elem EquipVct[] =
 #define MSG_GOSSIP_PORTING_3     "Portami a Dalaran"
 #define MSG_GOSSIP_PORTING_4     "Porting Non Valido"
 
+#define GOSSIP_HELLO_DUAL "Purchase a Dual Talent Specialization."
+
 #define ITEM_BAG 21843
 #define ITEM_TITANIUM_ROD 44452
 #define ITEM_TOME_COLD_WEATHER_FLY 49177
@@ -170,6 +172,9 @@ class npc_porting : public CreatureScript
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
         }
 
+        if (pPlayer->GetSpecsCount() == 1 && pPlayer->getLevel() >= sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL))
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_HELLO_DUAL, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_LEARNDUALSPEC);
+
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_CLOSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
 
@@ -186,6 +191,29 @@ class npc_porting : public CreatureScript
 
         switch (uiAction)
         {
+            case GOSSIP_OPTION_LEARNDUALSPEC:
+                if (pPlayer->GetSpecsCount() == 1 && !(pPlayer->getLevel() < sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL)))
+                {
+                    if (!pPlayer->HasEnoughMoney(10000000))
+                    {
+                        pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
+                        pPlayer->PlayerTalkClass->CloseGossip();
+                        break;
+                    }
+                    else
+                    {
+                        pPlayer->ModifyMoney(-10000000);
+
+                        // Cast spells that teach dual spec
+                        // Both are also ImplicitTarget self and must be cast by player
+                        pPlayer->CastSpell(pPlayer,63680,true,NULL,NULL,pPlayer->GetGUID());
+                        pPlayer->CastSpell(pPlayer,63624,true,NULL,NULL,pPlayer->GetGUID());
+
+                        // Should show another Gossip text with "Congratulations..."
+                        pPlayer->PlayerTalkClass->CloseGossip();
+                    }
+                }
+                break;
             case GOSSIP_ACTION_INFO_DEF+1: // Close
                 pPlayer->CLOSE_GOSSIP_MENU();
                 break;
