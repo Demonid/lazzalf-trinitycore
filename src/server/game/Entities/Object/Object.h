@@ -187,6 +187,15 @@ class Object
             return *((uint64*)&(m_uint32Values[ index ]));
         }
 
+        // HackFix
+        uint64 GetUInt64Value2(uint16 index) const
+        {
+            //ASSERT(index + 1 < m_valuesCount || PrintIndexError(index , false));
+            if (!m_uint32Values || (index + 1 >= m_valuesCount))
+                return uint64(0);
+            return *((uint64*)&(m_uint32Values[ index ]));
+        }
+
         const float& GetFloatValue(uint16 index) const
         {
             ASSERT(index < m_valuesCount || PrintIndexError(index , false));
@@ -577,6 +586,7 @@ class FlaggedValuesArray32
 
 class WorldObject : public Object, public WorldLocation
 {
+    // friend class AntiCheat;
     protected:
         explicit WorldObject();
     public:
@@ -627,10 +637,7 @@ class WorldObject : public Object, public WorldLocation
             GetNearPoint(obj,x,y,z,obj->GetObjectSize(),distance2d,GetAngle(obj));
         }
 
-        float GetObjectSize() const
-        {
-            return (m_valuesCount > UNIT_FIELD_COMBATREACH) ? m_floatValues[UNIT_FIELD_COMBATREACH] : DEFAULT_WORLD_OBJECT_SIZE;
-        }
+        float GetObjectSize() const;
         void UpdateGroundPositionZ(float x, float y, float &z) const;
 
         void GetRandomPoint(const Position &srcPos, float distance, float &rand_x, float &rand_y, float &rand_z) const;

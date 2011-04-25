@@ -122,7 +122,7 @@ void PetAI::UpdateAI(const uint32 diff)
         return;
 
     // Autocast (casted only in combat or persistent spells in any state)
-    if (!me->HasUnitState(UNIT_STAT_CASTING))
+    if (!me->HasUnitState(UNIT_STAT_CASTING) && !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
     {
         typedef std::vector<std::pair<Unit*, Spell*> > TargetSpellList;
         TargetSpellList targetSpellStore;
@@ -481,7 +481,7 @@ bool PetAI::_CanAttack(Unit *target)
 
 bool PetAI::_CheckTargetCC(Unit *target)
 {
-    if (me->GetCharmerOrOwnerGUID() && target->HasNegativeAuraWithAttribute(SPELL_ATTR0_BREAKABLE_BY_DAMAGE, me->GetCharmerOrOwnerGUID()))
+    if (me->GetCharmerOrOwnerGUID() && target->HasNegativeAuraWithAttribute(SPELL_ATTR0_BREAKABLE_BY_DAMAGE))
         return true;
 
     return false;
