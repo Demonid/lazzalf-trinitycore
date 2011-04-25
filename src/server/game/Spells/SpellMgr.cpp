@@ -4362,12 +4362,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->MaxAffectedTargets = 1;
             count++;
             break;
-        case 61716: // Rabbit Costume
-        case 61717:
-        case 61734:
-            spellInfo->DurationIndex = 42;
-            count++;
-            break;
         case 61875: // Spring Fling
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_SUMMONER;
             count++;
