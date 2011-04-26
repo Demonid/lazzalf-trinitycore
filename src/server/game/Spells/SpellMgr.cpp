@@ -4095,6 +4095,11 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->AttributesEx |= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
             ++count;
             break;
+        case 51421: // Fire Cannon - Wintergrasp Cannon
+        case 49872: // Rocket Blast - Sota Cannon
+            spellInfo->rangeIndex = 154; // Tower range 10-80
+            ++count;
+            break;
         case 64321: // Potent Pheromones
             // spell should dispel area aura, but doesn't have the attribute
             // may be db data bug, or blizz may keep reapplying area auras every update with checking immunity
