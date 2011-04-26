@@ -389,7 +389,7 @@ enum SpellAttr3
     SPELL_ATTR3_UNK15                            = 0x00008000, // 15 Auto Shoot, Shoot, Throw,  - this is autoshot flag
     SPELL_ATTR3_UNK16                            = 0x00010000, // 16 no triggers effects that trigger on casting a spell?? (15290 - 2.2ptr change)
     SPELL_ATTR3_NO_INITIAL_AGGRO                 = 0x00020000, // 17 Soothe Animal, 39758, Mind Soothe
-    SPELL_ATTR3_UNK18                            = 0x00040000, // 18 added to Explosive Trap Effect 3.3.0, removed from Mutilate 3.3.0
+    SPELL_ATTR3_CANT_MISS                        = 0x00040000, // 18 added to Explosive Trap Effect 3.3.0, removed from Mutilate 3.3.0
     SPELL_ATTR3_DISABLE_PROC                     = 0x00080000, // 19 during aura proc no spells can trigger (20178, 20375)
     SPELL_ATTR3_DEATH_PERSISTENT                 = 0x00100000, // 20 Death persistent spells
     SPELL_ATTR3_UNK21                            = 0x00200000, // 21
@@ -456,7 +456,7 @@ enum SpellAttr5
     SPELL_ATTR5_UNK10                            = 0x00000400, // 10
     SPELL_ATTR5_UNK11                            = 0x00000800, // 11
     SPELL_ATTR5_UNK12                            = 0x00001000, // 12
-    SPELL_ATTR5_UNK13                            = 0x00002000, // 13
+    SPELL_ATTR5_HASTE_AFFECT_DURATION            = 0x00002000, // 13 haste effects decrease duration of this
     SPELL_ATTR5_UNK14                            = 0x00004000, // 14
     SPELL_ATTR5_UNK15                            = 0x00008000, // 15
     SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK         = 0x00010000, // 16 this allows spells with EquippedItemClass to affect spells from other items if the required item is equipped
@@ -1803,7 +1803,8 @@ enum Emote
     EMOTE_STATE_SIT_CHAIR_LOW          = 461,
     EMOTE_ONE_SHOT_STUN                = 462,
     EMOTE_ONESHOT_SPELLCAST_OMNI       = 463,
-    EMOTE_STATE_READYTHROWN            = 464
+    EMOTE_STATE_READYTHROWN            = 464,
+    EMOTE_STATE_SPELL_CHANNEL_OMNI     = 468
 };
 
 enum Anim
@@ -2931,6 +2932,48 @@ enum SpellFamilyNames
     SPELLFAMILY_DEATHKNIGHT = 15,
     // 16 - unused
     SPELLFAMILY_PET         = 17
+};
+
+enum NorthrendZones
+{   // Open Zones
+    NORTHREND_BOREAN_TUNDRA         = 3537,
+    NORTHREND_CRYSTALSONG_FOREST    = 2817,
+    NORTHREND_DALARAN               = 4395,
+    NORTHREND_DRAGONBLIGHT          = 65,
+    NORTHREND_GRIZZLY_HILLS         = 394,
+    NORTHREND_HOWLING_FJORD         = 495,
+    NORTHREND_HROTHGARS_LANDING     = 4742,
+    NORTHREND_ICECROWN              = 210,
+    NORTHREND_SHOLAZAR_BASIN        = 3711,
+    NORTHREND_STORM_PEAKS           = 67,
+    NORTHREND_WINTERGRASP           = 4197,
+    NORTHREND_ZULDRAK               = 66,
+
+    // Dungeons
+    NORTHREND_AHNKAHET              = 4494,
+    NORTHREND_AZJOL_NERUB           = 3477,
+    NORTHREND_CULLING_OF_STRATHOLME = 4100,
+    NORTHREND_TRIAL_OF_THE_CHAMPION = 4723,
+    NORTHREND_DRAKTHARON_KEEP       = 4196,
+    NORTHREND_GUNDRAK               = 4416,
+    NORTHREND_NEXUS                 = 4265,
+    NORTHREND_OCULUS                = 4228,
+    NORTHREND_VIOLET_HOLD           = 4415,
+    NORTHREND_HALLS_OF_LIGHTNING    = 4272,
+    NORTHREND_HALLS_OF_STONE        = 4264,
+    NORTHREND_UTGARDE_KEEP          = 206,
+    NORTHREND_UTGARDE_PINNACLE      = 1196,
+    NORTHREND_FORGE_OF_SOULS        = 4809,
+    NORTHREND_PIT_OF_SARON          = 4813,
+    NORTHREND_HALLS_OF_REFLECTION   = 4820,
+
+    // Raids
+    NORTHREND_TRIAL_OF_THE_CRUSADER = 4721,
+    NORTHREND_NAXXRAMAS             = 3456,
+    NORTHREND_OBSIDIAN_SANCTUM      = 4493,
+    NORTHREND_ULDUAR                = 4273,
+    NORTHREND_VAULT_OF_ARCHAVON     = 4603,
+    NORTHREND_ICECROWN_CITADEL      = 4812
 };
 
 enum TradeStatus
