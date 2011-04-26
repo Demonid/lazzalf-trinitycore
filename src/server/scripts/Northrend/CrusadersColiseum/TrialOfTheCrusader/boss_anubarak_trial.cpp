@@ -534,7 +534,10 @@ public:
             switch (actionId)
             {
                 case ACTION_SHADOW_STRIKE:
-                    if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE) && !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                    if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE) && 
+                        !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE) &&
+                        !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) &&
+                        !me->HasAura(SPELL_SUBMERGE_EFFECT))
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_SHADOW_STRIKE);
                     break;
@@ -577,8 +580,10 @@ public:
                 }
                 else 
                     m_uiExposeWeaknessTimer -= uiDiff;
-            } 
-            DoMeleeAttackIfReady();
+            }
+
+            if (!me->HasAura(SPELL_SUBMERGE_EFFECT))
+                DoMeleeAttackIfReady();
         }
     };
 
