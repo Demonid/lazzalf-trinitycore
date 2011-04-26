@@ -3719,7 +3719,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 44440:
         case 44441:
             spellInfo->CasterAuraStateNot = AURA_STATE_NONE;
-            count++;
+            ++count;
             break;
         // Heart of the Crusader
         case 20335:
@@ -3771,7 +3771,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 63944:                             // Renewed Hope hack
             spellInfo->EffectApplyAuraName[0] = 87;
             spellInfo->EffectMiscValue[0] = 127;
-            count++;
+            ++count;
             break;
         case 27820:                             // Mana Detonation
         //case 28062: case 39090:                 // Positive/Negative Charge
@@ -3819,7 +3819,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 62714:     // Shadow Nova
         case 65209:     // Shadow Nova
              spellInfo->Effect[0] = 0;
-             count++;
+             ++count;
              break;
         case 41376: // Spite
         case 39992: // Needle Spine
@@ -3943,19 +3943,19 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_FLAT_MODIFIER;    // it's affects duration of seduction, let's minimize affection
             spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.22;           // reduce cast time of seduction by 22%
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
-            count++;
+            ++count;
             break;
         case 18755:
             spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_FLAT_MODIFIER;
             spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.44;           // reduce cast time of seduction by 44%
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
-            count++;
+            ++count;
             break;
         case 18756:
             spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_FLAT_MODIFIER;
             spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.66;           // reduce cast time of seduction by 66%
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
-            count++;
+            ++count;
             break;
         // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
         // To prevent aura staying on target after talent unlearned
@@ -3973,7 +3973,7 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 55689: // Glyph of Shadow (to prevent glyph aura loss)
             spellInfo->AttributesEx2 |= SPELL_ATTR2_NOT_NEED_SHAPESHIFT;
-            count++;
+            ++count;
             break;
         case 30421:     // Nether Portal - Perseverence
             spellInfo->EffectBasePoints[2] += 30000;
@@ -3982,11 +3982,11 @@ void SpellMgr::LoadSpellCustomAttr()
         // some dummy spell only has dest, should push caster in this case
         case 62324: // Throw Passenger
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
-            count++;
+            ++count;
             break;
         case 66665: // Burning Breath
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
-            count++;
+            ++count;
             break;
         case 62907: // Freya's Ward
         case 62947:
@@ -4024,7 +4024,7 @@ void SpellMgr::LoadSpellCustomAttr()
         //case 72752: // Will of the Forsaken Cooldown Triggers
         //case 72757:
         //    spellInfo->AttributesEx6 |= SPELL_ATTR_EX6_IGNORE_CASTER_AURAS;
-        //    count++;
+        //    ++count;
         //    break;
         // target allys instead of enemies, target A is src_caster, spells with effect like that have ally target
         // this is the only known exception, probably just wrong data
@@ -4038,7 +4038,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 74411:     // Battleground - Dampening
             spellInfo->EffectApplyAuraName[0] = SPELL_AURA_MOD_HEALING_DONE_PERCENT;
             spellInfo->EffectBasePoints[0] = -11; // 1 -11 = -10
-            count++;
+            ++count;
             break;
         case 31687: // Summon Water Elemental
             // 322-330 switch - effect changed to dummy, target entry not changed in client:(
@@ -4049,12 +4049,12 @@ void SpellMgr::LoadSpellCustomAttr()
         case 62968:     // Brightleaf's Essence
         //case 64320:     // Rune of Power
             spellInfo->DurationIndex = 39;
-            count++;
+            ++count;
             break;
         case 62775:     // Tympanic Tantrum
             spellInfo->EffectRadiusIndex[0] = 41; // 150 yard
             spellInfo->EffectRadiusIndex[1] = 41;
-            count++;
+            ++count;
             break;
         case 25771: // Forbearance - wrong mechanic immunity in DBC since 3.0.x
             spellInfo->EffectMiscValue[0] = MECHANIC_IMMUNE_SHIELD;
@@ -4063,7 +4063,7 @@ void SpellMgr::LoadSpellCustomAttr()
         // case 53651:     // beacon of light
         case 30708:     // totem of wrath debuff
             spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
-            count++;
+            ++count;
             break;
         case 62661:     // Searing Flames
         case 61915:     // Lightning Whirl 10
@@ -4084,16 +4084,16 @@ void SpellMgr::LoadSpellCustomAttr()
         case 68982:     // Phantom Blast (FoS normal)
         case 70322:     // Phantom Blast (FoS heroic)
             spellInfo->InterruptFlags = 47;
-            count++;
+            ++count;
             break;
         case 63676:     // Focused Eyebeam Visual 2
         case 63702:     // Focused Eyebeam Visual Right Eye
             spellInfo->EffectImplicitTargetA[0] = 92;
-            count++;
+            ++count;
             break;
         case 61851: // Killing Spree - should remove snares from caster
             spellInfo->AttributesEx |= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
-            count++;
+            ++count;
             break;
         case 64321: // Potent Pheromones
             // spell should dispel area aura, but doesn't have the attribute
@@ -4136,7 +4136,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 8145: // Tremor Totem (instant pulse)
         case 6474: // Earthbind Totem (instant pulse)
             spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
-            count++;
+            ++count;
             break;
         case 53241: // Marked for Death (Rank 1)
         case 53243: // Marked for Death (Rank 2)
@@ -4149,7 +4149,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 49224: // Magic Suppression
         case 49611:
             spellInfo->procCharges = 0;
-            count++;
+            ++count;
             break;
         case 70728: // Exploit Weakness
         case 70840: // Devious Minds
@@ -4194,11 +4194,11 @@ void SpellMgr::LoadSpellCustomAttr()
         case 63882: // Death Ray Warning Visual
         case 63886: // Death Ray Damage Visual
             spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
-            count++;
+            ++count;
             break;
         case 64172: // Titanic Storm
             spellInfo->excludeTargetAuraSpell = 65294; // Empowered
-            count++;
+            ++count;
             break;
         case 63830: // Malady of the Mind
         case 63881: // Malady of the Mind proc
@@ -4206,16 +4206,16 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
             spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_TARGET_ANY;
             spellInfo->EffectImplicitTargetB[2] = TARGET_UNIT_TARGET_ANY;
-            count++;
+            ++count;
             break;
         case 63802: // Brain Link
             spellInfo->MaxAffectedTargets = 2;
             spellInfo->EffectRadiusIndex[0] = 12; // 100 yard
-            count++;
+            ++count;
             break;
         case 63050: // Sanity
             spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
-            count++;
+            ++count;
             break;
         // ENDOF ULDUAR SPELLS
         //
@@ -4304,30 +4304,30 @@ void SpellMgr::LoadSpellCustomAttr()
         case 53189:
         case 53190:
             mSpellCustomAttr[i] |= SPELL_ATTR0_CU_EXCLUDE_SELF;
-            count++;
+            ++count;
             break;
         case 65783: // Ogre Pinata
             spellInfo->EffectBasePoints[0] = 1;
-            count++;
+            ++count;
             break;
         case 26272: // PX-238 Winter Wondervolt
         case 26157:
         case 26273:
         case 26274:
             spellInfo->DurationIndex = 30;
-            count++;
+            ++count;
             break;
         case 53480: // Roar of Sacrifice Split damage
             spellInfo->Effect[1] = SPELL_EFFECT_APPLY_AURA;
             spellInfo->EffectApplyAuraName[1] = SPELL_AURA_SPLIT_DAMAGE_PCT;
             spellInfo->EffectMiscValue[1] = 127;
-            count++;
+            ++count;
             break;
         case 17118: // Subtlety 1
         case 17119: // Subtlety 2
         case 17120: // Subtlety 3
             spellInfo->EffectSpellClassMask[1] = flag96(0x00240152, 0x0C2C1014, 0x00001000);
-            count++;
+            ++count;
             break;
         case 71340: // Pact of the Darkfallen (Blood-Queen Lana'thel)
             spellInfo->DurationIndex = 21;
@@ -4339,14 +4339,14 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 23126: // World Enlarger
             spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_SPELL_ATTACK;
-            count++;
+            ++count;
             break;
         case 30451: // Arcane Blast
         case 42894:
         case 42896:
         case 42897:
             spellInfo->AttributesEx |= SPELL_ATTR1_NEGATIVE;
-            count++;
+            ++count;
             break;
         case 71357: // Order Whelp
             spellInfo->EffectRadiusIndex[0] = 22;        
@@ -4365,11 +4365,11 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 70890: // Scourge Strike Triggered
             spellInfo->AttributesEx2 |= SPELL_ATTR2_TRIGGERED_CAN_TRIGGER;
-            count++;
+            ++count;
             break;
         case 49206: // Summon Gargoyle
             spellInfo->DurationIndex = 587;
-            count++;
+            ++count;
             break;
         case 51590: // Toss Ice Boulder
             spellInfo->MaxAffectedTargets = 1;
@@ -4377,7 +4377,7 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 61875: // Spring Fling
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_SUMMONER;
-            count++;
+            ++count;
             break;
         default:
             break;
@@ -4402,7 +4402,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 }
                 else
                     break;
-                count++;
+                ++count;
                 break;
             case SPELLFAMILY_DRUID:
                 // Starfall Target Selection
@@ -4450,7 +4450,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     case 47812: 
                     case 47813: //Corruption spellIDs
                         spellInfo->SpellFamilyFlags[1] |= 256;
-                        count++;
+                        ++count;
                         break;
                 }
                 break;
