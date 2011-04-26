@@ -2208,6 +2208,17 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
                     if (targets.empty())
                         return;
 
+                    for (UnitList::iterator itr = targets.begin(); itr != targets.end();)
+                    {
+                        if ((*itr)->isTotem() || (*itr)->GetCreatureType() == CREATURE_TYPE_CRITTER)
+                            targets.erase(itr++);
+                        else
+                            ++itr;
+                    }
+
+                    if (targets.empty())
+                        return;
+
                     UnitList::const_iterator itr = targets.begin();
                     std::advance(itr, rand()%targets.size());
                     Unit* spellTarget = *itr;
