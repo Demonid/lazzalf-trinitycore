@@ -19435,6 +19435,21 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
     if (!pet || pet->GetOwnerGUID() != GetGUID())
         return;
 
+    // cooldown, only if pet is not death already (corpse)	
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(pet->GetUInt32Value(UNIT_CREATED_BY_SPELL));
+    if (spellInfo && spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE && pet->getDeathState() != CORPSE && mode != PET_SAVE_AS_CURRENT)	
+    {
+        //SendCooldownEvent(spellInfo);
+        // Raise Dead hack
+        if (pet->GetEntry() == 26125 && this->HasAura(52143))
+        {            
+            WorldPacket data(SMSG_COOLDOWN_EVENT, (4+8));
+            data << uint32(46584);
+            data << uint64(GetGUID());
+            SendDirectMessage(&data);
+        }
+    }
+
     pet->CombatStop();
 
     if (returnreagent)
