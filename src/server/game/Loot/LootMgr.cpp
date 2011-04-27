@@ -458,6 +458,12 @@ void Loot::FillNotNormalLootFor(Player* pl, bool presentAtLooting)
 {
     uint32 plguid = pl->GetGUIDLow();
 
+    if (pl->HasPendingBind())
+    {
+        pl->BindToInstance();
+        pl->SetPendingBind(NULL, 0);
+    }
+
     QuestItemMap::const_iterator qmapitr = PlayerQuestItems.find(plguid);
     if (qmapitr == PlayerQuestItems.end())
         FillQuestLoot(pl);
