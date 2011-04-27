@@ -2239,57 +2239,59 @@ void OutdoorPvPWG::StartBattle()
     // Remove All Wintergrasp auras. Add Recruit rank and Tower Control
     for (PlayerSet::iterator itr = m_players[getAttackerTeamId()].begin(); itr != m_players[getAttackerTeamId()].end(); ++itr)
     {
-        (*itr)->PlayDirectSound(OutdoorPvP_WG_SOUND_START_BATTLE, (*itr)); // START Battle
+        Player* plr = *itr;
+        plr->PlayDirectSound(OutdoorPvP_WG_SOUND_START_BATTLE, plr); // START Battle
 
-        HandleEssenceOfWintergrasp((*itr), NORTHREND_WINTERGRASP);
+        HandleEssenceOfWintergrasp(plr, NORTHREND_WINTERGRASP);
 
-        (*itr)->RemoveAurasDueToSpell(SPELL_RECRUIT);
-        (*itr)->RemoveAurasDueToSpell(SPELL_CORPORAL);
-        (*itr)->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
-        (*itr)->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
-        (*itr)->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
+        plr->RemoveAurasDueToSpell(SPELL_RECRUIT);
+        plr->RemoveAurasDueToSpell(SPELL_CORPORAL);
+        plr->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
+        plr->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
+        plr->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
 
-        if ((*itr)->getLevel() > 69)
+        if (plr->getLevel() > 69)
         {
-            (*itr)->SetAuraStack(SPELL_TOWER_CONTROL, (*itr), 3);
-            (*itr)->CastSpell(*itr, SPELL_RECRUIT, true);
+            plr->SetAuraStack(SPELL_TOWER_CONTROL, plr, 3);
+            plr->CastSpell(plr, SPELL_RECRUIT, true);
         }
 
-        (*itr)->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
-        (*itr)->RemoveAurasByType(SPELL_AURA_FLY);
-        (*itr)->CastSpell((*itr), 61286, true);
-        if ((*itr)->getLevel() < 70) 
-            (*itr)->CastSpell((*itr), SPELL_TELEPORT_DALARAN, true);
+        plr->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
+        plr->RemoveAurasByType(SPELL_AURA_FLY);
+        plr->CastSpell(plr, 61286, true);
+        if (plr->getLevel() < 70) 
+            plr->CastSpell(plr, SPELL_TELEPORT_DALARAN, true);
         else
-            (*itr)->TeleportTo(571, 4525.60f, 2828.08f, 390, 0.28f); //Out the Fortress
+            plr->TeleportTo(571, 4525.60f, 2828.08f, 390, 0.28f); //Out the Fortress
        
-        //(*itr)->CastSpell((*itr), 58730, true);        
+        //plr->CastSpell(plr, 58730, true);        
     }
 
     // Remove All Wintergrasp auras. Add Recruit rank
     for (PlayerSet::iterator itr = m_players[getDefenderTeamId()].begin(); itr != m_players[getDefenderTeamId()].end(); ++itr)
     {
-        (*itr)->PlayDirectSound(OutdoorPvP_WG_SOUND_START_BATTLE, (*itr)); // START Battle
+        Player* plr = *itr;
+        plr->PlayDirectSound(OutdoorPvP_WG_SOUND_START_BATTLE, plr); // START Battle
 
-        HandleEssenceOfWintergrasp((*itr), NORTHREND_WINTERGRASP);
+        HandleEssenceOfWintergrasp(plr, NORTHREND_WINTERGRASP);
 
-        (*itr)->RemoveAurasDueToSpell(SPELL_RECRUIT);
-        (*itr)->RemoveAurasDueToSpell(SPELL_CORPORAL);
-        (*itr)->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
-        (*itr)->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
-        (*itr)->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
+        plr->RemoveAurasDueToSpell(SPELL_RECRUIT);
+        plr->RemoveAurasDueToSpell(SPELL_CORPORAL);
+        plr->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
+        plr->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
+        plr->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
 
-        if ((*itr)->getLevel() > 69)
-            (*itr)->CastSpell(*itr, SPELL_RECRUIT, true);
+        if (plr->getLevel() > 69)
+            plr->CastSpell(plr, SPELL_RECRUIT, true);
         
-        (*itr)->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
-        (*itr)->RemoveAurasByType(SPELL_AURA_FLY);
-        (*itr)->CastSpell((*itr), 61286, true);
-        if ((*itr)->getLevel() < 70) 
-            (*itr)->CastSpell((*itr), SPELL_TELEPORT_DALARAN, true);
+        plr->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
+        plr->RemoveAurasByType(SPELL_AURA_FLY);
+        plr->CastSpell(plr, 61286, true);
+        if (plr->getLevel() < 70) 
+            plr->CastSpell(plr, SPELL_TELEPORT_DALARAN, true);
         else
-            (*itr)->TeleportTo(571, 5333.40f, 2841.76f, 410, 3.23f); //In the Fortress
-        //(*itr)->CastSpell((*itr), 58730, true); 
+            plr->TeleportTo(571, 5333.40f, 2841.76f, 410, 3.23f); //In the Fortress
+        //plr->CastSpell(plr, 58730, true); 
     }
     UpdateTenacityStack();
 
@@ -2380,15 +2382,15 @@ void OutdoorPvPWG::EndBattle()
         uint32 spellRewardId = team == getDefenderTeamId() ? SPELL_VICTORY_REWARD : SPELL_DEFEAT_REWARD;
         uint32 baseHonor = 0;
         uint32 marks = 0;
-        uint32 playersWithRankNum = 0;
+        //uint32 playersWithRankNum = 0;
         uint32 honor = 0;
 
         if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR))
         {
             // Calculate Level 70+ with Corporal or Lieutenant rank
-            for (PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
+            /*for (PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
                 if ((*itr)->getLevel() > 69 && ((*itr)->HasAura(SPELL_LIEUTENANT) || (*itr)->HasAura(SPELL_CORPORAL)))
-                    ++playersWithRankNum;
+                    ++playersWithRankNum;*/
 
             baseHonor = team == getDefenderTeamId() ? sWorld->getIntConfig(CONFIG_OUTDOORPVP_WINTERGRASP_WIN_BATTLE) : sWorld->getIntConfig(CONFIG_OUTDOORPVP_WINTERGRASP_LOSE_BATTLE);
             baseHonor += (sWorld->getIntConfig(CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_TOWER) * m_towerDamagedCount[OTHER_TEAM(team)]);
@@ -2402,8 +2404,9 @@ void OutdoorPvPWG::EndBattle()
 
         for (PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
         {
+            Player* plr = *itr;
 
-            if ((*itr)->getLevel() < 70)
+            if (plr->getLevel() < 70)
                 continue; // No rewards for level <70
 
             // give rewards
@@ -2411,12 +2414,12 @@ void OutdoorPvPWG::EndBattle()
             {
                 if (team == getDefenderTeamId())
                 {
-                    if ((*itr)->HasAura(SPELL_LIEUTENANT))
+                    if (plr->HasAura(SPELL_LIEUTENANT))
                     {
                         marks = 4;
                         honor = baseHonor;
                     }
-                    else if ((*itr)->HasAura(SPELL_CORPORAL))
+                    else if (plr->HasAura(SPELL_CORPORAL))
                     {
                         marks = 2;
                         honor = baseHonor;
@@ -2429,12 +2432,12 @@ void OutdoorPvPWG::EndBattle()
                 }
                 else
                 {
-                    if ((*itr)->HasAura(SPELL_LIEUTENANT))
+                    if (plr->HasAura(SPELL_LIEUTENANT))
                     {
                         marks = 2;
                         honor = baseHonor;
                     }
-                    else if ((*itr)->HasAura(SPELL_CORPORAL))
+                    else if (plr->HasAura(SPELL_CORPORAL))
                     {
                         marks = 1;
                         honor = baseHonor;
@@ -2445,46 +2448,46 @@ void OutdoorPvPWG::EndBattle()
                         honor = 0;
                     }
                 }
-                (*itr)->RewardHonor(NULL, 1, honor);
-                RewardMarkOfHonor(*itr, marks);
-                (*itr)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, spellRewardId);
+                plr->RewardHonor(NULL, 1, honor);
+                RewardMarkOfHonor(plr, marks);
+                plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, spellRewardId);
             }
             else
             {
-                if ((*itr)->HasAura(SPELL_LIEUTENANT) || (*itr)->HasAura(SPELL_CORPORAL))
+                if (plr->HasAura(SPELL_LIEUTENANT) || plr->HasAura(SPELL_CORPORAL))
                 {
                     // TODO - Honor from SpellReward should be shared by team players
                     // TODO - Marks should be given depending on Rank but 3 are given
                     // each time so Won't give any to recruits
-                    (*itr)->CastSpell(*itr, spellRewardId, true);
+                    plr->CastSpell(plr, spellRewardId, true);
 
                     for (uint32 i = 0; i < intactNum; ++i)
-                        (*itr)->CastSpell(*itr, SPELL_INTACT_BUILDING, true);
+                        plr->CastSpell(plr, SPELL_INTACT_BUILDING, true);
 
                     for (uint32 i = 0; i < damagedNum; ++i)
-                        (*itr)->CastSpell(*itr, SPELL_DAMAGED_BUILDING, true);
+                        plr->CastSpell(plr, SPELL_DAMAGED_BUILDING, true);
 
                     for (uint32 i = 0; i < m_towerDamagedCount[OTHER_TEAM(team)]; ++i)
-                        (*itr)->CastSpell(*itr, SPELL_DAMAGED_TOWER, true);
+                        plr->CastSpell(plr, SPELL_DAMAGED_TOWER, true);
 
                     for (uint32 i = 0; i < m_towerDestroyedCount[OTHER_TEAM(team)]; ++i)
-                        (*itr)->CastSpell(*itr, SPELL_DESTROYED_TOWER, true);
+                        plr->CastSpell(plr, SPELL_DESTROYED_TOWER, true);
                 }
             }
 
             if (team == getDefenderTeamId())
             {
-                if ((*itr)->HasAura(SPELL_LIEUTENANT) || (*itr)->HasAura(SPELL_CORPORAL))
+                if (plr->HasAura(SPELL_LIEUTENANT) || plr->HasAura(SPELL_CORPORAL))
                 {
-                    (*itr)->AreaExploredOrEventHappens(A_VICTORY_IN_WG);
-                    (*itr)->AreaExploredOrEventHappens(H_VICTORY_IN_WG);
+                    plr->AreaExploredOrEventHappens(A_VICTORY_IN_WG);
+                    plr->AreaExploredOrEventHappens(H_VICTORY_IN_WG);
                 }
             }
-            (*itr)->RemoveAurasDueToSpell(SPELL_RECRUIT);
-            (*itr)->RemoveAurasDueToSpell(SPELL_CORPORAL);
-            (*itr)->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
-            (*itr)->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
-            (*itr)->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
+            plr->RemoveAurasDueToSpell(SPELL_RECRUIT);
+            plr->RemoveAurasDueToSpell(SPELL_CORPORAL);
+            plr->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
+            plr->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
+            plr->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
         }
     }
 
