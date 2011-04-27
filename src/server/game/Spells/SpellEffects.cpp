@@ -3228,11 +3228,19 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     float radius = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[effIndex]));
 
                     uint32 amount = damage > 0 ? damage : 1;
-                    if (m_spellInfo->Id == 18662 || // Curse of Doom
-                        properties->Id == 2081)     // Mechanical Dragonling, Arcanite Dragonling, Mithril Dragonling TODO: Research on meaning of basepoints
-                        amount = 1;
-                    if (m_spellInfo->Id == 65783) // Ogre Pinata
-                        amount = 1;
+
+                    switch (m_spellInfo->Id)
+                    {
+                        case 4073:  // Mechanical Dragonling
+                        case 12749: // Mithril Mechanical Dragonling
+                        case 18662: // Curse of Doom
+                        case 19804: // Arcanite Dragonling
+                        case 65783: // Ogre Pinata
+                            amount = 1;
+                            break;
+                        default:
+                            break;
+                    }
 
                     TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
 
