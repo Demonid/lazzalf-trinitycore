@@ -161,6 +161,7 @@ public:
         bool   m_bReachedPhase3;
         uint64 m_uiTargetGUID;
         uint8  m_uiScarabSummoned;
+        bool   find_debuff;
 
         void Reset()
         {
@@ -180,6 +181,7 @@ public:
             m_uiScarabSummoned = 0;
             m_bIntro = true;
             m_bReachedPhase3 = false;
+            find_debuff = true;
             m_uiTargetGUID = 0;
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             Summons.DespawnAll();
@@ -397,9 +399,35 @@ public:
                 } else m_uiSummonFrostSphereTimer -= uiDiff;
             }
 
+            if (!find_debuff)
+            {
+                Map::PlayerList const &players = m_pInstance->instance->GetPlayers();                
+                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                {
+                    Player* player = itr->getSource();
+                    if (!player)
+                        continue;
+                    if (player->HasAura(66118) || 
+                        player->HasAura(67630) ||
+                        player->HasAura(68646) ||
+                        player->HasAura(68647))
+                    {
+                        find_debuff = true;
+                        break;
+                    }
+                }
+                if (!find_debuff)
+                {
+                    DoCastAOE(SPELL_LEECHING_SWARM);
+                    DoScriptText(EMOTE_LEECHING_SWARM, me);
+                    DoScriptText(SAY_LEECHING_SWARM, me);
+                }
+            }
+
             if (HealthBelowPct(30) && m_uiStage == 0 && !m_bReachedPhase3)
             {
                 m_bReachedPhase3 = true;
+                find_debuff = false;
                 DoCastAOE(SPELL_LEECHING_SWARM);
                 DoScriptText(EMOTE_LEECHING_SWARM, me);
                 DoScriptText(SAY_LEECHING_SWARM, me);
