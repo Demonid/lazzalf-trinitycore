@@ -43,6 +43,8 @@ enum ExtraDatabaseStatements
         name for a suiting suffix.
     */
     EXTRA_ADD_ITEMSTAT,
+    EXTRA_GET_EXTERNAL_MAIL,
+    EXTRA_DEL_EXTERNAL_MAIL,
     MAX_EXTRADATABASE_STATEMENTS,
 };
 
