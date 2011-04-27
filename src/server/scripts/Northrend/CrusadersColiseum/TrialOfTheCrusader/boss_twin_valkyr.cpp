@@ -134,6 +134,7 @@ struct boss_twin_baseAI : public ScriptedAI
 
     uint8  m_uiStage;
     bool   m_bIsBerserk;
+    bool   m_Immune;
     uint8  m_uiWaveCount;
     uint32 m_uiColorballsTimer;
     uint32 m_uiSpecialAbilityTimer;
@@ -166,6 +167,7 @@ struct boss_twin_baseAI : public ScriptedAI
         me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         me->SetFlying(true); */
         m_bIsBerserk = false;
+        m_Immune = false;
 
         m_uiWaveCount = 1;
         m_uiColorballsTimer = 15*IN_MILLISECONDS;
@@ -374,6 +376,13 @@ struct boss_twin_baseAI : public ScriptedAI
         if (!m_pInstance || !UpdateVictim())
             return;
 
+        // Shield of Light o Shield of Darkness
+        if (IsHeroic() && m_Immune && !me->HasAura(RAID_MODE(65858,67259,67260,67261)) && !me->HasAura(RAID_MODE(65874,67256,67257,67258)))
+        {
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, false);
+            m_Immune = false;
+        }
+
         if (m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED) != 0)
             me->SetHealth(m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED));
         else
@@ -405,6 +414,11 @@ struct boss_twin_baseAI : public ScriptedAI
                     DoScriptText(EMOTE_SHIELD, me);
                     DoScriptText(SAY_SHIELD, me);
                     DoCast(me, m_uiShieldSpellId);
+                    if (IsHeroic())
+                    {
+                        me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
+                        m_Immune = true;
+                    }
                     DoCast(me, m_uiTwinPactSpellId);
                     m_uiStage = 0;
                     m_uiSpecialAbilityTimer = urand(45,50)*IN_MILLISECONDS;
