@@ -765,6 +765,8 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                     return false;
                 case 30877: // Tag Murloc
                 case 12042: // Arcane Power
+                case 61734: // Noblegarden Bunny
+                case 61716: // Rabbit Costume
                     return true;
                 default:
                     break;
@@ -3698,6 +3700,12 @@ void SpellMgr::LoadSpellCustomAttr()
         case 3286:
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
             spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_TARGET_ENEMY;
+            ++count;
+            break;
+        // Chains of Ice
+        case 45524:
+            // this will fix self-damage caused by Glyph of Chains of Ice
+            spellInfo->EffectImplicitTargetA[2] = TARGET_UNIT_TARGET_ENEMY;
             ++count;
             break;
         // Heroism
