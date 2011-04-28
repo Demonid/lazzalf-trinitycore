@@ -528,6 +528,19 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
                         --TrialCounter;
+                        // Update counter
+                        if (instance->IsHeroic())
+                        {
+                            Map::PlayerList const &players = instance->GetPlayers();
+                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                            {
+                                Player* player = itr->getSource();
+                                if (!player)
+                                    continue;
+                                player->SendUpdateWorldState(UPDATE_STATE_UI_SHOW, 1);
+                                player->SendUpdateWorldState(UPDATE_STATE_UI_COUNT, GetData(TYPE_COUNTER));
+                            }   
+                        }
                         NeedSave = true;
                         EventStage = (type == TYPE_BEASTS ? 666 : 0);
                         data = NOT_STARTED;
