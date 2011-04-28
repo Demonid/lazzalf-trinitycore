@@ -3952,23 +3952,13 @@ void SpellMgr::LoadSpellCustomAttr()
         case 51167:
             spellInfo->EffectSpellClassMask[1][0] |= 0x800000;
             break;
-        case 18754: // Improved succubus - problems with apply if target is pet
-            spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_FLAT_MODIFIER;    // it's affects duration of seduction, let's minimize affection
-            spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.22;           // reduce cast time of seduction by 22%
-            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
-            ++count;
-            break;
+        // Improved Succubus
+        case 18754:
         case 18755:
-            spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_FLAT_MODIFIER;
-            spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.44;           // reduce cast time of seduction by 44%
-            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
-            ++count;
-            break;
         case 18756:
-            spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_FLAT_MODIFIER;
-            spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.66;           // reduce cast time of seduction by 66%
+            // now aura will be applied correctly
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
-            ++count;
+            count++;
             break;
         // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
         // To prevent aura staying on target after talent unlearned
