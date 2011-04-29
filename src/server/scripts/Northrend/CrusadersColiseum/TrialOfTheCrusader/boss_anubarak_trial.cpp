@@ -728,6 +728,7 @@ public:
         mob_anubarak_spikeAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
         }
 
         InstanceScript* m_pInstance;
