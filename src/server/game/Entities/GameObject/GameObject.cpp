@@ -451,7 +451,7 @@ void GameObject::Update(uint32 diff)
                         if (goInfo->trap.spellId)
                             CastSpell(ok, goInfo->trap.spellId);
 
-                        m_cooldownTime = time(NULL) + goInfo->trap.cooldown ? goInfo->trap.cooldown :  uint32(4);   // template or 4 seconds
+                        m_cooldownTime = time(NULL) + (goInfo->trap.cooldown ? goInfo->trap.cooldown :  uint32(4));   // template or 4 seconds
 
                         if (goInfo->trap.type == 1)
                             SetLootState(GO_JUST_DEACTIVATED);
@@ -1196,7 +1196,7 @@ void GameObject::Use(Unit* user)
                 {
                     sLog->outDebug(LOG_FILTER_MAPSCRIPTS, "Goober ScriptStart id %u for GO entry %u (GUID %u).", info->goober.eventId, GetEntry(), GetDBTableGUIDLow());
                     GetMap()->ScriptsStart(sEventScripts, info->goober.eventId, player, this);
-                    EventInform(info->goober.eventId);
+                    EventInform(info->goober.eventId, player);
                 }
 
                 // possible quest objective for active quests
@@ -1757,10 +1757,10 @@ void GameObject::Rebuild()
     EventInform(m_goInfo->building.rebuildingEvent);
 }
 
-void GameObject::EventInform(uint32 eventId)
+void GameObject::EventInform(uint32 eventId, Player* player)
 {
     if (eventId && m_zoneScript)
-        m_zoneScript->ProcessEvent(this, eventId);
+        m_zoneScript->ProcessEvent(this, eventId, player);
 }
 
 // overwrite WorldObject function for proper name localization
