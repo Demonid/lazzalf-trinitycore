@@ -2717,7 +2717,7 @@ float Unit::GetUnitBlockChance() const
         if (player->CanBlock())
         {
             Item *tmpitem = player->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-            if (tmpitem && !tmpitem->IsBroken() && tmpitem->GetProto()->Block)
+            if (tmpitem && !tmpitem->IsBroken() && tmpitem->GetTemplate()->Block)
                 return GetFloatValue(PLAYER_BLOCK_PERCENTAGE);
         }
         // is player but has no block ability or no not broken shield equipped
@@ -15098,7 +15098,7 @@ float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized)
     if (!Weapon)
         return 2.4f;                                         // fist attack
 
-    switch (Weapon->GetProto()->InventoryType)
+    switch (Weapon->GetTemplate()->InventoryType)
     {
         case INVTYPE_2HWEAPON:
             return 3.3f;
@@ -15110,7 +15110,7 @@ float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized)
         case INVTYPE_WEAPONMAINHAND:
         case INVTYPE_WEAPONOFFHAND:
         default:
-            return Weapon->GetProto()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER ? 1.7f : 2.4f;
+            return Weapon->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER ? 1.7f : 2.4f;
     }
 }
 
@@ -15187,7 +15187,7 @@ Pet* Unit::CreateTamedPetFrom(uint32 creatureEntry, uint32 spell_id)
     if (GetTypeId() != TYPEID_PLAYER)
         return NULL;
 
-    CreatureInfo const* creatureInfo = ObjectMgr::GetCreatureTemplate(creatureEntry);
+    CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creatureEntry);
     if (!creatureInfo)
         return NULL;
 
@@ -15288,14 +15288,14 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura * aura, SpellEntry co
             if (this->ToPlayer()->IsInFeralForm())
                 return false;
 
-            if (!item || item->IsBroken() || item->GetProto()->Class != ITEM_CLASS_WEAPON || !((1<<item->GetProto()->SubClass) & spellProto->EquippedItemSubClassMask))
+            if (!item || item->IsBroken() || item->GetTemplate()->Class != ITEM_CLASS_WEAPON || !((1<<item->GetTemplate()->SubClass) & spellProto->EquippedItemSubClassMask))
                 return false;
         }
         else if (spellProto->EquippedItemClass == ITEM_CLASS_ARMOR)
         {
             // Check if player is wearing shield
             Item *item = this->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-            if (!item || item->IsBroken() || item->GetProto()->Class != ITEM_CLASS_ARMOR || !((1<<item->GetProto()->SubClass) & spellProto->EquippedItemSubClassMask))
+            if (!item || item->IsBroken() || item->GetTemplate()->Class != ITEM_CLASS_ARMOR || !((1<<item->GetTemplate()->SubClass) & spellProto->EquippedItemSubClassMask))
                 return false;
         }
     }
@@ -15614,7 +15614,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         if (!creature->isPet())
         {
             creature->DeleteThreatList();
-            CreatureInfo const* cInfo = creature->GetCreatureInfo();
+            CreatureTemplate const* cInfo = creature->GetCreatureInfo();
             if (cInfo && (cInfo->lootid || cInfo->maxgold > 0))
                 creature->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
@@ -16052,7 +16052,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const * a
             case CHARM_TYPE_CHARM:
                 if (GetTypeId() == TYPEID_UNIT && charmer->getClass() == CLASS_WARLOCK)
                 {
-                    CreatureInfo const *cinfo = this->ToCreature()->GetCreatureInfo();
+                    CreatureTemplate const *cinfo = this->ToCreature()->GetCreatureInfo();
                     if (cinfo && cinfo->type == CREATURE_TYPE_DEMON)
                     {
                         //to prevent client crash
@@ -16156,7 +16156,7 @@ void Unit::RemoveCharmedBy(Unit *charmer)
             case CHARM_TYPE_CHARM:
                 if (GetTypeId() == TYPEID_UNIT && charmer->getClass() == CLASS_WARLOCK)
                 {
-                    CreatureInfo const *cinfo = this->ToCreature()->GetCreatureInfo();
+                    CreatureTemplate const *cinfo = this->ToCreature()->GetCreatureInfo();
                     if (cinfo && cinfo->type == CREATURE_TYPE_DEMON)
                     {
                         SetByteValue(UNIT_FIELD_BYTES_0, 1, uint8(cinfo->unit_class));
@@ -16195,7 +16195,7 @@ void Unit::RestoreFaction()
             }
         }
 
-        if (CreatureInfo const *cinfo = this->ToCreature()->GetCreatureInfo())  // normal creature
+        if (CreatureTemplate const *cinfo = this->ToCreature()->GetCreatureInfo())  // normal creature
         {
             FactionTemplateEntry const *faction = getFactionTemplateEntry();
             setFaction((faction && faction->friendlyMask & 0x004) ? cinfo->faction_H : cinfo->faction_A);

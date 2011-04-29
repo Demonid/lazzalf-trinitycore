@@ -268,7 +268,7 @@ bool ChatHandler::HandleAddItemCommand(const char *args)
 
     sLog->outDetail(GetTrinityString(LANG_ADDITEM), itemId, count);
 
-    ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(itemId);
+    ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(itemId);
     if (!pProto)
     {
         PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, itemId);
@@ -340,48 +340,45 @@ bool ChatHandler::HandleAddItemSetCommand(const char *args)
         return false;
     }
 
-    Player* pl = m_session->GetPlayer();
-    Player* plTarget = getSelectedPlayer();
-    if (!plTarget)
-        plTarget = pl;
+    Player* player = m_session->GetPlayer();
+    Player* playerTarget = getSelectedPlayer();
+    if (!playerTarget)
+        playerTarget = player;
 
     sLog->outDetail(GetTrinityString(LANG_ADDITEMSET), itemsetId);
 
     bool found = false;
-    for (uint32 id = 0; id < sItemStorage.MaxEntry; id++)
+    ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
+    for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
     {
-        ItemPrototype const *pProto = sItemStorage.LookupEntry<ItemPrototype>(id);
-        if (!pProto)
-            continue;
-
-        if (pProto->ItemSet == itemsetId)
+        if (itr->second.ItemSet == itemsetId)
         {
             found = true;
             ItemPosCountVec dest;
-            uint8 msg = plTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, pProto->ItemId, 1);
+            uint8 msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itr->second.ItemId, 1);
             if (msg == EQUIP_ERR_OK)
             {
-                Item* item = plTarget->StoreNewItem(dest, pProto->ItemId, true);
+                Item* item = playerTarget->StoreNewItem(dest, itr->second.ItemId, true);
 
                 // remove binding (let GM give it to another player later)
-                if (pl == plTarget)
+                if (player == playerTarget)
                     item->SetBinding(false);
 
-                pl->SendNewItem(item,1,false,true);
-                if (pl != plTarget)
-                    plTarget->SendNewItem(item,1,true,false);
+                player->SendNewItem(item, 1, false, true);
+                if (player != playerTarget)
+                    playerTarget->SendNewItem(item, 1, true, false);
             }
             else
             {
-                pl->SendEquipError(msg, NULL, NULL, pProto->ItemId);
-                PSendSysMessage(LANG_ITEM_CANNOT_CREATE, pProto->ItemId, 1);
+                player->SendEquipError(msg, NULL, NULL, itr->second.ItemId);
+                PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itr->second.ItemId, 1);
             }
         }
     }
 
     if (!found)
     {
-        PSendSysMessage(LANG_NO_ITEMS_FROM_ITEMSET_FOUND,itemsetId);
+        PSendSysMessage(LANG_NO_ITEMS_FROM_ITEMSET_FOUND, itemsetId);
 
         SetSentErrorMessage(true);
         return false;
@@ -407,7 +404,7 @@ bool ChatHandler::HandleListItemCommand(const char *args)
         return false;
     }
 
-    ItemPrototype const* itemProto = ObjectMgr::GetItemPrototype(item_id);
+    ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);
     if (!itemProto)
     {
         PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, item_id);
@@ -622,7 +619,7 @@ bool ChatHandler::HandleListObjectCommand(const char *args)
         return false;
     }
 
-    GameObjectInfo const * gInfo = ObjectMgr::GetGameObjectInfo(go_id);
+    GameObjectTemplate const * gInfo = sObjectMgr->GetGameObjectTemplate(go_id);
     if (!gInfo)
     {
         PSendSysMessage(LANG_COMMAND_LISTOBJINVALIDID, go_id);
@@ -694,7 +691,7 @@ bool ChatHandler::HandleListCreatureCommand(const char *args)
         return false;
     }
 
-    CreatureInfo const* cInfo = ObjectMgr::GetCreatureTemplate(cr_id);
+    CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(cr_id);
     if (!cInfo)
     {
         PSendSysMessage(LANG_COMMAND_INVALIDCREATUREID, cr_id);
@@ -737,9 +734,9 @@ bool ChatHandler::HandleListCreatureCommand(const char *args)
             int mapid = fields[4].GetUInt16();
 
             if  (m_session)
-                PSendSysMessage(LANG_CREATURE_LIST_CHAT, guid, guid, cInfo->Name, x, y, z, mapid);
+                PSendSysMessage(LANG_CREATURE_LIST_CHAT, guid, guid, cInfo->Name.c_str(), x, y, z, mapid);
             else
-                PSendSysMessage(LANG_CREATURE_LIST_CONSOLE, guid, cInfo->Name, x, y, z, mapid);
+                PSendSysMessage(LANG_CREATURE_LIST_CONSOLE, guid, cInfo->Name.c_str(), x, y, z, mapid);
         } while (result->NextRow());
     }
 
@@ -766,17 +763,14 @@ bool ChatHandler::HandleLookupItemCommand(const char *args)
     uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
     // Search in `item_template`
-    for (uint32 id = 0; id < sItemStorage.MaxEntry; id++)
+    ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
+    for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
     {
-        ItemPrototype const *pProto = sItemStorage.LookupEntry<ItemPrototype >(id);
-        if (!pProto)
-            continue;
-
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
             uint8 uloc_idx = uint8(loc_idx);
-            if (ItemLocale const *il = sObjectMgr->GetItemLocale(pProto->ItemId))
+            if (ItemLocale const *il = sObjectMgr->GetItemLocale(itr->second.ItemId))
             {
                 if (il->Name.size() > uloc_idx && !il->Name[uloc_idx].empty())
                 {
@@ -791,9 +785,9 @@ bool ChatHandler::HandleLookupItemCommand(const char *args)
                         }
 
                         if (m_session)
-                            PSendSysMessage(LANG_ITEM_LIST_CHAT, id, id, name.c_str());
+                            PSendSysMessage(LANG_ITEM_LIST_CHAT, itr->second.ItemId, itr->second.ItemId, name.c_str());
                         else
-                            PSendSysMessage(LANG_ITEM_LIST_CONSOLE, id, name.c_str());
+                            PSendSysMessage(LANG_ITEM_LIST_CONSOLE, itr->second.ItemId, name.c_str());
 
                         if (!found)
                             found = true;
@@ -804,7 +798,7 @@ bool ChatHandler::HandleLookupItemCommand(const char *args)
             }
         }
 
-        std::string name = pProto->Name1;
+        std::string name = itr->second.Name1;
         if (name.empty())
             continue;
 
@@ -817,9 +811,9 @@ bool ChatHandler::HandleLookupItemCommand(const char *args)
             }
 
             if (m_session)
-                PSendSysMessage(LANG_ITEM_LIST_CHAT, id, id, name.c_str());
+                PSendSysMessage(LANG_ITEM_LIST_CHAT, itr->second.ItemId, itr->second.ItemId, name.c_str());
             else
-                PSendSysMessage(LANG_ITEM_LIST_CONSOLE, id, name.c_str());
+                PSendSysMessage(LANG_ITEM_LIST_CONSOLE, itr->second.ItemId, name.c_str());
 
             if (!found)
                 found = true;
@@ -1236,21 +1230,18 @@ bool ChatHandler::HandleLookupCreatureCommand(const char *args)
     uint32 count = 0;
     uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
-    for (uint32 id = 0; id< sCreatureStorage.MaxEntry; ++id)
+    CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
+    for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
     {
-        CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo> (id);
-        if (!cInfo)
-            continue;
-
-        int loc_idx = GetSessionDbLocaleIndex();
-        if (loc_idx >= 0)
+        uint32 id = itr->second.Entry;
+        uint8 localeIndex = GetSessionDbLocaleIndex();
+        if (localeIndex >= 0)
         {
-            uint8 uloc_idx = uint8(loc_idx);
-            if (CreatureLocale const *cl = sObjectMgr->GetCreatureLocale (id))
+            if (CreatureLocale const *cl = sObjectMgr->GetCreatureLocale(id))
             {
-                if (cl->Name.size() > uloc_idx && !cl->Name[uloc_idx].empty ())
+                if (cl->Name.size() > localeIndex && !cl->Name[localeIndex].empty ())
                 {
-                    std::string name = cl->Name[uloc_idx];
+                    std::string name = cl->Name[localeIndex];
 
                     if (Utf8FitTo (name, wnamepart))
                     {
@@ -1274,7 +1265,7 @@ bool ChatHandler::HandleLookupCreatureCommand(const char *args)
             }
         }
 
-        std::string name = cInfo->Name;
+        std::string name = itr->second.Name;
         if (name.empty ())
             continue;
 
@@ -1320,21 +1311,17 @@ bool ChatHandler::HandleLookupObjectCommand(const char *args)
     uint32 count = 0;
     uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
-    for (uint32 id = 0; id< sGOStorage.MaxEntry; id++)
+    GameObjectTemplateContainer const* gotc = sObjectMgr->GetGameObjectTemplates();
+    for (GameObjectTemplateContainer::const_iterator itr = gotc->begin(); itr != gotc->end(); ++itr)
     {
-        GameObjectInfo const* gInfo = sGOStorage.LookupEntry<GameObjectInfo>(id);
-        if (!gInfo)
-            continue;
-
-        int loc_idx = GetSessionDbLocaleIndex();
-        if (loc_idx >= 0)
+        uint8 localeIndex = GetSessionDbLocaleIndex();
+        if (localeIndex >= 0)
         {
-            uint8 uloc_idx = uint8(loc_idx);
-            if (GameObjectLocale const *gl = sObjectMgr->GetGameObjectLocale(id))
+            if (GameObjectLocale const *gl = sObjectMgr->GetGameObjectLocale(itr->second.entry))
             {
-                if (gl->Name.size() > uloc_idx && !gl->Name[uloc_idx].empty())
+                if (gl->Name.size() > localeIndex && !gl->Name[localeIndex].empty())
                 {
-                    std::string name = gl->Name[uloc_idx];
+                    std::string name = gl->Name[localeIndex];
 
                     if (Utf8FitTo(name, wnamepart))
                     {
@@ -1345,9 +1332,9 @@ bool ChatHandler::HandleLookupObjectCommand(const char *args)
                         }
 
                         if (m_session)
-                            PSendSysMessage(LANG_GO_ENTRY_LIST_CHAT, id, id, name.c_str());
+                            PSendSysMessage(LANG_GO_ENTRY_LIST_CHAT, itr->second.entry, itr->second.entry, name.c_str());
                         else
-                            PSendSysMessage(LANG_GO_ENTRY_LIST_CONSOLE, id, name.c_str());
+                            PSendSysMessage(LANG_GO_ENTRY_LIST_CONSOLE, itr->second.entry, name.c_str());
 
                         if (!found)
                             found = true;
@@ -1358,7 +1345,7 @@ bool ChatHandler::HandleLookupObjectCommand(const char *args)
             }
         }
 
-        std::string name = gInfo->name;
+        std::string name = itr->second.name;
         if (name.empty())
             continue;
 
@@ -1371,9 +1358,9 @@ bool ChatHandler::HandleLookupObjectCommand(const char *args)
             }
 
             if (m_session)
-                PSendSysMessage(LANG_GO_ENTRY_LIST_CHAT, id, id, name.c_str());
+                PSendSysMessage(LANG_GO_ENTRY_LIST_CHAT, itr->second.entry, itr->second.entry, name.c_str());
             else
-                PSendSysMessage(LANG_GO_ENTRY_LIST_CONSOLE, id, name.c_str());
+                PSendSysMessage(LANG_GO_ENTRY_LIST_CONSOLE, itr->second.entry, name.c_str());
 
             if (!found)
                 found = true;
@@ -4272,7 +4259,7 @@ bool ChatHandler::HandleSendItemsCommand(const char *args)
         if (!item_id)
             return false;
 
-        ItemPrototype const* item_proto = ObjectMgr::GetItemPrototype(item_id);
+        ItemTemplate const* item_proto = sObjectMgr->GetItemTemplate(item_id);
         if (!item_proto)
         {
             PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, item_id);
