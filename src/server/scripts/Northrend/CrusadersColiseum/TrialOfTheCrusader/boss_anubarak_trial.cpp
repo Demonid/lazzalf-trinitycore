@@ -226,8 +226,7 @@ public:
         }
 
         void JustSummoned(Creature* pSummoned)
-        {
-            Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true);
+        {            
             switch (pSummoned->GetEntry())
             {
                 case NPC_BURROW:
@@ -236,8 +235,11 @@ public:
                     pSummoned->CastSpell(pSummoned, SPELL_CHURNING_GROUND, false);
                     break;
                 case NPC_SPIKE:
-                    pSummoned->CombatStart(pTarget);
-                    DoScriptText(EMOTE_SPIKE, me, pTarget);
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    {
+                        pSummoned->CombatStart(pTarget);
+                        DoScriptText(EMOTE_SPIKE, me, pTarget);
+                    }
                     break;
             }
             Summons.Summon(pSummoned);
@@ -480,7 +482,7 @@ public:
             m_uiDeterminationTimer = urand(5*IN_MILLISECONDS, 60*IN_MILLISECONDS);
             DoCast(me, SPELL_ACID_MANDIBLE);
             me->SetInCombatWithZone();
-            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM))
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 me->AddThreat(pTarget, 20000.0f);
             if (!me->isInCombat())
                 me->DisappearAndDie();
@@ -570,7 +572,7 @@ public:
                         !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE) &&
                         !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) &&
                         !me->HasAura(SPELL_SUBMERGE_EFFECT))
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             DoCast(pTarget, SPELL_SHADOW_STRIKE);
                     break;
             }
@@ -729,6 +731,7 @@ public:
         {
             m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+            m_uiTargetGUID = 0;
         }
 
         InstanceScript* m_pInstance;
@@ -739,8 +742,7 @@ public:
         void Reset()
         {
             // For an unknown reason this npc isn't recognize the Aura of Permafrost with this flags =/
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            m_uiTargetGUID = 0;
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);            
         }
 
         void EnterCombat(Unit *pWho)
@@ -754,7 +756,7 @@ public:
                 m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
                 me->TauntApply(pWho);
             }
-            else if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 140, true))
+            else if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
             {
                 m_uiTargetGUID = pTarget->GetGUID();
                 DoCast(pTarget, SPELL_MARK);
