@@ -395,10 +395,11 @@ struct boss_twin_baseAI : public ScriptedAI
             case 1: // Vortex
                 if (m_uiSpecialAbilityTimer <= uiDiff)
                 {
+                    me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
                     if (Creature* pSister = GetSister())
                         pSister->AI()->DoAction(ACTION_VORTEX);
                     DoScriptText(m_uiVortexEmote, me);
-                    DoScriptText(m_uiVortexSay, me);
+                    DoScriptText(m_uiVortexSay, me);                    
                     DoCastAOE(m_uiVortexSpellId);
                     m_uiStage = 0;
                     m_uiSpecialAbilityTimer = urand(45,50)*IN_MILLISECONDS;
