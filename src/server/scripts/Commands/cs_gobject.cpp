@@ -215,7 +215,7 @@ static bool HandleGameObjectAddGuildCommand(ChatHandler* handler, const char* ar
 
         char* spawntimeSecs = strtok(NULL, " ");
 
-        const GameObjectInfo *gInfo = ObjectMgr::GetGameObjectInfo(id);
+        const GameObjectTemplate *gInfo = sObjectMgr->GetGameObjectTemplate(id);
 
         if (!gInfo)
         {
@@ -243,7 +243,7 @@ static bool HandleGameObjectAddGuildCommand(ChatHandler* handler, const char* ar
         GameObject* pGameObj = new GameObject;
         uint32 db_lowGUID = sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT);
 
-        if (!pGameObj->Create(db_lowGUID, gInfo->id, map, chr->GetPhaseMaskForSpawn(), x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
+        if (!pGameObj->Create(db_lowGUID, gInfo->entry, map, chr->GetPhaseMaskForSpawn(), x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
         {
             delete pGameObj;
             return false;
@@ -397,7 +397,7 @@ static bool HandleGameObjectAddGuildCommand(ChatHandler* handler, const char* ar
             return false;
         }
 
-        GameObjectInfo const* goI = ObjectMgr::GetGameObjectInfo(id);
+        GameObjectTemplate const* goI = sObjectMgr->GetGameObjectTemplate(id);
 
         if (!goI)
         {
@@ -653,7 +653,7 @@ static bool HandleGameObjectAddGuildCommand(ChatHandler* handler, const char* ar
                 float z = fields[4].GetFloat();
                 uint16 mapid = fields[5].GetUInt16();
 
-                GameObjectInfo const * gInfo = ObjectMgr::GetGameObjectInfo(entry);
+                GameObjectTemplate const * gInfo = sObjectMgr->GetGameObjectTemplate(entry);
 
                 if (!gInfo)
                     continue;
@@ -685,7 +685,7 @@ static bool HandleGameObjectAddGuildCommand(ChatHandler* handler, const char* ar
                 entry = atoi((char*)args);
         }
 
-        GameObjectInfo const* goinfo = ObjectMgr::GetGameObjectInfo(entry);
+        GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
 
         if (!goinfo)
             return false;

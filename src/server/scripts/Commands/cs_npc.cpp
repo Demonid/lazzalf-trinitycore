@@ -261,9 +261,9 @@ public:
 
         sObjectMgr->AddVendorItem(vendor_entry,itemId,maxcount,incrtime,extendedcost);
 
-        ItemPrototype const* pProto = ObjectMgr::GetItemPrototype(itemId);
+        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 
-        handler->PSendSysMessage(LANG_ITEM_ADDED_TO_LIST,itemId,pProto->Name1,maxcount,incrtime,extendedcost);
+        handler->PSendSysMessage(LANG_ITEM_ADDED_TO_LIST,itemId,itemTemplate->Name1,maxcount,incrtime,extendedcost);
         return true;
     }
 
@@ -482,9 +482,9 @@ public:
             return false;
         }
 
-        ItemPrototype const* pProto = ObjectMgr::GetItemPrototype(itemId);
+        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 
-        handler->PSendSysMessage(LANG_ITEM_DELETED_FROM_LIST,itemId,pProto->Name1);
+        handler->PSendSysMessage(LANG_ITEM_DELETED_FROM_LIST,itemId,itemTemplate->Name1);
         return true;
     }
 
@@ -517,10 +517,10 @@ public:
         // faction is set in creature_template - not inside creature
 
         // update in memory
-        if (CreatureInfo const *cinfo = pCreature->GetCreatureInfo())
+        if (CreatureTemplate const *cinfo = pCreature->GetCreatureInfo())
         {
-            const_cast<CreatureInfo*>(cinfo)->faction_A = factionId;
-            const_cast<CreatureInfo*>(cinfo)->faction_H = factionId;
+            const_cast<CreatureTemplate*>(cinfo)->faction_A = factionId;
+            const_cast<CreatureTemplate*>(cinfo)->faction_H = factionId;
         }
 
         // and DB
@@ -591,7 +591,7 @@ public:
         uint32 displayid = target->GetDisplayId();
         uint32 nativeid = target->GetNativeDisplayId();
         uint32 Entry = target->GetEntry();
-        CreatureInfo const* cInfo = target->GetCreatureInfo();
+        CreatureTemplate const* cInfo = target->GetCreatureInfo();
 
         int64 curRespawnDelay = target->GetRespawnTimeEx()-time(NULL);
         if (curRespawnDelay < 0)
@@ -1173,7 +1173,7 @@ public:
             return false;
         }
 
-        CreatureInfo const* cInfo = creatureTarget->GetCreatureInfo();
+        CreatureTemplate const* cInfo = creatureTarget->GetCreatureInfo();
 
         if (!cInfo->isTameable (player->CanTameExoticPets()))
         {
@@ -1362,7 +1362,7 @@ public:
         uint32 ItemID = atoi(pItemID);
         uint32 SlotID = atoi(pSlotID);
 
-        ItemPrototype* tmpItem = ObjectMgr::GetItemPrototype(ItemID);
+        ItemPrototype* tmpItem = sObjectMgr->GetItemTemplate(ItemID);
 
         bool added = false;
         if (tmpItem)
