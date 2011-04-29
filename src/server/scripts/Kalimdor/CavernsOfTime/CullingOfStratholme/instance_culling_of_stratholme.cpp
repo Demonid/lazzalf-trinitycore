@@ -28,6 +28,9 @@
 4 - Infinite Corruptor (Heroic only)
 */
 
+#define ACHIEVEMENT_ZOMBIEFEST 1872
+#define ZOMBIEFEST_MIN_COUNT   100
+
 class instance_culling_of_stratholme : public InstanceMapScript
 {
 public:
@@ -55,6 +58,15 @@ public:
         uint64 uiExitGate;
         uint64 uiMalGanisChest;
 
+        uint32 LastTimer;
+        uint32 Minute;
+        uint32 tMinutes;
+        uint32 EventTimer;
+
+        // Zombiefest!
+        uint32 zombiesCount;
+        uint32 zombieFestTimer;
+
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;
 
@@ -64,6 +76,23 @@ public:
                 if (m_auiEncounter[i] == IN_PROGRESS) return true;
 
             return false;
+        }
+
+        void Inizialize()
+        {
+            DoUpdateWorldState(WORLD_STATE_TIMER, 0);
+            DoUpdateWorldState(WORLD_STATE_TIME_COUNTER, 0);
+            DoUpdateWorldState(WORLD_STATE_WAVES, 0);
+            DoUpdateWorldState(WORLD_STATE_CRATES, 0);
+            DoUpdateWorldState(WORLD_STATE_CRATES_2, 0);
+
+            EventTimer = 1500000;
+            LastTimer = 1500000;
+            Minute = 60000;
+            tMinutes = 0;
+
+            zombiesCount = 0;
+            zombieFestTimer = 0;
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -87,6 +116,8 @@ public:
                     break;
                 case NPC_INFINITE:
                     uiInfinite = creature->GetGUID();
+                    DoUpdateWorldState(WORLD_STATE_TIMER, 1);
+                    DoUpdateWorldState(WORLD_STATE_TIME_COUNTER, 25);
                     break;
             }
         }
@@ -151,6 +182,22 @@ public:
                     break;
                 case DATA_INFINITE_EVENT:
                     m_auiEncounter[4] = data;
+                    if (data == DONE)
+                    {
+                        DoUpdateWorldState(WORLD_STATE_TIMER, 0);
+                        DoUpdateWorldState(WORLD_STATE_TIME_COUNTER, 0);
+                    }
+                    break;
+                case DATA_ZOMBIEFEST:
+                    if (data == ACHI_START)
+                        zombieFestTimer = 60 * IN_MILLISECONDS;
+                    else if (data == ACHI_INCREASE)
+                        ++zombiesCount;
+                    else if (data == ACHI_RESET)
+                    {
+                        zombiesCount = 0;
+                        zombieFestTimer = 0;
+                    }
                     break;
             }
 
@@ -167,6 +214,11 @@ public:
                 case DATA_EPOCH_EVENT:                return m_auiEncounter[2];
                 case DATA_MAL_GANIS_EVENT:            return m_auiEncounter[3];
                 case DATA_INFINITE_EVENT:             return m_auiEncounter[4];
+                case DATA_ZOMBIEFEST:
+                    if (zombieFestTimer == 0)
+                        return ACHI_IS_NOT_STARTED;
+                    else
+                        return ACHI_IS_IN_PROGRESS;
             }
             return 0;
         }
@@ -188,6 +240,47 @@ public:
                 case DATA_MAL_GANIS_CHEST:            return uiMalGanisChest;
             }
             return 0;
+        }
+
+        void Update(uint32 diff)
+        {        
+           if (tMinutes == 25)
+           {
+               m_auiEncounter[4] = FAIL;
+               if (Creature *pInfinite = instance->GetCreature(uiInfinite))
+               {
+                   pInfinite->DisappearAndDie();
+                   pInfinite->SetLootRecipient(NULL);
+               }
+               DoUpdateWorldState(WORLD_STATE_TIMER, 0);             
+           }
+           if (Minute <= diff)
+           {
+              LastTimer = EventTimer;
+              tMinutes++;
+              DoUpdateWorldState(WORLD_STATE_TIME_COUNTER, 25 - tMinutes);
+              Minute = 60000;
+           }
+           else 
+               Minute -= diff;
+
+            // Achievement Zombiefest! control            
+            if (zombieFestTimer)
+            {
+                if (zombiesCount >= ZOMBIEFEST_MIN_COUNT)
+                {
+                    //DoCompleteAchievement(ACHIEVEMENT_ZOMBIEFEST);
+
+                    SetData(DATA_ZOMBIEFEST, ACHI_RESET);
+                    return;
+                }
+
+                if (zombieFestTimer <= diff)
+                    SetData(DATA_ZOMBIEFEST, ACHI_RESET);
+                else zombieFestTimer -= diff;
+            }
+
+           return;
         }
 
         std::string GetSaveData()
