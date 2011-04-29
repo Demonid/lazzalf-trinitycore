@@ -7250,8 +7250,12 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const *
                 summon->SetDisplayId(11686);
                 summon->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, weapon);
             }
-            else
-                summon->SetDisplayId(1126);
+            else if (summon->GetEntry() == 1964) // Force of Nature
+                if (AuraEffect * aurEff = m_caster->GetAuraEffectOfRankedSpell(16836, 2))
+                {
+                    int32 value = aurEff->GetAmount();
+                    summon->CastCustomSpell(summon, 50419, &value, &value, 0, true);
+                }
         }
 
         summon->AI()->EnterEvadeMode();        
