@@ -762,6 +762,10 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                 case 61251: // Power of Vesperon
                 case 58105: // Power of Shadron
                 case 63322: // Saronite Vapors
+                case 66118: // Leeching Swarm
+                case 67630: // Leeching Swarm
+                case 68646: // Leeching Swarm
+                case 68647: // Leeching Swarm
                     return false;
                 case 30877: // Tag Murloc
                 case 12042: // Arcane Power
