@@ -741,7 +741,7 @@ public:
 
         void EnterCombat(Unit *pWho)
         {
-            if (pWho->ToPlayer())
+            if (pWho && pWho->ToPlayer())
             {
                 m_uiTargetGUID = pWho->GetGUID();
                 DoCast(pWho, SPELL_MARK);
