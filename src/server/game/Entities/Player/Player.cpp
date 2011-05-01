@@ -9196,8 +9196,8 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 4812:  // Icecrown Citadel
             NumberOfFields = 13;
             break;
-        case 4100:  // The Culling of Stratholme
-            NumberOfFields = 13;
+        //case 4100:  // The Culling of Stratholme
+        //    NumberOfFields = 13;
          default:
             NumberOfFields = 12;
             break;
@@ -9730,6 +9730,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             }
             break;
         // The Culling of Stratholme
+            /*
         case 4100:
             if (instance && mapid == 595)
                 instance->FillInitialWorldStates(data);
@@ -9742,6 +9743,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(3932) << uint32(0);              // 13 WORLDSTATE_TIME_GUARDIAN_SHOW
             }
             break;
+            */
         default:
             data << uint32(0x914) << uint32(0x0);           // 7
             data << uint32(0x913) << uint32(0x0);           // 8
