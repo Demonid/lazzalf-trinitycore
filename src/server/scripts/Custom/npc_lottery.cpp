@@ -184,7 +184,7 @@ public:
                                 sprintf(msg, "Mentre il terzo se lo aggiudica %s che vince %i gold con il biglietto %i!", name, reward/10000, ticket);
                                 break;
                             case 4:
-                                sprintf(msg, "E' uscito un premio speciale che se lo aggiudica %s che vince %s con il biglietto %i!", name, item->GetTemplate()->Name1, ticket);
+                                sprintf(msg, "E' uscito un premio speciale che se lo aggiudica %s che vince %s con il biglietto %i!", name, item->GetTemplate()->Name1.c_str(), ticket);
                                 break;
                         }
                         sWorld->SendWorldText(LANG_EVENTMESSAGE, msg);
