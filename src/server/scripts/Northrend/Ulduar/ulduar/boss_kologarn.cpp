@@ -221,7 +221,7 @@ public:
         
             RubbleCount = 0;
             Gripped = false;
-            for (int32 n = 0; n < RAID_MODE(1, 3); ++n)
+            for (int32 n = 0; n < RAID_MODE(1, 2); ++n)
                 GripTargetGUID[n] = NULL;
             
             for (int32 n = 0; n < 2; ++n)
@@ -291,7 +291,7 @@ public:
                             me->MonsterTextEmote(EMOTE_STONE, 0, true);
                             DoScriptText(SAY_GRAB_PLAYER, me);
                             // Grip up to 3 players
-                            for (int32 n = 0; n < RAID_MODE(1, 3); ++n)
+                            for (int32 n = 0; n < RAID_MODE(1, 2); ++n)
                             {
                                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 40, true))
                                     GripTargetGUID[n] = pTarget->GetGUID();
@@ -522,7 +522,7 @@ public:
             {
                 if (SqueezeTimer <= diff)
                 {
-                    for (uint8 n = 0; n < RAID_MODE(1, 3); ++n)
+                    for (uint8 n = 0; n < RAID_MODE(1, 2); ++n)
                     {
                         if (me->GetVehicleKit()->GetPassenger(n) && me->GetVehicleKit()->GetPassenger(n)->isAlive())
                             me->Kill(me->GetVehicleKit()->GetPassenger(n), true);
@@ -538,7 +538,7 @@ public:
             switch (action)
             {
                 case ACTION_GRIP:
-                    for (uint8 n = 0; n < RAID_MODE(1, 3); ++n)
+                    for (uint8 n = 0; n < RAID_MODE(1, 2); ++n)
                     {
                         if (Unit* GripTarget = Unit::GetUnit(*me, GripTargetGUID[n]))
                         {
@@ -567,7 +567,7 @@ public:
             
                 if (ArmDamage >= dmg || damage >= me->GetHealth())
                 {
-                    for (uint8 n = 0; n < RAID_MODE(1, 3); ++n)
+                    for (uint8 n = 0; n < RAID_MODE(1, 2); ++n)
                     {
                         Unit* pGripTarget = me->GetVehicleKit()->GetPassenger(n);
                         if (pGripTarget && pGripTarget->isAlive())
