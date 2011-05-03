@@ -4477,6 +4477,8 @@ bool Player::resetTalents(bool no_cost)
         }
     }
 
+    RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
+
     for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
     {
         TalentEntry const *talentInfo = sTalentStore.LookupEntry(i);
