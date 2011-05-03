@@ -81,8 +81,8 @@ public:
         if (!cId)
             return false;
 
-        char* guildhouse = strtok(NULL, " ");
-        if (!guildhouse)
+        char* c_guildhouse = strtok(NULL, " ");
+        if (!c_guildhouse)
             return false;
 
         char* c_guildhouseadd = strtok(NULL, " ");
@@ -152,7 +152,7 @@ public:
         map->Add(pGameObj);
 
         WorldDatabase.PQuery("INSERT INTO guildhouses_add (guid, type, id, add_type, comment) VALUES (%u, 1, %u, %u, '%s')", 
-                              pGameObj->GetDBTableGUIDLow(), guildhouseid, guildhouseaddid, pGameObj->GetName().c_str());   
+                              pGameObj->GetDBTableGUIDLow(), guildhouseid, guildhouseaddid, pGameObj->GetName());   
 
         // TODO: is it really necessary to add both the real and DB table guid here ?
         sObjectMgr->AddGameobjectToGrid(db_lowGUID, sObjectMgr->GetGOData(db_lowGUID));
