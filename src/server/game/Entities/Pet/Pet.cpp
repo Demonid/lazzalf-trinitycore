@@ -1660,9 +1660,7 @@ bool Pet::resetTalents(bool no_cost)
             player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
             return false;
         }
-    }
-
-    RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
+    }   
 
     for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
     {
