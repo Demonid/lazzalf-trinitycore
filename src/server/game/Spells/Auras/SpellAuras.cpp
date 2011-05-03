@@ -1129,7 +1129,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                         }
                         target->CastSpell(target, spellId, true);
                     }
-                }
+                } 
                 break;
             case SPELLFAMILY_WARLOCK:
                 switch(GetId())
@@ -1597,6 +1597,16 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                             break;
                         target->CastSpell(target, GetEffect(0)->GetAmount(), true, NULL, GetEffect(0));
                         break;
+                }
+                break;
+            case SPELLFAMILY_HUNTER:
+                // Wyvern Sting
+                // If implemented through spell_linked_spell it can't proc from breaking by damage
+                if (removeMode != AURA_REMOVE_BY_STACK && removeMode != AURA_REMOVE_BY_DEATH &&
+                    GetSpellProto()->SpellFamilyFlags[1] & 0x1000 && caster)
+                {
+                    uint32 spell = sSpellMgr->GetSpellWithRank(24131, sSpellMgr->GetSpellRank(GetId()));
+                    caster->CastSpell(target, spell, true);
                 }
                 break;
         }
