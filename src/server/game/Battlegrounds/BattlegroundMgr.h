@@ -112,7 +112,6 @@ class BattlegroundMgr
 
         void InitAutomaticArenaPointDistribution();
         void InitAutomaticArenaModTimer();
-        void DistributeArenaPoints();
         void ToggleArenaTesting();
         void ToggleTesting();
 

@@ -22,6 +22,8 @@
 #include "WorldSession.h"
 #include "World.h"
 #include "ObjectMgr.h"
+#include "ArenaTeamMgr.h"
+#include "GuildMgr.h"
 #include "AuctionHouseMgr.h"
 #include "AccountMgr.h"
 #include "PlayerDump.h"
@@ -1696,7 +1698,7 @@ bool ChatHandler::HandleGuildCreateCommand(const char *args)
         return false;
     }
 
-    sObjectMgr->AddGuild (guild);
+    sGuildMgr->AddGuild(guild);
     return true;
 }
 
@@ -1719,7 +1721,7 @@ bool ChatHandler::HandleGuildInviteCommand(const char *args)
         return false;
 
     std::string glName = guildStr;
-    Guild* targetGuild = sObjectMgr->GetGuildByName (glName);
+    Guild* targetGuild = sGuildMgr->GetGuildByName (glName);
     if (!targetGuild)
         return false;
 
@@ -1739,7 +1741,7 @@ bool ChatHandler::HandleGuildUninviteCommand(const char *args)
     if (!glId)
         return false;
 
-    Guild* targetGuild = sObjectMgr->GetGuildById (glId);
+    Guild* targetGuild = sGuildMgr->GetGuildById (glId);
     if (!targetGuild)
         return false;
 
@@ -1765,7 +1767,7 @@ bool ChatHandler::HandleGuildRankCommand(const char *args)
     if (!glId)
         return false;
 
-    Guild* targetGuild = sObjectMgr->GetGuildById (glId);
+    Guild* targetGuild = sGuildMgr->GetGuildById (glId);
     if (!targetGuild)
         return false;
 
@@ -1784,7 +1786,7 @@ bool ChatHandler::HandleGuildDeleteCommand(const char *args)
 
     std::string gld = guildStr;
 
-    Guild* targetGuild = sObjectMgr->GetGuildByName (gld);
+    Guild* targetGuild = sGuildMgr->GetGuildByName (gld);
     if (!targetGuild)
         return false;
 
@@ -4401,7 +4403,7 @@ bool ChatHandler::HandleSendMessageCommand(const char *args)
 
 bool ChatHandler::HandleFlushArenaPointsCommand(const char * /*args*/)
 {
-    sBattlegroundMgr->DistributeArenaPoints();
+    sArenaTeamMgr->DistributeArenaPoints();
     return true;
 }
 
