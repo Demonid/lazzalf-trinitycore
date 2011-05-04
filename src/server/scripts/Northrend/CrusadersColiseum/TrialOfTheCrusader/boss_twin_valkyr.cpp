@@ -68,19 +68,68 @@ enum Summons
 
 enum BossSpells
 {
-    SPELL_LIGHT_TWIN_SPIKE      = 66075,
-    SPELL_LIGHT_SURGE           = 65766,
-    SPELL_LIGHT_SHIELD          = 65858,
-    SPELL_LIGHT_TWIN_PACT       = 65876,
-    SPELL_LIGHT_VORTEX          = 66046,
-    SPELL_LIGHT_TOUCH           = 67297,
+    // LIGHT
+    LIGHT_TWIN_SPIKE_10N        = 66075,
+    LIGHT_TWIN_SPIKE_10H        = 67313,
+    LIGHT_TWIN_SPIKE_25N        = 67312,
+    LIGHT_TWIN_SPIKE_25H        = 67314,
 
-    SPELL_DARK_TWIN_SPIKE       = 66069,
-    SPELL_DARK_SURGE            = 65768,
-    SPELL_DARK_SHIELD           = 65874,
-    SPELL_DARK_TWIN_PACT        = 65875,
-    SPELL_DARK_VORTEX           = 66058,
-    SPELL_DARK_TOUCH            = 67282,
+    SURGE_OF_LIGHT_10N          = 65766,
+    SURGE_OF_LIGHT_10H          = 67271,
+    SURGE_OF_LIGHT_25N          = 67270,
+    SURGE_OF_LIGHT_25H          = 67272,
+
+    LIGHT_SHIELD_10N            = 65858,
+    LIGHT_SHIELD_10H            = 67260,
+    LIGHT_SHIELD_25N            = 67259,
+    LIGHT_SHIELD_25H            = 67261,
+
+    LIGHT_TWINS_PACT_10N        = 65876,
+    LIGHT_TWINS_PACT_10H        = 67307,
+    LIGHT_TWINS_PACT_25N        = 67306,
+    LIGHT_TWINS_PACT_25H        = 67308,
+
+    LIGHT_VORTEX_10N            = 66046,
+    LIGHT_VORTEX_10H            = 67207,
+    LIGHT_VORTEX_25N            = 67206,
+    LIGHT_VORTEX_25H            = 67208,
+
+    TOUCH_OF_LIGHT_10           = 67297, //only heroic
+    TOUCH_OF_LIGHT_25           = 67298,
+
+    DARK_TWIN_SPIKE_10N         = 66069,
+    DARK_TWIN_SPIKE_10H         = 67310,
+    DARK_TWIN_SPIKE_25N         = 67309,
+    DARK_TWIN_SPIKE_25H         = 67311,
+
+    SURGE_OF_DARKNESS_10N       = 65768,
+    SURGE_OF_DARKNESS_10H       = 67263,
+    SURGE_OF_DARKNESS_25N       = 67262,
+    SURGE_OF_DARKNESS_25H       = 67264,
+
+    // DARK
+    DARK_SHIELD_10N             = 65874,
+    DARK_SHIELD_10H             = 67257,
+    DARK_SHIELD_25N             = 67256,
+    DARK_SHIELD_25H             = 67258,
+
+    DARK_TWINS_PACT_10N         = 65875,
+    DARK_TWINS_PACT_10H         = 67304,
+    DARK_TWINS_PACT_25N         = 67303,
+    DARK_TWINS_PACT_25H         = 67305,
+
+    DARK_VORTEX_10N             = 66058,
+    DARK_VORTEX_10H             = 67183,
+    DARK_VORTEX_25N             = 67182,
+    DARK_VORTEX_25H             = 67184,
+
+    TOUCH_OF_DARKNESS_10        = 67282, //only heroic
+    TOUCH_OF_DARKNESS_25        = 67283,
+
+    POWER_OF_TWINS_10N          = 65879,
+    POWER_OF_TWINS_10H          = 67245,
+    POWER_OF_TWINS_25N          = 67244,
+    POWER_OF_TWINS_25H          = 67246,
 
     SPELL_TWIN_POWER            = 65916,
     SPELL_BERSERK               = 64238,
@@ -160,7 +209,8 @@ struct boss_twin_baseAI : public ScriptedAI
     Position HomeLocation;
     Position EssenceLocation[2];
 
-    void Reset() {
+    void Reset() 
+    {
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         me->SetReactState(REACT_PASSIVE);
         /* Uncomment this once that they are flying above the ground
@@ -377,7 +427,9 @@ struct boss_twin_baseAI : public ScriptedAI
             return;
 
         // Shield of Light o Shield of Darkness
-        if (IsHeroic() && m_Immune && !me->HasAura(RAID_MODE(65858,67259,67260,67261)) && !me->HasAura(RAID_MODE(65874,67256,67257,67258)))
+        if (m_Immune 
+            && !me->HasAura(RAID_MODE(DARK_SHIELD_10N, DARK_SHIELD_25N, DARK_SHIELD_10H, DARK_SHIELD_25H)) 
+            && !me->HasAura(RAID_MODE(LIGHT_SHIELD_10N, LIGHT_SHIELD_25N, LIGHT_SHIELD_10H, LIGHT_SHIELD_25H)))
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, false);
             m_Immune = false;
@@ -387,6 +439,9 @@ struct boss_twin_baseAI : public ScriptedAI
             me->SetHealth(m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED));
         else
             me->SetHealth(1);
+
+        if (me->HasUnitState(UNIT_STAT_CASTING))
+            return;
 
         switch (m_uiStage)
         {
@@ -410,16 +465,12 @@ struct boss_twin_baseAI : public ScriptedAI
             case 2: // Shield+Pact
                 if (m_uiSpecialAbilityTimer <= uiDiff)
                 {
+                    me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
                     if (Creature* pSister = GetSister())
                         pSister->AI()->DoAction(ACTION_PACT);
                     DoScriptText(EMOTE_SHIELD, me);
                     DoScriptText(SAY_SHIELD, me);
                     DoCast(me, m_uiShieldSpellId);
-                    if (IsHeroic())
-                    {
-                        me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
-                        m_Immune = true;
-                    }
                     DoCast(me, m_uiTwinPactSpellId);
                     m_uiStage = 0;
                     m_uiSpecialAbilityTimer = urand(45,50)*IN_MILLISECONDS;
@@ -475,8 +526,7 @@ struct boss_twin_baseAI : public ScriptedAI
         else
             m_uiBerserkTimer -= uiDiff;
 
-        if (!me->HasUnitState(UNIT_STAT_CASTING))
-            DoMeleeAttackIfReady();
+        DoMeleeAttackIfReady();
     }
 };
 
@@ -504,7 +554,8 @@ public:
 
         uint32 saltAndPepperTimer;
 
-        void Reset() {
+        void Reset() 
+        {
             boss_twin_baseAI::Reset();
             SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_OFFHAND_1, EQUIP_RANGED_1);
             m_uiStage = 0;
@@ -516,12 +567,12 @@ public:
             m_uiMyEssenceSpellId = RAID_MODE(SPELL_LIGHT_ESSENCE,SPELL_LIGHT_ESSENCE_25,SPELL_LIGHT_ESSENCE_10H,SPELL_LIGHT_ESSENCE_25H);
             m_uiOtherEssenceSpellId = RAID_MODE(SPELL_DARK_ESSENCE,SPELL_DARK_ESSENCE_25,SPELL_DARK_ESSENCE_10H,SPELL_DARK_ESSENCE_25H);
             m_uiEmpoweredWeaknessSpellId = SPELL_EMPOWERED_DARK;
-            m_uiSurgeSpellId = SPELL_LIGHT_SURGE;
-            m_uiVortexSpellId = SPELL_LIGHT_VORTEX;
-            m_uiShieldSpellId = SPELL_LIGHT_SHIELD;
-            m_uiTwinPactSpellId = SPELL_LIGHT_TWIN_PACT;
-            m_uiTouchSpellId = SPELL_LIGHT_TOUCH;
-            m_uiSpikeSpellId = SPELL_LIGHT_TWIN_SPIKE;
+            m_uiSurgeSpellId = RAID_MODE(SURGE_OF_LIGHT_10N, SURGE_OF_LIGHT_25N, SURGE_OF_LIGHT_10H, SURGE_OF_LIGHT_25H);
+            m_uiVortexSpellId = RAID_MODE(LIGHT_VORTEX_10N, LIGHT_VORTEX_25N, LIGHT_VORTEX_10H, LIGHT_VORTEX_25H);
+            m_uiShieldSpellId = RAID_MODE(LIGHT_SHIELD_10N, LIGHT_SHIELD_25N, LIGHT_SHIELD_10H, LIGHT_SHIELD_25H);
+            m_uiTwinPactSpellId = RAID_MODE(LIGHT_TWINS_PACT_10N, LIGHT_TWINS_PACT_25N, LIGHT_TWINS_PACT_10H, LIGHT_TWINS_PACT_25H);
+            m_uiTouchSpellId = RAID_MODE(TOUCH_OF_LIGHT_10, TOUCH_OF_LIGHT_25, TOUCH_OF_LIGHT_10, TOUCH_OF_LIGHT_25);
+            m_uiSpikeSpellId = RAID_MODE(LIGHT_TWIN_SPIKE_10N, LIGHT_TWIN_SPIKE_25N, LIGHT_TWIN_SPIKE_10H, LIGHT_TWIN_SPIKE_25H);
 
             HomeLocation = ToCCommonLoc[8];
             EssenceLocation[0] = TwinValkyrsLoc[2];
@@ -589,7 +640,8 @@ public:
     {
         boss_eydisAI(Creature* pCreature) : boss_twin_baseAI(pCreature) {}
 
-        void Reset() {
+        void Reset() 
+        {
             boss_twin_baseAI::Reset();
             SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_OFFHAND_2, EQUIP_RANGED_2);
             m_uiStage = 1;
@@ -598,15 +650,15 @@ public:
             m_uiSisterNpcId = NPC_LIGHTBANE;
             m_uiColorballNpcId = NPC_UNLEASHED_DARK;
             m_uiEssenceNpcId = NPC_DARK_ESSENCE;
-            m_uiMyEssenceSpellId = RAID_MODE(SPELL_DARK_ESSENCE,SPELL_DARK_ESSENCE_25,SPELL_DARK_ESSENCE_10H,SPELL_DARK_ESSENCE_25H);
-            m_uiOtherEssenceSpellId = RAID_MODE(SPELL_LIGHT_ESSENCE,SPELL_LIGHT_ESSENCE_25,SPELL_LIGHT_ESSENCE_10H,SPELL_LIGHT_ESSENCE_25H);
+            m_uiMyEssenceSpellId = RAID_MODE(SPELL_DARK_ESSENCE, SPELL_DARK_ESSENCE_25, SPELL_DARK_ESSENCE_10H, SPELL_DARK_ESSENCE_25H);
+            m_uiOtherEssenceSpellId = RAID_MODE(SPELL_LIGHT_ESSENCE, SPELL_LIGHT_ESSENCE_25, SPELL_LIGHT_ESSENCE_10H, SPELL_LIGHT_ESSENCE_25H);
             m_uiEmpoweredWeaknessSpellId = SPELL_EMPOWERED_LIGHT;
-            m_uiSurgeSpellId = SPELL_DARK_SURGE;
-            m_uiVortexSpellId = SPELL_DARK_VORTEX;
-            m_uiShieldSpellId = SPELL_DARK_SHIELD;
-            m_uiTwinPactSpellId = SPELL_DARK_TWIN_PACT;
-            m_uiTouchSpellId = SPELL_DARK_TOUCH;
-            m_uiSpikeSpellId = SPELL_DARK_TWIN_SPIKE;
+            m_uiSurgeSpellId = RAID_MODE(SURGE_OF_DARKNESS_10N, SURGE_OF_DARKNESS_25N, SURGE_OF_DARKNESS_10H, SURGE_OF_DARKNESS_25H);
+            m_uiVortexSpellId = RAID_MODE(DARK_VORTEX_10N, DARK_VORTEX_25N, DARK_VORTEX_10H, DARK_VORTEX_25H);
+            m_uiShieldSpellId = RAID_MODE(DARK_SHIELD_10N, DARK_SHIELD_25N, DARK_SHIELD_10H, DARK_SHIELD_25H);
+            m_uiTwinPactSpellId = RAID_MODE(DARK_TWINS_PACT_10N, DARK_TWINS_PACT_25N, DARK_TWINS_PACT_10H, DARK_TWINS_PACT_25H);
+            m_uiTouchSpellId = RAID_MODE(TOUCH_OF_DARKNESS_10, TOUCH_OF_DARKNESS_25, TOUCH_OF_DARKNESS_10, TOUCH_OF_DARKNESS_25);
+            m_uiSpikeSpellId = RAID_MODE(DARK_TWIN_SPIKE_10N, DARK_TWIN_SPIKE_25N, DARK_TWIN_SPIKE_10H, DARK_TWIN_SPIKE_25H);
 
             HomeLocation = ToCCommonLoc[9];
             EssenceLocation[0] = TwinValkyrsLoc[0];
