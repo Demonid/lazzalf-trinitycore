@@ -21,6 +21,7 @@
 #include "BattlegroundMgr.h"
 #include "Chat.h"
 #include "ObjectMgr.h"
+#include "ArenaTeamMgr.h"
 #include "Log.h"
 #include "Group.h"
 
@@ -310,7 +311,7 @@ GroupQueueInfo * BattlegroundQueue::AddGroup(Player *leader, Group* grp, Battleg
     //announce world (this don't need mutex)
     if (isRated && sWorld->getBoolConfig(CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE))
     {
-        ArenaTeam *Team = sObjectMgr->GetArenaTeamById(arenateamid);
+        ArenaTeam *Team = sArenaTeamMgr->GetArenaTeamById(arenateamid);
         if (Team)
 	    sWorld->SendWorldText(CUSTOM_ARENA_JOIN, ginfo->ArenaType, ginfo->ArenaType);
             //sWorld->SendWorldText(LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN, Team->GetName().c_str(), ginfo->ArenaType, ginfo->ArenaType, ginfo->ArenaTeamRating);
@@ -510,7 +511,7 @@ void BattlegroundQueue::RemovePlayer(const uint64& guid, bool decreaseInvitedCou
     // announce to world if arena team left queue for rated match, show only once
     /*if (group->ArenaType && group->IsRated && group->Players.empty() && sWorld->getBoolConfig(CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE))
     {
-        ArenaTeam *Team = sObjectMgr->GetArenaTeamById(group->ArenaTeamId);
+        ArenaTeam *Team = sArenaTeamMgr->GetArenaTeamById(group->ArenaTeamId);
         if (Team)
             sWorld->SendWorldText(CUSTOM_ARENA_EXIT, group->ArenaType, group->ArenaType);
             //sWorld->SendWorldText(LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT, Team->GetName().c_str(), group->ArenaType, group->ArenaType, group->ArenaTeamRating);
@@ -519,7 +520,7 @@ void BattlegroundQueue::RemovePlayer(const uint64& guid, bool decreaseInvitedCou
     //if player leaves queue and he is invited to rated arena match, then he have to lose
     if (group->IsInvitedToBGInstanceGUID && group->IsRated && decreaseInvitedCount)
     {
-        ArenaTeam * at = sObjectMgr->GetArenaTeamById(group->ArenaTeamId);
+        ArenaTeam * at = sArenaTeamMgr->GetArenaTeamById(group->ArenaTeamId);
         if (at)
         {
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "UPDATING memberLost's personal arena rating for %u by opponents rating: %u", GUID_LOPART(guid), group->OpponentsTeamRating);
