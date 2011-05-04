@@ -30,6 +30,7 @@
 
 #include "GuildHouse.h"
 #include "ObjectMgr.h"
+#include "GuildMgr.h"
 #include "Guild.h"
 #include "ObjectAccessor.h"
 #include "MapManager.h"
@@ -48,7 +49,7 @@ bool GuildHouseObject::CheckGuildID(uint32 guild_id)
     if (!guild_id)
         return false;
 
-    Guild* guild = sObjectMgr->GetGuildById(guild_id);  
+    Guild* guild = sGuildMgr->GetGuildById(guild_id);  
     
     if (!guild_id)
     {
@@ -430,7 +431,7 @@ void GuildHouseObject::ControlGuildHouse()
 {
     for (GuildHouseMap::iterator itr = GH_map.begin(); itr != GH_map.end(); itr++)
     {
-        if (Guild* pGuild = sObjectMgr->GetGuildById((*itr).first))
+        if (Guild* pGuild = sGuildMgr->GetGuildById((*itr).first))
             if (pGuild->GetMemberSize() < (*itr).second.min_member)
             {                    
                 GHobj.ChangeGuildHouse((*itr).first, 0);

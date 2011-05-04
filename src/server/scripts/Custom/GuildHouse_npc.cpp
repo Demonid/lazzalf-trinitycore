@@ -31,6 +31,7 @@
 
 #include "ScriptPCH.h"
 #include "ObjectMgr.h"
+#include "GuildMgr.h"
 #include "ScriptMgr.h"
 #include "World.h"
 #include "Guild.h"
@@ -192,7 +193,7 @@ class npc_guild_master : public CreatureScript
 
         uint32 guildsize = 1;
 
-        Guild *guild =sObjectMgr->GetGuildById(player->GetGuildId());
+        Guild *guild = sGuildMgr->GetGuildById(player->GetGuildId());
         if (guild)
             guildsize = guild->GetMemberSize();
 
@@ -268,7 +269,7 @@ class npc_guild_master : public CreatureScript
         uint32 guildsize = 1;
         uint32 guild_add = GHobj.GetGuildHouse_Add(player->GetGuildId());
 
-        Guild *guild =sObjectMgr->GetGuildById(player->GetGuildId());
+        Guild *guild = sGuildMgr->GetGuildById(player->GetGuildId());
         if (guild)
             guildsize = guild->GetMemberSize();
 
