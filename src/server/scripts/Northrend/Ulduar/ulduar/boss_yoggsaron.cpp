@@ -930,13 +930,13 @@ public:
                 // Award Hard Mode Achievements
                 switch (keepers)
                 {                
-                    case 4:
+                    case 0:
                         instance->DoCompleteAchievement(ACHI_ALONE_IN_THE_DARKNESS);
-                    case 3:
+                    case 1:
                         instance->DoCompleteAchievement(ACHI_ONE_LIGHT_IN_THE_DARKNESS);
                     case 2:
                         instance->DoCompleteAchievement(ACHI_TWO_LIGHTS_IN_THE_DARKNESS);
-                    case 1:
+                    case 3:
                         instance->DoCompleteAchievement(ACHI_THREE_LIGHTS_IN_THE_DARKNESS);
                         break;                
                     default:
