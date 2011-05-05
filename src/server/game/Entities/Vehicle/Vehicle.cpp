@@ -45,19 +45,35 @@ Vehicle::Vehicle(Unit *unit, VehicleEntry const *vehInfo, uint32 creatureEntry)
     // Set inmunities since db ones are rewritten with player's ones
     switch (GetVehicleInfo()->m_ID)
     {
+        case 244: // Wintergrasp Turret
+        // case 116: // Wintergrasp Siege Turret        
         case 160:
             me->SetControlled(true, UNIT_STAT_ROOT);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
+        case 79:  // Wintergrasp Catapult
+        case 106: // Wintergrasp Demolisher 
         case 158:
+        //case 117: // Wintergrasp Siege Engine
+        //case 324: // Wintergrasp Siege Engine
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL, true);
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL_MECHANICAL, true);
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_FEAR, true);
-            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_PERIODIC_HEAL, true);
+            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_PERIODIC_HEAL, true);            
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_STUN, true);
-            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_ROOT, true);
+            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_SCHOOL_ABSORB, true); 
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_DECREASE_SPEED, true);
+            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_ROOT, true);
+            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_PACIFY, true);
+            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_SCHOOL_IMMUNITY, true);
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_BLEED, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
+            me->ApplySpellImmune(0, IMMUNITY_ID, 13810, true); // Frost Trap
+            me->ApplySpellImmune(0, IMMUNITY_ID, 55741, true); // Desecration Rank 1
+            me->ApplySpellImmune(0, IMMUNITY_ID, 68766, true); // Desecration Rank 2
             break;
         default:
             break;
@@ -113,6 +129,8 @@ void Vehicle::Install()
                 break;
         }
     }
+    
+    //Reset(); // Rimosso da Trinity
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
         sScriptMgr->OnInstall(this);
@@ -167,13 +185,29 @@ void Vehicle::RemoveAllPassengers()
     // Passengers always cast an aura with SPELL_AURA_CONTROL_VEHICLE on the vehicle
     // We just remove the aura and the unapply handler will make the target leave the vehicle.
     // We don't need to iterate over m_Seats
-    me->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE);
+    //me->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE);
 
     // Following the above logic, this assertion should NEVER fail.
     // Even in 'hacky' cases, there should at least be VEHICLE_SPELL_RIDE_HARDCODED on us.
-    // SeatMap::const_iterator itr;
-    // for (itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+    //SeatMap::const_iterator itr;
+    //for (itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
     //    ASSERT(!itr->second.passenger);
+    for (SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+        if (Unit *passenger = ObjectAccessor::GetUnit(*GetBase(), itr->second.passenger))
+        {
+            if (passenger->IsVehicle())
+                passenger->GetVehicleKit()->RemoveAllPassengers();
+
+            if (passenger->GetVehicle() != this)
+                sLog->outCrash("Vehicle %u has invalid passenger %u. Seat: %i", me->GetEntry(), passenger->GetEntry(), itr->first);
+
+            passenger->ExitVehicle();
+            if (itr->second.passenger)
+            {
+                sLog->outCrash("Vehicle %u cannot remove passenger %u. "UI64FMTD" is still on vehicle.", me->GetEntry(), passenger->GetEntry(), itr->second.passenger);
+                itr->second.passenger = 0;
+            }
+        }
 }
 
 bool Vehicle::HasEmptySeat(int8 seatId) const
@@ -273,6 +307,9 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
     if (unit->GetVehicle() != this)
         return false;
 
+    if (unit->GetTypeId() == TYPEID_PLAYER && unit->GetMap()->IsBattleArena())
+        return false;
+
     SeatMap::iterator seat;
     if (seatId < 0) // no specific seat requirement
     {
@@ -316,8 +353,22 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         }
     }
 
+    //if (seat->second.seatInfo->m_flags && !(seat->second.seatInfo->m_flags & VEHICLE_SEAT_FLAG_UNK11))
+    //    unit->AddUnitState(UNIT_STAT_ONVEHICLE);
+
     if (seat->second.seatInfo->m_flags && !(seat->second.seatInfo->m_flags & VEHICLE_SEAT_FLAG_UNK11))
-        unit->AddUnitState(UNIT_STAT_ONVEHICLE);
+    {
+        switch (GetVehicleInfo()->m_ID)
+        {
+            //case 342: // Ignis
+            case 353: // XT-002
+            //case 380: // Kologarn's Right Arm
+                break;
+            default: 
+                unit->AddUnitState(UNIT_STAT_ONVEHICLE);
+                break; 
+        }
+    }
 
     unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     VehicleSeatEntry const *veSeat = seat->second.seatInfo;
@@ -336,6 +387,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
             ASSERT(false);
 
         // hack: should be done by aura system
+        /*
         if (VehicleScalingInfo const *scalingInfo = sObjectMgr->GetVehicleScalingInfo(m_vehicleInfo->m_ID))
         {
             Player *plr = unit->ToPlayer();
@@ -348,7 +400,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
             m_bonusHP = uint32(me->GetMaxHealth() * (averageItemLevel * scalingInfo->scalingFactor));
             me->SetMaxHealth(me->GetMaxHealth() + m_bonusHP);
             me->SetHealth(uint32((me->GetHealth() + m_bonusHP) * currentHealthPct));
-        }
+        }*/
     }
 
     if (me->IsInWorld())
@@ -365,6 +417,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
 
             // update all passenger's positions
             RelocatePassengers(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+            //RelocatePassengers(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
         }
     }
 
