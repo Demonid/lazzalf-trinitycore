@@ -108,6 +108,7 @@ enum eEvents
     EVENT_HEAT_WAVE,
     EVENT_HAND_PULSE,
     EVENT_FROST_BOMB,
+    EVENT_FLAME_SUPPRESSANT_2,
     
     // Aerial Command Unit
     EVENT_PLASMA_BALL,
@@ -1050,6 +1051,7 @@ public:
             {
                 DoCast(me, SPELL_EMERGENCY_MODE);
                 events.ScheduleEvent(EVENT_FROST_BOMB, 15000);
+                events.ScheduleEvent(EVENT_FLAME_SUPPRESSANT_2, 10000);
             }
                 
             events.ScheduleEvent(EVENT_RAPID_BURST, 500, 0, PHASE_VX001_SOLO);
@@ -1180,6 +1182,23 @@ public:
                         case EVENT_FROST_BOMB:
                             me->SummonCreature(NPC_FROST_BOMB, SummonPos[rand()%9], TEMPSUMMON_TIMED_DESPAWN, 11000);
                             events.RescheduleEvent(EVENT_FROST_BOMB, 45000);
+                            break;
+                        case EVENT_FLAME_SUPPRESSANT_2:
+                            DoCastAOE(SPELL_FLAME_SUPPRESSANT_2);
+                            for (int8 n = 0; n < 2; n++)
+                            {
+                                uint32 npc;
+                                if (n == 0)
+                                    npc = NPC_FLAME;
+                                else 
+                                    npc = NPC_FLAME_SPREAD;
+                                std::list<Creature*> m_pCreatures;
+                                GetCreatureListWithEntryInGrid(m_pCreatures, me, npc, 10);
+                                if (!m_pCreatures.empty())
+                                    for(std::list<Creature*>::iterator iter = m_pCreatures.begin(); iter != m_pCreatures.end(); ++iter)
+                                        (*iter)->ForcedDespawn(1000);
+                            }
+                            events.RescheduleEvent(EVENT_FLAME_SUPPRESSANT_2, 10000);
                             break;
                     }
                 }

@@ -389,6 +389,14 @@ const Position SanityWellPos[10] =
     {1897.75f,-48.24f, 332.35f,0}
 };
 
+// Achievements
+#define ACHI_DRIVE_ME_CRAZY                 RAID_MODE(3008, 3010)
+
+// Hard Modes
+#define ACHI_THREE_LIGHTS_IN_THE_DARKNESS   RAID_MODE(3157, 3161)
+#define ACHI_TWO_LIGHTS_IN_THE_DARKNESS     RAID_MODE(3141, 3162)
+#define ACHI_ONE_LIGHT_IN_THE_DARKNESS      RAID_MODE(3158, 3163)
+#define ACHI_ALONE_IN_THE_DARKNESS          RAID_MODE(3159, 3164)
 
 
 /*------------------------------------------------------*
@@ -491,7 +499,7 @@ public:
         
         void MoveInLineOfSight(Unit *who)
         {
-            if (!me->isInCombat() && me->IsWithinDist(who, 70.0f) && who->ToPlayer() && !who->ToPlayer()->isGameMaster())
+            if (!me->isInCombat() && me->IsWithinDist(who, 50.0f) && who->ToPlayer() && !who->ToPlayer()->isGameMaster())
             {
                 me->setFaction(16);
                 DoZoneInCombat();
@@ -691,7 +699,7 @@ public:
             {
                 damage = 0;
                 me->SetFullHealth();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 phase = PHASE_2;
                 uiStep = 0;
                 uiPhase_timer = -1;
@@ -738,16 +746,23 @@ public:
         uint8 illusionOrder[3];
         uint8 illusionCount;
         uint8 spawnedTentacles;
+        uint8 keepers;
+
+        // achievement
+        bool someoneGotInsane;
         
         void Reset()
         {
             events.Reset();
             summons.DespawnAll();
+            keepers = 0;
         }
         
         void EnterCombat(Unit *who)
         {
             _EnterCombat();
+
+            someoneGotInsane = false;
             
             // 100% Sanity
             if (instance)
@@ -768,6 +783,35 @@ public:
                 events.SetPhase(PHASE_2);
                 events.ScheduleEvent(EVENT_TENTACLES, 1000, 0, PHASE_2);
                 events.ScheduleEvent(EVENT_ILLUSION, 60000, 0, PHASE_2);
+
+                for (uint8 data = DATA_YS_FREYA; data <= DATA_YS_HODIR; ++data)
+                {
+                    if (Creature *pCreature = Creature::GetCreature((*me), instance->GetData64(data)))
+                    {
+                        if (pCreature->HasAura(SPELL_KEEPER_ACTIVE))
+                        {
+                            pCreature->SetInCombatWith(me);
+                            pCreature->AddThreat(me, 150.0f);
+                            ++keepers;
+                        }
+                    }
+                }
+
+                me->ResetLootMode();
+                switch (keepers)
+                {                
+                    case 0:
+                        me->AddLootMode(LOOT_MODE_HARD_MODE_4);      // Add 4 Keepers loot
+                    case 1:
+                        me->AddLootMode(LOOT_MODE_HARD_MODE_3);      // Add 3 Keepers loot
+                    case 2:
+                        me->AddLootMode(LOOT_MODE_HARD_MODE_2);      // Add 2 Keepers loot
+                    case 3:
+                        me->AddLootMode(LOOT_MODE_HARD_MODE_1);      // Add 1 Keeper loot
+                        break;                
+                    default:
+                        break;
+                }
             }
         }
 
@@ -798,6 +842,8 @@ public:
                             DoScriptText(RAND(WHISP_INSANITY_1, WHISP_INSANITY_1), pVoice, pPlayer);
 
                         DoCast(pPlayer, SPELL_INSANE, true);
+
+                        someoneGotInsane = true;
                     }
                 }
                 insaneTimer = 4000;
@@ -876,9 +922,30 @@ public:
 
             me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
             me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
+
+            
             
             if (instance)
             {
+                // Award Hard Mode Achievements
+                switch (keepers)
+                {                
+                    case 4:
+                        instance->DoCompleteAchievement(ACHI_ALONE_IN_THE_DARKNESS);
+                    case 3:
+                        instance->DoCompleteAchievement(ACHI_ONE_LIGHT_IN_THE_DARKNESS);
+                    case 2:
+                        instance->DoCompleteAchievement(ACHI_TWO_LIGHTS_IN_THE_DARKNESS);
+                    case 1:
+                        instance->DoCompleteAchievement(ACHI_THREE_LIGHTS_IN_THE_DARKNESS);
+                        break;                
+                    default:
+                        break;
+                }
+
+                if (!someoneGotInsane)
+                    instance->DoCompleteAchievement(ACHI_DRIVE_ME_CRAZY);
+
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SANITY);
             }
         }
