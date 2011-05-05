@@ -183,13 +183,14 @@ struct boss_twin_baseAI : public ScriptedAI
 
     uint8  m_uiStage;
     bool   m_bIsBerserk;
-    bool   m_Immune;
+    // bool   m_Immune;
     uint8  m_uiWaveCount;
     uint32 m_uiColorballsTimer;
     uint32 m_uiSpecialAbilityTimer;
     uint32 m_uiSpikeTimer;
     uint32 m_uiTouchTimer;
     uint32 m_uiBerserkTimer;
+    uint32 m_uiImmuneTimer;
 
     int32 m_uiVortexSay;
     int32 m_uiVortexEmote;
@@ -217,7 +218,8 @@ struct boss_twin_baseAI : public ScriptedAI
         me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         me->SetFlying(true); */
         m_bIsBerserk = false;
-        m_Immune = false;
+        // m_Immune = false;
+        m_uiImmuneTimer = 0;
 
         m_uiWaveCount = 1;
         m_uiColorballsTimer = 15*IN_MILLISECONDS;
@@ -426,13 +428,16 @@ struct boss_twin_baseAI : public ScriptedAI
         if (!m_pInstance || !UpdateVictim())
             return;
 
-        // Shield of Light o Shield of Darkness
-        if (m_Immune 
-            && !me->HasAura(RAID_MODE(DARK_SHIELD_10N, DARK_SHIELD_25N, DARK_SHIELD_10H, DARK_SHIELD_25H)) 
-            && !me->HasAura(RAID_MODE(LIGHT_SHIELD_10N, LIGHT_SHIELD_25N, LIGHT_SHIELD_10H, LIGHT_SHIELD_25H)))
+        if (m_uiImmuneTimer)
         {
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, false);
-            m_Immune = false;
+            if (m_uiImmuneTimer <= uiDiff)
+            {
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, false);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, false);
+                m_uiImmuneTimer = 0;
+            }
+            else
+                m_uiImmuneTimer -= uiDiff;
         }
 
         if (m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED) != 0)
@@ -450,7 +455,9 @@ struct boss_twin_baseAI : public ScriptedAI
             case 1: // Vortex
                 if (m_uiSpecialAbilityTimer <= uiDiff)
                 {
+                    m_uiImmuneTimer = 5000;
                     me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
+                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, true);
                     if (Creature* pSister = GetSister())
                         pSister->AI()->DoAction(ACTION_VORTEX);
                     DoScriptText(m_uiVortexEmote, me);
@@ -465,8 +472,7 @@ struct boss_twin_baseAI : public ScriptedAI
             case 2: // Shield+Pact
                 if (m_uiSpecialAbilityTimer <= uiDiff)
                 {
-                    me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
-                    m_Immune = true;
+                    // m_Immune = true;
                     if (Creature* pSister = GetSister())
                         pSister->AI()->DoAction(ACTION_PACT);
                     DoScriptText(EMOTE_SHIELD, me);
