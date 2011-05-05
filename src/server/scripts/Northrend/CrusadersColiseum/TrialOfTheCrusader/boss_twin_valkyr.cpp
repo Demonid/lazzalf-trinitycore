@@ -466,6 +466,7 @@ struct boss_twin_baseAI : public ScriptedAI
                 if (m_uiSpecialAbilityTimer <= uiDiff)
                 {
                     me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
+                    m_Immune = true;
                     if (Creature* pSister = GetSister())
                         pSister->AI()->DoAction(ACTION_PACT);
                     DoScriptText(EMOTE_SHIELD, me);
