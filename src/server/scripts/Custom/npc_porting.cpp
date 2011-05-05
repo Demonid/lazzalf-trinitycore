@@ -168,7 +168,7 @@ class npc_porting : public CreatureScript
                 //pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
             else if (fields[0].GetInt32() == 2 && pPlayer->GetMapId() != 609) //Not for DK
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-            else if (fields[0].GetInt32() == 99 && (pPlayer->GetMapId() != 609))
+            else if (fields[0].GetInt32() == 99)
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_PORTING_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
         }
 
