@@ -4101,6 +4101,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 66965:     // Fel Fireball 25H
         case 68982:     // Phantom Blast (FoS normal)
         case 70322:     // Phantom Blast (FoS heroic)
+        case 66134:     // Shadow Strike
             spellInfo->InterruptFlags = 47;
             ++count;
             break;
