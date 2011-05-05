@@ -391,6 +391,8 @@ const Position SanityWellPos[10] =
 
 // Achievements
 #define ACHI_DRIVE_ME_CRAZY                 RAID_MODE(3008, 3010)
+#define ACHI_GETTING_ANY_OLDER              RAID_MODE(3012, 3013)
+#define MAX_SPEED_KILL_TIMER                7 * 60 * 1000 // 7 min
 
 // Hard Modes
 #define ACHI_THREE_LIGHTS_IN_THE_DARKNESS   RAID_MODE(3157, 3161)
@@ -432,6 +434,8 @@ public:
         uint32 uiStep;
         uint8 keepers;
         bool wipe;
+
+        uint32 encounterTimer;
         
         void Reset()
         {
@@ -482,6 +486,7 @@ public:
             me->GetMotionMaster()->MoveTargetedHome();
             phase = PHASE_NULL;
             keepers = 0;
+            encounterTimer = 0;
             _Reset();
         }
         
@@ -554,6 +559,8 @@ public:
                 return;
                 
             events.Update(diff);
+
+            encounterTimer += diff;
 
             if (me->HasUnitState(UNIT_STAT_CASTING))
                 return;
@@ -711,6 +718,11 @@ public:
         {
             uiPhase_timer = uiTimer;
             ++uiStep;
+        }
+
+        uint32 GetEncounterTimer()
+        {
+            return encounterTimer;
         }
     };
 
@@ -915,18 +927,21 @@ public:
         void JustDied(Unit *victim)
         {
             DoScriptText(SAY_DEATH, me);
-            _JustDied();
-            
-            if (Unit *pSara = me->ToTempSummon()->GetSummoner())
-                pSara->ToCreature()->DisappearAndDie();
+            _JustDied();    
 
             me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
-            me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-
-            
+            me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);            
             
             if (instance)
             {
+                if (Unit *pSara = me->ToTempSummon()->GetSummoner())
+                {
+                    if (CAST_AI(boss_sara::boss_saraAI,pSara->ToCreature()->AI())->GetEncounterTimer() <= MAX_SPEED_KILL_TIMER)
+                        instance->DoCompleteAchievement(ACHI_GETTING_ANY_OLDER);
+
+                    pSara->ToCreature()->DisappearAndDie();
+                }
+
                 // Award Hard Mode Achievements
                 switch (keepers)
                 {                
@@ -1251,9 +1266,13 @@ public:
 
     struct npc_guardian_yoggsaron_AI : public ScriptedAI
     {
-        npc_guardian_yoggsaron_AI(Creature* pCreature) : ScriptedAI(pCreature) { }
+        npc_guardian_yoggsaron_AI(Creature* pCreature) : ScriptedAI(pCreature) 
+        {
+            pInstance = pCreature->GetInstanceScript();
+        }
 
         int32 uiDarkVolleyTimer;
+        InstanceScript* pInstance;
 
         void Reset()
         {
@@ -1267,6 +1286,15 @@ public:
             if (Creature *pSara = me->FindNearestCreature(NPC_SARA, 10.0f, true))
                 if (phase == PHASE_1)
                     me->DealDamage(pSara, 25000);
+
+            if (pInstance)
+            {
+                if (pInstance->GetData(DATA_COMING_OUT) == ACHI_IS_NOT_STARTED)
+                    pInstance->SetData(DATA_COMING_OUT, ACHI_START);
+
+                pInstance->SetData(DATA_COMING_OUT, ACHI_INCREASE);
+            }
+
             me->ForcedDespawn(3000);
         }
 
