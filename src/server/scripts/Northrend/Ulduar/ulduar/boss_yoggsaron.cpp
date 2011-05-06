@@ -802,8 +802,6 @@ public:
                     {
                         if (pCreature->HasAura(SPELL_KEEPER_ACTIVE))
                         {
-                            pCreature->SetInCombatWith(me);
-                            pCreature->AddThreat(me, 150.0f);
                             ++keepers;
                         }
                     }

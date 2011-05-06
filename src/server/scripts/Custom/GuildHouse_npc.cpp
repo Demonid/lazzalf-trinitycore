@@ -313,7 +313,10 @@ class npc_guild_master : public CreatureScript
                 //add link to next GOSSIP_COUNT_MAX items
                 player->ADD_GOSSIP_ITEM(ICON_GOSSIP_BALOONDOTS, MSG_GOSSIP_NEXTPAGE, GOSSIP_SENDER_MAIN, 
                     add_typeId + OFFSET_SHOWBUY_FROM_ADD);
-            }       
+            }
+
+            player->ADD_GOSSIP_ITEM(ICON_GOSSIP_BALOONDOTS, MSG_GOSSIP_CLOSE, GOSSIP_SENDER_MAIN, 
+                ACTION_CLOSE);
 
             player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, _creature->GetGUID());
 
