@@ -611,6 +611,7 @@ class npc_guild_master : public CreatureScript
 #########*/
 
 #define SAY_AGGRO "Nemico individuato! Obiettivo Eliminato!"
+#define SAY_WARNING "Attenzione! Ti stai avvicinando ad una sede di gilda. Allontanti o verrai ucciso se ti avvicini ulteriormente"
 
 class guild_guard : public CreatureScript
 {
@@ -734,6 +735,14 @@ class guild_guard : public CreatureScript
                         {
                             me->MonsterYell(SAY_AGGRO, LANG_UNIVERSAL, 0);
                             me->Kill(i->getSource());
+                        }
+                    }
+                    else if (i->getSource()->GetDistance2d(me) <= 150)
+                    {                            
+                        uint32 guild =((Player*)i->getSource())->GetGuildId();
+                        if (guardguild && guild != guardguild)
+                        {
+                            me->MonsterWhisper(SAY_WARNING, i->getSource()->GetGUID());
                         }
                     }
                 }
