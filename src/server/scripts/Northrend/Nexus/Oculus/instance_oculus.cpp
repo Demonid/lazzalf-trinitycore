@@ -49,6 +49,8 @@ public:
             uromGUID = 0;
             eregosGUID = 0;
 
+            eregosCacheGUID = 0;
+
             platformUrom = 0;
             centrifugueConstructCounter = 0;
 
@@ -142,6 +144,9 @@ public:
                 default:
                     break;
             }
+
+            if ((go->GetEntry() == GO_CACHE_OF_EREGOS_N) || (go->GetEntry() == GO_CACHE_OF_EREGOS_H))
+                eregosCacheGUID = go->GetGUID();
         }
 
         bool SetBossState(uint32 type, EncounterState state)
@@ -266,6 +271,8 @@ public:
             uint64 varosGUID;
             uint64 uromGUID;
             uint64 eregosGUID;
+
+            uint64 eregosCacheGUID;
 
             uint8 platformUrom;
             uint8 centrifugueConstructCounter;
