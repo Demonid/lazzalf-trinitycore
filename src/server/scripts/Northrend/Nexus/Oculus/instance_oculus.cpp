@@ -144,9 +144,6 @@ public:
                 default:
                     break;
             }
-
-            if ((go->GetEntry() == GO_CACHE_OF_EREGOS_N) || (go->GetEntry() == GO_CACHE_OF_EREGOS_H))
-                eregosCacheGUID = go->GetGUID();
         }
 
         bool SetBossState(uint32 type, EncounterState state)
@@ -276,8 +273,6 @@ public:
 
             uint8 platformUrom;
             uint8 centrifugueConstructCounter;
-
-            uint64 eregosCacheGUID;
 
             std::string str_data;
 

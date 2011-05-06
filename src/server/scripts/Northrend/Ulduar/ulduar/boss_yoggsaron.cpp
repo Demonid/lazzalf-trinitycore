@@ -934,7 +934,7 @@ public:
             {
                 if (Unit *pSara = me->ToTempSummon()->GetSummoner())
                 {
-                    if (CAST_AI(boss_sara::boss_saraAI,pSara->ToCreature()->AI())->GetEncounterTimer() <= MAX_SPEED_KILL_TIMER)
+                    if (CAST_AI(boss_sara::boss_sara_AI,pSara->ToCreature()->AI())->GetEncounterTimer() <= MAX_SPEED_KILL_TIMER)
                         instance->DoCompleteAchievement(ACHI_GETTING_ANY_OLDER);
 
                     pSara->ToCreature()->DisappearAndDie();
