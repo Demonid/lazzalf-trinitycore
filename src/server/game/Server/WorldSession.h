@@ -28,6 +28,8 @@
 #include "AddonMgr.h"
 #include "DatabaseEnv.h"
 #include "World.h"
+#include "Timer.h"
+#include "BigNumber.h"
 
 struct ItemTemplate;
 struct AuctionEntry;
@@ -178,6 +180,7 @@ public:
 class WorldSession
 {
     friend class CharacterHandler;
+    friend class WardenMgr;
     public:
         WorldSession(uint32 id, WorldSocket *sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter);
         ~WorldSession();
@@ -295,6 +298,7 @@ class WorldSession
             }
         }
         //used with item_page table
+        static void SendExternalMails();
         bool SendItemInfo(uint32 itemid, WorldPacket data);
         //auction
         void SendAuctionHello(uint64 guid, Creature * unit);
@@ -332,7 +336,7 @@ class WorldSession
 
         uint32 GetLatency() const { return m_latency; }
         void SetLatency(uint32 latency) { m_latency = latency; }
-        uint32 getDialogStatus(Player *pPlayer, Object* questgiver, uint32 defstatus);
+        uint32 getDialogStatus(Player *pPlayer, Object* questgiver, uint32 defstatus);       
 
         time_t m_timeOutTime;
         void UpdateTimeOutTime(uint32 diff)
@@ -355,6 +359,12 @@ class WorldSession
 
         // Recruit-A-Friend Handling
         uint32 GetRecruiterId() { return recruiterId; }
+
+        BigNumber &GetSessionKey() const;
+        uint8 *GetWardenServerKey() { return &m_rc4ServerKey[0]; }
+        uint8 *GetWardenSeed() { return &m_wardenSeed[0]; }
+        uint8 *GetWardenTempClientKey() { return &m_WardenTmpClientKey[0]; }
+        void UpdateWardenTimer(uint32 diff) { m_WardenTimer.Update(diff); }
 
     public:                                                 // opcodes handlers
 
@@ -734,7 +744,11 @@ class WorldSession
         void HandleBattlemasterJoinArena(WorldPacket &recv_data);
         void HandleReportPvPAFK(WorldPacket &recv_data);
 
+        // Warden
         void HandleWardenDataOpcode(WorldPacket& recv_data);
+        void HandleWardenRegister();                        // for internal call
+        void HandleWardenUnregister();                      // for internal call
+
         void HandleWorldTeleportOpcode(WorldPacket& recv_data);
         void HandleMinimapPingOpcode(WorldPacket& recv_data);
         void HandleRandomRollOpcode(WorldPacket& recv_data);
@@ -913,6 +927,15 @@ class WorldSession
         AddonsList m_addonsList;
         uint32 recruiterId;
         ACE_Based::LockedQueue<WorldPacket*, ACE_Thread_Mutex> _recvQueue;
+
+        uint8 m_wardenStatus;
+        uint8 m_rc4ServerKey[0x102];
+        uint8 m_rc4ClientKey[0x102];
+        uint8 m_wardenSeed[16];
+        IntervalTimer m_WardenTimer;
+        std::string m_WardenModule;
+        void *m_WardenClientChecks;
+        uint8 m_WardenTmpClientKey[0x102];
 };
 #endif
 /// @}
