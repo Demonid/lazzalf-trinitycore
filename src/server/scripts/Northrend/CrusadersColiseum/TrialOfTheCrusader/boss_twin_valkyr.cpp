@@ -428,6 +428,7 @@ struct boss_twin_baseAI : public ScriptedAI
         if (!m_pInstance || !UpdateVictim())
             return;
 
+        /*
         if (m_uiImmuneTimer)
         {
             if (m_uiImmuneTimer <= uiDiff)
@@ -438,7 +439,7 @@ struct boss_twin_baseAI : public ScriptedAI
             }
             else
                 m_uiImmuneTimer -= uiDiff;
-        }
+        }*/
 
         if (m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED) != 0)
             me->SetHealth(m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED));
@@ -455,9 +456,9 @@ struct boss_twin_baseAI : public ScriptedAI
             case 1: // Vortex
                 if (m_uiSpecialAbilityTimer <= uiDiff)
                 {
-                    m_uiImmuneTimer = 5000;
-                    me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
-                    me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, true);
+                    //m_uiImmuneTimer = 5000;
+                    //me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
+                    //me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, true);
                     if (Creature* pSister = GetSister())
                         pSister->AI()->DoAction(ACTION_VORTEX);
                     DoScriptText(m_uiVortexEmote, me);
