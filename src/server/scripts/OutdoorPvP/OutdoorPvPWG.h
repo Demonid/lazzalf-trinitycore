@@ -696,6 +696,8 @@ class OutdoorPvPWG : public OutdoorPvP
     public:
         bool m_changeDefender;
         uint64 m_timer;
+        void SendInitWorldStatesTo(Player *player = NULL) const;
+
     protected:
         uint64 m_clock[2];
         uint32 m_workshopCount[2];
@@ -725,8 +727,7 @@ class OutdoorPvPWG : public OutdoorPvP
         OutdoorPvPWGCreType GetCreatureType(uint32 entry) const;
 
         void RebuildAllBuildings();
-
-        void SendInitWorldStatesTo(Player *player = NULL) const;
+        
         void RewardMarkOfHonor(Player *player, uint32 count);
         void MoveQuestGiver(uint32 guid);
         // To be deleted soon!
