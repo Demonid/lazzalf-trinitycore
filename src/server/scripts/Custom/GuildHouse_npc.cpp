@@ -713,39 +713,37 @@ class guild_guard : public CreatureScript
             {
                 uint32 guardguild = GHobj.GetGuildByGuardID(me->GetGUIDLow());
                 Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
-                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                {
-                    if (PlayerList.isEmpty())
-                        break;
+                if (!PlayerList.isEmpty())
+                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                    {          
+                        if (!i->getSource())
+                            continue;
 
-                    if (!i->getSource())
-                        continue;
+                        if (!i->getSource()->isAlive())
+                            continue;
 
-                    if (!i->getSource()->isAlive())
-                        continue;
+                        if (i->getSource()->GetSession() &&
+                            i->getSource()->GetSession()->GetSecurity() >= SEC_GAMEMASTER)
+                            continue;
 
-                    if (i->getSource()->GetSession() &&
-                        i->getSource()->GetSession()->GetSecurity() >= SEC_GAMEMASTER)
-                        continue;
-
-                    if (i->getSource()->GetDistance2d(me) <= 120)
-                    {                            
-                        uint32 guild =((Player*)i->getSource())->GetGuildId();
-                        if (guardguild && guild != guardguild)
-                        {
-                            me->MonsterYell(SAY_AGGRO, LANG_UNIVERSAL, 0);
-                            me->Kill(i->getSource());
+                        if (i->getSource()->GetDistance2d(me) <= 120)
+                        {                            
+                            uint32 guild =((Player*)i->getSource())->GetGuildId();
+                            if (guardguild && guild != guardguild)
+                            {
+                                me->MonsterYell(SAY_AGGRO, LANG_UNIVERSAL, 0);
+                                me->Kill(i->getSource());
+                            }
+                        }
+                        else if (i->getSource()->GetDistance2d(me) <= 150)
+                        {                            
+                            uint32 guild =((Player*)i->getSource())->GetGuildId();
+                            if (guardguild && guild != guardguild)
+                            {
+                                me->MonsterWhisper(SAY_WARNING, i->getSource()->GetGUID());
+                            }
                         }
                     }
-                    else if (i->getSource()->GetDistance2d(me) <= 150)
-                    {                            
-                        uint32 guild =((Player*)i->getSource())->GetGuildId();
-                        if (guardguild && guild != guardguild)
-                        {
-                            me->MonsterWhisper(SAY_WARNING, i->getSource()->GetGUID());
-                        }
-                    }
-                }
                 Check_Timer = 20000;
             } else Check_Timer -= uiDiff;
         }           

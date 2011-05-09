@@ -3244,6 +3244,9 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                             break;
                     }
 
+                    if ((properties->Id == 2081 || m_spellInfo->Id == 13258 || m_spellInfo->Id == 13166) && !m_CastItem)
+                         return;
+
                     TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
 
                     for (uint32 count = 0; count < amount; ++count)
