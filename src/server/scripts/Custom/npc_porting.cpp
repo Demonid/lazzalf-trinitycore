@@ -454,7 +454,7 @@ class npc_porting : public CreatureScript
             for (int j = 0; j < 3; j++)
                 if (fields[j].GetUInt32())
                     if (EquipVct[fields[j].GetUInt32()].item[0])
-                        for (int i = 1; EquipVct[fields[j].GetUInt32()].item[i] != 0; i++)
+                        for (int i = 0; EquipVct[fields[j].GetUInt32()].item[i] != 0; i++)
                         {
                             pPlayer->AddItem(EquipVct[fields[j].GetUInt32()].item[i], 1);
                         }
