@@ -427,7 +427,7 @@ public:
                 if (pvpWG->isWarTime() && Check == true)
                 {
                     Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
-                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); i)
+                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     {
                         if (!PlayerList.isEmpty())
                         {
@@ -465,12 +465,12 @@ public:
                                 case 0:
                                     me->SetOrientation(4.037271f);
                                     me->SendMovementFlagUpdate();
-                                    uiPortalPhase;
+                                    ++uiPortalPhase;
                                     uiPortalTimer = 100;
                                     break;
                                 case 1:
                                     me->AI()->DoCast(SPELL_PORTAL_VISUAL);
-                                    uiPortalPhase;
+                                    ++uiPortalPhase;
                                     uiPortalTimer = 900;
                                     break;
                                 case 2:
@@ -478,7 +478,7 @@ public:
                                     me->SetOrientation(5.515240f);
                                     me->SendMovementFlagUpdate();
                                     me->MonsterYell("Reinforcements are needed on the Wintergrasp battlefield! I have opened a portal for quick travel to the battle at The Silver Enclave.", LANG_UNIVERSAL, 0);
-                                    uiPortalPhase;
+                                    ++uiPortalPhase;
                                     uiPortalTimer = 1000;
                                     break;
                                 }
@@ -586,7 +586,7 @@ public:
                 if (pvpWG->isWarTime() && Check == true)
                 {
                     Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
-                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); i)
+                    for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     {
                         if (!PlayerList.isEmpty())
                         {
@@ -624,19 +624,19 @@ public:
                                 case 0:
                                     me->SetOrientation(4.356160f);
                                     me->SendMovementFlagUpdate();
-                                    uiPortalPhase;
+                                    ++uiPortalPhase;
                                     uiPortalTimer = 100;
                                     break;
                                 case 1:
                                     me->AI()->DoCast(SPELL_PORTAL_VISUAL);
-                                    uiPortalPhase;
+                                    ++uiPortalPhase;
                                     uiPortalTimer = 900;
                                     break;
                                 case 2:
                                     WintergraspPortal = me->SummonGameObject(GO_WINTERGRASP_PORTAL, 5924.042969f, 570.354492f, 661.087280f, 5.930885f, 0, 0, 0.324484f, -0.945891f, 0);
                                     me->SetOrientation(6.003930f);
                                     me->SendMovementFlagUpdate();
-                                    uiPortalPhase;
+                                    ++uiPortalPhase;
                                     uiPortalTimer = 1000;
                                     break;
                                 }
@@ -681,6 +681,26 @@ public:
     };
 };
 
+class go_wg_veh_teleporter : public GameObjectScript
+{
+public:
+    go_wg_veh_teleporter() : GameObjectScript("go_wg_veh_teleporter") { }
+
+    bool OnGossipHello(Player *pPlayer, GameObject * pGO)
+    {
+        if (GameObject* trigger = pGO->FindNearestGameObject(190375, 500)) // Wintergrasp Fortress Gate
+            if (Vehicle * veh = pPlayer->GetVehicle())
+            {
+                Position triggerPos;
+                trigger->GetPosition(&triggerPos);
+                triggerPos.m_positionX -= 30;
+                veh->Relocate(triggerPos);
+            }
+        
+        return true;
+    }
+};
+
 /* Wintergrasp Battle-Mage */
 /*
 UPDATE `creature_template` SET `gossip_menu_id`=0 WHERE `entry` in (32169, 32170);
@@ -700,6 +720,7 @@ void AddSC_wintergrasp()
     new npc_demolisher_engineerer();
     new npc_wg_misc();
     new npc_winterguard();
-    //new npc_wg_ally_battle_mage();
-    //new npc_wg_horde_battle_mage();
+    new npc_wg_ally_battle_mage();
+    new npc_wg_horde_battle_mage();
+    new go_wg_veh_teleporter();
 }

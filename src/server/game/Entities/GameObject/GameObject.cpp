@@ -452,6 +452,11 @@ void GameObject::Update(uint32 diff)
                         if (goInfo->trap.spellId)
                             CastSpell(ok, goInfo->trap.spellId);
 
+                        // allow to use scripts for wintergrasp vehicle teleporter
+                        if (ok->GetTypeId() == TYPEID_PLAYER && ok->GetAreaId() == NORTHREND_WINTERGRASP)
+                            if (sScriptMgr->OnGossipHello(ok->ToPlayer(), this))
+                                return;
+
                         // Traps should put caster in combat and activate PvP mode
                         if (owner && owner->isAlive())
                             owner->CombatStart(ok);

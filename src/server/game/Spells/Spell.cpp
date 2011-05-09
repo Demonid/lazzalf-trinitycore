@@ -5797,7 +5797,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                     // Wintergrasp
                     if ((m_originalCaster->GetZoneId() == NORTHREND_WINTERGRASP && pvpWG && pvpWG->isWarTime()))
-                            return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
+                        return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
                             
                     if (AreaTableEntry const* pArea = GetAreaEntryByAreaID(m_originalCaster->GetAreaId()))
                     	if (pArea->flags & AREA_FLAG_NO_FLY_ZONE)
