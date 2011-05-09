@@ -395,10 +395,10 @@ const Position SanityWellPos[10] =
 #define MAX_SPEED_KILL_TIMER                7 * 60 * 1000 // 7 min
 
 // Hard Modes
-#define ACHI_THREE_LIGHTS_IN_THE_DARKNESS   RAID_MODE(3157, 3161)
+/*#define ACHI_THREE_LIGHTS_IN_THE_DARKNESS   RAID_MODE(3157, 3161)
 #define ACHI_TWO_LIGHTS_IN_THE_DARKNESS     RAID_MODE(3141, 3162)
 #define ACHI_ONE_LIGHT_IN_THE_DARKNESS      RAID_MODE(3158, 3163)
-#define ACHI_ALONE_IN_THE_DARKNESS          RAID_MODE(3159, 3164)
+#define ACHI_ALONE_IN_THE_DARKNESS          RAID_MODE(3159, 3164)*/
 
 
 /*------------------------------------------------------*
@@ -417,7 +417,7 @@ public:
 
     struct boss_sara_AI : public BossAI
     {
-        boss_sara_AI(Creature *pCreature) : BossAI(pCreature, BOSS_YOGGSARON)
+        boss_sara_AI(Creature* pCreature) : BossAI(pCreature, BOSS_YOGGSARON)
         {
             me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_RESILIENCE_OF_NATURE, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FURY_OF_THE_STORMS, true);
@@ -432,7 +432,7 @@ public:
         std::vector<Creature *> ominous_list;
         uint32 uiPhase_timer;
         uint32 uiStep;
-        uint8 keepers;
+        //uint8 keepers;
         bool wipe;
 
         uint32 encounterTimer;
@@ -485,7 +485,7 @@ public:
             me->RestoreFaction();
             me->GetMotionMaster()->MoveTargetedHome();
             phase = PHASE_NULL;
-            keepers = 0;
+            //keepers = 0;
             encounterTimer = 0;
             _Reset();
         }
@@ -502,16 +502,20 @@ public:
             }
         }
         
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!me->isInCombat() && me->IsWithinDist(who, 50.0f) && who->ToPlayer() && !who->ToPlayer()->isGameMaster())
             {
-                me->setFaction(16);
-                DoZoneInCombat();
+                // Non attivare il combat se è da 25 senza keepers (finchè non si sistema l'achi della first kill)
+                if ((instance->GetData(DATA_ACTIVE_KEEPERS) != 0) || (Difficulty(instance->instance->GetSpawnMode()) != RAID_DIFFICULTY_25MAN_NORMAL))
+                {
+                    me->setFaction(16);
+                    DoZoneInCombat();
+                }
             }
         }
         
-        void EnterCombat(Unit *who)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(RAND(SAY_SARA_AGGRO_1,SAY_SARA_AGGRO_2,SAY_SARA_AGGRO_3), me);
             // Keepers activation
@@ -519,13 +523,13 @@ public:
             {
                 for (uint8 data = DATA_YS_FREYA; data <= DATA_YS_HODIR; ++data)
                 {
-                    if (Creature *pCreature = Creature::GetCreature((*me), instance->GetData64(data)))
+                    if (Creature* pCreature = Creature::GetCreature((*me), instance->GetData64(data)))
                     {
                         if (pCreature->HasAura(SPELL_KEEPER_ACTIVE))
                         {
                             pCreature->SetInCombatWith(me);
                             pCreature->AddThreat(me, 150.0f);
-                            ++keepers;
+                            //++keepers;
                         }
                     }
                 }
@@ -572,17 +576,17 @@ public:
                     switch(eventId)
                     {
                         case EVENT_FERVOR:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
                                 DoCast(pTarget, SPELL_SARA_FERVOR);
                             events.ScheduleEvent(EVENT_FERVOR, urand(8000, 10000), 0, PHASE_1);
                             break;
                         case EVENT_BLESSING:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
                                 DoCast(pTarget, SPELL_SARA_BLESSING);
                             events.ScheduleEvent(EVENT_BLESSING, urand(10000, 15000), 0, PHASE_1);
                             break;
                         case EVENT_ANGER:
-                            if (Creature *pGuardian = me->FindNearestCreature(NPC_GUARDIAN_OF_YOGGSARON,50,true))
+                            if (Creature* pGuardian = me->FindNearestCreature(NPC_GUARDIAN_OF_YOGGSARON, 50, true))
                                 DoCast(pGuardian, SPELL_SARA_ANGER);
                             events.ScheduleEvent(EVENT_ANGER, urand(15000, 20000), 0, PHASE_1);
                             break;
@@ -622,12 +626,12 @@ public:
                     switch(eventId)
                     {
                         case EVENT_PSYCHOSIS:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
                                 DoCast(pTarget, SPELL_PSYCHOSIS);
                             events.ScheduleEvent(EVENT_PSYCHOSIS, urand(4000, 6000), 0, PHASE_2);
                             break;
                         case EVENT_MALADY_OF_THE_MIND:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
                                 DoCast(pTarget, SPELL_MALADY_OF_THE_MIND);
                             events.ScheduleEvent(EVENT_MALADY_OF_THE_MIND, urand(15000, 20000), 0, PHASE_2);
                             break;
@@ -700,7 +704,7 @@ public:
             }
         }
         
-        void DamageTaken(Unit *who, uint32 &damage)
+        void DamageTaken(Unit* /*who*/, uint32 &damage)
         {
             if (phase == PHASE_1 && damage >= me->GetHealth())
             {
@@ -744,7 +748,7 @@ public:
 
     struct boss_yoggsaron_AI : public BossAI
     {
-        boss_yoggsaron_AI(Creature *pCreature) : BossAI(pCreature, BOSS_YOGGSARON)
+        boss_yoggsaron_AI(Creature* pCreature) : BossAI(pCreature, BOSS_YOGGSARON)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_DISABLE_MOVE);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
@@ -758,7 +762,7 @@ public:
         uint8 illusionOrder[3];
         uint8 illusionCount;
         uint8 spawnedTentacles;
-        uint8 keepers;
+        //uint8 keepers;
 
         // achievement
         bool someoneGotInsane;
@@ -767,10 +771,10 @@ public:
         {
             events.Reset();
             summons.DespawnAll();
-            keepers = 0;
+            //keepers = 0;
         }
         
-        void EnterCombat(Unit *who)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
 
@@ -796,7 +800,7 @@ public:
                 events.ScheduleEvent(EVENT_TENTACLES, 1000, 0, PHASE_2);
                 events.ScheduleEvent(EVENT_ILLUSION, 60000, 0, PHASE_2);
 
-                for (uint8 data = DATA_YS_FREYA; data <= DATA_YS_HODIR; ++data)
+                /*for (uint8 data = DATA_YS_FREYA; data <= DATA_YS_HODIR; ++data)
                 {
                     if (Creature *pCreature = Creature::GetCreature((*me), instance->GetData64(data)))
                     {
@@ -805,10 +809,10 @@ public:
                             ++keepers;
                         }
                     }
-                }
+                }*/
 
                 me->ResetLootMode();
-                switch (keepers)
+                switch (instance->GetData(DATA_ACTIVE_KEEPERS))
                 {                
                     case 0:
                         me->AddLootMode(LOOT_MODE_HARD_MODE_4);      // Add 4 Keepers loot
@@ -903,7 +907,7 @@ public:
                             events.ScheduleEvent(EVENT_IMMORTAL_GUARDIAN, urand(25000, 30000), 0, PHASE_3);
                             break;
                         case EVENT_SHADOW_BEACON:
-                            if (Creature *pImmortal = me->FindNearestCreature(NPC_IMMORTAL_GUARDIAN,80,true))
+                            if (Creature* pImmortal = me->FindNearestCreature(NPC_IMMORTAL_GUARDIAN, 80, true))
                             {
                                 Map::PlayerList const &players = instance->instance->GetPlayers();
                                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -922,7 +926,7 @@ public:
             }
         }
         
-        void JustDied(Unit *victim)
+        void JustDied(Unit* /*victim*/)
         {
             DoScriptText(SAY_DEATH, me);
             _JustDied();    
@@ -932,7 +936,7 @@ public:
             
             if (instance)
             {
-                if (Unit *pSara = me->ToTempSummon()->GetSummoner())
+                if (Unit* pSara = me->ToTempSummon()->GetSummoner())
                 {
                     if (CAST_AI(boss_sara::boss_sara_AI,pSara->ToCreature()->AI())->GetEncounterTimer() <= MAX_SPEED_KILL_TIMER)
                         instance->DoCompleteAchievement(ACHI_GETTING_ANY_OLDER);
@@ -941,7 +945,7 @@ public:
                 }
 
                 // Award Hard Mode Achievements
-                switch (keepers)
+                /*switch (instance->GetData(DATA_ACTIVE_KEEPERS))
                 {                
                     case 0:
                         instance->DoCompleteAchievement(ACHI_ALONE_IN_THE_DARKNESS);
@@ -954,7 +958,7 @@ public:
                         break;                
                     default:
                         break;
-                }
+                }*/
 
                 if (!someoneGotInsane)
                     instance->DoCompleteAchievement(ACHI_DRIVE_ME_CRAZY);
@@ -1002,7 +1006,7 @@ public:
                 switch(illusion)
                 {
                     case 0: // Chamber of the Aspects Illusion
-                        if (Creature *pBrain = Creature::GetCreature((*me), instance->GetData64(DATA_YOGGSARON_BRAIN)))
+                        if (Creature* pBrain = Creature::GetCreature((*me), instance->GetData64(DATA_YOGGSARON_BRAIN)))
                         {
                             pBrain->AI()->Reset();
                             pBrain->AI()->DoAction(ACTION_CHAMBER_ILLUSION);
@@ -1011,7 +1015,7 @@ public:
                         }
                         break;
                     case 1: // Icecrown Illusion
-                        if (Creature *pBrain = Creature::GetCreature((*me), instance->GetData64(DATA_YOGGSARON_BRAIN)))
+                        if (Creature* pBrain = Creature::GetCreature((*me), instance->GetData64(DATA_YOGGSARON_BRAIN)))
                         {
                             pBrain->AI()->Reset();
                             pBrain->AI()->DoAction(ACTION_ICECROWN_ILLUSION);
@@ -1020,7 +1024,7 @@ public:
                         }
                         break;
                     case 2: // Stormwind Illusion
-                        if (Creature *pBrain = Creature::GetCreature((*me), instance->GetData64(DATA_YOGGSARON_BRAIN)))
+                        if (Creature* pBrain = Creature::GetCreature((*me), instance->GetData64(DATA_YOGGSARON_BRAIN)))
                         {
                             pBrain->AI()->Reset();
                             pBrain->AI()->DoAction(ACTION_STORMWIND_ILLUSION);
@@ -1041,7 +1045,7 @@ public:
                 case 1:
                 case 2:
                     me->SummonCreature(NPC_CORRUPTOR_TENTACLE, TentaclesPos[rand()%22]);
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
                     {
                         Position pos;
                         pTarget->GetPosition(&pos);
@@ -1063,7 +1067,7 @@ public:
             switch (action)
             {
                 case ACTION_YOGGSARON_PHASE_3:
-                    if (Unit *pSara = me->ToTempSummon()->GetSummoner())
+                    if (Unit* pSara = me->ToTempSummon()->GetSummoner())
                         pSara->SetVisible(false);
                     DoScriptText(SAY_PHASE3, me);
                     me->RemoveAurasDueToSpell(SPELL_SHADOWY_BARRIER_LARGE);
@@ -1098,7 +1102,7 @@ public:
 
     struct boss_brain_yoggsaron_AI : public BossAI
     {
-        boss_brain_yoggsaron_AI(Creature *pCreature) : BossAI(pCreature, BOSS_YOGGSARON)
+        boss_brain_yoggsaron_AI(Creature* pCreature) : BossAI(pCreature, BOSS_YOGGSARON)
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -1126,7 +1130,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit *who)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
         }
@@ -1714,6 +1718,8 @@ public:
         if (pPlayer)
             pPlayer->CLOSE_GOSSIP_MENU();
 
+        instance->SetData(DATA_ACTIVE_KEEPERS, 1);
+
         switch (pCreature->GetEntry())
         {
             case NPC_IMAGE_OF_FREYA:
@@ -2074,6 +2080,94 @@ class spell_yoggsaron_induce_madness : public SpellScriptLoader
         }
 };
 
+class criteria_alone_in_the_darkness : public AchievementCriteriaScript
+{
+    public:
+        criteria_alone_in_the_darkness() : AchievementCriteriaScript("criteria_alone_in_the_darkness") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* instance = source->GetInstanceScript();
+
+            if (!instance || source->GetMapId() != ULDUAR_MAP)
+                return false;
+
+            if (instance->GetData(DATA_ACTIVE_KEEPERS) == 0)
+                return true;
+
+            return false;
+        }
+};
+
+class criteria_one_light_in_the_darkness : public AchievementCriteriaScript
+{
+    public:
+        criteria_one_light_in_the_darkness() : AchievementCriteriaScript("criteria_one_light_in_the_darkness") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* instance = source->GetInstanceScript();
+
+            if (!instance || source->GetMapId() != ULDUAR_MAP)
+                return false;
+
+            if (instance->GetData(DATA_ACTIVE_KEEPERS) <= 1)
+                return true;
+
+            return false;
+        }
+};
+
+class criteria_two_lights_in_the_darkness : public AchievementCriteriaScript
+{
+    public:
+        criteria_two_lights_in_the_darkness() : AchievementCriteriaScript("criteria_two_lights_in_the_darkness") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* instance = source->GetInstanceScript();
+
+            if (!instance || source->GetMapId() != ULDUAR_MAP)
+                return false;
+
+            if (instance->GetData(DATA_ACTIVE_KEEPERS) <= 2)
+                return true;
+
+            return false;
+        }
+};
+
+class criteria_three_lights_in_the_darkness : public AchievementCriteriaScript
+{
+    public:
+        criteria_three_lights_in_the_darkness() : AchievementCriteriaScript("criteria_three_lights_in_the_darkness") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* instance = source->GetInstanceScript();
+
+            if (!instance || source->GetMapId() != ULDUAR_MAP)
+                return false;
+
+            if (instance->GetData(DATA_ACTIVE_KEEPERS) <= 3)
+                return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_yoggsaron()
 {
     new boss_sara();
@@ -2098,4 +2192,8 @@ void AddSC_boss_yoggsaron()
     new npc_ys_hodir();
     new spell_yoggsaron_lunatic_gaze();
     new spell_yoggsaron_induce_madness();
+    new criteria_alone_in_the_darkness();
+    new criteria_one_light_in_the_darkness();
+    new criteria_two_lights_in_the_darkness();
+    new criteria_three_lights_in_the_darkness();
 }

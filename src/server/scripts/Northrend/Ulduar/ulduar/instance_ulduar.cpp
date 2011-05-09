@@ -145,6 +145,9 @@ class instance_ulduar : public InstanceMapScript
         bool towerOfLife;
         bool towerOfFlames;
         bool towerOfFrost;
+
+        uint32 activeKeepers;
+
         // Achievements
         // Unbroken
         bool vehicleRepaired;
@@ -197,6 +200,7 @@ class instance_ulduar : public InstanceMapScript
             rocketStrikeHit = false;
             uiLeviathanGateGUID = 0;
             flag = 0;
+            activeKeepers = 0;
             memset(&uiLeviathanDoor, 0, sizeof(uiLeviathanDoor));
         }
 
@@ -687,6 +691,9 @@ class instance_ulduar : public InstanceMapScript
                     else if (value == ACHI_RESET)
                         rocketStrikeHit = false;
                     break;
+                case DATA_ACTIVE_KEEPERS:
+                    if (value == 1 && activeKeepers < 4)
+                        activeKeepers += value;
                 default:
                     break;
             }
@@ -767,6 +774,8 @@ class instance_ulduar : public InstanceMapScript
                         return CRITERIA_NOT_MEETED;
                     else
                         return CRITERIA_MEETED;
+                case DATA_ACTIVE_KEEPERS:
+                    return activeKeepers;
                 default:
                     return 0;
             }

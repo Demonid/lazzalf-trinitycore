@@ -19,6 +19,8 @@
 #ifndef DEF_ULDUAR_H
 #define DEF_ULDUAR_H
 
+#define ULDUAR_MAP 603
+
 enum Encounter
 {
     BOSS_LEVIATHAN,
@@ -98,6 +100,7 @@ enum Data
     DATA_CRITERIA_PROXIMITY_MINE,
     DATA_CRITERIA_BOMB_BOT,
     DATA_CRITERIA_ROCKET_STRIKE,
+    DATA_ACTIVE_KEEPERS,
 };
 
 enum eNPCs

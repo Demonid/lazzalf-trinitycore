@@ -1804,8 +1804,6 @@ public:
 
 };
 
-#define ULDUAR_MAP 603
-
 class achievement_criteria_proximity_mine : public AchievementCriteriaScript
 {
     public:
