@@ -4074,6 +4074,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectRadiusIndex[1] = 41;
             ++count;
             break;
+        case 12051: // Evocation - now we can interrupt this
+            spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
+            ++count;
+            break;
         case 25771: // Forbearance - wrong mechanic immunity in DBC since 3.0.x
             spellInfo->EffectMiscValue[0] = MECHANIC_IMMUNE_SHIELD;
             ++count;
