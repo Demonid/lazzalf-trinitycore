@@ -634,9 +634,7 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket & recv_data)
         return;
 
     if (bg)
-    {
         bg->AddPlayerToResurrectQueue(guid, _player->GetGUID());
-    }
     else
     {  // Wintergrasp Hack till 3.2 and it's implemented as BG
         if (GetPlayer()->GetZoneId() == NORTHREND_WINTERGRASP)

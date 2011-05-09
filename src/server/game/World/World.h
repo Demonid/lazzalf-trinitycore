@@ -810,6 +810,8 @@ class World
 
         bool isEventKillStart;
 
+        void SendWintergraspState();
+
         uint32 GetCleaningFlags() { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
     protected:

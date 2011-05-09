@@ -74,8 +74,11 @@
 #include "CreatureTextMgr.h"
 #include "SmartAI.h"
 #include "Channel.h"
+
 #include "sc_npc_teleport.h"
 #include "GuildHouse.h"
+#include "OutdoorPvPMgr.h"
+#include "../../scripts/OutdoorPvP/OutdoorPvPWG.h"
 
 volatile bool World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -3201,5 +3204,32 @@ void World::ProcessQueryCallbacks()
             _UpdateRealmCharCount(result);
             lResult.cancel();
         }
+    }
+}
+
+void World::SendWintergraspState()
+{
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORTHREND_WINTERGRASP);
+    if (!pvpWG)
+        return;
+
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    {
+        if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())
+            continue;
+
+            if (pvpWG->isWarTime())
+            {
+                // "Battle in progress"
+                itr->second->GetPlayer()->SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL)));
+            } 
+            else
+                // Time to next battle
+            {
+                pvpWG->SendInitWorldStatesTo(itr->second->GetPlayer());
+                itr->second->GetPlayer()->SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL) + pvpWG->GetTimer()));
+                // Hide unneeded info which in center of screen
+                itr->second->GetPlayer()->SendInitWorldStates(itr->second->GetPlayer()->GetZoneId(), itr->second->GetPlayer()->GetAreaId());
+            }
     }
 }

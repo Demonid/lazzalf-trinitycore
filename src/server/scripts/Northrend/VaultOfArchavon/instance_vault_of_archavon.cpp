@@ -91,11 +91,11 @@ public:
         {
             if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
             {
-                if(OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197))
+                if(OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORTHREND_WINTERGRASP))
                 {
-                    if ((pvpWG->getDefenderTeamId()==TEAM_ALLIANCE) && (m_player->ToPlayer()->GetTeam() == ALLIANCE))
+                    if ((pvpWG->getDefenderTeamId() == TEAM_ALLIANCE) && (m_player->ToPlayer()->GetTeam() == ALLIANCE))
                         return;
-                    else if ((pvpWG->getDefenderTeamId()!=TEAM_ALLIANCE) && (m_player->ToPlayer()->GetTeam() == HORDE))
+                    else if ((pvpWG->getDefenderTeamId() != TEAM_ALLIANCE) && (m_player->ToPlayer()->GetTeam() == HORDE))
                         return;
                     else m_player->CastSpell(m_player, SPELL_TELEPORT_FORTRESS, true);
                 }

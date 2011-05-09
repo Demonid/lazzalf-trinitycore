@@ -4632,16 +4632,25 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         
                 }
                 //Teleport to Lake Wintergrasp
+                //Teleport to Lake Wintergrasp
                 case 58622:
                 {
-                    if(OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORTHREND_WINTERGRASP))
-                        if (pvpWG->isWarTime() && unitTarget->ToPlayer())
+                    if (OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORTHREND_WINTERGRASP))
+                    {
+                        if (unitTarget->ToPlayer() && unitTarget->getLevel() > 74)
                         {
-                            if(unitTarget->ToPlayer()->GetTeam() == pvpWG->getDefenderTeamId())
-                                unitTarget->CastSpell(unitTarget, 60035, true);
-                            else unitTarget->CastSpell(unitTarget, 59096, true);
+                            if ((pvpWG->getDefenderTeamId() == TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == ALLIANCE))
+                                unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_FORTRESS, true);
+                            else if ((pvpWG->getDefenderTeamId() == TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == HORDE))
+                                unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_HORDE_CAMP, true);
+
+                            if ((pvpWG->getDefenderTeamId() != TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == HORDE))
+                                unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_FORTRESS, true);
+                            else if ((pvpWG->getDefenderTeamId() != TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == ALLIANCE))
+                                unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_ALLIENCE_CAMP, true);
                         }
-                    break;
+                    }
+                    return;
                 }
                 // Glyph of Backstab
                 case 63975:
@@ -7379,7 +7388,7 @@ void Spell::EffectPlayerNotification(SpellEffIndex effIndex)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORTHREND_WINTERGRASP);
     switch(m_spellInfo->Id)
     {
         case 58730: // Restricted Flight Area
