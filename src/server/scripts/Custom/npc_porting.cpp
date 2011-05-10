@@ -519,7 +519,7 @@ class npc_porting : public CreatureScript
             }
             ExtraDatabase.PExecute("UPDATE `porting` SET `fase` = 2 WHERE `guid` = %u", pPlayer->GetGUIDLow());
             pPlayer->SaveToDB();
-        }
+        
     }
 };
 

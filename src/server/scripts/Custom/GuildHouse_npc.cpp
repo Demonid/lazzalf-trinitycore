@@ -571,6 +571,7 @@ class npc_guild_master : public CreatureScript
                     buyGuildhouse(player, _creature, action - OFFSET_CONFIRM_BUY_ID_TO_ACTION);
                     player->CLOSE_GOSSIP_MENU();
                 }
+                player->SaveToDB();
                 break;
         }
         
