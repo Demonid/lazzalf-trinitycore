@@ -15,8 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "InstanceScript.h"
+#include "ObjectMgr.h"
 #include "ulduar.h"
 
 const DoorData doorData[] =
@@ -696,6 +698,9 @@ class instance_ulduar : public InstanceMapScript
                         activeKeepers += value;
                 default:
                     break;
+                case GO_MOLE_MACHINE:
+                    if (GetBossState(TYPE_RAZORSCALE) == IN_PROGRESS)
+                        go->SetGoState(GO_STATE_ACTIVE);
             }
         }
 
