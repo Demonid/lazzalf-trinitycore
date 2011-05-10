@@ -14,9 +14,6 @@ uint32 guide_entry;
 uint32 guide_entry_fortress_horde;
 uint32 guide_entry_fortress_alliance;
 
-/* Vehicle teleport system*/
-Map* pMap;
-
 char const *fmtstring(char const *format, ...)
 {
     va_list argptr;
@@ -69,7 +66,6 @@ void OutdoorPvPWG::ResetCreatureEntry(Creature *cr, uint32 entry)
 {
     if (cr)
     {
-        // cr->SetOriginalEntry(entry);
         cr->UpdateEntry(entry); // SetOriginalEntry as used before may lead to crash
         if (cr->GetAreaId() == 4575)
             if (cr->AI())
@@ -557,6 +553,8 @@ bool OutdoorPvPWG::SetupOutdoorPvP()
     LoadTeamPair(m_goDisplayPair, OutdoorPvPWGGODisplayPair);
     LoadTeamPair(m_creEntryPair, OutdoorPvPWGCreEntryPair);
 
+    sWorld->SendWintergraspState();
+
     if (!m_timer)
         m_timer = sWorld->getIntConfig(CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME) * MINUTE * IN_MILLISECONDS;
 
@@ -830,6 +828,13 @@ void OutdoorPvPWG::ProcessEvent(GameObject *obj, uint32 eventId, Player* player)
     }
 }
 
+void OutdoorPvPWG::RemoveOfflinePlayerWGAuras()
+{
+    // if server crashed while in battle there could be players with rank or tenacity
+    CharacterDatabase.PExecute("DELETE FROM character_aura WHERE spell IN (%u, %u, %u, %u, %u)",
+         SPELL_RECRUIT, SPELL_CORPORAL, SPELL_LIEUTENANT, SPELL_TENACITY, SPELL_TOWER_CONTROL);
+}
+
 void OutdoorPvPWG::ModifyWorkshopCount(TeamId team, bool add)
 {
     if (team == TEAM_NEUTRAL)
@@ -932,13 +937,6 @@ OutdoorPvPWGCreType OutdoorPvPWG::GetCreatureType(uint32 entry) const
         case 30870:
         case 30869:
             return CREATURE_SPECIAL;
-
-        // To be enabled soon.
-        /*
-        case WG_CREATURE_INVISIBLE_STALKER:
-            return WG_CREATURE_TRIGGER;
-        */
-
         // Revenants, Elementals, etc
         default:
             return CREATURE_OTHER;
@@ -1308,8 +1306,6 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
             }
             return false;
         case CREATURE_SPIRIT_GUIDE:
-            /*Vehicle teleport system*/
-            pMap = creature->GetMap();
             if (isWarTime())
             {
                 if (creature->GetAreaId() == 4575) // Select Fortress Spirit
@@ -1325,17 +1321,11 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
                     }
                }
                creature->SetVisible(true);
-               //creature->setDeathState(ALIVE);
             }
             else
             {
                 creature->SetVisible(false);
-                //creature->setDeathState(DEAD);
             }
-            /*if (isWarTime())
-                creature->SetVisible(true);
-            else
-                creature->SetVisible(false);*/
             return false;
         case CREATURE_SPIRIT_HEALER:
             creature->SetVisible(true);
@@ -1344,7 +1334,13 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
         case CREATURE_ENGINEER:
             return false;
         case CREATURE_SIEGE_VEHICLE:
-            creature->DespawnOrUnsummon();
+            if (!isWarTime())
+            {
+                if (creature->IsVehicle() && creature->GetVehicleKit())
+                    creature->GetVehicleKit()->RemoveAllPassengers();
+                creature->DisappearAndDie();
+            }
+            //creature->DespawnOrUnsummon();
             return false;
         case CREATURE_QUESTGIVER:
             if (creature && creature->GetAI())
@@ -1353,13 +1349,46 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
         case CREATURE_GUARD:
         case CREATURE_SPECIAL:
             {
-                TeamPairMap::const_iterator itr = m_creEntryPair.find(creature->GetCreatureData()->id);
-                if (itr != m_creEntryPair.end())
+                //TDB users comment this block if your guards doesn't spawn by pairs A+H at fortress
+                /* 
+                if (creature && creature->GetAreaId() == 4575)
                 {
-                    entry = getDefenderTeamId() == TEAM_ALLIANCE ? itr->second : itr->first;
+                    switch (entry)
+                    {
+                        case 30740://Alliance champion
+                        case 32308://Alliance guard
+                        {
+                            if (getDefenderTeamId() == TEAM_ALLIANCE)
+                                creature->SetPhaseMask(1, true);
+                            else 
+                                creature->SetPhaseMask(2, true);
+                            break;
+                        }
+                        case 30739://Horde champion
+                        case 32307://Horde guard
+                        {
+                            if (getDefenderTeamId() == TEAM_ALLIANCE)
+                                creature->SetPhaseMask(2, true);
+                            else 
+                                creature->SetPhaseMask(1, true);
+                            break;
+                        }
+                    }
                     ResetCreatureEntry(creature, entry);
+                    creature->AI()->EnterEvadeMode();
+                    return false;
                 }
-                return false;
+                else */ //End of block to comment
+                {
+                    TeamPairMap::const_iterator itr = m_creEntryPair.find(creature->GetCreatureData()->id);
+                    if (itr != m_creEntryPair.end())
+                    {
+                        entry = getDefenderTeamId() == TEAM_ALLIANCE ? itr->second : itr->first;
+                        ResetCreatureEntry(creature, entry);
+                        creature->AI()->EnterEvadeMode();
+                    }
+                    return false;
+                }
             }
         default:
             return false;
@@ -1706,7 +1735,7 @@ void OutdoorPvPWG::HandleKill(Player *killer, Unit *victim)
     }
     else
     {
-        switch(GetCreatureType(victim->GetEntry()))
+        switch (GetCreatureType(victim->GetEntry()))
         {
             case CREATURE_SIEGE_VEHICLE:
                 killer->RewardPlayerAndGroupAtEvent(CRE_PVP_KILL_V, victim);
@@ -1841,7 +1870,7 @@ bool OutdoorPvPWG::Update(uint32 diff)
         {
             OutdoorPvP::Update(diff); // update capture points
 
-                        /*********************************************************/
+            /*********************************************************/
             /***        BATTLEGROUND RESSURECTION SYSTEM           ***/
             /*********************************************************/
 
@@ -1957,6 +1986,7 @@ void OutdoorPvPWG::forceStartBattle()
         m_timer = 1;
         sWorld->SendZoneText(NORTHREND_WINTERGRASP, sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_WG_BATTLE_FORCE_START));
     }
+    sWorld->SendWintergraspState();
 }
 
 void OutdoorPvPWG::forceStopBattle()
@@ -1969,6 +1999,7 @@ void OutdoorPvPWG::forceStopBattle()
         m_timer = 1;
         sWorld->SendZoneText(NORTHREND_WINTERGRASP, sObjectMgr->GetTrinityStringForDBCLocale(LANG_BG_WG_BATTLE_FORCE_STOP));
     }
+    sWorld->SendWintergraspState();
 }
 
 void OutdoorPvPWG::forceChangeTeam()
@@ -2064,7 +2095,7 @@ void OutdoorPvPWG::StartBattle()
         //plr->CastSpell(plr, 58730, true); 
     }
     UpdateTenacityStack();
-
+    sWorld->SendWintergraspState();
     SaveData();
 }
 
@@ -2263,10 +2294,15 @@ void OutdoorPvPWG::EndBattle()
 
     m_timer = sWorld->getIntConfig(CONFIG_OUTDOORPVP_WINTERGRASP_INTERVAL) * MINUTE * IN_MILLISECONDS;
 
+    RemoveOfflinePlayerWGAuras();
+
+    // Update timer in players battlegrounds tab
+    sWorld->SendWintergraspState();
+
     // Teleport all attackers (except accs with sec. >= SEC_GAMEMASTER) to Dalaran
     for (PlayerSet::iterator itr = m_players[getAttackerTeamId()].begin(); itr != m_players[getAttackerTeamId()].end(); ++itr)
         if ((*itr)->GetSession()->GetSecurity() < SEC_GAMEMASTER)
-            (*itr)->CastSpell(*itr, SPELL_TELEPORT_DALARAN, true);
+            (*itr)->CastSpell(*itr, SPELL_TELEPORT_DALARAN, true);    
 
     // update go factions
     for (GameObjectSet::iterator itr = m_gobjects.begin(); itr != m_gobjects.end(); ++itr)
