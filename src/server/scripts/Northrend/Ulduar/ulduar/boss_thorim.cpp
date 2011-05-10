@@ -23,7 +23,8 @@ SD%Complete: 90
 SDComments: Lightning Charge not works.
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ulduar.h"
 
 // Thorim Spells

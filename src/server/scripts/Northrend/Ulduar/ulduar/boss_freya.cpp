@@ -23,7 +23,9 @@ SD%Complete: 95
 SD%Comments: TODO: better Iron roots implementation
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "ulduar.h"
 
 enum Yells
