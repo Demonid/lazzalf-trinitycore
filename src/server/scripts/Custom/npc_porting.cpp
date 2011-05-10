@@ -307,6 +307,7 @@ class npc_porting : public CreatureScript
                             }
                         }
                         ExtraDatabase.PExecute("UPDATE `porting` SET `fase` = 1 WHERE `guid` = %u", pPlayer->GetGUIDLow());                        
+                        pPlayer->SaveToDB();
                         std::string msg = "Equipaggia le 4 bags e poi continua il porting";
                         pCreature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
                     }
@@ -516,7 +517,8 @@ class npc_porting : public CreatureScript
                     pCreature->MonsterWhisper((fields[1].GetString()).c_str(), pPlayer->GetGUID());
                 }
             }
-            ExtraDatabase.PExecute("UPDATE `porting` SET `fase` = 2 WHERE `guid` = %u", pPlayer->GetGUIDLow());                
+            ExtraDatabase.PExecute("UPDATE `porting` SET `fase` = 2 WHERE `guid` = %u", pPlayer->GetGUIDLow());
+            pPlayer->SaveToDB();
         }
     }
 };
