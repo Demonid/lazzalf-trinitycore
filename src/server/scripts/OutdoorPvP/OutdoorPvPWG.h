@@ -730,12 +730,10 @@ class OutdoorPvPWG : public OutdoorPvP
         OutdoorPvPWGCreType GetCreatureType(uint32 entry) const;
 
         void RebuildAllBuildings();
-        
+        void RemoveOfflinePlayerWGAuras();        
         void RewardMarkOfHonor(Player *player, uint32 count);
         void MoveQuestGiver(uint32 guid);
-        // To be deleted soon!
         void LoadQuestGiverMap(uint32 guid, Position posHorde, Position posAlli);
-        // To be deleted soon!
         bool UpdateQuestGiverPosition(uint32 guid, Creature *creature);
 
     private:
