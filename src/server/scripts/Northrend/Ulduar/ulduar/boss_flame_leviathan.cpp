@@ -879,6 +879,7 @@ public:
     {
         spell_pool_of_tarAI(Creature* pCreature) : TriggerAI(pCreature)
         {
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetReactState(REACT_PASSIVE);
             me->AddAura(SPELL_TAR_PASSIVE, me);
