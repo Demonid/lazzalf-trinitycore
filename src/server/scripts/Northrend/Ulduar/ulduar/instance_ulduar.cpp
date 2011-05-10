@@ -698,9 +698,6 @@ class instance_ulduar : public InstanceMapScript
                         activeKeepers += value;
                 default:
                     break;
-                case GO_MOLE_MACHINE:
-                    if (GetBossState(TYPE_RAZORSCALE) == IN_PROGRESS)
-                        go->SetGoState(GO_STATE_ACTIVE);
             }
         }
 
