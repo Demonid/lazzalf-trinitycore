@@ -1726,6 +1726,7 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
     if (Creature* pCreature = AddCreature(entry, type, team, x, y, z, o))
     {
         pCreature->setDeathState(DEAD);
+        pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
         pCreature->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, pCreature->GetGUID());
         // aura
         // TODO: Fix display here
