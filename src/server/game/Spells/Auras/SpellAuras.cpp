@@ -1053,7 +1053,17 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                         int32 heal = GetEffect(EFFECT_0)->GetAmount();
                         caster->CastCustomSpell(target, 64801, &heal, NULL, NULL, true, NULL, GetEffect(EFFECT_0));
                     }
-                } 
+                }
+                // Cat Form, Bear Form, Dire Bear Form - exploit fix
+                else if (GetSpellProto()->SpellFamilyFlags[0] & 0xC0000000)
+                    target->RemoveAurasDueToSpell(64904); // Hymn of Hope
+                // Faerie Fire (Feral)
+                else if (GetSpellProto()->Id == 16857)
+                {
+                    // Causes damage and threat in bear form or dire bear form only
+                    if (caster->GetShapeshiftForm() != FORM_CAT)
+                        caster->CastSpell(target, 60089, true);
+                }
                 break;
             case SPELLFAMILY_MAGE:
                 if (!caster)
@@ -1205,31 +1215,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                         caster->CastCustomSpell(GetUnitOwner(), 56160, &heal, NULL, NULL, true, 0, GetEffect(0));
                     }
                 }
-                break;
-            case SPELLFAMILY_DRUID:
-                if (!caster)
-                    break;
-                // Cat Form, Bear Form, Dire Bear Form - exploit fix
-                if (GetSpellProto()->SpellFamilyFlags[0] & 0xC0000000)
-                    target->RemoveAurasDueToSpell(64904); // Hymn of Hope
-                // Rejuvenation
-                else if (GetSpellProto()->SpellFamilyFlags[0] & 0x10 && GetEffect(0))
-                {
-                    // Druid T8 Restoration 4P Bonus
-                    if (AuraEffect* aurEff = caster->GetAuraEffect(64760,0))
-                    {
-                        int32 basepoints0 = GetEffect(0)->GetAmount();
-                        caster->CastCustomSpell(target, 64801, &basepoints0, NULL, NULL, true, NULL, GetEffect(0));
-                    }
-                } 
-                // Faerie Fire (Feral)
-                else if (GetSpellProto()->Id == 16857)
-                {
-                    // Causes damage and threat in bear form or dire bear form only
-                    if (caster->GetShapeshiftForm() != FORM_CAT)
-                        caster->CastSpell(target, 60089, true);
-                }
-                break;
+                break;            
             case SPELLFAMILY_ROGUE:
                 // Sprint (skip non player casted spells by category)
                 if (GetSpellProto()->SpellFamilyFlags[0] & 0x40 && GetSpellProto()->Category == 44)
