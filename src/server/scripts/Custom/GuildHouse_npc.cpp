@@ -108,7 +108,7 @@ class npc_guild_master : public CreatureScript
     {
         uint32 guildadd = GHobj.GetGuildHouse_Add(player->GetGuildId());
         bool comprato = ((uint32(1) << (add - 1)) & guildadd);
-        if(comprato)
+        if (comprato)
         {         
             if (whisper)
             {            
@@ -126,9 +126,8 @@ class npc_guild_master : public CreatureScript
         QueryResult result = WorldDatabase.PQuery("SELECT `guid` FROM `married` WHERE `guid` = %u", player->GetGUIDLow());
 
         if (result)
-        {      
             return true;
-        }
+
         return false;
     };
 
@@ -562,6 +561,7 @@ class npc_guild_master : public CreatureScript
                     //guildhouseAddId = action - OFFSET_CONFIRM_BUY_ADD_ID_TO_ACTION
                     buyGuildhouseAdd(player, _creature, action - OFFSET_CONFIRM_BUY_ADD_ID_TO_ACTION);
                     player->CLOSE_GOSSIP_MENU();
+                    player->SaveToDB();
                 }
                 else if (action > OFFSET_CONFIRM_BUY_ID_TO_ACTION)
                 {
@@ -570,8 +570,8 @@ class npc_guild_master : public CreatureScript
                     //guildhouseId = action - OFFSET_CONFIRM_BUY_ID_TO_ACTION
                     buyGuildhouse(player, _creature, action - OFFSET_CONFIRM_BUY_ID_TO_ACTION);
                     player->CLOSE_GOSSIP_MENU();
-                }
-                player->SaveToDB();
+                    player->SaveToDB();
+                }                
                 break;
         }
         
@@ -581,9 +581,9 @@ class npc_guild_master : public CreatureScript
     bool OnGossipSelectCode( Player *player, Creature *_creature,
                              uint32 sender, uint32 action, const char* sCode )
     {
-        if(sender == GOSSIP_SENDER_MAIN)
+        if (sender == GOSSIP_SENDER_MAIN)
         {
-            if(action == ACTION_SELL_GUILDHOUSE)
+            if (action == ACTION_SELL_GUILDHOUSE)
             {
                 int i = -1;
                 try
@@ -598,6 +598,7 @@ class npc_guild_master : public CreatureScript
                 {
                     //right code
                     sellGuildhouse(player, _creature);
+                    player->SaveToDB();
                 }
                 player->CLOSE_GOSSIP_MENU();
                 return true;
