@@ -7733,7 +7733,7 @@ void Player::DuelComplete(DuelCompleteType type)
     else if (duel->opponent->GetComboTarget() == GetPetGUID())
         duel->opponent->ClearComboPoints();
 
-    if (type != DUEL_INTERUPTED)
+    if (type != DUEL_INTERRUPTED)
     {
         RemoveArenaSpellCooldowns();
         duel->opponent->RemoveArenaSpellCooldowns();
