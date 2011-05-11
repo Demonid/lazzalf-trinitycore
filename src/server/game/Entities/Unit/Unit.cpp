@@ -598,7 +598,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         // interrupting auras with AURA_INTERRUPT_FLAG_DAMAGE before checking !damage (absorbed damage breaks that type of auras)
         if (spellProto)
         {
-            if (!(spellProto->AttributesEx4 & SPELL_ATTR4_DAMAGE_NOT_BREAK_AURAS))
+            if (!(spellProto->AttributesEx4 & SPELL_ATTR4_DAMAGE_DOESNT_BREAK_AURAS))
                 pVictim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE, spellProto->Id);
         }
         else
@@ -15660,7 +15660,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         {
             pVictim->ToPlayer()->duel->opponent->CombatStopWithPets(true);
             pVictim->ToPlayer()->CombatStopWithPets(true);
-            pVictim->ToPlayer()->DuelComplete(DUEL_INTERUPTED);
+            pVictim->ToPlayer()->DuelComplete(DUEL_INTERRUPTED);
         }
     }
     else                                                // creature died
@@ -15775,7 +15775,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         }
     }
 
-    if (Vehicle* veh = pVictim->GetVehicle())
+    if (pVictim->GetVehicle())
         pVictim->ExitVehicle();
 }
 
@@ -15898,7 +15898,7 @@ void Unit::SetRooted(bool apply)
 
 //        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
-        if (Player* thisPlr = this->ToPlayer())
+        if (GetTypeId() == TYPEID_PLAYER)
         {
             WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
             data.append(GetPackGUID());
@@ -15917,7 +15917,7 @@ void Unit::SetRooted(bool apply)
     {
         if (!HasUnitState(UNIT_STAT_STUNNED))      // prevent allow move if have also stun effect
         {
-            if (Player* thisPlr = this->ToPlayer())
+            if (GetTypeId() == TYPEID_PLAYER)
             {
                 WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 10);
                 data.append(GetPackGUID());
