@@ -3076,7 +3076,7 @@ LootAutoDistribute.Enable = 1
 #        Default: 0  - Disabled, worldserver will neither use wardend, not generate any warden related traffic
 #                 1  - Enable, worldserver will connect to wardend and generate cheat ckecks for all sessions
 
-Wardend.enable = 1
+Wardend.enable = 0
 
 #    Wardend.ban
 #        Enable or disable banning accounts
