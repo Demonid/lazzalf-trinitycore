@@ -474,8 +474,6 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 64708, true);
             me->SetReactState(REACT_PASSIVE);
-                    default:
-                        break;
         }
 
         InstanceScript* pInstance;
