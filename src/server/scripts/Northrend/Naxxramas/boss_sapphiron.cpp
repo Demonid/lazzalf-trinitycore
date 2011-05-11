@@ -145,6 +145,15 @@ public:
             }
         }
 
+        void KilledUnit(Unit* Victim)
+        {
+            if (instance)
+            {
+                if (Victim->GetTypeId() == TYPEID_PLAYER)
+                    instance->SetData(DATA_IMMORTAL, 1);
+            }
+        }
+
         void JustDied(Unit* /*who*/)
         {
             _JustDied();
@@ -375,7 +384,7 @@ public:
                 {
                     if (GameObject* pGo = GameObject::GetGameObject(*me, itr->second))
                     {
-                        if (pGo->IsInBetween(me, pTarget, 2.0f)
+                        if (pGo->IsInBetween(me, pTarget, 4.0f)
                             && me->GetExactDist2d(pTarget->GetPositionX(), pTarget->GetPositionY()) - me->GetExactDist2d(pGo->GetPositionX(), pGo->GetPositionY()) < 5.0f)
                         {
                             pTarget->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
