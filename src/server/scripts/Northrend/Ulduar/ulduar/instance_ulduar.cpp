@@ -153,8 +153,6 @@ class instance_ulduar : public InstanceMapScript
         uint64 m_uiUniverseFloorCelestialGUID;
         uint64 m_uiAzerothGlobeGUID;
 
-        uint32 uiKeepersHardMode;
-
         uint64 uiLeviathanDoor[7];
         uint8  flag;
         
@@ -271,8 +269,6 @@ class instance_ulduar : public InstanceMapScript
             flag = 0;
             activeKeepers = 0;
             memset(&uiLeviathanDoor, 0, sizeof(uiLeviathanDoor));
-
-            uiKeepersHardMode = 0;
 
             // Celestial planetarium
             m_uiCelestialDoorGUID = 0;
@@ -784,9 +780,6 @@ class instance_ulduar : public InstanceMapScript
                     if (value == 1 && activeKeepers < 4)
                         activeKeepers += value;
                     break;
-                case DATA_KEEPERS_HARDMODE:
-                    uiKeepersHardMode++;
-                    break;
                 default:
                     break;
             }
@@ -869,8 +862,6 @@ class instance_ulduar : public InstanceMapScript
                         return CRITERIA_MEETED;
                 case DATA_ACTIVE_KEEPERS:
                     return activeKeepers;
-                case DATA_KEEPERS_HARDMODE:
-                    return uiKeepersHardMode;
                 default:
                     return 0;
             }
@@ -1039,35 +1030,6 @@ class instance_ulduar : public InstanceMapScript
                 else comingOutTimer -= diff;
             }
         }
-
-        /*
-        std::string GetSaveData()
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << GetBossSaveData() << " " << uiKeepersHardMode;
-
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return saveStream.str();
-        }
-
-        void Load(const char* data)
-        {
-            if (!data)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
-            }
-
-            OUT_LOAD_INST_DATA(data);
-
-            std::istringstream loadStream(LoadBossState(data));
-            loadStream >> uiKeepersHardMode;
-
-            OUT_LOAD_INST_DATA_COMPLETE;
-        }
-        */
     };
 };
 
