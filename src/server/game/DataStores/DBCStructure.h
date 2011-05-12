@@ -1002,11 +1002,6 @@ struct GtOCTClassCombatRatingScalarEntry
     float    ratio;
 };
 
-struct GtOCTClassCombatRatingScalarEntry
-{
-    float    ratio;
-};
-
 struct GtOCTRegenHPEntry
 {
     float    ratio;
