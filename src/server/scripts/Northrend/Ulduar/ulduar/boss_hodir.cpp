@@ -230,6 +230,7 @@ class boss_hodir : public CreatureScript
                 {
                     pInstance->DoCompleteAchievement(ACHIEVEMENT_THIS_CACHE_WAS_RARE);
                     pInstance->SetData(DATA_HODIR_RARE_CHEST, GO_STATE_READY);
+                    pInstance->SetData(DATA_KEEPERS_HARDMODE, GO_STATE_READY);
                 }
                 pInstance->SetData(DATA_HODIR_CHEST, GO_STATE_READY);
                 // Chest spawn

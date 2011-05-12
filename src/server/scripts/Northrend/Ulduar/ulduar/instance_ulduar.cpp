@@ -38,6 +38,7 @@ const DoorData doorData[] =
     {194776,    BOSS_MIMIRON,   DOOR_TYPE_ROOM,     0},
     {194750,    BOSS_VEZAX,     DOOR_TYPE_PASSAGE,  0},
     {194773,    BOSS_YOGGSARON, DOOR_TYPE_ROOM,     0},
+    {194767,    BOSS_ALGALON,   DOOR_TYPE_ROOM,     0},
     {0,         0,              DOOR_TYPE_ROOM,     0}, // EOF
 };
 
@@ -48,7 +49,7 @@ enum eGameObjects
     GO_KOLOGARN_CHEST_HERO   = 195047,
     GO_KOLOGARN_CHEST        = 195046,
     GO_KOLOGARN_BRIDGE       = 194232,
-    GO_KOLOGARN_DOOR        = 194553,
+    GO_KOLOGARN_DOOR         = 194553,
     GO_Hodir_CHEST_HERO      = 194308,
     GO_Hodir_CHEST           = 194307,
     GO_Hodir_Rare_CHEST      = 194200,
@@ -62,7 +63,15 @@ enum eGameObjects
     GO_Thorim_LEVER          = 194265,
     GO_Mimiron_TRAM          = 194675,
     GO_Mimiron_ELEVATOR      = 194749,
-    GO_Keepers_DOOR          = 194255
+    GO_Keepers_DOOR          = 194255,
+
+    // planetarium: algalon
+    GO_CELESTIAL_ACCES          = 194628,
+    GO_CELESTIAL_ACCES_H        = 194752,
+    GO_CELESTIAL_DOOR           = 194767,
+    GO_UNIVERSE_FLOOR_ARCHIVUM  = 194715,
+    GO_UNIVERSE_FLOOR_CELESTIAL = 194716,
+    GO_AZEROTH_GLOBE            = 194148,
 };
 
 #define ACHIEVEMENT_DWARFAGEDDON_10         3097
@@ -138,7 +147,14 @@ class instance_ulduar : public InstanceMapScript
         uint64 uiYoggSaron;
         uint64 uiAlgalon;
 
-        uint64 uiLeviathanGateGUID;
+        // Celestial planetarium
+        uint64 m_uiCelestialDoorGUID;
+        uint64 m_uiCelestialConsoleGUID;
+        uint64 m_uiUniverseFloorCelestialGUID;
+        uint64 m_uiAzerothGlobeGUID;
+
+        uint32 uiKeepersHardMode;
+
         uint64 uiLeviathanDoor[7];
         uint8  flag;
         
@@ -179,7 +195,59 @@ class instance_ulduar : public InstanceMapScript
 
         void Initialize()
         {
+            uiLeviathanGUID = 0;
+            uiLeviathanLoot = 0;
+            uiNorgannon = 0;
+            uiIgnis = 0;
+            uiRazorscale = 0;
+            uiExpCommander = 0;
+            uiXT002 = 0;
+            uiSteelbreaker = 0;
+            uiMolgeim = 0;
+            uiBrundir = 0;
+            uiKologarn = 0;
+            uiRightArm = 0;
+            uiLeftArm = 0;
+            uiKologarnBridge = 0;
+            uiAuriaya = 0;
+            uiBrightleaf = 0;
+            uiIronbranch = 0;
+            uiStonebark = 0;
+            uiFreya = 0;
+            uiThorim = 0;
+            uiRunicColossus = 0;
+            uiRuneGiant = 0;
+            uiMimiron = 0;
+            uiLeviathanMKII = 0;
+            uiVX001 = 0;
+            uiAerialUnit = 0;
+            uiMagneticCore = 0;
+            KeepersGateGUID = 0;
+            uiVezax = 0;
+            uiFreyaImage = 0;
+            uiThorimImage = 0;
+            uiMimironImage = 0;
+            uiHodirImage = 0;
+            uiFreyaYS = 0;
+            uiThorimYS = 0;
+            uiMimironYS = 0;
+            uiHodirYS = 0;
+            uiYoggSaronBrain = 0;
+            uiYoggSaron = 0;
+            uiAlgalon = 0;
+
+            pLeviathanDoor = NULL;
             KologarnChest = NULL;
+            HodirChest = NULL;
+            HodirRareChest = NULL;
+            ThorimChest = NULL;
+            ThorimRareChest = NULL;
+            pRunicDoor = NULL;
+            pStoneDoor = NULL;
+            pThorimLever = NULL;
+            MimironTram = NULL;
+            MimironElevator = NULL;
+
             towerDestroyedCount = 0;
             towerOfStorms = true;
             towerOfLife = true;
@@ -200,10 +268,17 @@ class instance_ulduar : public InstanceMapScript
             proximityMineHit = false;
             bombBotHit = false;
             rocketStrikeHit = false;
-            uiLeviathanGateGUID = 0;
             flag = 0;
             activeKeepers = 0;
             memset(&uiLeviathanDoor, 0, sizeof(uiLeviathanDoor));
+
+            uiKeepersHardMode = 0;
+
+            // Celestial planetarium
+            m_uiCelestialDoorGUID = 0;
+            m_uiCelestialConsoleGUID = 0;
+            m_uiUniverseFloorCelestialGUID = 0;
+            m_uiAzerothGlobeGUID = 0;
         }
 
         void OnGameObjectCreate(GameObject* pGo)
@@ -217,10 +292,9 @@ class instance_ulduar : public InstanceMapScript
                     HandleGameObject(NULL, true, pGo);
                     flag++;
                     if (flag == 7)
-                        flag =0;
+                        flag = 0;
                     break;
                 case GO_LEVIATHAN_GATE:
-                    uiLeviathanGateGUID = pGo->GetGUID();
                     pLeviathanDoor = pGo;
                     HandleGameObject(NULL, false, pGo);
                     break;
@@ -283,6 +357,19 @@ class instance_ulduar : public InstanceMapScript
                                 pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_LOCKED);
                     break;
                 }
+                // Celestial Planetarium
+                case GO_CELESTIAL_ACCES:
+                    m_uiCelestialConsoleGUID = pGo->GetGUID();
+                    break;
+                case GO_CELESTIAL_DOOR:
+                    m_uiCelestialDoorGUID = pGo->GetGUID();
+                    break;
+                case GO_UNIVERSE_FLOOR_CELESTIAL:
+                    m_uiUniverseFloorCelestialGUID = pGo->GetGUID();
+                    break;
+                case GO_AZEROTH_GLOBE:
+                    m_uiAzerothGlobeGUID = pGo->GetGUID();
+                    break;
             }
         }
 
@@ -696,6 +783,10 @@ class instance_ulduar : public InstanceMapScript
                 case DATA_ACTIVE_KEEPERS:
                     if (value == 1 && activeKeepers < 4)
                         activeKeepers += value;
+                    break;
+                case DATA_KEEPERS_HARDMODE:
+                    uiKeepersHardMode++;
+                    break;
                 default:
                     break;
             }
@@ -778,6 +869,8 @@ class instance_ulduar : public InstanceMapScript
                         return CRITERIA_MEETED;
                 case DATA_ACTIVE_KEEPERS:
                     return activeKeepers;
+                case DATA_KEEPERS_HARDMODE:
+                    return uiKeepersHardMode;
                 default:
                     return 0;
             }
@@ -946,6 +1039,33 @@ class instance_ulduar : public InstanceMapScript
                 else comingOutTimer -= diff;
             }
         }
+
+        std::string GetSaveData()
+        {
+            OUT_SAVE_INST_DATA;
+
+            std::ostringstream saveStream;
+            saveStream << GetBossSaveData() << " " << uiKeepersHardMode;
+
+            OUT_SAVE_INST_DATA_COMPLETE;
+            return saveStream.str();
+        }
+
+        void Load(const char* data)
+        {
+            if (!data)
+            {
+                OUT_LOAD_INST_DATA_FAIL;
+                return;
+            }
+
+            OUT_LOAD_INST_DATA(data);
+
+            std::istringstream loadStream(LoadBossState(data));
+            loadStream >> uiKeepersHardMode;
+
+            OUT_LOAD_INST_DATA_COMPLETE;
+        }
     };
 };
 
@@ -978,7 +1098,8 @@ class go_call_tram : public GameObjectScript
 };
 
 // Archivum Console
-/*enum ConsoleActions
+/*
+enum ConsoleActions
 {
     VALANYR,
     FREYA,
@@ -1025,7 +1146,8 @@ class go_archivum_console : public GameObjectScript
 
     bool OnGossipSelect(Player *pPlayer, GameObject *pGO, uint32 sender, uint32 action)
     {
-        if(sender != GOSSIP_SENDER_MAIN) return true;
+        if (sender != GOSSIP_SENDER_MAIN) 
+            return true;
 
         switch(action)
         {
@@ -1043,92 +1165,93 @@ class go_archivum_console : public GameObjectScript
         return true;
     }
         
-        //void UpdateAI(const uint32 diff)
-        //{
-        //    if (valanyrAnalysisPhase == 1)
-        //    {
-        //        if (valanyrAnalysisTimer <= diff)
-        //        {
-        //            go->MonsterSay("Fragment analysis underway.", LANG_UNIVERSAL, 0);
-        //            valanyrAnalysisTimer = 2000;
-        //            valanyrAnalysisPhase = 2;
-        //        }
-        //        else valanyrAnalysisTimer -= diff;
-        //    }
-        //    else if (valanyrAnalysisPhase == 2)
-        //    {
-        //        if (valanyrAnalysisTimer <= diff)
-        //        {
-        //            go->MonsterSay("Object identified: Val'anyr, Hammer of Ancient Kings.", LANG_UNIVERSAL, 0);
-        //            valanyrAnalysisTimer = 6000;
-        //            valanyrAnalysisPhase = 3;
-        //        }
-        //        else valanyrAnalysisTimer -= diff;
-        //    }
-        //    else if (valanyrAnalysisPhase == 3)
-        //    {
-        //        if (valanyrAnalysisTimer <= diff)
-        //        {
-        //            go->MonsterSay("Created by the titans themselves, Val'anyr was given to the first Earthen king, Urel Stoneheart. With the hammer he was to create and give life to the rest of his brethren.", LANG_UNIVERSAL, 0);
-        //            valanyrAnalysisTimer = 2500;
-        //            valanyrAnalysisPhase = 4;
-        //        }
-        //        else valanyrAnalysisTimer -= diff;
-        //    }
-        //    else if (valanyrAnalysisPhase == 4)
-        //    {
-        //        if (valanyrAnalysisTimer <= diff)
-        //        {
-        //            go->MonsterSay("Val'anyr was shattered during the first war between the Earthen and the Iron Dwarves.", LANG_UNIVERSAL, 0);
-        //            valanyrAnalysisTimer = 2000;
-        //            valanyrAnalysisPhase = 5;
-        //        }
-        //        else valanyrAnalysisTimer -= diff;
-        //    }
-        //    else if (valanyrAnalysisPhase == 5)
-        //    {
-        //        if (valanyrAnalysisTimer <= diff)
-        //        {
-        //            go->MonsterSay("The Weapon's remnants were believed lost in the conflict.", LANG_UNIVERSAL, 0);
-        //            valanyrAnalysisTimer = 2500;
-        //            valanyrAnalysisPhase = 6;
-        //        }
-        //        else valanyrAnalysisTimer -= diff;
-        //    }
-        //    else if (valanyrAnalysisPhase == 6)
-        //    {
-        //        if (valanyrAnalysisTimer <= diff)
-        //        {
-        //            go->MonsterSay("Probability of successful repair by ordinary means available in this world is close to nil.", LANG_UNIVERSAL, 0);
-        //            valanyrAnalysisTimer = 2000;
-        //            valanyrAnalysisPhase = 7;
-        //        }
-        //        else valanyrAnalysisTimer -= diff;
-        //    }
-        //    else if (valanyrAnalysisPhase == 7)
-        //    {
-        //        if (valanyrAnalysisTimer <= diff)
-        //        {
-        //            go->MonsterSay("Please hold while theoretical means are analyzed.", LANG_UNIVERSAL, 0);
-        //            valanyrAnalysisTimer = 6000;
-        //            valanyrAnalysisPhase = 8;
-        //        }
-        //        else valanyrAnalysisTimer -= diff;
-        //    }
-        //    else if (valanyrAnalysisPhase == 8)
-        //    {
-        //        if (valanyrAnalysisTimer <= diff)
-        //        {
-        //            go->MonsterSay("Powerful acidic content theoretically found inside the being Yogg-Saron would count for the liquefaction of Saronite. Submersion in this substance might be sufficient to rebind an alloy of titan origin.", LANG_UNIVERSAL, 0);
-        //            valanyrAnalysisTimer = 0;
-        //            valanyrAnalysisPhase = 0;
-        //            go->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        //        }
-        //        else valanyrAnalysisTimer -= diff;
-        //    }
-        //}
+    void UpdateAI(const uint32 diff)
+    {
+        if (valanyrAnalysisPhase == 1)
+        {
+            if (valanyrAnalysisTimer <= diff)
+            {
+                go->MonsterSay("Fragment analysis underway.", LANG_UNIVERSAL, 0);
+                valanyrAnalysisTimer = 2000;
+                valanyrAnalysisPhase = 2;
+            }
+            else valanyrAnalysisTimer -= diff;
+        }
+        else if (valanyrAnalysisPhase == 2)
+        {
+            if (valanyrAnalysisTimer <= diff)
+            {
+                go->MonsterSay("Object identified: Val'anyr, Hammer of Ancient Kings.", LANG_UNIVERSAL, 0);
+                valanyrAnalysisTimer = 6000;
+                valanyrAnalysisPhase = 3;
+            }
+            else valanyrAnalysisTimer -= diff;
+        }
+        else if (valanyrAnalysisPhase == 3)
+        {
+            if (valanyrAnalysisTimer <= diff)
+            {
+                go->MonsterSay("Created by the titans themselves, Val'anyr was given to the first Earthen king, Urel Stoneheart. With the hammer he was to create and give life to the rest of his brethren.", LANG_UNIVERSAL, 0);
+                valanyrAnalysisTimer = 2500;
+                valanyrAnalysisPhase = 4;
+            }
+            else valanyrAnalysisTimer -= diff;
+        }
+        else if (valanyrAnalysisPhase == 4)
+        {
+            if (valanyrAnalysisTimer <= diff)
+            {
+                go->MonsterSay("Val'anyr was shattered during the first war between the Earthen and the Iron Dwarves.", LANG_UNIVERSAL, 0);
+                valanyrAnalysisTimer = 2000;
+                valanyrAnalysisPhase = 5;
+            }
+            else valanyrAnalysisTimer -= diff;
+        }
+        else if (valanyrAnalysisPhase == 5)
+        {
+            if (valanyrAnalysisTimer <= diff)
+            {
+                go->MonsterSay("The Weapon's remnants were believed lost in the conflict.", LANG_UNIVERSAL, 0);
+                valanyrAnalysisTimer = 2500;
+                valanyrAnalysisPhase = 6;
+            }
+            else valanyrAnalysisTimer -= diff;
+        }
+        else if (valanyrAnalysisPhase == 6)
+        {
+            if (valanyrAnalysisTimer <= diff)
+            {
+                go->MonsterSay("Probability of successful repair by ordinary means available in this world is close to nil.", LANG_UNIVERSAL, 0);
+                valanyrAnalysisTimer = 2000;
+                valanyrAnalysisPhase = 7;
+            }
+            else valanyrAnalysisTimer -= diff;
+        }
+        else if (valanyrAnalysisPhase == 7)
+        {
+            if (valanyrAnalysisTimer <= diff)
+            {
+                go->MonsterSay("Please hold while theoretical means are analyzed.", LANG_UNIVERSAL, 0);
+                valanyrAnalysisTimer = 6000;
+                valanyrAnalysisPhase = 8;
+            }
+            else valanyrAnalysisTimer -= diff;
+        }
+        else if (valanyrAnalysisPhase == 8)
+        {
+            if (valanyrAnalysisTimer <= diff)
+            {
+                go->MonsterSay("Powerful acidic content theoretically found inside the being Yogg-Saron would count for the liquefaction of Saronite. Submersion in this substance might be sufficient to rebind an alloy of titan origin.", LANG_UNIVERSAL, 0);
+                valanyrAnalysisTimer = 0;
+                valanyrAnalysisPhase = 0;
+                go->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            }
+            else valanyrAnalysisTimer -= diff;
+        }
+    }
+};
+*/
 
-};*/
 void AddSC_instance_ulduar()
 {
     new instance_ulduar();
