@@ -3712,7 +3712,9 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit
                 case SPELLFAMILY_WARLOCK:
                 {
                     // Unstable Affliction (crash if before removeaura?)
-                    if (aura->GetSpellProto()->SpellFamilyFlags[1] & 0x0100)
+                    if (aura->GetSpellProto()->SpellFamilyFlags[0] == 0 &&
+                        aura->GetSpellProto()->SpellFamilyFlags[1] & 0x0100 &&
+                        aura->GetSpellProto()->SpellFamilyFlags[2] == 0)
                     {
                         if (AuraEffect const* aurEff = aura->GetEffect(EFFECT_0))
                         {
