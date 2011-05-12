@@ -325,6 +325,7 @@ class boss_freya : public CreatureScript
                     case 3:
                          // Knock, Knock, Knock on Wood
                         pInstance->DoCompleteAchievement(ACHIEVEMENT_KNOCK_ON_WOOD_3);
+                        pInstance->SetData(DATA_KEEPERS_HARDMODE, GO_STATE_READY);
                     case 2:
                         // Knock, Knock on Wood 
                         pInstance->DoCompleteAchievement(ACHIEVEMENT_KNOCK_ON_WOOD_2);
