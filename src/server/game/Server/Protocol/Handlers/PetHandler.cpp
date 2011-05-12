@@ -164,6 +164,7 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                     charmInfo->SaveStayPosition();
                     break;
                 case COMMAND_FOLLOW:                        //spellid=1792  //FOLLOW
+                {
                     pet->AttackStop();
                     pet->InterruptNonMeleeSpells(false);
                     pet->GetMotionMaster()->MoveFollow(_player, PET_FOLLOW_DIST, pet->GetFollowAngle());
@@ -172,8 +173,9 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                     charmInfo->SetIsCommandAttack(false);
                     charmInfo->SetIsAtStay(false);
                     charmInfo->SetIsReturning(true);
-                    charmInfo->SetIsFollowing(false);
+                    charmInfo->SetIsFollowing(false);                
                     break;
+                }
                 case COMMAND_ATTACK:                        //spellid=1792  //ATTACK
                 {
                     // Can't attack if owner is pacified
@@ -560,7 +562,9 @@ void WorldSession::HandlePetSetAction(WorldPacket & recv_data)
                 if (pet->GetTypeId() == TYPEID_UNIT && pet->ToCreature()->isPet())
                     ((Pet*)pet)->ToggleAutocast(spell_id, true);
                 else
-                    charmInfo->ToggleCreatureAutocast(spell_id, true);
+                    for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
+                        if ((*itr)->GetEntry() == pet->GetEntry())
+                            (*itr)->GetCharmInfo()->ToggleCreatureAutocast(spell_id, true);
             }
             //sign for no/turn off autocast
             else if (act_state == ACT_DISABLED && spell_id)
@@ -568,7 +572,9 @@ void WorldSession::HandlePetSetAction(WorldPacket & recv_data)
                 if (pet->GetTypeId() == TYPEID_UNIT && pet->ToCreature()->isPet())
                     ((Pet*)pet)->ToggleAutocast(spell_id, false);
                 else
-                    charmInfo->ToggleCreatureAutocast(spell_id, false);
+                    for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
+                        if ((*itr)->GetEntry() == pet->GetEntry())
+                            (*itr)->GetCharmInfo()->ToggleCreatureAutocast(spell_id, false);
 
             }
 
