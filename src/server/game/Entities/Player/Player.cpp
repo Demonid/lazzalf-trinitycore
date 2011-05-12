@@ -9202,7 +9202,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             break;
         //case 4100:  // The Culling of Stratholme
         //    NumberOfFields = 13;
-            break;
+        //    break;
          default:
             NumberOfFields = 12;
             break;
