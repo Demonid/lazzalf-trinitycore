@@ -11247,8 +11247,6 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                            break;
                        }
                     break;
-                    /*
-                    */
                 }
             }
         case SPELL_DAMAGE_CLASS_RANGED:
