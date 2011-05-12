@@ -176,7 +176,7 @@ class UnitAI
 
         // Select the targets satifying the predicate.
         // predicate shall extend std::unary_function<Unit* , bool>
-        template <class PREDICATE> void SelectTargetList(std::list<Unit*> &targetList, PREDICATE const& predicate, uint32 maxTargets, SelectAggroTarget targetType)
+        template <class PREDICATE> void SelectTargetList(std::list<Unit*> &targetList, PREDICATE predicate, uint32 maxTargets, SelectAggroTarget targetType)
         {
             std::list<HostileReference*> const& threatlist = me->getThreatManager().getThreatList();
             if (threatlist.empty())
