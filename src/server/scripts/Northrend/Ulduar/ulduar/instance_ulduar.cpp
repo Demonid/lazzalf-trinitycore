@@ -1040,6 +1040,7 @@ class instance_ulduar : public InstanceMapScript
             }
         }
 
+        /*
         std::string GetSaveData()
         {
             OUT_SAVE_INST_DATA;
@@ -1066,6 +1067,7 @@ class instance_ulduar : public InstanceMapScript
 
             OUT_LOAD_INST_DATA_COMPLETE;
         }
+        */
     };
 };
 
