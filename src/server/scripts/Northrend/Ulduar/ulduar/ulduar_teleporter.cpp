@@ -20,6 +20,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ulduar.h"
+#include "InstanceScript.h"
 
 enum Locations
 {
