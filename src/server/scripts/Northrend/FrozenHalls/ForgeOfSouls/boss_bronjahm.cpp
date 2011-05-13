@@ -83,7 +83,7 @@ class boss_bronjahm : public CreatureScript
                 events.SetPhase(PHASE_1);
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
                 events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000, 15000));
-                events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(25000, 35000), 0, PHASE_1);
+                events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(10000, 15000), 0, PHASE_1);
 
                 me->CastSpell(me, SPELL_SOULSTORM_CHANNEL, true);
 
@@ -160,7 +160,7 @@ class boss_bronjahm : public CreatureScript
                                 DoScriptText(SAY_CORRUPT_SOUL, me);
                                 DoCast(target, SPELL_CORRUPT_SOUL);
                             }
-                            events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(25000, 35000), 0, PHASE_1);
+                            events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(10000, 15000), 0, PHASE_1);
                             break;
                         case EVENT_SOULSTORM:
                             DoScriptText(SAY_SOUL_STORM, me);

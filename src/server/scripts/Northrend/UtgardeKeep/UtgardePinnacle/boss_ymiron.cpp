@@ -29,7 +29,9 @@ Script Data End */
 enum Spells
 {
     SPELL_BANE                                = 48294,
+    SPELL_BANE_DMG                            = 48295,
     H_SPELL_BANE                              = 59301,
+    H_SPELL_BANE_DMG                          = 59302,
     SPELL_DARK_SLASH                          = 48292,
     SPELL_FETID_ROT                           = 48291,
     H_SPELL_FETID_ROT                         = 59300,
@@ -94,6 +96,8 @@ static ActiveBoatStruct ActiveBot[4] =
     {CREATURE_TORGYN_VISUAL, SAY_SUMMON_TORGYN, 404.310f, -314.761f, 104.756f, 413.992f, -314.703f, 107.995f, 3.157f}
 };
 
+#define ACHI_KING_BANE 2157
+
 class boss_ymiron : public CreatureScript
 {
 public:
@@ -126,6 +130,7 @@ public:
         bool m_bIsActiveWithHALDOR;
         bool m_bIsActiveWithRANULF;
         bool m_bIsActiveWithTORGYN;
+        bool hitByBane;
 
         uint8 m_uiActiveOrder[4];
         uint8 m_uiActivedNumber;
@@ -156,6 +161,7 @@ public:
             m_bIsActiveWithHALDOR = false;
             m_bIsActiveWithRANULF = false;
             m_bIsActiveWithTORGYN = false;
+            hitByBane = false;
 
             m_uiFetidRot_Timer            = urand(8000, 13000);
             m_uiBane_Timer                = urand(18000, 23000);
@@ -185,6 +191,12 @@ public:
 
             if (pInstance)
                 pInstance->SetData(DATA_KING_YMIRON_EVENT, IN_PROGRESS);
+        }
+
+        void SpellHitTarget(Unit* /*pTarget*/, const SpellEntry *spell)
+        {
+            if (spell->Id == DUNGEON_MODE(SPELL_BANE_DMG, H_SPELL_BANE_DMG))
+                hitByBane = true;
         }
 
         void UpdateAI(const uint32 diff)
@@ -353,7 +365,12 @@ public:
             DespawnBoatGhosts(m_uiOrbGUID);
 
             if (pInstance)
+            {
+                if (IsHeroic() && !hitByBane)
+                    pInstance->DoCompleteAchievement(ACHI_KING_BANE);
+
                 pInstance->SetData(DATA_KING_YMIRON_EVENT, DONE);
+            }
         }
 
         void KilledUnit(Unit * /*victim*/)
