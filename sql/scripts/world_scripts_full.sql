@@ -2180,6 +2180,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 52481, 'spell_item_gift_of_the_harvester'),
 ( 45853, 'spell_item_map_of_the_geyser_fields'),
 ( 64981, 'spell_item_vanquished_clutches'),
+( 28441, 'spell_item_ashbringer'),
 -- warrior
 ( 12975, 'spell_warr_last_stand'),
 ( 59725, 'spell_warr_improved_spell_reflection'),
@@ -2207,6 +2208,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (  5938, 'spell_rog_shiv'),
 ( 14185, 'spell_rog_preparation'),
 (-51685, 'spell_rog_prey_on_the_weak'),
+( -2818, 'spell_rog_deadly_poison'),
 -- priest
 (-47788, 'spell_pri_guardian_spirit'),
 ( -8129, 'spell_pri_mana_burn'),
