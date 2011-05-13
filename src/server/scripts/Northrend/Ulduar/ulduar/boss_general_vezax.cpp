@@ -474,5 +474,5 @@ void AddSC_boss_general_vezax()
     new boss_general_vezax();
     new mob_saronite_vapors();
     new mob_saronite_animus();
-    new spell_mark_of_the_faceless();
+    //new spell_mark_of_the_faceless();
 }
