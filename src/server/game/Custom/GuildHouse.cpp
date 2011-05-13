@@ -315,15 +315,16 @@ void GuildHouseObject::LoadGuildHouse()
     } while (result->NextRow());
 
     sLog->outString();
-    sLog->outString( ">> Loaded %u GuildHouse", GH_map.size() );
+    sLog->outString(">> Loaded %u GuildHouse", GH_map.size() );
 }
 
 void GuildHouseObject::LoadGuildHouseAdd()
 {
     GH_AddHouse.clear();
     mGuildGuardID.clear();
-    sLog->outString( "Loading Guild House System");
-    sLog->outString("");
+
+    sLog->outString();
+    sLog->outString("Loading Guild House System");
 
     QueryResult result = WorldDatabase.Query("SELECT `guid`,`type`,`id`,`add_type` FROM guildhouses_add ORDER BY Id ASC");
 
