@@ -614,6 +614,7 @@ class npc_guild_master : public CreatureScript
 
 #define SAY_AGGRO "Nemico individuato! Obiettivo Eliminato!"
 #define SAY_WARNING "Attenzione! Ti stai avvicinando ad una sede di gilda. Allontanti o verrai ucciso se ti avvicini ulteriormente"
+#define NPC_GUARD_1 5000003
 
 class guild_guard : public CreatureScript
 {
@@ -675,10 +676,23 @@ class guild_guard : public CreatureScript
         guild_guardAI(Creature *c) : ScriptedAI(c) 
         {
             activate = true;
+
+            if (me->GetEntry() == NPC_GUARD_1)
+            {
+                dist_kill = 100;
+                dist_warning = 140;
+            }
+            else
+            {
+                dist_kill = 50;
+                dist_warning = 70;
+            }
         }
 
         bool activate;
         uint32 Check_Timer;
+        uint32 dist_kill;
+        uint32 dist_warning;
 
         uint32 GetData(uint32 type)
         {
@@ -728,7 +742,7 @@ class guild_guard : public CreatureScript
                             i->getSource()->GetSession()->GetSecurity() >= SEC_GAMEMASTER)
                             continue;
 
-                        if (i->getSource()->GetDistance2d(me) <= 120)
+                        if (i->getSource()->GetDistance2d(me) <= dist_kill)
                         {                            
                             uint32 guild =((Player*)i->getSource())->GetGuildId();
                             if (guardguild && guild != guardguild)
@@ -737,7 +751,7 @@ class guild_guard : public CreatureScript
                                 me->Kill(i->getSource());
                             }
                         }
-                        else if (i->getSource()->GetDistance2d(me) <= 150)
+                        else if (i->getSource()->GetDistance2d(me) <= dist_warning)
                         {                            
                             uint32 guild =((Player*)i->getSource())->GetGuildId();
                             if (guardguild && guild != guardguild)
