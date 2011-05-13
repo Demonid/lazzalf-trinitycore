@@ -597,24 +597,6 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
             if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_SHAMAN && m_spellProto->SpellFamilyFlags[1] & 0x400)
                 amount = caster->SpellHealingBonus(GetBase()->GetUnitOwner(), GetSpellProto(), amount, SPELL_DIRECT_DAMAGE);
             break;
-        case SPELL_AURA_DAMAGE_SHIELD:
-            if (!caster)
-                break;
-
-            if (caster->GetTypeId() == TYPEID_PLAYER && GetSpellProto()->SpellFamilyName != SPELLFAMILY_GENERIC)
-            {
-                DoneActualBenefit += caster->SpellHealingBonus(GetBase()->GetUnitOwner(), GetSpellProto(), 0, SPELL_DIRECT_DAMAGE);
-                DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellProto());
-                amount += (int32)DoneActualBenefit;
-
-                // Thorns
-                if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID && m_spellProto->SpellFamilyFlags[0] & 0x100)
-                    if (AuraEffect * aurEff = caster->GetAuraEffectOfRankedSpell(16836, 0))
-                        AddPctN(amount, aurEff->GetAmount());
-
-                return amount;
-            }
-             break;
         case SPELL_AURA_PERIODIC_DAMAGE:
             if (!caster)
                 break;
@@ -1645,7 +1627,14 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit * caster) const
                 // Wild Growth = amount + (6 - 2*doneTicks) * ticks* amount / 100
                 if (m_spellProto->SpellFamilyName == SPELLFAMILY_DRUID && m_spellProto->SpellIconID == 2864)
                 {
-                    damage += int32(float(damage * GetTotalTicks()) * ((6-float(2*(GetTickNumber()-1)))/100));
+                    int32 addition = int32(float(damage * GetTotalTicks()) * ((6-float(2*(GetTickNumber()-1)))/100));
+
+                    // Item - Druid T10 Restoration 2P Bonus
+                    if (AuraEffect* aurEff = caster->GetAuraEffect(70658, 0))
+                        // divided by 50 instead of 100 because calculated as for every 2 tick
+                        addition += abs(int32((addition * aurEff->GetAmount()) / 50));
+
+                    damage += addition;
                 }
 
                 damage = caster->SpellHealingBonus(target, GetSpellProto(), damage, DOT, GetBase()->GetStackAmount());
