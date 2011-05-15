@@ -5741,14 +5741,16 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     }
 
     AreaTableEntry const* casterAreaEntry = GetAreaEntryByAreaID(caster->GetZoneId());
-    if (casterAreaEntry && (casterAreaEntry->flags & AREA_FLAG_CAPITAL))
+    // Add Hacky Dalaran Sewers (4570) exception.
+    if (casterAreaEntry && casterAreaEntry->ID != 4570 && (casterAreaEntry->flags & AREA_FLAG_CAPITAL))
     {
         SendCastResult(SPELL_FAILED_NO_DUELING);            // Dueling isn't allowed here
         return;
     }
 
     AreaTableEntry const* targetAreaEntry = GetAreaEntryByAreaID(target->GetZoneId());
-    if (targetAreaEntry && (targetAreaEntry->flags & AREA_FLAG_CAPITAL))
+    // Add Hacky Dalaran Sewers (4570) exception.
+    if (targetAreaEntry && targetAreaEntry->ID != 4570 && (targetAreaEntry->flags & AREA_FLAG_CAPITAL))
     {
         SendCastResult(SPELL_FAILED_NO_DUELING);            // Dueling isn't allowed here
         return;
