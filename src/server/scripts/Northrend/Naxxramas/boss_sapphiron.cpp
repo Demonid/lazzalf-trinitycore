@@ -95,6 +95,7 @@ public:
         uint32 CheckFrostResistTimer;
         Map* pMap;
 
+        /*
         void InitializeAI()
         {
             float x, y, z;
@@ -106,6 +107,7 @@ public:
 
             ScriptedAI::InitializeAI();
         }
+        */
 
         void Reset()
         {
