@@ -798,6 +798,250 @@ public:
     };
 };
 
+/* Cleansing Drak'Tharon quest chain */
+
+enum CDT_ChainQuests
+{
+    QUEST_TRUCE = 11989,
+    QUEST_SUBJECT_TO_INTERPRETATION = 11991,
+    QUEST_SACRIFICES_MUST_BE_MADE = 12007,
+    QUEST_MY_HEART_IS_IN_YOUR_HANDS = 12802,
+    QUEST_VOICES_FROM_THE_DUST = 12068,    
+    QUEST_CLEANSING_DRAK_THARON = 12238,
+};
+
+/* Npc Drakuru */
+
+#define SPELL_BLOOD_OATH 50001
+
+class npc_drakuru : public CreatureScript
+{
+    public:
+        npc_drakuru(): CreatureScript("npc_drakuru") {}
+
+    bool OnGossipHello(Player *player, Creature *_Creature)
+    {
+        if (!player)
+            return true;
+
+        if (_Creature->isQuestGiver())
+            player->PrepareQuestMenu(_Creature->GetGUID());
+
+        if (player->HasAura(SPELL_BLOOD_OATH))
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Shake hands", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1); 
+            player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, _Creature->GetGUID());
+            return true;
+        }
+
+        return false;
+    };
+
+    bool OnGossipSelect(Player *player, Creature *_Creature, uint32 sender, uint32 action)
+    {
+        player->PlayerTalkClass->ClearMenus();
+        switch(action)
+        {
+            case GOSSIP_ACTION_INFO_DEF+1:
+                player->CompleteQuest(QUEST_TRUCE);
+                player->CLOSE_GOSSIP_MENU();
+                break;
+        }
+        return true;
+    };
+};
+
+/* Drakuru's Elixir */
+
+enum MojoIDs
+{
+    ITEM_FROZEN_MOJO = 35799, /* Subject to Interpretation */
+    ITEM_ZIMBO_MOJO = 35836, /* Sacrifices Must be Made */
+    ITEM_DESPERATE_MOJO = 36743, /* My Heart is in Your Hands */
+    ITEM_SACRED_MOJO = 36758, /* Voices From the Dust */
+    ITEM_ENDURING_MOJO = 38303, /* Cleansing Drak'Tharon */
+};
+
+enum DrakuruImages
+{
+    FIRST_IMAGE = 26500, /* Subject to Interpretation */
+    SECOND_IMAGE = 26543, /* Sacrifices Must be Made */
+    THIRD_IMAGE = 26701, /* My Heart is in Your Hands */
+    FOURTH_IMAGE = 26787, /* Voices From the Dust */
+    FIFTH_IMAGE = 28016, /* Cleansing Drak'Tharon */
+};
+
+class item_drakuru_elixir : public ItemScript
+{
+public:
+    item_drakuru_elixir() : ItemScript("item_drakuru_elixir") { }
+
+    bool OnUse(Player* pPlayer, Item* pItem, SpellCastTargets const& /*targets*/)
+    {
+        if (!pPlayer)
+            return true;
+
+        Creature* DrakuruImage;
+        uint32 drakuruImageID;
+
+        drakuruImageID = 0;
+
+        if (pPlayer->HasItemCount(ITEM_ENDURING_MOJO, 5)  && !(pPlayer->GetQuestStatus(QUEST_CLEANSING_DRAK_THARON) == QUEST_STATUS_REWARDED))
+            drakuruImageID = FIFTH_IMAGE;
+
+        if (pPlayer->HasItemCount(ITEM_SACRED_MOJO, 5) && !(pPlayer->GetQuestStatus(QUEST_VOICES_FROM_THE_DUST) == QUEST_STATUS_REWARDED))
+            drakuruImageID = FOURTH_IMAGE;
+
+        if (pPlayer->HasItemCount(ITEM_DESPERATE_MOJO, 5) && !(pPlayer->GetQuestStatus(QUEST_MY_HEART_IS_IN_YOUR_HANDS) == QUEST_STATUS_REWARDED))
+            drakuruImageID = THIRD_IMAGE;
+
+        if (pPlayer->HasItemCount(ITEM_ZIMBO_MOJO, 1) && !(pPlayer->GetQuestStatus(QUEST_SACRIFICES_MUST_BE_MADE) == QUEST_STATUS_REWARDED))
+            drakuruImageID = SECOND_IMAGE;
+
+        if (pPlayer->HasItemCount(ITEM_FROZEN_MOJO, 5) && !(pPlayer->GetQuestStatus(QUEST_SUBJECT_TO_INTERPRETATION) == QUEST_STATUS_REWARDED))
+            drakuruImageID = FIRST_IMAGE;
+
+        if (drakuruImageID == 0)
+            return true;
+
+        DrakuruImage = pPlayer->FindNearestCreature(drakuruImageID, 50, true);
+        if (!DrakuruImage)
+            pPlayer->SummonCreature(drakuruImageID, pPlayer->GetPositionX() + 1.f, pPlayer->GetPositionY() + 1.f, pPlayer->GetPositionZ(), pPlayer->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+
+        return true;
+    }
+};
+
+/* Seer of Zeb'Halak - Quest: Sacrifices Must be Made */
+
+#define SPELL_CREATE_EYE_OF_PROPHETS 47293
+
+class go_seer_of_zebhalak : public GameObjectScript
+{
+    public:
+        go_seer_of_zebhalak() : GameObjectScript("go_seer_of_zebhalak") { }
+
+    bool OnGossipHello(Player *pPlayer, GameObject *pGO)
+    {
+        if (!pPlayer)
+            return true;
+
+        if (pPlayer->GetQuestStatus(QUEST_SACRIFICES_MUST_BE_MADE) == QUEST_STATUS_INCOMPLETE)
+            pPlayer->CastSpell(pPlayer, SPELL_CREATE_EYE_OF_PROPHETS, true);
+
+        return true;
+    };
+};
+
+/* Support for quest Runes of Compulsion */
+
+enum RunesOfCompulsion
+{
+    // Directional Runes
+    DIRECTIONAL_RUNE_1 = 188471,
+    DIRECTIONAL_RUNE_2 = 188505,
+    DIRECTIONAL_RUNE_3 = 188506,
+    DIRECTIONAL_RUNE_4 = 188507,
+
+    // Creatures
+    DIRECTIONAL_RUNE = 26785,
+    OVERSEER_DURVAL = 26920,
+    OVERSEER_KORGAN = 26921,
+    OVERSEER_LOCHLI = 26922,
+    OVERSEER_BRUNON = 26923,
+
+    ACTION_WEAVER_KILLED = 1,
+};
+
+/* Directional Rune - entry 26785 */
+
+class npc_directional_rune : public CreatureScript
+{
+public:
+    npc_directional_rune() : CreatureScript("npc_directional_rune") { }
+
+    CreatureAI *GetAI(Creature *pCreature) const
+    {
+        return new npc_directional_runeAI(pCreature);
+    }
+
+    struct npc_directional_runeAI : public ScriptedAI
+    {
+        npc_directional_runeAI(Creature *pCreature) : ScriptedAI(pCreature) { }
+
+        uint8 runeWeaverCounter;
+        GameObject* rune;
+
+        void Reset()
+        {
+            runeWeaverCounter = 0;
+        }
+
+        void DoAction(const int32 action)
+        {
+            if (action == ACTION_WEAVER_KILLED)
+            {
+                ++runeWeaverCounter;
+
+                if (runeWeaverCounter == 4)
+                {
+                    if (rune = me->FindNearestGameObject(DIRECTIONAL_RUNE_1, 5.0f))
+                    {
+                        me->SummonCreature(OVERSEER_DURVAL, me->GetPositionX() + 1.f, me->GetPositionY() + 1.f, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+                        runeWeaverCounter = 0;
+                        return;
+                    }
+
+                    if (rune = me->FindNearestGameObject(DIRECTIONAL_RUNE_2, 5.0f))
+                    {
+                        me->SummonCreature(OVERSEER_KORGAN, me->GetPositionX() + 1.f, me->GetPositionY() + 1.f, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+                        runeWeaverCounter = 0;
+                        return;
+                    }
+
+                    if (rune = me->FindNearestGameObject(DIRECTIONAL_RUNE_3, 5.0f))
+                    {
+                        me->SummonCreature(OVERSEER_LOCHLI, me->GetPositionX() + 1.f, me->GetPositionY() + 1.f, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+                        runeWeaverCounter = 0;
+                        return;
+                    }
+
+                    if (rune = me->FindNearestGameObject(DIRECTIONAL_RUNE_4, 5.0f))
+                    {
+                        me->SummonCreature(OVERSEER_BRUNON, me->GetPositionX() + 1.f, me->GetPositionY() + 1.f, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
+                        runeWeaverCounter = 0;
+                        return;
+                    }
+                }
+            }
+        }
+    };
+};
+
+/* Iron Rune-Weaver - entry 26820 */
+
+class npc_iron_rune_weaver : public CreatureScript
+{
+public:
+    npc_iron_rune_weaver() : CreatureScript("npc_iron_rune_weaver") { }
+
+    CreatureAI *GetAI(Creature *pCreature) const
+    {
+        return new npc_iron_rune_weaverAI(pCreature);
+    }
+
+    struct npc_iron_rune_weaverAI : public ScriptedAI
+    {
+        npc_iron_rune_weaverAI(Creature *pCreature) : ScriptedAI(pCreature) { }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (Creature* rune = me->FindNearestCreature(DIRECTIONAL_RUNE, 40, true))
+                CAST_AI(npc_directional_rune::npc_directional_runeAI,rune->AI())->DoAction(ACTION_WEAVER_KILLED);
+        }
+    };
+};
+
 void AddSC_grizzly_hills()
 {
     new npc_orsonn_and_kodian;
@@ -809,4 +1053,9 @@ void AddSC_grizzly_hills()
     new npc_wounded_skirmisher;
     new npc_lightning_sentry();
     new npc_venture_co_straggler();
+    new npc_drakuru();
+    new item_drakuru_elixir();
+    new go_seer_of_zebhalak();
+    new npc_directional_rune();
+    new npc_iron_rune_weaver();
 }
