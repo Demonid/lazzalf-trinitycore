@@ -1715,7 +1715,10 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
 
     Unit * caster = GetTriggeredSpellCaster(spellInfo, m_caster, unitTarget);
 
-    caster->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID);
+    if (m_spellInfo->Id == 52588) // Skeletal Gryphon Escape
+        caster->CastSpell(unitTarget, spellInfo, true);
+    else
+        caster->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID);
 }
 
 void Spell::EffectForceCastWithValue(SpellEffIndex effIndex)
