@@ -56,13 +56,13 @@ class instance_molten_core : public InstanceMapScript
                 _golemaggTheIncineratorGUID = 0;
                 _majordomoExecutusGUID = 0;
                 _cacheOfTheFirelordGUID = 0;
-                _executusSchedule = NULL;
                 _deadBossCount = 0;
                 _ragnarosAddDeaths = 0;
-                _isLoading = false;
                 _summonedExecutus = false;
+                _executusSchedule = NULL;
+                _isLoading = false;
             }
-
+ 
             ~instance_molten_core_InstanceMapScript()
             {
                 delete _executusSchedule;
