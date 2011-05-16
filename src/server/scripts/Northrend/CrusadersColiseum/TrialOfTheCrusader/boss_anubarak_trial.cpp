@@ -149,9 +149,20 @@ public:
         void Reset()
         {
             // For an unknown reason this npc isn't recognize the Aura of Permafrost with this flags =/
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);            
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            
+            if (Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
+                if (pTarget && pTarget->isAlive())
+                {
+                    DoCast(pTarget, SPELL_MARK);
+                    me->SetSpeed(MOVE_RUN, 0.5f);
+                    m_uiSpeed = 0;
+                    m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
+                    me->TauntApply(pTarget);
+                }
         }
 
+        /*
         void EnterCombat(Unit *pWho)
         {
             if (Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
@@ -164,6 +175,7 @@ public:
                     me->TauntApply(pTarget);
                 }
         }
+        */
 
         void DamageTaken(Unit* /*pWho*/, uint32& uiDamage)
         {
