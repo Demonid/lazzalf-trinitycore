@@ -449,7 +449,8 @@ struct boss_jormungarAI : public ScriptedAI
         if (!UpdateVictim()) 
             return;
 
-        if (IsHeroic() && m_uiNextBossTimer)            
+        if (IsHeroic() && m_uiNextBossTimer) 
+        {
             if (m_uiNextBossTimer <= uiDiff)
             {
                 m_uiNextBossTimer = 0;
@@ -463,6 +464,7 @@ struct boss_jormungarAI : public ScriptedAI
                         }
                 }                
             } else m_uiNextBossTimer -= uiDiff;
+        }
 
         if (instanceScript && instanceScript->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL && !enraged)
         {
