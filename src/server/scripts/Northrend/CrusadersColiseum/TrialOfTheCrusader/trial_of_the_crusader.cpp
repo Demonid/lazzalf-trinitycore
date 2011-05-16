@@ -333,6 +333,8 @@ class boss_lich_king_toc : public CreatureScript
                             me->DespawnOrUnsummon();
                             m_uiUpdateTimer = 20000;
                             break;
+                        default:
+                            break;
                     }
                 } else m_uiUpdateTimer -= uiDiff;
                 m_pInstance->SetData(TYPE_EVENT_TIMER, m_uiUpdateTimer);
@@ -499,6 +501,8 @@ class npc_fizzlebang_toc : public CreatureScript
                             }
                             m_pInstance->SetData(TYPE_EVENT, 1160);
                             m_uiUpdateTimer = 3000;
+                            break;
+                        default:
                             break;
                     }
                 } else m_uiUpdateTimer -= uiDiff;
@@ -788,7 +792,7 @@ class npc_tirion_toc : public CreatureScript
                             break;
                         case 5020:
                             DoScriptText(SAY_STAGE_4_03, me);
-                            m_uiUpdateTimer = 1000;
+                            m_uiUpdateTimer = 5000;
                             m_pInstance->SetData(TYPE_EVENT, 0);
                             break;
                         case 6000:
@@ -814,6 +818,8 @@ class npc_tirion_toc : public CreatureScript
                             me->DespawnOrUnsummon();
                             m_uiUpdateTimer = 5000;
                             m_pInstance->SetData(TYPE_EVENT, 6030);
+                            break;
+                        default:
                             break;
                     }
                 } else m_uiUpdateTimer -= uiDiff;
@@ -892,6 +898,8 @@ class npc_garrosh_toc : public CreatureScript
                             DoScriptText(SAY_STAGE_3_03h, me);
                             m_uiUpdateTimer = 5000;
                             m_pInstance->SetData(TYPE_EVENT, 4040);
+                            break;
+                        default;
                             break;
                     }
                 } else m_uiUpdateTimer -= uiDiff;
