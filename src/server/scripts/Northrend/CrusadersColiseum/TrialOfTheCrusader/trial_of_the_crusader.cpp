@@ -899,7 +899,7 @@ class npc_garrosh_toc : public CreatureScript
                             m_uiUpdateTimer = 5000;
                             m_pInstance->SetData(TYPE_EVENT, 4040);
                             break;
-                        default;
+                        default:
                             break;
                     }
                 } else m_uiUpdateTimer -= uiDiff;
