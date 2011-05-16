@@ -731,32 +731,34 @@ class guild_guard : public CreatureScript
                 Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
                 if (!PlayerList.isEmpty())
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                    {          
-                        if (!i->getSource())
+                    { 
+                        Player* plr = i->getSource();
+
+                        if (!plr)
                             continue;
 
-                        if (!i->getSource()->isAlive())
+                        if (!plr->isAlive() || plr->GetTransport() || !plr->CanFreeMove())
                             continue;
 
-                        if (i->getSource()->GetSession() &&
-                            i->getSource()->GetSession()->GetSecurity() >= SEC_GAMEMASTER)
+                        if (plr->GetSession() &&
+                            plr->GetSession()->GetSecurity() >= SEC_GAMEMASTER)
                             continue;
 
-                        if (i->getSource()->GetDistance2d(me) <= dist_kill)
+                        if (plr->GetDistance2d(me) <= dist_kill)
                         {                            
-                            uint32 guild =((Player*)i->getSource())->GetGuildId();
+                            uint32 guild = plr->GetGuildId();
                             if (guardguild && guild != guardguild)
                             {
                                 me->MonsterYell(SAY_AGGRO, LANG_UNIVERSAL, 0);
-                                me->Kill(i->getSource());
+                                me->Kill(plr);
                             }
                         }
-                        else if (i->getSource()->GetDistance2d(me) <= dist_warning)
+                        else if (plr->GetDistance2d(me) <= dist_warning)
                         {                            
-                            uint32 guild =((Player*)i->getSource())->GetGuildId();
+                            uint32 guild = plr->GetGuildId();
                             if (guardguild && guild != guardguild)
                             {
-                                me->MonsterWhisper(SAY_WARNING, i->getSource()->GetGUID());
+                                me->MonsterWhisper(SAY_WARNING, plr->GetGUID());
                             }
                         }
                     }
