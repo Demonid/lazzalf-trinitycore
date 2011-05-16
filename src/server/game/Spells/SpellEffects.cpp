@@ -5741,7 +5741,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
         return;
     }
 
-    AreaTableEntry const* casterAreaEntry = GetAreaEntryByAreaID(caster->GetZoneId());
+    AreaTableEntry const* casterAreaEntry = GetAreaEntryByAreaID(caster->GetAreaId());
     // Add Hacky Dalaran Sewers (4570) exception.
     if (casterAreaEntry && (casterAreaEntry->ID != 4570) && (casterAreaEntry->flags & AREA_FLAG_CAPITAL))
     {
@@ -5749,7 +5749,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
         return;
     }
 
-    AreaTableEntry const* targetAreaEntry = GetAreaEntryByAreaID(target->GetZoneId());
+    AreaTableEntry const* targetAreaEntry = GetAreaEntryByAreaID(target->GetAreaId());
     // Add Hacky Dalaran Sewers (4570) exception.
     if (targetAreaEntry && (targetAreaEntry->ID != 4570) && (targetAreaEntry->flags & AREA_FLAG_CAPITAL))
     {
