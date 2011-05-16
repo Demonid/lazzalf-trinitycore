@@ -459,10 +459,10 @@ struct boss_jormungarAI : public ScriptedAI
                     if (otherWorm->isAlive())
                         if (boss_jormungarAI* bossjormungarAI = CAST_AI(boss_jormungarAI, otherWorm->GetAI()))
                         {
-                            bossjormungarAI->m_uiNextBossTimer = 0;
-                            instanceScript->SetData(TYPE_NORTHREND_BEASTS, SNAKES_DONE);
+                            bossjormungarAI->m_uiNextBossTimer = 0;                            
                         }
-                }                
+                } 
+                instanceScript->SetData(TYPE_NORTHREND_BEASTS, SNAKES_DONE);
             } else m_uiNextBossTimer -= uiDiff;
         }
 
