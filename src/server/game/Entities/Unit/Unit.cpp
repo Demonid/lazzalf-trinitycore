@@ -579,7 +579,7 @@ void Unit::DealDamageMods(Unit *pVictim, uint32 &damage, uint32* absorb)
             Player* plr_def = pVictim->ToPlayer();
             if (!plr_def && pVictim->GetCharmerOrOwner())
                 plr_def = pVictim->GetCharmerOrOwner()->ToPlayer();
-            if (!plr_att || !plr_def || !plr_att->duel || plr_att->duel->opponent->GetGUIDLow() != plr_def->GetGUIDLow())
+            if (!(plr_att && plr_def && plr_att->duel && plr_att->duel->opponent->GetGUIDLow() == plr_def->GetGUIDLow()))
             {            
                 if (absorb)
                     *absorb += damage;
@@ -1150,7 +1150,7 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss)
             Player* plr_def = pVictim->ToPlayer();
             if (!plr_def && pVictim->GetCharmerOrOwner())
                 plr_def = pVictim->GetCharmerOrOwner()->ToPlayer();
-            if (!plr_att || !plr_def || !plr_att->duel || plr_att->duel->opponent->GetGUIDLow() != plr_def->GetGUIDLow())
+            if (!(plr_att && plr_def && plr_att->duel && plr_att->duel->opponent->GetGUIDLow() == plr_def->GetGUIDLow()))
                 return;
         }
     }
@@ -1388,7 +1388,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
             Player* plr_def = pVictim->ToPlayer();
             if (!plr_def && pVictim->GetCharmerOrOwner())
                 plr_def = pVictim->GetCharmerOrOwner()->ToPlayer();
-            if (!plr_att || !plr_def || !plr_att->duel || plr_att->duel->opponent->GetGUIDLow() != plr_def->GetGUIDLow())
+            if (!(plr_att && plr_def && plr_att->duel && plr_att->duel->opponent->GetGUIDLow() == plr_def->GetGUIDLow()))
                 return;
         }
     }
@@ -8960,6 +8960,18 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         case 72176:
             basepoints0 = 3;
             break;
+        case 71761: // Deep Freeze Immunity State
+        {
+            if (!pVictim->ToCreature())
+                return false;
+
+            if (pVictim->ToCreature()->GetCreatureInfo() && 
+                pVictim->ToCreature()->GetCreatureInfo()->MechanicImmuneMask & (1 << MECHANIC_STUN))
+                target = pVictim;
+            else
+                return false;
+            break;
+        }
         case 15337: // Improved Spirit Tap (Rank 1)
         case 15338: // Improved Spirit Tap (Rank 2)
         {
@@ -11209,9 +11221,9 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                         case  911: modChance+= 16;
                         case  910: modChance+= 17;
                         case  849: modChance+= 17;
-                            if (!pVictim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
-                                break;
-                            crit_chance+=modChance;
+                            // Deep Freeze damage trigger is always shattered and does not consume FoF charges
+                            if ((spellProto->Id == 71757) || pVictim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
+                                crit_chance += modChance;
                             break;
                         case 7917: // Glyph of Shadowburn
                             if (pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
