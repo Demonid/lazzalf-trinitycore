@@ -571,9 +571,7 @@ void Unit::DealDamageMods(Unit *pVictim, uint32 &damage, uint32* absorb)
     if (pVictim != this && IsControlledByPlayer() && pVictim->IsControlledByPlayer())
     {
         const AreaTableEntry *area = GetAreaEntryByAreaID(pVictim->GetAreaId());
-        if (area && area->IsSanctuary() &&      //sanctuary
-            (!ToPlayer() || !ToPlayer()->duel || (ToPlayer()->duel->opponent->GetGUIDLow() != pVictim->GetGUIDLow())) &&
-            (!GetOwner() || !GetOwner()->ToPlayer() || !GetOwner()->ToPlayer()->duel || (GetOwner()->ToPlayer()->duel->opponent->GetGUIDLow() != pVictim->GetGUIDLow())))          
+        if (area && area->IsSanctuary() && (ToPlayer() && ToPlayer()->duel && ToPlayer()->duel->opponent->GetGUIDLow() != pVictim->GetGUIDLow()))      //sanctuary
         {
             if (absorb)
                 *absorb += damage;
@@ -1135,9 +1133,7 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss)
     {
         const AreaTableEntry *area = GetAreaEntryByAreaID(pVictim->GetAreaId());
 
-        if (area && area->IsSanctuary() &&      //sanctuary
-            (!ToPlayer() || !ToPlayer()->duel || (ToPlayer()->duel->opponent->GetGUIDLow() != pVictim->GetGUIDLow())) &&
-            (!GetOwner() || !GetOwner()->ToPlayer() || !GetOwner()->ToPlayer()->duel || (GetOwner()->ToPlayer()->duel->opponent->GetGUIDLow() != pVictim->GetGUIDLow())))
+        if (area && area->IsSanctuary() && (ToPlayer() && ToPlayer()->duel && ToPlayer()->duel->opponent->GetGUIDLow() != pVictim->GetGUIDLow()))       // sanctuary
             return;
     }
 
@@ -1366,9 +1362,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
     if (pVictim != this && IsControlledByPlayer() && pVictim->IsControlledByPlayer())
     {
         const AreaTableEntry *area = GetAreaEntryByAreaID(pVictim->GetAreaId());
-        if (area && area->IsSanctuary() &&      //sanctuary
-            (!ToPlayer() || !ToPlayer()->duel || (ToPlayer()->duel->opponent->GetGUIDLow() != pVictim->GetGUIDLow())) &&
-            (!GetOwner() || !GetOwner()->ToPlayer() || !GetOwner()->ToPlayer()->duel || (GetOwner()->ToPlayer()->duel->opponent->GetGUIDLow() != pVictim->GetGUIDLow())))  
+        if (area && area->IsSanctuary() && (ToPlayer() && ToPlayer()->duel && ToPlayer()->duel->opponent->GetGUIDLow() != pVictim->GetGUIDLow()))      // sanctuary
             return;
     }
 
