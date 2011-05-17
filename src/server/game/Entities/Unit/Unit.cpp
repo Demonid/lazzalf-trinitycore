@@ -571,11 +571,20 @@ void Unit::DealDamageMods(Unit *pVictim, uint32 &damage, uint32* absorb)
     if (pVictim != this && IsControlledByPlayer() && pVictim->IsControlledByPlayer())
     {
         const AreaTableEntry *area = GetAreaEntryByAreaID(pVictim->GetAreaId());
-        if (area && area->IsSanctuary() && (ToPlayer() && ToPlayer()->duel && ToPlayer()->duel->opponent->GetGUIDLow() != pVictim->GetGUIDLow()))      //sanctuary
+        if (area && area->IsSanctuary())      //sanctuary
         {
-            if (absorb)
-                *absorb += damage;
-            damage = 0;
+            Player* plr_att = ToPlayer();
+            if (!plr_att)
+                prl_att = (GetCharmerOrOwner() ? GetCharmerOrOwner()->ToPlayer() : NULL);
+            Player* plr_def = pVictim->ToPlayer();
+            if (!plr_def)
+                prl_def = (pVictim->GetCharmerOrOwner() ? pVictim->GetCharmerOrOwner()->ToPlayer() : NULL);
+            if (!plr_att || !plr_def || !plr_att->duel || plr_att->duel->opponent->GetGUIDLow() != plr_def->GetGUIDLow())
+            {            
+                if (absorb)
+                    *absorb += damage;
+                damage = 0;
+            }
         }
     }
 
@@ -1133,8 +1142,17 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss)
     {
         const AreaTableEntry *area = GetAreaEntryByAreaID(pVictim->GetAreaId());
 
-        if (area && area->IsSanctuary() && (ToPlayer() && ToPlayer()->duel && ToPlayer()->duel->opponent->GetGUIDLow() != pVictim->GetGUIDLow()))       // sanctuary
-            return;
+        if (area && area->IsSanctuary())       // sanctuary
+        {
+            Player* plr_att = ToPlayer();
+            if (!plr_att)
+                prl_att = (GetCharmerOrOwner() ? GetCharmerOrOwner()->ToPlayer() : NULL);
+            Player* plr_def = pVictim->ToPlayer();
+            if (!plr_def)
+                prl_def = (pVictim->GetCharmerOrOwner() ? pVictim->GetCharmerOrOwner()->ToPlayer() : NULL);
+            if (!plr_att || !plr_def || !plr_att->duel || plr_att->duel->opponent->GetGUIDLow() != plr_def->GetGUIDLow())
+                return;
+        }
     }
 
     // Call default DealDamage
@@ -1362,8 +1380,17 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
     if (pVictim != this && IsControlledByPlayer() && pVictim->IsControlledByPlayer())
     {
         const AreaTableEntry *area = GetAreaEntryByAreaID(pVictim->GetAreaId());
-        if (area && area->IsSanctuary() && (ToPlayer() && ToPlayer()->duel && ToPlayer()->duel->opponent->GetGUIDLow() != pVictim->GetGUIDLow()))      // sanctuary
-            return;
+        if (area && area->IsSanctuary())      // sanctuary
+        {
+            Player* plr_att = ToPlayer();
+            if (!plr_att)
+                prl_att = (GetCharmerOrOwner() ? GetCharmerOrOwner()->ToPlayer() : NULL);
+            Player* plr_def = pVictim->ToPlayer();
+            if (!plr_def)
+                prl_def = (pVictim->GetCharmerOrOwner() ? pVictim->GetCharmerOrOwner()->ToPlayer() : NULL);
+            if (!plr_att || !plr_def || !plr_att->duel || plr_att->duel->opponent->GetGUIDLow() != plr_def->GetGUIDLow())
+                return;
+        }
     }
 
     // Hmmmm dont like this emotes client must by self do all animations
