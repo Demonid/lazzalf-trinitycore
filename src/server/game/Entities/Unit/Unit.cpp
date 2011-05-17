@@ -574,11 +574,11 @@ void Unit::DealDamageMods(Unit *pVictim, uint32 &damage, uint32* absorb)
         if (area && area->IsSanctuary())      //sanctuary
         {
             Player* plr_att = ToPlayer();
-            if (!plr_att)
-                prl_att = GetCharmerOrOwner() ? GetCharmerOrOwner()->ToPlayer() : NULL;
+            if (!plr_att && GetCharmerOrOwner())
+                plr_att = GetCharmerOrOwner()->ToPlayer();
             Player* plr_def = pVictim->ToPlayer();
-            if (!plr_def)
-                prl_def = pVictim->GetCharmerOrOwner() ? pVictim->GetCharmerOrOwner()->ToPlayer() : NULL;
+            if (!plr_def && pVictim->GetCharmerOrOwner())
+                plr_def = pVictim->GetCharmerOrOwner()->ToPlayer();
             if (!plr_att || !plr_def || !plr_att->duel || plr_att->duel->opponent->GetGUIDLow() != plr_def->GetGUIDLow())
             {            
                 if (absorb)
@@ -1145,11 +1145,11 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss)
         if (area && area->IsSanctuary())       // sanctuary
         {
             Player* plr_att = ToPlayer();
-            if (!plr_att)
-                prl_att = GetCharmerOrOwner() ? GetCharmerOrOwner()->ToPlayer() : NULL;
+            if (!plr_att && GetCharmerOrOwner())
+                plr_att = GetCharmerOrOwner()->ToPlayer();
             Player* plr_def = pVictim->ToPlayer();
-            if (!plr_def)
-                prl_def = pVictim->GetCharmerOrOwner() ? pVictim->GetCharmerOrOwner()->ToPlayer() : NULL;
+            if (!plr_def && pVictim->GetCharmerOrOwner())
+                plr_def = pVictim->GetCharmerOrOwner()->ToPlayer();
             if (!plr_att || !plr_def || !plr_att->duel || plr_att->duel->opponent->GetGUIDLow() != plr_def->GetGUIDLow())
                 return;
         }
@@ -1383,11 +1383,11 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
         if (area && area->IsSanctuary())      // sanctuary
         {
             Player* plr_att = ToPlayer();
-            if (!plr_att)
-                prl_att = GetCharmerOrOwner() ? GetCharmerOrOwner()->ToPlayer() : NULL;
+            if (!plr_att && GetCharmerOrOwner())
+                plr_att = GetCharmerOrOwner()->ToPlayer();
             Player* plr_def = pVictim->ToPlayer();
-            if (!plr_def)
-                prl_def = pVictim->GetCharmerOrOwner() ? pVictim->GetCharmerOrOwner()->ToPlayer() : NULL;
+            if (!plr_def && pVictim->GetCharmerOrOwner())
+                plr_def = pVictim->GetCharmerOrOwner()->ToPlayer();
             if (!plr_att || !plr_def || !plr_att->duel || plr_att->duel->opponent->GetGUIDLow() != plr_def->GetGUIDLow())
                 return;
         }
