@@ -131,7 +131,7 @@ class npc_announcer_toc10 : public CreatureScript
 
             char const* _message = "We are ready!";
 
-            if (player->isInCombat() || instanceScript->IsEncounterInProgress() || instanceScript->GetData(TYPE_EVENT))
+            if (player->isInCombat() || instanceScript->IsEncounterInProgress() /*|| instanceScript->GetData(TYPE_EVENT)*/)
                 return true;
 
             uint8 i = 0;
@@ -333,6 +333,8 @@ class boss_lich_king_toc : public CreatureScript
                             me->DespawnOrUnsummon();
                             m_uiUpdateTimer = 20000;
                             break;
+                        default:
+                            break;
                     }
                 } else m_uiUpdateTimer -= uiDiff;
                 m_pInstance->SetData(TYPE_EVENT_TIMER, m_uiUpdateTimer);
@@ -463,7 +465,7 @@ class npc_fizzlebang_toc : public CreatureScript
                             break;
                         case 1140:
                             DoScriptText(SAY_STAGE_1_04, me);
-                            if (Creature* pTemp = me->SummonCreature(NPC_JARAXXUS, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 5.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME))
+                            if (Creature* pTemp = me->SummonCreature(NPC_JARAXXUS, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 5.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2*DESPAWN_TIME))
                             {
                                 pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 pTemp->SetReactState(REACT_PASSIVE);
@@ -499,6 +501,8 @@ class npc_fizzlebang_toc : public CreatureScript
                             }
                             m_pInstance->SetData(TYPE_EVENT, 1160);
                             m_uiUpdateTimer = 3000;
+                            break;
+                        default:
                             break;
                     }
                 } else m_uiUpdateTimer -= uiDiff;
@@ -597,7 +601,8 @@ class npc_tirion_toc : public CreatureScript
                             if (m_pInstance->GetData(TYPE_BEASTS) != DONE)
                             {
                                 me->SummonCreature(NPC_DREADSCALE, ToCCommonLoc[3].GetPositionX(), ToCCommonLoc[3].GetPositionY(), ToCCommonLoc[3].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN);
-                                me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[4].GetPositionX(), ToCCommonLoc[4].GetPositionY(), ToCCommonLoc[4].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN);
+                                if (!Unit::GetCreature((*me),m_pInstance->GetData64(NPC_ACIDMAW)))
+                                    me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[4].GetPositionX(), ToCCommonLoc[4].GetPositionY(), ToCCommonLoc[4].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN);
                                 if (Creature* pTemp = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_DREADSCALE)))
                                 {
                                     pTemp->GetMotionMaster()->MovePoint(0, ToCCommonLoc[8].GetPositionX(), ToCCommonLoc[8].GetPositionY(), ToCCommonLoc[8].GetPositionZ());
@@ -645,7 +650,7 @@ class npc_tirion_toc : public CreatureScript
                         case 310:
                             if (m_pInstance->GetData(TYPE_BEASTS) != DONE)
                             {
-                                me->SummonCreature(NPC_ICEHOWL, ToCCommonLoc[10].GetPositionX(), ToCCommonLoc[10].GetPositionY(), ToCCommonLoc[10].GetPositionZ(), 5, TEMPSUMMON_DEAD_DESPAWN);
+                                me->SummonCreature(NPC_ICEHOWL, ToCCommonLoc[10].GetPositionX(), ToCCommonLoc[10].GetPositionY(), ToCCommonLoc[10].GetPositionZ(), 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2*DESPAWN_TIME);
                                 if (Creature* pTemp = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ICEHOWL)))
                                 {
                                     pTemp->GetMotionMaster()->MovePoint(0, ToCCommonLoc[5].GetPositionX(), ToCCommonLoc[5].GetPositionY(), ToCCommonLoc[5].GetPositionZ());
@@ -787,7 +792,7 @@ class npc_tirion_toc : public CreatureScript
                             break;
                         case 5020:
                             DoScriptText(SAY_STAGE_4_03, me);
-                            m_uiUpdateTimer = 1000;
+                            m_uiUpdateTimer = 5000;
                             m_pInstance->SetData(TYPE_EVENT, 0);
                             break;
                         case 6000:
@@ -813,6 +818,8 @@ class npc_tirion_toc : public CreatureScript
                             me->DespawnOrUnsummon();
                             m_uiUpdateTimer = 5000;
                             m_pInstance->SetData(TYPE_EVENT, 6030);
+                            break;
+                        default:
                             break;
                     }
                 } else m_uiUpdateTimer -= uiDiff;
@@ -891,6 +898,8 @@ class npc_garrosh_toc : public CreatureScript
                             DoScriptText(SAY_STAGE_3_03h, me);
                             m_uiUpdateTimer = 5000;
                             m_pInstance->SetData(TYPE_EVENT, 4040);
+                            break;
+                        default:
                             break;
                     }
                 } else m_uiUpdateTimer -= uiDiff;

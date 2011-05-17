@@ -27,6 +27,8 @@ enum Data
     DATA_INFINITE_EVENT,
     DATA_ARTHAS_EVENT,
     DATA_CRATE_COUNT,
+    DATA_INFINITE_EVENT_START,
+    DATA_ZOMBIEFEST,
 };
 
 enum Data64
@@ -69,7 +71,17 @@ enum GameObjects
     GO_SUSPICIOUS_CRATE = 190094,
     GO_PLAGUED_CRATE    = 190095,
 };
+ 
+enum Culling_WorldStates
+{
+    WORLD_STATE_TIMER              = 3932,
+    WORLD_STATE_TIME_COUNTER       = 3931,
+    WORLD_STATE_WAVES              = 3504,
+    WORLD_STATE_CRATES             = 3479,
+    WORLD_STATE_CRATES_2           = 3480
+};
 
+/*
 enum WorldStatesCoT
 {
     WORLDSTATE_SHOW_CRATES          = 3479,
@@ -77,6 +89,18 @@ enum WorldStatesCoT
     WORLDSTATE_WAVE_COUNT           = 3504,
     WORLDSTATE_TIME_GUARDIAN        = 3931,
     WORLDSTATE_TIME_GUARDIAN_SHOW   = 3932,
+};
+*/
+
+enum AchievementControl
+{
+    ACHI_IS_NOT_STARTED = 1,
+    ACHI_START,
+    ACHI_IS_IN_PROGRESS,
+    ACHI_COMPLETED,
+    ACHI_FAILED,
+    ACHI_RESET,
+    ACHI_INCREASE,
 };
 
 enum CrateSpells

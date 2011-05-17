@@ -195,7 +195,8 @@ class mob_faerlina_add : public CreatureScript
 
             void Reset()
             {
-                if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL) {
+                if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL) 
+                {
                     me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_BIND, true);
                     me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
                 }
