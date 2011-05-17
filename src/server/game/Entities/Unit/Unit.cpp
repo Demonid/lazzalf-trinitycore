@@ -5761,6 +5761,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     break;
                 }
                 // Purified Shard of the Scale
+                /*
                 case 69755:
                 {
                     if (this->IsHostileTo(target))
@@ -5778,6 +5779,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         triggered_spell_id = 69734;
                     break;
                 }
+                */
                 case 70871:
                 {
                     target = this;
