@@ -395,9 +395,7 @@ struct boss_jormungarAI : public ScriptedAI
         slimePoolTimer = 15*IN_MILLISECONDS;
         spitTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
         sprayTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-        sweepTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-
-        m_uiNextBossTimer = 160*IN_MILLISECONDS;
+        sweepTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);        
     }
 
     void JustDied(Unit* /*pKiller*/)
@@ -638,6 +636,7 @@ class boss_acidmaw : public CreatureScript
             submergeTimer = 500;
             DoCast(me, SPELL_SUBMERGE_0);
             stage = 2;
+            m_uiNextBossTimer = 160*IN_MILLISECONDS;
         }
     };
 
@@ -669,6 +668,7 @@ public:
 
             submergeTimer = 45 * IN_MILLISECONDS;
             stage = 0;
+            m_uiNextBossTimer = 165*IN_MILLISECONDS;
         }
     };
 
