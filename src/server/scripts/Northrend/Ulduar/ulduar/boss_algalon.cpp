@@ -150,6 +150,7 @@ public:
         InstanceScript* Instance;
         bool Hero;
         bool Fight;
+        bool someoneDied;
 
         bool IntroStart;
         bool IntroEnd;
@@ -219,6 +220,7 @@ public:
 
             DebugModeOn = false;
             Fight = false;
+            someoneDied = false;
 
             CosmicSmash_Timer = 25000;
             Target = false;
@@ -320,6 +322,8 @@ public:
 
         void KilledUnit()
         {
+            someoneDied = true;
+
             switch (rand()%2)
             {
             case 0: DoScriptText(SAY_KILL_1, me); break;
@@ -346,6 +350,17 @@ public:
             case STAR: EraseDespawnedAdd(CollapsingStar_GUID, pC->GetGUID()); break;
             case CONSTELLATION: EraseDespawnedAdd(LivingConstellation_GUID, pC->GetGUID()); break;
             case UNLEASHED_DM: EraseDespawnedAdd(DarkMattery_GUID, pC->GetGUID()); break;
+            }
+        }
+
+        uint32 GetData(uint32 type)
+        {
+            switch (type)
+            {
+            case DATA_FEED:
+                return (someoneDied && EngagedFirstTime ? CRITERIA_MEETED : CRITERIA_NOT_MEETED);
+            default:
+                return 0;
             }
         }
 
