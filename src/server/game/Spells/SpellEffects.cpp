@@ -3170,16 +3170,8 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
                     if (damage)                                            // if not spell info, DB values used
                     {                        
-                        if (summon->GetEntry() == 10467) // Mana Tide inherits 10% of owner health
-                        {
-                            summon->SetMaxHealth(m_caster->GetMaxHealth()*0.1);
-                            summon->SetHealth(m_caster->GetMaxHealth()*0.1);
-                        }
-                        else
-                        {
-                            summon->SetMaxHealth(damage);
-                            summon->SetHealth(damage);
-                        }
+                        summon->SetMaxHealth(damage);
+                        summon->SetHealth(damage);
                     }
 
                     if (m_originalCaster->GetTypeId() == TYPEID_PLAYER
