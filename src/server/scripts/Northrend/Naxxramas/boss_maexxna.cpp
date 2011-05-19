@@ -68,11 +68,11 @@ public:
 
     struct boss_maexxnaAI : public BossAI
     {
-        boss_maexxnaAI(Creature *c) : BossAI(c, BOSS_MAEXXNA) {}
+        boss_maexxnaAI(Creature* c) : BossAI(c, BOSS_MAEXXNA) {}
 
         bool enraged;
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
             enraged = false;
@@ -83,19 +83,19 @@ public:
             events.ScheduleEvent(EVENT_SUMMON, 30000);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             _JustDied();
 
             me->SummonCreature(CREATURE_TELEPORTER, TeleporterPositions[2]);
         }
 
-        void KilledUnit(Unit* Victim)
+        void KilledUnit(Unit* victim)
         {
             if (instance)
             {
-                if (Victim->GetTypeId() == TYPEID_PLAYER)
-                    instance->SetData(DATA_IMMORTAL, 1);
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    instance->SetData(DATA_IMMORTAL_ARACHNID, CRITERIA_NOT_MEETED);
             }
         }
 
@@ -120,7 +120,7 @@ public:
                         // TODO : Add missing text
                         for (uint8 i = 0; i < RAID_MODE(1, 2); ++i)
                         {
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, -SPELL_WEB_WRAP))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, -SPELL_WEB_WRAP))
                             {
                                 pTarget->RemoveAura(RAID_MODE(SPELL_WEB_SPRAY_10, SPELL_WEB_SPRAY_25));
                                 uint8 pos = rand()%MAX_POS_WRAP;
@@ -175,7 +175,7 @@ public:
 
     struct mob_webwrapAI : public NullCreatureAI
     {
-        mob_webwrapAI(Creature *c) : NullCreatureAI(c), victimGUID(0) {}
+        mob_webwrapAI(Creature* c) : NullCreatureAI(c), victimGUID(0) {}
 
         uint64 victimGUID;
 
@@ -183,14 +183,14 @@ public:
         {
             victimGUID = guid;
             if (me->m_spells[0] && victimGUID)
-                if (Unit *victim = Unit::GetUnit(*me, victimGUID))
+                if (Unit* victim = Unit::GetUnit(*me, victimGUID))
                     victim->CastSpell(victim, me->m_spells[0], true, NULL, NULL, me->GetGUID());
         }
 
-        void JustDied(Unit * /*killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (me->m_spells[0] && victimGUID)
-                if (Unit *victim = Unit::GetUnit(*me, victimGUID))
+                if (Unit* victim = Unit::GetUnit(*me, victimGUID))
                     victim->RemoveAurasDueToSpell(me->m_spells[0], me->GetGUID());
         }
     };

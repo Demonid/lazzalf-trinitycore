@@ -75,7 +75,7 @@ public:
 
     struct boss_nothAI : public BossAI
     {
-        boss_nothAI(Creature *c) : BossAI(c, BOSS_NOTH) {}
+        boss_nothAI(Creature* c) : BossAI(c, BOSS_NOTH) {}
 
         uint32 waveCount, balconyCount;
 
@@ -86,12 +86,16 @@ public:
             _Reset();
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
             DoScriptText(SAY_AGGRO, me);
             balconyCount = 0;
             EnterPhaseGround();
+
+            if (instance)
+                instance->SetData(DATA_IMMORTAL_PLAGUE, CRITERIA_MEETED);
+                //instance->SetData(DATA_IMMORTAL_PLAGUE, instance->GetData(DATA_IMMORTAL_NOTH));
         }
 
         void EnterPhaseGround()
@@ -111,26 +115,29 @@ public:
             }
         }
 
-        void KilledUnit(Unit* Victim)
+        void KilledUnit(Unit* victim)
         {
             if (instance)
             {
-                if (Victim->GetTypeId() == TYPEID_PLAYER)
-                    instance->SetData(DATA_IMMORTAL, 1);
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                {
+                    instance->SetData(DATA_IMMORTAL_PLAGUE, CRITERIA_NOT_MEETED);
+                    //instance->SetData(DATA_IMMORTAL_NOTH, CRITERIA_NOT_MEETED);
+                }
             }
 
             if (!(rand()%5))
                 DoScriptText(SAY_SLAY, me);
         }
 
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature* summon)
         {
             summons.Summon(summon);
             summon->setActive(true);
             summon->AI()->DoZoneInCombat();
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             _JustDied();
             DoScriptText(SAY_DEATH, me);

@@ -55,7 +55,7 @@ public:
 
     struct boss_heiganAI : public BossAI
     {
-        boss_heiganAI(Creature *c) : BossAI(c, BOSS_HEIGAN) { }
+        boss_heiganAI(Creature* c) : BossAI(c, BOSS_HEIGAN) { }
 
         uint32 eruptSection;
         bool eruptDirection;
@@ -68,21 +68,21 @@ public:
             _Reset();
         }
 
-        void KilledUnit(Unit* Victim)
+        void KilledUnit(Unit* victim)
         {
             bIsSomeoneDied = true;
 
             if (instance)
             {
-                if (Victim->GetTypeId() == TYPEID_PLAYER)
-                    instance->SetData(DATA_IMMORTAL, 1);
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    instance->SetData(DATA_IMMORTAL_PLAGUE, CRITERIA_NOT_MEETED);
             }
 
             if (!(rand()%5))
                 DoScriptText(SAY_SLAY, me);
         }
 
-        void JustDied(Unit* Killer)
+        void JustDied(Unit* /*killer*/)
         {
             _JustDied();
             DoScriptText(SAY_DEATH, me);
@@ -91,7 +91,7 @@ public:
                 instance->DoCompleteAchievement(ACHIEV_SAFETY_DANCE);
         }
 
-        void EnterCombat(Unit *who)
+        void EnterCombat(Unit* who)
         {
             _EnterCombat();
             DoScriptText(SAY_AGGRO, me);

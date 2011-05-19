@@ -122,7 +122,7 @@ public:
             CheckFrostResistTimer = 5000;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
 
@@ -132,9 +132,13 @@ public:
             EnterPhaseGround();
 
             CheckPlayersFrostResist();
+
+            if (instance)
+                instance->SetData(DATA_IMMORTAL_FROSTWYRM, CRITERIA_MEETED);
+                //instance->SetData(DATA_IMMORTAL_FROSTWYRM, instance->GetData(DATA_IMMORTAL_SAPPHI));
         }
 
-        void SpellHitTarget(Unit *pTarget, const SpellEntry *spell)
+        void SpellHitTarget(Unit* pTarget, const SpellEntry* spell)
         {
             if (spell->Id == SPELL_ICEBOLT)
             {
@@ -147,12 +151,15 @@ public:
             }
         }
 
-        void KilledUnit(Unit* Victim)
+        void KilledUnit(Unit* victim)
         {
             if (instance)
             {
-                if (Victim->GetTypeId() == TYPEID_PLAYER)
-                    instance->SetData(DATA_IMMORTAL, 1);
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                {
+                    instance->SetData(DATA_IMMORTAL_FROSTWYRM, CRITERIA_NOT_MEETED);
+                    //instance->SetData(DATA_IMMORTAL_SAPPHI, CRITERIA_NOT_MEETED);
+                }
             }
         }
 
@@ -371,7 +378,7 @@ public:
             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
             for (; i != me->getThreatManager().getThreatList().end(); ++i)
             {
-                Unit *pTarget = (*i)->getTarget();
+                Unit* pTarget = (*i)->getTarget();
                 if (pTarget->GetTypeId() != TYPEID_PLAYER)
                     continue;
 

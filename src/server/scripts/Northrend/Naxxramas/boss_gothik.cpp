@@ -138,8 +138,8 @@ const float PosPlatform[4] = {2640.5f, -3360.6f, 285.26f, 0.0f};
 struct NotOnSameSide : public std::unary_function<Unit *, bool> 
 {
     bool m_inLiveSide;
-    NotOnSameSide(Unit *pSource) : m_inLiveSide(IN_LIVE_SIDE(pSource)) {}
-    bool operator() (const Unit *pTarget) 
+    NotOnSameSide(Unit* pSource) : m_inLiveSide(IN_LIVE_SIDE(pSource)) {}
+    bool operator() (const Unit* pTarget) 
     {
         return (m_inLiveSide != IN_LIVE_SIDE(pTarget));
     }
@@ -152,7 +152,7 @@ class boss_gothik : public CreatureScript
 
     struct boss_gothikAI : public BossAI
     {
-        boss_gothikAI(Creature *c) : BossAI(c, BOSS_GOTHIK) {}
+        boss_gothikAI(Creature* c) : BossAI(c, BOSS_GOTHIK) {}
 
         uint32 waveCount;
         typedef std::vector<Creature*> TriggerVct;
@@ -179,13 +179,13 @@ class boss_gothik : public CreatureScript
             thirtyPercentReached = false;
         }
 
-        void EnterCombat(Unit *who)
+        void EnterCombat(Unit* who)
         {
             for (uint32 i = 0; i < POS_LIVE; ++i)
-                if (Creature *trigger = DoSummon(WORLD_TRIGGER, PosSummonLive[i]))
+                if (Creature* trigger = DoSummon(WORLD_TRIGGER, PosSummonLive[i]))
                     LiveTriggerGUID.push_back(trigger->GetGUID());
             for (uint32 i = 0; i < POS_DEAD; ++i)
-                if (Creature *trigger = DoSummon(WORLD_TRIGGER, PosSummonDead[i]))
+                if (Creature* trigger = DoSummon(WORLD_TRIGGER, PosSummonDead[i]))
                     DeadTriggerGUID.push_back(trigger->GetGUID());
 
             if (LiveTriggerGUID.size() < POS_LIVE || DeadTriggerGUID.size() < POS_DEAD)
@@ -205,7 +205,7 @@ class boss_gothik : public CreatureScript
                 instance->SetData(DATA_GOTHIK_GATE, GO_STATE_READY);
         }
 
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature* summon)
         {
             if (summon->GetEntry() == WORLD_TRIGGER)
                 summon->setActive(true);
@@ -222,24 +222,24 @@ class boss_gothik : public CreatureScript
             summons.Summon(summon);
         }
 
-        void SummonedCreatureDespawn(Creature *summon)
+        void SummonedCreatureDespawn(Creature* summon)
         {
             summons.Despawn(summon);
         }
 
-        void KilledUnit(Unit* Victim)
+        void KilledUnit(Unit* victim)
         {
             if (instance)
             {
-                if (Victim->GetTypeId() == TYPEID_PLAYER)
-                    instance->SetData(DATA_IMMORTAL, 1);
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    instance->SetData(DATA_IMMORTAL_MILITARY, CRITERIA_NOT_MEETED);
             }
 
             if (!(rand()%5))
                 DoScriptText(SAY_KILL, me);
         }
 
-        void JustDied(Unit* Killer)
+        void JustDied(Unit* /*killer*/)
         {
             LiveTriggerGUID.clear();
             DeadTriggerGUID.clear();
@@ -255,21 +255,21 @@ class boss_gothik : public CreatureScript
             {
                 case MOB_LIVE_TRAINEE:
                 {
-                    if (Creature *LiveTrigger0 = Unit::GetCreature(*me, LiveTriggerGUID[4]))
+                    if (Creature* LiveTrigger0 = Unit::GetCreature(*me, LiveTriggerGUID[4]))
                         DoSummon(MOB_LIVE_TRAINEE, LiveTrigger0, 1);
-                    if (Creature *LiveTrigger1 = Unit::GetCreature(*me, LiveTriggerGUID[4]))
+                    if (Creature* LiveTrigger1 = Unit::GetCreature(*me, LiveTriggerGUID[4]))
                         DoSummon(MOB_LIVE_TRAINEE, LiveTrigger1, 1);
                     break;
                 }
                 case MOB_LIVE_KNIGHT:
                 {
-                    if (Creature *LiveTrigger5 = Unit::GetCreature(*me, LiveTriggerGUID[4]))
+                    if (Creature* LiveTrigger5 = Unit::GetCreature(*me, LiveTriggerGUID[4]))
                         DoSummon(MOB_LIVE_KNIGHT, LiveTrigger5, 1);
                     break;
                 }
                 case MOB_LIVE_RIDER:
                 {
-                    if (Creature *LiveTrigger4 = Unit::GetCreature(*me, LiveTriggerGUID[4]))
+                    if (Creature* LiveTrigger4 = Unit::GetCreature(*me, LiveTriggerGUID[4]))
                         DoSummon(MOB_LIVE_RIDER, LiveTrigger4, 1);
                     break;
                 }
@@ -315,7 +315,7 @@ class boss_gothik : public CreatureScript
             return false;
         }
 
-        void SpellHit(Unit *caster, const SpellEntry *spell)
+        void SpellHit(Unit* /*caster*/, const SpellEntry* spell)
         {
             uint32 spellId = 0;
             switch(spell->Id)
@@ -327,12 +327,12 @@ class boss_gothik : public CreatureScript
             if (spellId && me->isInCombat())
             {
                 me->HandleEmoteCommand(EMOTE_ONESHOT_SPELLCAST);
-                if (Creature *pRandomDeadTrigger = Unit::GetCreature(*me, DeadTriggerGUID[rand() % POS_DEAD]))
+                if (Creature* pRandomDeadTrigger = Unit::GetCreature(*me, DeadTriggerGUID[rand() % POS_DEAD]))
                     me->CastSpell(pRandomDeadTrigger, spellId, true);
             }
         }
 
-        void SpellHitTarget(Unit *pTarget, const SpellEntry *spell)
+        void SpellHitTarget(Unit* pTarget, const SpellEntry* spell)
         {
             if (!me->isInCombat())
                 return;
@@ -443,7 +443,7 @@ class boss_gothik : public CreatureScript
                             }
 
                             me->getThreatManager().resetAggro(NotOnSameSide(me));
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_NEAREST, 0))
                             {
                                 me->getThreatManager().addThreat(pTarget, 100.0f);
                                 AttackStart(pTarget);
@@ -472,17 +472,19 @@ class mob_gothik_minion : public CreatureScript
 
     struct mob_gothik_minionAI : public CombatAI
     {
-        mob_gothik_minionAI(Creature *c) : CombatAI(c)
+        mob_gothik_minionAI(Creature* c) : CombatAI(c)
         {
             liveSide = IN_LIVE_SIDE(me);
+            pInstance = c->GetInstanceScript();
         }
 
         bool liveSide;
         bool gateClose;
+        InstanceScript* pInstance;
 
-        bool isOnSameSide(const Unit *pWho)
+        bool isOnSameSide(const Unit* who)
         {
-            return (liveSide == IN_LIVE_SIDE(pWho));
+            return (liveSide == IN_LIVE_SIDE(who));
         }
 
         void DoAction(const int32 param)
@@ -490,17 +492,26 @@ class mob_gothik_minion : public CreatureScript
             gateClose = param;
         }
 
-        void DamageTaken(Unit *attacker, uint32 &damage)
+        void DamageTaken(Unit* attacker, uint32 &damage)
         {
             if (gateClose && !isOnSameSide(attacker))
                 damage = 0;
         }
 
-        void JustDied(Unit *killer)
+        void KilledUnit(Unit* victim)
+        {
+            if (pInstance)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    pInstance->SetData(DATA_IMMORTAL_MILITARY, CRITERIA_NOT_MEETED);
+            }
+         }
+
+        void JustDied(Unit* /*killer*/)
         {
             if (me->isSummon())
             {
-                if (Unit *owner = CAST_SUM(me)->GetSummoner())
+                if (Unit* owner = CAST_SUM(me)->GetSummoner())
                     CombatAI::JustDied(owner);
             }
         }
