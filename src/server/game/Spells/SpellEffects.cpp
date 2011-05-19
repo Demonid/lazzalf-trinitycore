@@ -3156,43 +3156,45 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     break;
                 case SUMMON_TYPE_TOTEM:
                 {
+                    /*
                     if (sWorld->getBoolConfig(CONFIG_DETECT_POS_COLLISION))
                     {
                         float destx, desty, destz;
                         if (VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(m_caster->GetMapId(), m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ() + 0.5f, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() + 0.5f, destx, desty, destz, -0.5f))
                         pos.Relocate(destx, desty, destz);
                     }
-                    summon = m_caster->GetMap()->SummonCreature(entry, pos, properties, duration, m_originalCaster);
-                    if (!summon || !summon->isTotem())
-                        return;
+                    */
 
-                    // Mana Tide Totem
-                    if (m_spellInfo->Id == 16190)
-                        damage = m_caster->CountPctFromMaxHealth(10);
-
-                    if (damage)                                            // if not spell info, DB values used
-                    {                        
-                        summon->SetMaxHealth(damage);
-                        summon->SetHealth(damage);
-                    }
-
-                    if (m_originalCaster->GetTypeId() == TYPEID_PLAYER
-                        && properties->Slot >= SUMMON_SLOT_TOTEM
-                        && properties->Slot < MAX_TOTEM_SLOT)
+                    summon = m_caster->GetMap()->SummonCreature(entry, pos, properties, duration, m_originalCaster, 0, false);
+                    if (summon && summon->isTotem())
                     {
-                        // set display id depending on race
-                        uint32 displayId = m_originalCaster->GetModelForTotem(PlayerTotemType(properties->Id));
-                        summon->SetNativeDisplayId(displayId);
-                        summon->SetDisplayId(displayId);
 
-                        //summon->SendUpdateToPlayerm_originalCaster->ToPlayer();
-                        WorldPacket data(SMSG_TOTEM_CREATED, 1+8+4+4);
-                        data << uint8(properties->Slot-1);
-                        data << uint64(m_originalCaster->GetGUID());
-                        data << uint32(duration);
-                        data << uint32(m_spellInfo->Id);
-                        m_originalCaster->ToPlayer()->SendDirectMessage(&data);
+                        // Mana Tide Totem
+                        if (m_spellInfo->Id == 16190)
+                            damage = m_caster->CountPctFromMaxHealth(10);
+
+                        if (damage)                                            // if not spell info, DB values used
+                        {
+                            summon->SetMaxHealth(damage);
+                            summon->SetHealth(damage);
+                        }
+
+                        if (m_originalCaster->GetTypeId() == TYPEID_PLAYER
+                            && properties->Slot >= SUMMON_SLOT_TOTEM
+                            && properties->Slot < MAX_TOTEM_SLOT)
+                        {
+                            WorldPacket data(SMSG_TOTEM_CREATED, 1 + 8 + 4 + 4);
+                            data << uint8(properties->Slot - 1);
+                            data << uint64(summon->GetGUID());
+                            data << uint32(duration);
+                            data << uint32(m_spellInfo->Id);
+                            m_originalCaster->ToPlayer()->SendDirectMessage(&data);
+                        }
                     }
+                    // client requires SMSG_TOTEM_CREATED to be sent before CreateObject and at the same time
+                    // expects the summon's GUID so adding to world must be delayed
+                    if (summon)
+                        m_caster->GetMap()->Add(summon->ToCreature());
                     break;
                 }
                 case SUMMON_TYPE_MINIPET:
