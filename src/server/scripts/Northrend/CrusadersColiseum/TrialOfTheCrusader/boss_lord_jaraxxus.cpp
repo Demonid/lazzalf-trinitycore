@@ -146,12 +146,12 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void KilledUnit(Unit *pWho)
+        void KilledUnit(Unit* who)
         {
-            if (pWho->GetTypeId() == TYPEID_PLAYER)
+            if (who->GetTypeId() == TYPEID_PLAYER)
             {
                 if (m_pInstance)
-                    m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
+                    m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, CRITERIA_NOT_MEETED);
             }
         }
 
@@ -217,7 +217,7 @@ public:
             if (m_uiFelLightningTimer <= uiDiff)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
                     DoCast(pTarget, SPELL_FEL_LIGHTING);
                 m_uiFelLightningTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             } else m_uiFelLightningTimer -= uiDiff;
@@ -225,7 +225,7 @@ public:
             if (m_uiIncinerateFleshTimer <= uiDiff)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
                 {
                     DoScriptText(EMOTE_INCINERATE, me, pTarget);
                     DoScriptText(SAY_INCINERATE, me);
@@ -245,7 +245,7 @@ public:
             if (m_uiLegionFlameTimer <= uiDiff)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
                 {
                     DoScriptText(EMOTE_LEGION_FLAME, me, pTarget);
                     DoCast(pTarget, SPELL_LEGION_FLAME);
@@ -256,7 +256,7 @@ public:
             if (GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC && m_uiTouchOfJaraxxusTimer <= uiDiff)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_TOUCH_OF_JARAXXUS);
                 m_uiTouchOfJaraxxusTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             } else m_uiTouchOfJaraxxusTimer -= uiDiff;
@@ -282,6 +282,18 @@ public:
         mob_legion_flameAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
         {
             Reset();
+            m_pInstance = pCreature->GetInstanceScript();
+        }
+
+        InstanceScript* m_pInstance;
+
+        void KilledUnit(Unit* who)
+        {
+            if (who->GetTypeId() == TYPEID_PLAYER)
+            {
+                if (m_pInstance)
+                    m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, CRITERIA_NOT_MEETED);
+            }
         }
 
         void Reset()
@@ -347,6 +359,15 @@ public:
             me->DespawnOrUnsummon();
         }
 
+        void KilledUnit(Unit* who)
+        {
+            if (who->GetTypeId() == TYPEID_PLAYER)
+            {
+                if (m_pInstance)
+                    m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, CRITERIA_NOT_MEETED);
+            }
+        }
+
         void UpdateAI(const uint32 uiDiff)
         {
             if (m_Timer <= uiDiff)
@@ -392,6 +413,15 @@ public:
         {
             m_uiFelStreakTimer = 30*IN_MILLISECONDS;
             me->SetInCombatWithZone();
+        }
+
+        void KilledUnit(Unit* who)
+        {
+            if (who->GetTypeId() == TYPEID_PLAYER)
+            {
+                if (m_pInstance)
+                    m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, CRITERIA_NOT_MEETED);
+            }
         }
 
         /*void SpellHitTarget(Unit *pTarget, const SpellEntry *pSpell)
@@ -464,6 +494,15 @@ public:
             pSummoned->SetCorpseDelay(0);
         }
 
+        void KilledUnit(Unit* who)
+        {
+            if (who->GetTypeId() == TYPEID_PLAYER)
+            {
+                if (m_pInstance)
+                    m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, CRITERIA_NOT_MEETED);
+            }
+        }
+
         void UpdateAI(const uint32 uiDiff)
         {
             if (m_Timer <= uiDiff)
@@ -521,6 +560,15 @@ public:
         {
             if (m_pInstance)
                 m_pInstance->SetData(DATA_MISTRESS_OF_PAIN_COUNT, DECREASE);
+        }
+
+        void KilledUnit(Unit* who)
+        {
+            if (who->GetTypeId() == TYPEID_PLAYER)
+            {
+                if (m_pInstance)
+                    m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, CRITERIA_NOT_MEETED);
+            }
         }
 
         void UpdateAI(const uint32 uiDiff)

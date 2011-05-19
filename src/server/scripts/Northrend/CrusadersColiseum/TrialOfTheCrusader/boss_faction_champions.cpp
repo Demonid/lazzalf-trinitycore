@@ -386,7 +386,7 @@ struct boss_faction_championsAI : public ScriptedAI
                     if (Creature* pTemp = me->FindNearestCreature(NPC_GARROSH, 300.f))
                         DoScriptText(SAY_GARROSH_KILL_ALLIANCE_PLAYER4+urand(0, 3), pTemp); // + cause we are on negative
 
-                m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
+                m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, CRITERIA_NOT_MEETED);
             }
         }
     }

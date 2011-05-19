@@ -36,12 +36,6 @@ EndScriptData */
 #define ACHIEVEMENT_TRAITOR_KING_25             3816
 #define TRAITOR_KING_MAX_TIMER                  30 * IN_MILLISECONDS
 #define TRAITOR_KING_MIN_COUNT                  40
-#define ACHIEVEMENT_TRIBUTE_SKILL_10            3808
-#define ACHIEVEMENT_TRIBUTE_MAD_SKILL_10        3809
-#define ACHIEVEMENT_TRIBUTE_INSANITY_10         3810
-#define ACHIEVEMENT_TRIBUTE_SKILL_25            3817
-#define ACHIEVEMENT_TRIBUTE_MAD_SKILL_25        3818
-#define ACHIEVEMENT_TRIBUTE_INSANITY_25         3819
 
 class instance_trial_of_the_crusader : public InstanceMapScript
 {
@@ -97,10 +91,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             uint32 ResilienceWillFixItTimer;
             uint8  SnoboldCount;
             uint32 achievementResilienceWillFixIt;
-            //uint32 saltAndPepperTimer;
             uint8  MistressOfPainCount;
-            bool   TributeToImmortalityElegible;
-            //uint32 achievementSaltAndPepper;
+            uint32 tributeToImmortalityStatus;
             uint32 scarabsCount;
             uint32 traitorKingTimer;
             uint32 achievementTraitorKing;
@@ -133,10 +125,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 SnoboldCount = 0;
                 achievementNotOneButTwoJormungars = 0;
                 MistressOfPainCount = 0;
-                TributeToImmortalityElegible = true;
+                tributeToImmortalityStatus = CRITERIA_MEETED;
                 achievementResilienceWillFixIt = 0;
-                //saltAndPepperTimer = 0;
-                //achievementSaltAndPepper = 0;
                 scarabsCount = 0;
                 traitorKingTimer = 0;
                 achievementTraitorKing = 0;
@@ -331,8 +321,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     case TYPE_VALKIRIES:
                         switch (data)
                         {
-                            //case IN_PROGRESS:
-                            //saltAndPepperTimer = 3 * MINUTE * IN_MILLISECONDS;
                             case FAIL:
                                 if (EncounterStatus[TYPE_VALKIRIES] == NOT_STARTED)
                                     data = NOT_STARTED;
@@ -344,17 +332,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                     data = DONE;
                                 break;
                             case DONE:
-                                /*if (saltAndPepperTimer > 0)
-                                {
-                                    if (Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_10MAN_NORMAL || Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_10MAN_HEROIC)
-                                        achievementSaltAndPepper = ACHIEVEMENT_SALT_AND_PEPPER_10;
-                                    if (Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_25MAN_NORMAL || Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_25MAN_HEROIC)
-                                        achievementSaltAndPepper = ACHIEVEMENT_SALT_AND_PEPPER_25;
-
-                                    AchievementEntry const *AchievSaltAndPepper = GetAchievementStore()->LookupEntry(achievementSaltAndPepper);
-                                    if (AchievSaltAndPepper)
-                                        DoCompleteAchievement(achievementSaltAndPepper);
-                                }*/
                                 if (GameObject* pChest = instance->GetGameObject(m_uiTwinChestGUID))
                                     if (pChest && !pChest->isSpawned())
                                         pChest->SetRespawnTime(7*DAY);
@@ -417,7 +394,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                     if (Creature* tirion =  instance->GetCreature(TirionGUID))
                                         if (GameObject* chest = tirion->SummonGameObject(tributeChest, 805.62f, 134.87f, 142.16f, 3.27f, 0, 0, 0, 0, 90000000))
                                             chest->SetRespawnTime(chest->GetRespawnDelay());
-                                TributeAchievements();
                                 break;
                         }
                         break;
@@ -505,7 +481,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         }
                         break;                    
                     case DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE:
-                        TributeToImmortalityElegible = false;
+                        if (data == CRITERIA_NOT_MEETED || data == CRITERIA_MEETED)
+                            tributeToImmortalityStatus = data;
                         break;
                 }
                 if (IsEncounterInProgress())
@@ -557,7 +534,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 }
             }
 
-            void TributeAchievements()
+            /*void TributeAchievements()
             {
                 switch (tributeCheck)
                 {
@@ -579,7 +556,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     case 0:
                         return;
                 }
-            }
+            }*/
 
             uint64 GetData64(uint32 type)
             {
@@ -754,6 +731,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             return ACHI_IS_IN_PROGRESS;
                         else
                             return ACHI_IS_NOT_STARTED;
+                    case DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE:
+                        return tributeToImmortalityStatus;
                     default:
                         break;
                 }
@@ -778,12 +757,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     else
                         ResilienceWillFixItTimer -= diff;
                 }
-                /*if (GetData(TYPE_VALKIRIES) == IN_PROGRESS && saltAndPepperTimer)
-                {
-                    if (saltAndPepperTimer <= uiDiff)
-                    saltAndPepperTimer = 0;
-                    else saltAndPepperTimer -= uiDiff;
-                }*/
 
                 // Achievement The Traitor King control
                 if (traitorKingTimer)
@@ -818,7 +791,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 for (uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
                     saveStream << EncounterStatus[i] << " ";
 
-                saveStream << TrialCounter;
+                saveStream << TrialCounter << " ";
+                saveStream << GetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE);
                 SaveDataBuffer = saveStream.str();
 
                 SaveToDB();
@@ -851,7 +825,11 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         EncounterStatus[i] = NOT_STARTED;
                 }
 
-                loadStream >> TrialCounter;
+                uint32 buff;
+                loadStream >> buff;
+                TrialCounter = buff;
+                loadStream >> buff;
+                SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, buff);
                 EventStage = 0;
 
                 OUT_LOAD_INST_DATA_COMPLETE;
@@ -899,7 +877,126 @@ class instance_trial_of_the_crusader : public InstanceMapScript
         }
 };
 
+#define TOC_RAID_MAP 649
+
+class criteria_tribute_to_immortality_h : public AchievementCriteriaScript
+{
+    public:
+        criteria_tribute_to_immortality_h() : AchievementCriteriaScript("criteria_tribute_to_immortality_h") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source || !(source->GetTeamId() == TEAM_HORDE))
+                return false;
+
+            InstanceScript* instance = source->GetInstanceScript();
+
+            if (!instance || source->GetMapId() != TOC_RAID_MAP)
+                return false;
+
+            if (instance->GetData(TYPE_COUNTER) == 50)
+                if (instance->GetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE) == CRITERIA_MEETED)
+                    return true;
+
+            return false;
+        }
+};
+
+class criteria_tribute_to_immortality_a : public AchievementCriteriaScript
+{
+    public:
+        criteria_tribute_to_immortality_a() : AchievementCriteriaScript("criteria_tribute_to_immortality_a") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source || !(source->GetTeamId() == TEAM_ALLIANCE))
+                return false;
+
+            InstanceScript* instance = source->GetInstanceScript();
+
+            if (!instance || source->GetMapId() != TOC_RAID_MAP)
+                return false;
+
+            if (instance->GetData(TYPE_COUNTER) == 50)
+                if (instance->GetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE) == CRITERIA_MEETED)
+                    return true;
+
+            return false;
+        }
+};
+
+class criteria_tribute_to_skill : public AchievementCriteriaScript
+{
+    public:
+        criteria_tribute_to_skill() : AchievementCriteriaScript("criteria_tribute_to_skill") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* instance = source->GetInstanceScript();
+
+            if (!instance || source->GetMapId() != TOC_RAID_MAP)
+                return false;
+
+            if (instance->GetData(TYPE_COUNTER) >= 25)
+                return true;
+
+            return false;
+        }
+};
+
+class criteria_tribute_to_mad_skill : public AchievementCriteriaScript
+{
+    public:
+        criteria_tribute_to_mad_skill() : AchievementCriteriaScript("criteria_tribute_to_mad_skill") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* instance = source->GetInstanceScript();
+
+            if (!instance || source->GetMapId() != TOC_RAID_MAP)
+                return false;
+
+            if (instance->GetData(TYPE_COUNTER) >= 45)
+                return true;
+
+            return false;
+        }
+};
+
+class criteria_tribute_to_insanity : public AchievementCriteriaScript
+{
+    public:
+        criteria_tribute_to_insanity() : AchievementCriteriaScript("criteria_tribute_to_insanity") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* instance = source->GetInstanceScript();
+
+            if (!instance || source->GetMapId() != TOC_RAID_MAP)
+                return false;
+
+            if (instance->GetData(TYPE_COUNTER) == 50)
+                return true;
+
+            return false;
+        }
+};
+
 void AddSC_instance_trial_of_the_crusader()
 {
     new instance_trial_of_the_crusader();
+    new criteria_tribute_to_immortality_h();
+    new criteria_tribute_to_immortality_a();
+    new criteria_tribute_to_skill();
+    new criteria_tribute_to_mad_skill();
+    new criteria_tribute_to_insanity();
 }

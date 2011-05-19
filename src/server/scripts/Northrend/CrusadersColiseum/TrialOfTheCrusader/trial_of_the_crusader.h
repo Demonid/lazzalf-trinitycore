@@ -5,7 +5,7 @@
 #ifndef DEF_CRUSADER_H
 #define DEF_CRUSADER_H
 
-enum
+enum ToC_Data
 {
     TYPE_BEASTS                 = 0,
     TYPE_JARAXXUS               = 1,
@@ -281,13 +281,15 @@ enum eAchievementData
 
 enum AchievementControl
 {
-    ACHI_IS_NOT_STARTED,
+    ACHI_IS_NOT_STARTED = 1,
     ACHI_START,
     ACHI_IS_IN_PROGRESS,
     ACHI_COMPLETED,
     ACHI_FAILED,
     ACHI_RESET,
     ACHI_INCREASE,
+    CRITERIA_MEETED,
+    CRITERIA_NOT_MEETED,
 };
 
 #endif

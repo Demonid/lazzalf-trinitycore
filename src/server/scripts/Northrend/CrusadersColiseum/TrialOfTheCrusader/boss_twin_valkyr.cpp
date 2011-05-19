@@ -265,7 +265,7 @@ struct boss_twin_baseAI : public ScriptedAI
         {
             DoScriptText(urand(0, 1) ? SAY_KILL1 : SAY_KILL2, me);
             if (m_pInstance)
-                m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
+                m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, CRITERIA_NOT_MEETED);
         }
     }
 

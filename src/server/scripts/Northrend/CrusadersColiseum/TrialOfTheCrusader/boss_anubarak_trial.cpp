@@ -249,10 +249,8 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             //me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            m_pInstance = pCreature->GetInstanceScript();
         }
-
-        InstanceScript* m_pInstance;
 
         SummonList Summons;
         std::list<uint64> m_vBurrowGUID;
@@ -268,6 +266,7 @@ public:
         uint32 m_uiSummonFrostSphereTimer;
         uint32 m_uiBerserkTimer;
 
+        InstanceScript* m_pInstance;
         uint8  m_uiStage;
         bool   m_bIntro;
         bool   m_bReachedPhase3;
@@ -300,17 +299,17 @@ public:
             m_vBurrowGUID.clear();
         }
 
-        void KilledUnit(Unit* pWho)
+        void KilledUnit(Unit* who)
         {
-            if (pWho->GetTypeId() == TYPEID_PLAYER)
+            if (who->GetTypeId() == TYPEID_PLAYER)
             {
                 DoScriptText(urand(0, 1) ? SAY_KILL1 : SAY_KILL2, me);
                 if (m_pInstance)
-                    m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
+                    m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, CRITERIA_NOT_MEETED);
             }
         }
 
-        void MoveInLineOfSight(Unit* /*pWho*/)
+        void MoveInLineOfSight(Unit* /*who*/)
         {
             if (!m_bIntro)
             {
@@ -329,7 +328,7 @@ public:
                     pTemp->setFaction(31);
         }
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
             Summons.DespawnAll();
             DoScriptText(SAY_DEATH, me);
@@ -340,30 +339,30 @@ public:
             }
         }
 
-        void JustSummoned(Creature* pSummoned)
-        {            
-            switch (pSummoned->GetEntry())
+        void JustSummoned(Creature* summoned)
+        {
+            switch (summoned->GetEntry())
             {
                 case NPC_BURROW:
-                    m_vBurrowGUID.push_back(pSummoned->GetGUID());
-                    pSummoned->SetReactState(REACT_PASSIVE);
-                    pSummoned->CastSpell(pSummoned, SPELL_CHURNING_GROUND, false);
+                    m_vBurrowGUID.push_back(summoned->GetGUID());
+                    summoned->SetReactState(REACT_PASSIVE);
+                    summoned->CastSpell(summoned, SPELL_CHURNING_GROUND, false);
                     break;
                 case NPC_SPIKE:
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
-                        CAST_AI(mob_anubarak_spike::mob_anubarak_spikeAI,pSummoned->AI())->m_uiTargetGUID = pTarget->GetGUID();
-                        pSummoned->CombatStart(pTarget);
-                        DoScriptText(EMOTE_SPIKE, me, pTarget);
+                        CAST_AI(mob_anubarak_spike::mob_anubarak_spikeAI,summoned->AI())->m_uiTargetGUID = target->GetGUID();
+                        summoned->CombatStart(target);
+                        DoScriptText(EMOTE_SPIKE, me, target);
                     }
                     break;
             }
-            Summons.Summon(pSummoned);
+            Summons.Summon(summoned);
         }
 
-        void SummonedCreatureDespawn(Creature* pSummoned)
+        void SummonedCreatureDespawn(Creature* summoned)
         {
-            switch (pSummoned->GetEntry())
+            switch (summoned->GetEntry())
             {
                 case NPC_SPIKE:
                     m_uiPursuingSpikeTimer = 2*IN_MILLISECONDS;
@@ -371,7 +370,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*pWho*/)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -381,12 +380,12 @@ public:
             //Despawn Scarab Swarms neutral
             Summons.DoAction(NPC_SCARAB, ACTION_SCARAB_SUBMERGE);
             //Spawn Burrow
-            for (int i=0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
                 me->SummonCreature(NPC_BURROW, AnubarakLoc[i+2]);
             //Spawn Frost Spheres
-            for (int i=0; i < 6; i++)
-                if (Unit *pSummoned = me->SummonCreature(NPC_FROST_SPHERE, SphereSpawn[i]))
-                    m_aSphereGUID[i] = pSummoned->GetGUID();
+            for (int i = 0; i < 6; i++)
+                if (Unit* summoned = me->SummonCreature(NPC_FROST_SPHERE, SphereSpawn[i]))
+                    m_aSphereGUID[i] = summoned->GetGUID();
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -507,12 +506,12 @@ public:
                         {
                             if (!pSphere->HasAura(SPELL_FROST_SPHERE))
                             {
-                                if (Creature *pSummon = me->SummonCreature(NPC_FROST_SPHERE, SphereSpawn[i]))
+                                if (Creature* pSummon = me->SummonCreature(NPC_FROST_SPHERE, SphereSpawn[i]))
                                     m_aSphereGUID[i] = pSummon->GetGUID();
                                 break;
                             }
                         }
-                        else if (Creature *pSummon = me->SummonCreature(NPC_FROST_SPHERE, SphereSpawn[i]))
+                        else if (Creature* pSummon = me->SummonCreature(NPC_FROST_SPHERE, SphereSpawn[i]))
                             m_aSphereGUID[i] = pSummon->GetGUID(); 
                         i = (i+1)%6;
                     } while (i != startAt);
@@ -598,8 +597,8 @@ public:
             m_uiDeterminationTimer = urand(5*IN_MILLISECONDS, 60*IN_MILLISECONDS);
             DoCast(me, SPELL_ACID_MANDIBLE);
             me->SetInCombatWithZone();
-            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                me->AddThreat(pTarget, 20000.0f);
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                me->AddThreat(target, 20000.0f);
             if (!me->isInCombat())
                 me->DisappearAndDie();
         }
@@ -772,7 +771,7 @@ public:
             DoCast(SPELL_FROST_SPHERE);
         }
 
-        void DamageTaken(Unit* pWho, uint32& uiDamage)
+        void DamageTaken(Unit* /*who*/, uint32& uiDamage)
         {
             if (me->GetHealth() < uiDamage)
             {
