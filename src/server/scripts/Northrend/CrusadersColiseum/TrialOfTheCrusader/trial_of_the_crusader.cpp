@@ -810,7 +810,7 @@ class npc_tirion_toc : public CreatureScript
                             {
                                 DoScriptText(SAY_STAGE_4_07, me);
                                 m_uiUpdateTimer = 60000;
-                                m_pInstance->SetData(TYPE_ANUBARAK, SPECIAL);
+                                // m_pInstance->SetData(TYPE_ANUBARAK, SPECIAL);
                                 m_pInstance->SetData(TYPE_EVENT, 6020);
                             } else m_pInstance->SetData(TYPE_EVENT, 6030);
                             break;
