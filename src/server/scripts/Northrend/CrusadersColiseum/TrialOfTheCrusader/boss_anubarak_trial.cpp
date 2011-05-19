@@ -185,6 +185,14 @@ public:
         void UpdateAI(const uint32 uiDiff)
         {
             Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID);
+
+            if (me->getVictim() && !me->getVictim()->ToPlayer())
+            {
+                me->Kill(me->getVictim());
+                if (pTarget)
+                    me->TauntApply(pTarget);
+            }
+
             if (!pTarget || !pTarget->isAlive() || !pTarget->HasAura(SPELL_MARK))
             {
                 if (Unit* pTarget = me->FindNearestCreature(NPC_FROST_SPHERE, 15.0f))
@@ -326,7 +334,10 @@ public:
             Summons.DespawnAll();
             DoScriptText(SAY_DEATH, me);
             if (m_pInstance)
+            {
+                m_pInstance->SetData(TYPE_ANUBARAK, SPECIAL);
                 m_pInstance->SetData(TYPE_ANUBARAK, DONE);
+            }
         }
 
         void JustSummoned(Creature* pSummoned)
