@@ -123,6 +123,7 @@ InstanceSave *InstanceSaveManager::GetInstanceSave(uint32 InstanceId)
 
 void InstanceSaveManager::DeleteInstanceFromDB(uint32 instanceid)
 {
+    //resetImmortalCriteria(instanceid);
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     trans->PAppend("DELETE FROM instance WHERE id = '%u'", instanceid);
     trans->PAppend("DELETE FROM character_instance WHERE instance = '%u'", instanceid);
@@ -627,3 +628,54 @@ uint32 InstanceSaveManager::GetNumBoundGroupsTotal()
 
     return ret;
 }
+
+/*void InstanceSaveManager::resetImmortalCriteria(uint32 instanceId)
+{
+    QueryResult mainResult = CharacterDatabase.PQuery("SELECT map, difficulty FROM instance WHERE id = '%u'", instanceId);
+    if (mainResult)
+    {
+        do
+        {
+            Field* fields = mainResult->Fetch();
+            uint32 mapid = fields[0].GetUInt16();
+            Difficulty difficulty = Difficulty(fields[1].GetUInt32());
+
+            if (mapid != 533)
+                return;
+
+            uint8 maxCriteria = 13;
+            const char* selectQuery;
+            const char* deleteQuery;            
+                    
+            if (difficulty == RAID_DIFFICULTY_10MAN_NORMAL)
+            {
+                selectQuery = "SELECT criteria FROM character_achievement_progress WHERE guid = '%u' AND criteria IN (10042,10340,10341,10342,10347,10348,10349,10350,10351,10403,10439,10582,10598)";
+                deleteQuery = "DELETE FROM character_achievement_progress WHERE guid = '%u' AND criteria IN (10042,10340,10341,10342,10347,10348,10349,10350,10351,10403,10439,10582,10598)";
+            }
+            else if (difficulty == RAID_DIFFICULTY_25MAN_NORMAL)
+            {
+                selectQuery = "SELECT criteria FROM character_achievement_progress WHERE guid = '%u' AND criteria IN (10352,10353,10354,10355,10357,10361,10362,10363,10364,10404,10583,10599,10719)";
+                deleteQuery = "DELETE FROM character_achievement_progress WHERE guid = '%u' AND criteria IN (10352,10353,10354,10355,10357,10361,10362,10363,10364,10404,10583,10599,10719)";
+            }
+
+            if (!selectQuery || !deleteQuery)
+                return;
+
+            QueryResult charResult = CharacterDatabase.PQuery("SELECT guid FROM character_instance WHERE instance = '%u'", instanceId);
+            if (charResult)
+            {
+                do
+                {
+                    Field* fields = charResult->Fetch();
+                    uint64 playerGUID = fields[0].GetUInt64();
+                    QueryResult singleCharResult = CharacterDatabase.PQuery(selectQuery, playerGUID);
+                    if (singleCharResult)
+                    {
+                        if (singleCharResult->GetRowCount() < maxCriteria)
+                            CharacterDatabase.DirectPExecute(deleteQuery, playerGUID);
+                    }
+                } while (charResult->NextRow());
+            }
+        } while (mainResult->NextRow());
+    } 
+}*/
