@@ -713,12 +713,14 @@ public:
             {
                 damage = 0;
                 me->SetFullHealth();
-                //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 phase = PHASE_2;
                 uiStep = 0;
                 uiPhase_timer = -1;
                 JumpToNextStep(100);
             }
+            else if (phase != PHASE_1)
+                damage = 0; //per evitare che possa morire con spell aoe
         }
         
         void JumpToNextStep(uint32 uiTimer)
