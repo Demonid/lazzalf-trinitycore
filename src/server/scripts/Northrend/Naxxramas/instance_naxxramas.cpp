@@ -161,23 +161,17 @@ public:
         time_t minHorsemenDiedTime;
         time_t maxHorsemenDiedTime;
 
-        /*bool somebodyDiedArachnid;
-        bool somebodyDiedConstruct;
-        bool somebodyDiedMilitary;
-        bool somebodyDiedPlague;
-        bool somebodyDiedFrostwyrm;
-
-        bool somebodyDiedAnub;
-        bool somebodyDiedPatch;
-        bool somebodyDiedRazu;
-        bool somebodyDiedNoth;
-        bool somebodyDiedSapphi;*/
-
         uint32 arachnidStatus;
         uint32 constructStatus;
         uint32 militaryStatus;
         uint32 plagueStatus;
         uint32 frostwyrmStatus;
+
+        uint32 anubStatus;
+        uint32 patchStatus;
+        uint32 razuStatus;
+        uint32 nothStatus;
+        uint32 sapphiStatus;
 
         void Inizialize()
         {
@@ -189,6 +183,11 @@ public:
             militaryStatus = CRITERIA_NOT_MEETED;
             plagueStatus = CRITERIA_NOT_MEETED;
             frostwyrmStatus = CRITERIA_NOT_MEETED;
+            anubStatus = CRITERIA_MEETED;
+            patchStatus = CRITERIA_MEETED;
+            razuStatus = CRITERIA_MEETED;
+            nothStatus = CRITERIA_MEETED;
+            sapphiStatus = CRITERIA_MEETED;
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -319,70 +318,35 @@ public:
                     }
                     break;
                 case DATA_IMMORTAL_ARACHNID:
-                    /*if (value == CRITERIA_NOT_MEETED)
-                        somebodyDiedArachnid = true;
-                    else if (value == CRITERIA_MEETED)
-                        somebodyDiedArachnid = false;*/
                     arachnidStatus = value;
                     break;
                 case DATA_IMMORTAL_CONSTRUCT:
-                    /*if (value == CRITERIA_NOT_MEETED)
-                        somebodyDiedConstruct = true;
-                    else if (value == CRITERIA_MEETED)
-                        somebodyDiedConstruct = false;*/
                     constructStatus = value;
                     break;
                 case DATA_IMMORTAL_MILITARY:
-                    /*if (value == CRITERIA_NOT_MEETED)
-                        somebodyDiedMilitary = true;
-                    else if (value == CRITERIA_MEETED)
-                        somebodyDiedMilitary = false;*/
                     militaryStatus = value;
                     break;
                 case DATA_IMMORTAL_PLAGUE:
-                    /*if (value == CRITERIA_NOT_MEETED)
-                        somebodyDiedPlague = true;
-                    else if (value == CRITERIA_MEETED)
-                        somebodyDiedPlague = false;*/
                     plagueStatus = value;
                     break;
                 case DATA_IMMORTAL_FROSTWYRM:
-                    /*if (value == CRITERIA_NOT_MEETED)
-                        somebodyDiedFrostwyrm = true;
-                    else if (value == CRITERIA_MEETED)
-                        somebodyDiedFrostwyrm = false;*/
                     frostwyrmStatus = value;
                     break;
-                /*case DATA_IMMORTAL_ANUB:
-                    if (value == CRITERIA_NOT_MEETED)
-                        somebodyDiedAnub = true;
-                    else if (value == CRITERIA_MEETED)
-                        somebodyDiedAnub = false;
+                case DATA_IMMORTAL_ANUB:
+                    anubStatus = value;
                     break;
                 case DATA_IMMORTAL_PATCH:
-                    if (value == CRITERIA_NOT_MEETED)
-                        somebodyDiedPatch = true;
-                    else if (value == CRITERIA_MEETED)
-                        somebodyDiedPatch = false;
+                    patchStatus = value;
                     break;
                 case DATA_IMMORTAL_RAZU:
-                    if (value == CRITERIA_NOT_MEETED)
-                        somebodyDiedRazu = true;
-                    else if (value == CRITERIA_MEETED)
-                        somebodyDiedRazu = false;
+                    razuStatus = value;
                     break;
                 case DATA_IMMORTAL_NOTH:
-                    if (value == CRITERIA_NOT_MEETED)
-                        somebodyDiedNoth = true;
-                    else if (value == CRITERIA_MEETED)
-                        somebodyDiedNoth = false;
+                    nothStatus = value;
                     break;
                 case DATA_IMMORTAL_SAPPHI:
-                    if (value == CRITERIA_NOT_MEETED)
-                        somebodyDiedSapphi = true;
-                    else if (value == CRITERIA_MEETED)
-                        somebodyDiedSapphi = false;
-                    break;*/
+                    sapphiStatus = value;
+                    break;
             }
         }
 
@@ -391,60 +355,25 @@ public:
             switch(id)
             {
                 case DATA_IMMORTAL_ARACHNID:
-                    /*if (somebodyDiedArachnid)
-                        return CRITERIA_NOT_MEETED;
-                    else
-                        return CRITERIA_MEETED;*/
                     return arachnidStatus;
                 case DATA_IMMORTAL_CONSTRUCT:
-                    /*if (somebodyDiedConstruct)
-                        return CRITERIA_NOT_MEETED;
-                    else
-                        return CRITERIA_MEETED;*/
                     return constructStatus;
                 case DATA_IMMORTAL_MILITARY:
-                    /*if (somebodyDiedMilitary)
-                        return CRITERIA_NOT_MEETED;
-                    else
-                        return CRITERIA_MEETED;*/
                     return militaryStatus;
                 case DATA_IMMORTAL_PLAGUE:
-                    /*if (somebodyDiedPlague)
-                        return CRITERIA_NOT_MEETED;
-                    else
-                        return CRITERIA_MEETED;*/
                     return plagueStatus;
                 case DATA_IMMORTAL_FROSTWYRM:
-                    /*if (somebodyDiedFrostwyrm)
-                        return CRITERIA_NOT_MEETED;
-                    else
-                        return CRITERIA_MEETED;*/
                     return frostwyrmStatus;
-                /*case DATA_IMMORTAL_ANUB:
-                    if (somebodyDiedAnub)
-                        return CRITERIA_NOT_MEETED;
-                    else
-                        return CRITERIA_MEETED;
+                case DATA_IMMORTAL_ANUB:
+                    return anubStatus;
                 case DATA_IMMORTAL_PATCH:
-                    if (somebodyDiedPatch)
-                        return CRITERIA_NOT_MEETED;
-                    else
-                        return CRITERIA_MEETED;
+                    return patchStatus;
                 case DATA_IMMORTAL_RAZU:
-                    if (somebodyDiedRazu)
-                        return CRITERIA_NOT_MEETED;
-                    else
-                        return CRITERIA_MEETED;
+                    return razuStatus;
                 case DATA_IMMORTAL_NOTH:
-                    if (somebodyDiedNoth)
-                        return CRITERIA_NOT_MEETED;
-                    else
-                        return CRITERIA_MEETED;
+                    return nothStatus;
                 case DATA_IMMORTAL_SAPPHI:
-                    if (somebodyDiedSapphi)
-                        return CRITERIA_NOT_MEETED;
-                    else
-                        return CRITERIA_MEETED;*/
+                    return sapphiStatus;
                 default:
                     return 0;
             }
@@ -558,7 +487,7 @@ public:
         {
             std::ostringstream saveStream;
             saveStream << GetBossSaveData() << gothikDoorState;
-            for (uint32 i = DATA_IMMORTAL_ARACHNID; i <= DATA_IMMORTAL_FROSTWYRM; ++i)
+            for (uint32 i = DATA_IMMORTAL_ARACHNID; i <= DATA_IMMORTAL_SAPPHI; ++i)
             {
                 saveStream << " " << GetData(i);
             }
@@ -588,7 +517,7 @@ public:
             gothikDoorState = GOState(buff);
 
             /* Load Immortal data */
-            for (uint32 i = DATA_IMMORTAL_ARACHNID; i <= DATA_IMMORTAL_FROSTWYRM; ++i)
+            for (uint32 i = DATA_IMMORTAL_ARACHNID; i <= DATA_IMMORTAL_SAPPHI; ++i)
             {
                 loadStream >> buff;
                 //sLog->outError("type='%u', value='%u'", i, buff);

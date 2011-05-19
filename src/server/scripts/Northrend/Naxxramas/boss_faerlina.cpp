@@ -221,9 +221,6 @@ class mob_faerlina_add : public CreatureScript
         {
             return new mob_faerlina_addAI(pCreature);
         }
-
-        private:
-            InstanceScript* const _instance;
 };
 
 class achievement_momma_said_knock_you_out : public AchievementCriteriaScript

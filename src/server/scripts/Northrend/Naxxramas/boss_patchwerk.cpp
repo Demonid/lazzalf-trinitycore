@@ -81,7 +81,7 @@ public:
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                 {
                     instance->SetData(DATA_IMMORTAL_CONSTRUCT, CRITERIA_NOT_MEETED);
-                    //instance->SetData(DATA_IMMORTAL_PATCH, CRITERIA_NOT_MEETED);
+                    instance->SetData(DATA_IMMORTAL_PATCH, CRITERIA_NOT_MEETED);
                 }
             }
 
@@ -106,8 +106,7 @@ public:
             if (instance)
             {
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
-                //instance->SetData(DATA_IMMORTAL_CONSTRUCT, instance->GetData(DATA_IMMORTAL_PATCH));
-                instance->SetData(DATA_IMMORTAL_CONSTRUCT, CRITERIA_MEETED);
+                instance->SetData(DATA_IMMORTAL_CONSTRUCT, instance->GetData(DATA_IMMORTAL_PATCH));
             }
         }
 
