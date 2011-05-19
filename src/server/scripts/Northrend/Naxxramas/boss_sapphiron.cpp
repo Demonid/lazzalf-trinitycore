@@ -134,8 +134,7 @@ public:
             CheckPlayersFrostResist();
 
             if (instance)
-                instance->SetData(DATA_IMMORTAL_FROSTWYRM, CRITERIA_MEETED);
-                //instance->SetData(DATA_IMMORTAL_FROSTWYRM, instance->GetData(DATA_IMMORTAL_SAPPHI));
+                instance->SetData(DATA_IMMORTAL_FROSTWYRM, instance->GetData(DATA_IMMORTAL_SAPPHI));
         }
 
         void SpellHitTarget(Unit* pTarget, const SpellEntry* spell)
@@ -158,7 +157,7 @@ public:
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                 {
                     instance->SetData(DATA_IMMORTAL_FROSTWYRM, CRITERIA_NOT_MEETED);
-                    //instance->SetData(DATA_IMMORTAL_SAPPHI, CRITERIA_NOT_MEETED);
+                    instance->SetData(DATA_IMMORTAL_SAPPHI, CRITERIA_NOT_MEETED);
                 }
             }
         }

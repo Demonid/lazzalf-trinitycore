@@ -73,7 +73,7 @@ public:
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                 {
                     instance->SetData(DATA_IMMORTAL_MILITARY, CRITERIA_NOT_MEETED);
-                    //instance->SetData(DATA_IMMORTAL_RAZU, CRITERIA_NOT_MEETED);
+                    instance->SetData(DATA_IMMORTAL_RAZU, CRITERIA_NOT_MEETED);
                 }
             }
 
@@ -107,8 +107,7 @@ public:
             events.ScheduleEvent(EVENT_KNIFE, 10000);
 
             if (instance)
-                instance->SetData(DATA_IMMORTAL_MILITARY, CRITERIA_MEETED);
-                //instance->SetData(DATA_IMMORTAL_MILITARY, instance->GetData(DATA_IMMORTAL_RAZU));
+                instance->SetData(DATA_IMMORTAL_MILITARY, instance->GetData(DATA_IMMORTAL_RAZU));
         }
 
         void UpdateAI(const uint32 diff)

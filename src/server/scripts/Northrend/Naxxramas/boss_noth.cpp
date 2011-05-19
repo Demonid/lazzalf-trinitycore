@@ -94,8 +94,7 @@ public:
             EnterPhaseGround();
 
             if (instance)
-                instance->SetData(DATA_IMMORTAL_PLAGUE, CRITERIA_MEETED);
-                //instance->SetData(DATA_IMMORTAL_PLAGUE, instance->GetData(DATA_IMMORTAL_NOTH));
+                instance->SetData(DATA_IMMORTAL_PLAGUE, instance->GetData(DATA_IMMORTAL_NOTH));
         }
 
         void EnterPhaseGround()
@@ -122,7 +121,7 @@ public:
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                 {
                     instance->SetData(DATA_IMMORTAL_PLAGUE, CRITERIA_NOT_MEETED);
-                    //instance->SetData(DATA_IMMORTAL_NOTH, CRITERIA_NOT_MEETED);
+                    instance->SetData(DATA_IMMORTAL_NOTH, CRITERIA_NOT_MEETED);
                 }
             }
 

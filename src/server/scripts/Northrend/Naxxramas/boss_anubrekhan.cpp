@@ -92,14 +92,9 @@ public:
         void KilledUnit(Unit* victim)
         {
             if (instance)
-            {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
-                {
                     instance->SetData(DATA_IMMORTAL_ARACHNID, CRITERIA_NOT_MEETED);
-                    //instance->SetData(DATA_IMMORTAL_ANUB, CRITERIA_NOT_MEETED);
-                }
-            }
-
+            
             //Force the player to spawn corpse scarabs via spell, TODO: Check percent chance for scarabs, 20% at the moment
             if (!(rand()%5))
                 if (victim->GetTypeId() == TYPEID_PLAYER)
@@ -128,8 +123,7 @@ public:
                 events.ScheduleEvent(EVENT_SPAWN_GUARDIAN_NORMAL, urand(15000, 20000));
 
             if (instance)
-                instance->SetData(DATA_IMMORTAL_ARACHNID, CRITERIA_MEETED);
-                //instance->SetData(DATA_IMMORTAL_ARACHNID, instance->GetData(DATA_IMMORTAL_ANUB));
+                instance->SetData(DATA_IMMORTAL_ARACHNID, instance->GetData(DATA_IMMORTAL_ANUB));
         }
 
         void MoveInLineOfSight(Unit* who)
