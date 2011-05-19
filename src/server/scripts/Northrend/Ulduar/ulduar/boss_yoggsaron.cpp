@@ -541,8 +541,7 @@ public:
                 {
                     for (std::vector<Creature*>::iterator itr = ominous_list.begin(); itr != ominous_list.end(); ++itr)
                     {
-                        Creature* pTarget = *itr;
-                        if (pTarget)
+                        if (Creature* pTarget = *itr)
                             pTarget->AddThreat(me->getVictim(), 0.0f);
                     }
                 }
@@ -596,9 +595,8 @@ public:
                         case EVENT_SUMMON_GUARDIAN:
                             if (!ominous_list.empty())
                             {
-                                std::vector<Creature*>::iterator itr = (ominous_list.begin()+rand()%ominous_list.size());
-                                Creature* pTarget = *itr;
-                                if (pTarget)
+                                std::vector<Creature*>::iterator itr = (ominous_list.begin() + rand()%ominous_list.size());
+                                if (Creature* pTarget = *itr)
                                     pTarget->CastSpell(pTarget, SPELL_SUMMON_GUARDIAN, true);
                             }
                             events.ScheduleEvent(EVENT_SUMMON_GUARDIAN, 8000 + urand(6000, 8000)*((float)me->GetHealth()/me->GetMaxHealth()), 0, PHASE_1);
@@ -659,11 +657,16 @@ public:
                             me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
                             if (!ominous_list.empty())
                             {
-                                for (std::vector<Creature*>::iterator itr = ominous_list.begin(); itr != ominous_list.end(); ++itr)
+                                for (std::vector<Creature*>::iterator itr = ominous_list.begin(); itr != ominous_list.end(); )
                                 {
-                                    Creature* pTarget = *itr;
-                                    if (pTarget)
+                                    if (Creature* pTarget = *itr)
+                                    {
+                                        pTarget->CombatStop();
                                         pTarget->ForcedDespawn();
+                                        ominous_list.erase(itr++);
+                                    }
+                                    else
+                                        ++itr;
                                 }
                             }
                             JumpToNextStep(5000);
