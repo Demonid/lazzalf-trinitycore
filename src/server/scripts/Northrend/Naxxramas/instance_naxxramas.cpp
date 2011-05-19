@@ -121,8 +121,18 @@ public:
             SetBossNumber(MAX_BOSS_NUMBER);
             LoadDoorData(doorData);
             LoadMinionData(minionData);
-            // finchè l'implementazione non sarà completa, non si deve dare l'achievement
-            somebodyDied = true;
+            
+            /*somebodyDiedAnub = false;
+            somebodyDiedPatch = false;
+            somebodyDiedRazu = false;
+            somebodyDiedNoth = false;
+            somebodyDiedSapphi = false;
+
+            somebodyDiedArachnid = true;
+            somebodyDiedConstruct = true;
+            somebodyDiedMilitary = true;
+            somebodyDiedPlague = true;
+            somebodyDiedFrostwyrm = true;*/
         }
 
         //std::set<uint64> HeiganEruptionGUID[4];
@@ -151,14 +161,34 @@ public:
         time_t minHorsemenDiedTime;
         time_t maxHorsemenDiedTime;
 
-        bool somebodyDied;
+        /*bool somebodyDiedArachnid;
+        bool somebodyDiedConstruct;
+        bool somebodyDiedMilitary;
+        bool somebodyDiedPlague;
+        bool somebodyDiedFrostwyrm;
+
+        bool somebodyDiedAnub;
+        bool somebodyDiedPatch;
+        bool somebodyDiedRazu;
+        bool somebodyDiedNoth;
+        bool somebodyDiedSapphi;*/
+
+        uint32 arachnidStatus;
+        uint32 constructStatus;
+        uint32 militaryStatus;
+        uint32 plagueStatus;
+        uint32 frostwyrmStatus;
 
         void Inizialize()
         {
             GothikGateGUID = 0;
             HorsemenChestGUID = 0;
             SapphironGUID = 0;
-            somebodyDied = false;
+            arachnidStatus = CRITERIA_NOT_MEETED;
+            constructStatus = CRITERIA_NOT_MEETED;
+            militaryStatus = CRITERIA_NOT_MEETED;
+            plagueStatus = CRITERIA_NOT_MEETED;
+            frostwyrmStatus = CRITERIA_NOT_MEETED;
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -264,7 +294,7 @@ public:
                     HeiganErupt(value);
                     break;
                 case DATA_GOTHIK_GATE:
-                    if (GameObject *gothikGate = instance->GetGameObject(GothikGateGUID))
+                    if (GameObject* gothikGate = instance->GetGameObject(GothikGateGUID))
                         gothikGate->SetGoState(GOState(value));
                     gothikDoorState = GOState(value);
                     break;
@@ -288,10 +318,135 @@ public:
                         maxHorsemenDiedTime = now;
                     }
                     break;
-                case DATA_IMMORTAL:
-                    if (value == 1)
-                        somebodyDied = true;
+                case DATA_IMMORTAL_ARACHNID:
+                    /*if (value == CRITERIA_NOT_MEETED)
+                        somebodyDiedArachnid = true;
+                    else if (value == CRITERIA_MEETED)
+                        somebodyDiedArachnid = false;*/
+                    arachnidStatus = value;
                     break;
+                case DATA_IMMORTAL_CONSTRUCT:
+                    /*if (value == CRITERIA_NOT_MEETED)
+                        somebodyDiedConstruct = true;
+                    else if (value == CRITERIA_MEETED)
+                        somebodyDiedConstruct = false;*/
+                    constructStatus = value;
+                    break;
+                case DATA_IMMORTAL_MILITARY:
+                    /*if (value == CRITERIA_NOT_MEETED)
+                        somebodyDiedMilitary = true;
+                    else if (value == CRITERIA_MEETED)
+                        somebodyDiedMilitary = false;*/
+                    militaryStatus = value;
+                    break;
+                case DATA_IMMORTAL_PLAGUE:
+                    /*if (value == CRITERIA_NOT_MEETED)
+                        somebodyDiedPlague = true;
+                    else if (value == CRITERIA_MEETED)
+                        somebodyDiedPlague = false;*/
+                    plagueStatus = value;
+                    break;
+                case DATA_IMMORTAL_FROSTWYRM:
+                    /*if (value == CRITERIA_NOT_MEETED)
+                        somebodyDiedFrostwyrm = true;
+                    else if (value == CRITERIA_MEETED)
+                        somebodyDiedFrostwyrm = false;*/
+                    frostwyrmStatus = value;
+                    break;
+                /*case DATA_IMMORTAL_ANUB:
+                    if (value == CRITERIA_NOT_MEETED)
+                        somebodyDiedAnub = true;
+                    else if (value == CRITERIA_MEETED)
+                        somebodyDiedAnub = false;
+                    break;
+                case DATA_IMMORTAL_PATCH:
+                    if (value == CRITERIA_NOT_MEETED)
+                        somebodyDiedPatch = true;
+                    else if (value == CRITERIA_MEETED)
+                        somebodyDiedPatch = false;
+                    break;
+                case DATA_IMMORTAL_RAZU:
+                    if (value == CRITERIA_NOT_MEETED)
+                        somebodyDiedRazu = true;
+                    else if (value == CRITERIA_MEETED)
+                        somebodyDiedRazu = false;
+                    break;
+                case DATA_IMMORTAL_NOTH:
+                    if (value == CRITERIA_NOT_MEETED)
+                        somebodyDiedNoth = true;
+                    else if (value == CRITERIA_MEETED)
+                        somebodyDiedNoth = false;
+                    break;
+                case DATA_IMMORTAL_SAPPHI:
+                    if (value == CRITERIA_NOT_MEETED)
+                        somebodyDiedSapphi = true;
+                    else if (value == CRITERIA_MEETED)
+                        somebodyDiedSapphi = false;
+                    break;*/
+            }
+        }
+
+        uint32 GetData(uint32 id)
+        {
+            switch(id)
+            {
+                case DATA_IMMORTAL_ARACHNID:
+                    /*if (somebodyDiedArachnid)
+                        return CRITERIA_NOT_MEETED;
+                    else
+                        return CRITERIA_MEETED;*/
+                    return arachnidStatus;
+                case DATA_IMMORTAL_CONSTRUCT:
+                    /*if (somebodyDiedConstruct)
+                        return CRITERIA_NOT_MEETED;
+                    else
+                        return CRITERIA_MEETED;*/
+                    return constructStatus;
+                case DATA_IMMORTAL_MILITARY:
+                    /*if (somebodyDiedMilitary)
+                        return CRITERIA_NOT_MEETED;
+                    else
+                        return CRITERIA_MEETED;*/
+                    return militaryStatus;
+                case DATA_IMMORTAL_PLAGUE:
+                    /*if (somebodyDiedPlague)
+                        return CRITERIA_NOT_MEETED;
+                    else
+                        return CRITERIA_MEETED;*/
+                    return plagueStatus;
+                case DATA_IMMORTAL_FROSTWYRM:
+                    /*if (somebodyDiedFrostwyrm)
+                        return CRITERIA_NOT_MEETED;
+                    else
+                        return CRITERIA_MEETED;*/
+                    return frostwyrmStatus;
+                /*case DATA_IMMORTAL_ANUB:
+                    if (somebodyDiedAnub)
+                        return CRITERIA_NOT_MEETED;
+                    else
+                        return CRITERIA_MEETED;
+                case DATA_IMMORTAL_PATCH:
+                    if (somebodyDiedPatch)
+                        return CRITERIA_NOT_MEETED;
+                    else
+                        return CRITERIA_MEETED;
+                case DATA_IMMORTAL_RAZU:
+                    if (somebodyDiedRazu)
+                        return CRITERIA_NOT_MEETED;
+                    else
+                        return CRITERIA_MEETED;
+                case DATA_IMMORTAL_NOTH:
+                    if (somebodyDiedNoth)
+                        return CRITERIA_NOT_MEETED;
+                    else
+                        return CRITERIA_MEETED;
+                case DATA_IMMORTAL_SAPPHI:
+                    if (somebodyDiedSapphi)
+                        return CRITERIA_NOT_MEETED;
+                    else
+                        return CRITERIA_MEETED;*/
+                default:
+                    return 0;
             }
         }
 
@@ -361,9 +516,9 @@ public:
                         pHeiganEruption->SendCustomAnim(pHeiganEruption->GetGoAnimProgress());
                         pHeiganEruption->CastSpell(NULL, SPELL_ERUPTION);
                     }
+                }
             }
-        }
-    }*/
+        }*/
     
         void HeiganErupt(uint32 section)
         {
@@ -395,12 +550,6 @@ public:
                     if (Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_25MAN_NORMAL && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
                         return true;
                     return false;
-                case 13233: // Criteria for achievement 2186: The Immortal (25-man)
-                    // TODO.
-                    break;
-                case 13237: // Criteria for achievement 2187: The Undying (10-man)
-                    // TODO.
-                    break;
             }
             return false;
         }
@@ -408,16 +557,44 @@ public:
         std::string GetSaveData()
         {
             std::ostringstream saveStream;
-            saveStream << GetBossSaveData() << " " << gothikDoorState;
+            saveStream << GetBossSaveData() << gothikDoorState;
+            for (uint32 i = DATA_IMMORTAL_ARACHNID; i <= DATA_IMMORTAL_FROSTWYRM; ++i)
+            {
+                saveStream << " " << GetData(i);
+            }
             return saveStream.str();
         }
 
         void Load(const char * data)
         {
-            std::istringstream loadStream(LoadBossState(data));
+            /* Load bosses data */
+            LoadBossState(data);
+
+            std::istringstream loadStream(data);
+
             uint32 buff;
+
+            /* Bosses data are loaded in LoadBossState(data) */
+            for (uint32 i = 1; i <= MAX_BOSS_NUMBER; ++i)
+            {
+                
+                loadStream >> buff;
+                continue;
+            }
+            
+            /* Load Gothik's door state */   
             loadStream >> buff;
+            //sLog->outError("State: '%u'", buff);
             gothikDoorState = GOState(buff);
+
+            /* Load Immortal data */
+            for (uint32 i = DATA_IMMORTAL_ARACHNID; i <= DATA_IMMORTAL_FROSTWYRM; ++i)
+            {
+                loadStream >> buff;
+                //sLog->outError("type='%u', value='%u'", i, buff);
+                SetData(i, buff);
+            }
+
         }
     };
 
@@ -428,7 +605,7 @@ class naxxramas_teleporter_npc : public CreatureScript
     public:
         naxxramas_teleporter_npc(): CreatureScript("naxxramas_teleporter_npc") {}
 
-    bool OnGossipHello(Player *player, Creature *_Creature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
         if (!player)
             return true;
@@ -436,12 +613,12 @@ class naxxramas_teleporter_npc : public CreatureScript
         player->ADD_GOSSIP_ITEM(5, "Teletrasportami all'entrata", GOSSIP_SENDER_MAIN, 1);
         player->ADD_GOSSIP_ITEM(5, "No, grazie", GOSSIP_SENDER_MAIN, 2);
          
-        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE,_Creature->GetGUID());
+        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
 
         return true;
     };
 
-    void SendDefaultMenu_naxxramas_teleporter_npc(Player *player, Creature *_Creature, uint32 action)
+    void SendDefaultMenu_naxxramas_teleporter_npc(Player* player, Creature* creature, uint32 action)
     {
         if (!player)
             return;
@@ -450,7 +627,7 @@ class naxxramas_teleporter_npc : public CreatureScript
         if (!player->getAttackers().empty())
         {
             player->CLOSE_GOSSIP_MENU();
-            _Creature->MonsterSay("Sei in combat!", LANG_UNIVERSAL, 0);
+            creature->MonsterSay("Sei in combat!", LANG_UNIVERSAL, 0);
             return;
         }
         
@@ -460,10 +637,10 @@ class naxxramas_teleporter_npc : public CreatureScript
                 // Teletrasporta all'entrata
                 player->TeleportTo(533, 3021.639f, -3402.989f, 298.220f, 2.973f);
                 player->CLOSE_GOSSIP_MENU();
-                _Creature->MonsterWhisper("Ecco fatto!", player->GetGUID());
+                creature->MonsterWhisper("Ecco fatto!", player->GetGUID());
                 break;
             case 2:
-                _Creature->MonsterWhisper("Ok, come preferisci...", player->GetGUID());
+                creature->MonsterWhisper("Ok, come preferisci...", player->GetGUID());
                 player->CLOSE_GOSSIP_MENU();
                 break;
             default:
@@ -471,13 +648,13 @@ class naxxramas_teleporter_npc : public CreatureScript
         }
     };
 
-    bool OnGossipSelect(Player *pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
 
         // Main menu
         if (sender == GOSSIP_SENDER_MAIN)
-            SendDefaultMenu_naxxramas_teleporter_npc( pPlayer, _Creature, action );
+            SendDefaultMenu_naxxramas_teleporter_npc(player, creature, action);
 
         return true;
     };
@@ -495,7 +672,7 @@ class mr_bigglesworth_npc : public CreatureScript
 
     struct mr_bigglesworth_npcAI : public ScriptedAI
     {
-        mr_bigglesworth_npcAI(Creature *c) : ScriptedAI(c)
+        mr_bigglesworth_npcAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -509,9 +686,47 @@ class mr_bigglesworth_npc : public CreatureScript
         }
     };
 };
+
+#define NAXXRAMAS_MAP 533
+
+class achievement_immortal : public AchievementCriteriaScript
+{
+    public:
+        achievement_immortal() : AchievementCriteriaScript("achievement_immortal") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* instance = source->GetInstanceScript();
+
+            if (!instance || source->GetMapId() != NAXXRAMAS_MAP)
+                return false;
+
+            if (instance->GetData(DATA_IMMORTAL_ARACHNID) == CRITERIA_NOT_MEETED)
+                return false;
+
+            if (instance->GetData(DATA_IMMORTAL_CONSTRUCT) == CRITERIA_NOT_MEETED)
+                return false;
+
+            if (instance->GetData(DATA_IMMORTAL_MILITARY) == CRITERIA_NOT_MEETED)
+                return false;
+
+            if (instance->GetData(DATA_IMMORTAL_PLAGUE) == CRITERIA_NOT_MEETED)
+                return false;
+
+            if (instance->GetData(DATA_IMMORTAL_FROSTWYRM) == CRITERIA_NOT_MEETED)
+                return false;
+
+            return true;
+        }
+};
+
 void AddSC_instance_naxxramas()
 {
     new instance_naxxramas();
     new naxxramas_teleporter_npc();
     new mr_bigglesworth_npc();
+    new achievement_immortal();
 }

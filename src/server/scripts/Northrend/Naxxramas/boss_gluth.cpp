@@ -57,7 +57,7 @@ public:
 
     struct boss_gluthAI : public BossAI
     {
-        boss_gluthAI(Creature *c) : BossAI(c, BOSS_GLUTH)
+        boss_gluthAI(Creature* c) : BossAI(c, BOSS_GLUTH)
         {
             // Do not let Gluth be affected by zombies' debuff
             me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_INFECTED_WOUND, true);
@@ -82,7 +82,7 @@ public:
         Map* pMap;
         uint32 TeamInInstance;
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (who->GetEntry() == MOB_ZOMBIE && me->IsWithinDistInMap(who, 7))
             {
@@ -94,7 +94,7 @@ public:
                 BossAI::MoveInLineOfSight(who);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
             events.ScheduleEvent(EVENT_WOUND, 10000);
@@ -104,14 +104,14 @@ public:
             events.ScheduleEvent(EVENT_SUMMON, 15000);
         }
 
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature* summon)
         {
             if (summon->GetEntry() == MOB_ZOMBIE)
                 summon->AI()->AttackStart(me);
             summons.Summon(summon);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             _JustDied();
         }
@@ -121,12 +121,12 @@ public:
             _Reset();
         }
 
-        void KilledUnit(Unit* Victim)
+        void KilledUnit(Unit* victim)
         {
             if (instance)
             {
-                if (Victim->GetTypeId() == TYPEID_PLAYER)
-                    instance->SetData(DATA_IMMORTAL, 1);
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    instance->SetData(DATA_IMMORTAL_CONSTRUCT, CRITERIA_NOT_MEETED);
             }
         }
 
