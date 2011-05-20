@@ -175,6 +175,7 @@ public:
 
         void Inizialize()
         {
+            gothikDoorState = 1;
             GothikGateGUID = 0;
             HorsemenChestGUID = 0;
             SapphironGUID = 0;
@@ -633,20 +634,9 @@ class achievement_immortal : public AchievementCriteriaScript
             if (!instance || source->GetMapId() != NAXXRAMAS_MAP)
                 return false;
 
-            if (instance->GetData(DATA_IMMORTAL_ARACHNID) == CRITERIA_NOT_MEETED)
-                return false;
-
-            if (instance->GetData(DATA_IMMORTAL_CONSTRUCT) == CRITERIA_NOT_MEETED)
-                return false;
-
-            if (instance->GetData(DATA_IMMORTAL_MILITARY) == CRITERIA_NOT_MEETED)
-                return false;
-
-            if (instance->GetData(DATA_IMMORTAL_PLAGUE) == CRITERIA_NOT_MEETED)
-                return false;
-
-            if (instance->GetData(DATA_IMMORTAL_FROSTWYRM) == CRITERIA_NOT_MEETED)
-                return false;
+            for (uint32 i = DATA_IMMORTAL_ARACHNID; i <= DATA_IMMORTAL_FROSTWYRM; ++i)
+                if (instance->GetData(i) == CRITERIA_NOT_MEETED)
+                    return false;
 
             return true;
         }
