@@ -3717,7 +3717,12 @@ void SpellMgr::LoadSpellCustomAttr()
             // this will fix self-damage caused by Glyph of Chains of Ice
             spellInfo->EffectImplicitTargetA[2] = TARGET_UNIT_TARGET_ENEMY;
             ++count;
-            break;        
+            break; 
+        case 8494: // Mana Shield (rank 2)
+            // because of bug in dbc
+            spellInfo->procChance = 0;
+            ++count;
+            break;       
         case 32182: // Heroism
             spellInfo->excludeCasterAuraSpell = 57723; // Exhaustion
             ++count;

@@ -830,10 +830,9 @@ void Battleground::EndBattleground(uint32 winner)
 
             plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
         }
-        else if (winner)
-            RewardMark(plr,ITEM_LOSER_COUNT);
         else
         {
+            RewardMark(plr,ITEM_LOSER_COUNT);
             if (IsRandom() || BattlegroundMgr::IsBGWeekend(GetTypeID()))
                 UpdatePlayerScore(plr, SCORE_BONUS_HONOR, GetBonusHonorFromKill(loser_kills));
         }
