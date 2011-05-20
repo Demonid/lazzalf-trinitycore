@@ -54,9 +54,45 @@ void Totem::InitStats(uint32 duration)
 {
     Minion::InitStats(duration);
 
-    if (m_owner->GetTypeId() == TYPEID_PLAYER)
-        // set display id depending on race
-        SetDisplayId(m_owner->GetModelForTotem(PlayerTotemType(m_Properties->Id)));
+    CreatureTemplate const *cinfo = GetCreatureInfo();
+    if (m_owner->GetTypeId() == TYPEID_PLAYER && cinfo)
+    {
+        uint32 displayID = sObjectMgr->ChooseDisplayId(m_owner->ToPlayer()->GetTeam(), cinfo);
+        sObjectMgr->GetCreatureModelRandomGender(&displayID);
+        switch (m_owner->ToPlayer()->GetTeam())
+        {
+            case ALLIANCE:
+                displayID = cinfo->Modelid1;
+                break;
+            case HORDE:
+                if (cinfo->Modelid3)
+                    displayID = cinfo->Modelid3;
+                else
+                    displayID = cinfo->Modelid1;
+
+                switch (((Player*)m_owner)->getRace())
+                {
+                    case RACE_ORC:
+                        if (cinfo->Modelid2)
+                            displayID = cinfo->Modelid2;
+                        else
+                            displayID = cinfo->Modelid1;
+                        break;
+                    case RACE_TROLL:
+                        if (cinfo->Modelid4)
+                            displayID = cinfo->Modelid4;
+                        else
+                            displayID = cinfo->Modelid1;
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+        SetDisplayId(displayID);
+    }
 
     // Get spell casted by totem
     SpellEntry const * totemSpell = sSpellStore.LookupEntry(GetSpell());
@@ -103,20 +139,19 @@ void Totem::UnSummon()
     m_owner->RemoveAurasDueToSpell(GetSpell());
 
     //remove aura all party members too
-    if (Player* owner = m_owner->ToPlayer())
+    Group *pGroup = NULL;
+    if (m_owner->GetTypeId() == TYPEID_PLAYER)
     {
-        owner->SendAutoRepeatCancel(this);
-        if (SpellEntry const* spell = sSpellStore.LookupEntry(GetUInt32Value(UNIT_CREATED_BY_SPELL)))
-            owner->SendCooldownEvent(spell);
+        m_owner->ToPlayer()->SendAutoRepeatCancel(this);
         // Not only the player can summon the totem (scripted AI)
-        Group* group = owner->GetGroup();
-        if (group)
+        pGroup = m_owner->ToPlayer()->GetGroup();
+        if (pGroup)
         {
-            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
             {
-                Player* target = itr->getSource();
-                if (target && group->SameSubGroup(owner, target))
-                    target->RemoveAurasDueToSpell(GetSpell());
+                Player* Target = itr->getSource();
+                if (Target && pGroup->SameSubGroup((Player*)m_owner, Target))
+                    Target->RemoveAurasDueToSpell(GetSpell());
             }
         }
     }
