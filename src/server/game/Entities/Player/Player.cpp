@@ -12060,9 +12060,13 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
         if (pItem->GetTemplate()->Quality >= ITEM_QUALITY_EPIC && (pItem->GetTemplate()->ItemLevel >= 200 || (pItem->GetTemplate()->Class == ITEM_CLASS_MISC && pItem->GetTemplate()->ItemLevel >= 80)))
         {
             PreparedStatement* stmt = ExtraDatabase.GetPreparedStatement(EXTRA_ADD_ITEMSTAT);
-            stmt->setUInt32(0, GetGUIDLow());
+            stmt->setUInt32(0, GetGUIDLow());            
             stmt->setUInt32(1, pItem->GetEntry());
             stmt->setUInt32(2, 0);
+            if (GetGroup())
+                stmt->setUInt32(3, GetGroup()->GetGUID());
+            else
+                stmt->setUInt32(3, 0);
             ExtraDatabase.Execute(stmt);
         }
 

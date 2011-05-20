@@ -22,7 +22,7 @@ void ExtraDatabaseConnection::DoPrepareStatements()
     if (!m_reconnecting)
         m_stmts.resize(MAX_EXTRADATABASE_STATEMENTS);
 
-    PREPARE_STATEMENT(EXTRA_ADD_ITEMSTAT, "INSERT INTO item_stats (guid, item, state) VALUES (?, ?, ?)", CONNECTION_ASYNC)
+    PREPARE_STATEMENT(EXTRA_ADD_ITEMSTAT, "INSERT INTO item_stats (guid, item, state, group_guid) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC)
     PREPARE_STATEMENT(EXTRA_GET_EXTERNAL_MAIL, "SELECT id, receiver, subject, message, money, item, item_count FROM mail_external ORDER BY id ASC", CONNECTION_SYNCH)
     PREPARE_STATEMENT(EXTRA_DEL_EXTERNAL_MAIL, "DELETE FROM mail_external WHERE id = ?", CONNECTION_ASYNC)
 }
