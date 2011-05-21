@@ -97,8 +97,8 @@ enum Actions
 };
 
 // Achievements
-#define ACHIEVEMENT_ON_YOUR_SIDE              RAID_MODE(2945, 2946) // TODO
-#define ACHIEVEMENT_CANT_WHILE_STUNNED        RAID_MODE(2947, 2948) // TODO
+#define ACHIEVEMENT_ON_YOUR_SIDE              RAID_MODE(2945, 2946)
+#define ACHIEVEMENT_CANT_WHILE_STUNNED        RAID_MODE(2947, 2948)
 #define ACHIEVEMENT_CHOOSE_STEELBREAKER       RAID_MODE(2941, 2944)
 #define ACHIEVEMENT_CHOOSE_MOLGEIM            RAID_MODE(2939, 2942)
 #define ACHIEVEMENT_CHOOSE_BRUNDIR            RAID_MODE(2940, 2943)
@@ -162,7 +162,7 @@ bool IsEncounterComplete(InstanceScript* pInstance, Creature* me)
 }
 
 // Avoid killing bosses one to one
-void CallBosses(InstanceScript *pInstance, uint32 caller, Unit *who) {
+void CallBosses(InstanceScript* pInstance, uint32 caller, Unit* who) {
     
     // Respawn if dead
     if(Creature* Steelbreaker = Unit::GetCreature(*who, pInstance ? pInstance->GetData64(DATA_STEELBREAKER) : 0))
@@ -209,7 +209,7 @@ class boss_steelbreaker : public CreatureScript
 
     struct boss_steelbreakerAI : public ScriptedAI
     {
-        boss_steelbreakerAI(Creature *c) : ScriptedAI(c)
+        boss_steelbreakerAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
@@ -246,7 +246,7 @@ class boss_steelbreaker : public CreatureScript
         InstanceScript* pInstance;
         uint32 phase;
 
-        void EnterCombat(Unit *who)
+        void EnterCombat(Unit* who)
         {
             DoScriptText(SAY_STEELBREAKER_AGGRO, me);            
             me->RemoveAurasDueToSpell(SPELL_ELECTRICAL_CHARGE);
@@ -259,7 +259,7 @@ class boss_steelbreaker : public CreatureScript
             events.ScheduleEvent(EVENT_FUSION_PUNCH, 15000);
         }
 
-        void JustDied(Unit* Killer)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(RAND(SAY_STEELBREAKER_DEATH_1, SAY_STEELBREAKER_DEATH_2), me);
         
@@ -305,7 +305,7 @@ class boss_steelbreaker : public CreatureScript
                     Molgeim->AI()->DoAction(ACTION_MOLGEIM);
         }
 
-        void KilledUnit(Unit *who)
+        void KilledUnit(Unit* who)
         {
             DoScriptText(RAND(SAY_STEELBREAKER_SLAY_1, SAY_STEELBREAKER_SLAY_2), me);
         
@@ -432,7 +432,7 @@ class boss_runemaster_molgeim : public CreatureScript
 
     struct boss_runemaster_molgeimAI : public ScriptedAI
     {
-        boss_runemaster_molgeimAI(Creature *c) : ScriptedAI(c)
+        boss_runemaster_molgeimAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
@@ -479,7 +479,7 @@ class boss_runemaster_molgeim : public CreatureScript
             events.ScheduleEvent(EVENT_RUNE_OF_POWER, 20000);
         }
                 
-        void JustDied(Unit* Killer)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(RAND(SAY_MOLGEIM_DEATH_1, SAY_MOLGEIM_DEATH_2), me);
         
@@ -592,7 +592,7 @@ class boss_runemaster_molgeim : public CreatureScript
             DoMeleeAttackIfReady();
         }
         
-        void KilledUnit(Unit *who)
+        void KilledUnit(Unit* who)
         {
             DoScriptText(RAND(SAY_MOLGEIM_SLAY_1, SAY_MOLGEIM_SLAY_2), me);
         }
@@ -630,7 +630,7 @@ class boss_stormcaller_brundir : public CreatureScript
 
     struct boss_stormcaller_brundirAI : public ScriptedAI
     {
-        boss_stormcaller_brundirAI(Creature *c) : ScriptedAI(c)
+        boss_stormcaller_brundirAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
             me->SetReactState(REACT_PASSIVE);
@@ -687,7 +687,7 @@ class boss_stormcaller_brundir : public CreatureScript
             pInstance->SetData(DATA_CANT_WHILE_STUNNED, ACHI_START);
         }
 
-        void JustDied(Unit* Killer)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(RAND(SAY_BRUNDIR_DEATH_1, SAY_BRUNDIR_DEATH_2), me);
         
@@ -733,7 +733,7 @@ class boss_stormcaller_brundir : public CreatureScript
                     Steelbreaker->AI()->DoAction(ACTION_STEELBREAKER);
         }
 
-        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
+        void SpellHitTarget(Unit* pTarget, const SpellEntry* spell)
         {
             if (spell->Id == SPELL_CHAIN_LIGHTNING || spell->Id == SPELL_LIGHTNING_WHIRL)
                 if (pTarget->GetTypeId() == TYPEID_PLAYER)
@@ -820,7 +820,7 @@ class boss_stormcaller_brundir : public CreatureScript
             }
         }
         
-        void KilledUnit(Unit *who)
+        void KilledUnit(Unit* who)
         {
             DoScriptText(RAND(SAY_BRUNDIR_SLAY_1, SAY_BRUNDIR_SLAY_2), me);
         }
@@ -891,7 +891,7 @@ class mob_lightning_elemental : public CreatureScript
 
     struct mob_lightning_elementalAI : public ScriptedAI 
     {
-        mob_lightning_elementalAI(Creature *c) : ScriptedAI(c) 
+        mob_lightning_elementalAI(Creature* c) : ScriptedAI(c) 
         {
             me->ForcedDespawn(45000);
         }
@@ -933,7 +933,7 @@ class mob_rune_of_summoning : public CreatureScript
 
     struct mob_rune_of_summoningAI : public ScriptedAI
     {
-        mob_rune_of_summoningAI(Creature *c) : ScriptedAI(c)
+        mob_rune_of_summoningAI(Creature* c) : ScriptedAI(c)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
             me->SetReactState(REACT_PASSIVE);
@@ -977,7 +977,7 @@ class mob_rune_of_power : public CreatureScript
 
     struct mob_rune_of_powerAI : public ScriptedAI
     {
-        mob_rune_of_powerAI(Creature *c) : ScriptedAI(c)  
+        mob_rune_of_powerAI(Creature* c) : ScriptedAI(c)  
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             me->SetReactState(REACT_PASSIVE);
