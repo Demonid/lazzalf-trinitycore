@@ -354,7 +354,7 @@ public:
                 for (uint8 i = RAID_MODE(2,0); i < 4; ++i)
                 {
                     if (vehicle->GetPassenger(i))
-                        if (Unit *pTarget = vehicle->GetPassenger(i))
+                        if (Unit* pTarget = vehicle->GetPassenger(i))
                         {
                             if (Creature* pTurret = (me->SummonCreature(NPC_TURRET, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN)))
                                 pTurret->EnterVehicle(pTarget, SEAT_TURRET);
@@ -368,7 +368,7 @@ public:
                 for (uint8 i = RAID_MODE(2,0); i < 4; ++i)
                 {
                     if (vehicle->GetPassenger(i))
-                        if (Vehicle *pSeat = vehicle->GetPassenger(i)->GetVehicleKit())
+                        if (Vehicle* pSeat = vehicle->GetPassenger(i)->GetVehicleKit())
                         {
                             if (Unit* pTurret = (pSeat->GetPassenger(SEAT_TURRET)))
                             {
@@ -385,6 +385,7 @@ public:
                 }
             }
         }
+
         void JustDied(Unit* /*victim*/)
         {
             _JustDied();
@@ -678,10 +679,10 @@ public:
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-            NapalmTimer = 5000;
+            //NapalmTimer = 5000;
         }
 
-        uint32 NapalmTimer;
+        //uint32 NapalmTimer;
 
         void UpdateAI(const uint32 diff)
         {
@@ -712,7 +713,7 @@ public:
 
     struct boss_flame_leviathan_defense_turretAI : public TurretAI
     {
-        boss_flame_leviathan_defense_turretAI(Creature *c) : TurretAI(c) {}
+        boss_flame_leviathan_defense_turretAI(Creature* c) : TurretAI(c) {}
 
         void DamageTaken(Unit* who, uint32 &damage)
         {
@@ -748,7 +749,7 @@ public:
             me->SetDisplayId(28469);
         }
 
-        InstanceScript *instance;
+        InstanceScript* instance;
 
         void DoAction(const int32 param)
         {
@@ -921,7 +922,7 @@ public:
             instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript *instance;
+        InstanceScript* instance;
         uint32 GroundSlamTimer;
         
         void Reset()
@@ -1261,7 +1262,7 @@ class mob_flameleviathan_loot : public CreatureScript
             else
                 me->SetLootMode(LOOT_MODE_DEFAULT);
 
-            if (Unit *pLeviathan = Unit::GetUnit(*me, pInstance->GetData64(DATA_LEVIATHAN)))
+            if (Unit* pLeviathan = Unit::GetUnit(*me, pInstance->GetData64(DATA_LEVIATHAN)))
             {
                 if (pLeviathan->isAlive())
                 {
@@ -1281,7 +1282,7 @@ class mob_flameleviathan_loot : public CreatureScript
                 damage = 0;            
         }
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* victim)
         {
             if (pInstance->GetData(DATA_ACHI_UNBROKEN) == ACHI_IS_IN_PROGRESS)
                 pInstance->DoCompleteAchievement(ACHI_UNBROKEN);
@@ -1527,7 +1528,7 @@ class mob_steelforged_defender : public CreatureScript
 
        InstanceScript* pInstance;
 
-       void JustDied(Unit *victim)
+       void JustDied(Unit* victim)
        {
            if(pInstance->GetData(DATA_DWARFAGEDDON) == ACHI_IS_NOT_STARTED)
                pInstance->SetData(DATA_DWARFAGEDDON, ACHI_START);
@@ -1547,7 +1548,7 @@ class ulduar_repair_npc : public CreatureScript
     public:
         ulduar_repair_npc(): CreatureScript("ulduar_repair_npc") {}
 
-    bool OnGossipHello(Player *player, Creature *_Creature)
+    bool OnGossipHello(Player* player, Creature* _Creature)
     {
         if (!player)
             return true;
@@ -1561,7 +1562,7 @@ class ulduar_repair_npc : public CreatureScript
         return true;
     };
 
-    void SendDefaultMenu_ulduar_repair_npc(Player *player, Creature *_Creature, uint32 action)
+    void SendDefaultMenu_ulduar_repair_npc(Player* player, Creature* _Creature, uint32 action)
     {
         if (!player)
             return;
@@ -1574,7 +1575,7 @@ class ulduar_repair_npc : public CreatureScript
             return;
         }
 
-        if (InstanceScript *data = player->GetInstanceScript())
+        if (InstanceScript* data = player->GetInstanceScript())
             if (data->GetBossState(BOSS_LEVIATHAN) == IN_PROGRESS)
             {
                 player->CLOSE_GOSSIP_MENU();
@@ -1639,7 +1640,7 @@ class ulduar_repair_npc : public CreatureScript
         }
     };
 
-    bool OnGossipSelect(Player *pPlayer, Creature *_Creature, uint32 sender, uint32 action)
+    bool OnGossipSelect(Player* pPlayer, Creature* _Creature, uint32 sender, uint32 action)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
 

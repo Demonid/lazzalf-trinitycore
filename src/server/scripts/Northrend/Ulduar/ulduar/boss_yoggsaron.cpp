@@ -1079,6 +1079,10 @@ public:
                         pSara->SetVisible(false);
                     DoScriptText(SAY_PHASE3, me);
                     me->RemoveAurasDueToSpell(SPELL_SHADOWY_BARRIER_LARGE);
+                    uint32 hp = me->CountPctFromMaxHealth(30);
+                    if (hp) 
+                        me->SetHealth(hp);
+                    me->ResetPlayerDamageReq();
                     DoCast(me, SPELL_YOGG_SARON_TRANSFORMATION, true);
                     events.SetPhase(PHASE_3);
                     events.ScheduleEvent(EVENT_LUNATIC_GAZE, 15000, 0, PHASE_3);

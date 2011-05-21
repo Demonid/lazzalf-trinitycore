@@ -634,7 +634,7 @@ class mob_scrapbot : public CreatureScript
         void KilledUnit(Unit* victim)
         {
             if (m_pInstance)
-                if (victim->GetTypeId() == TYPEID_PLAYER);
+                if (victim->GetTypeId() == TYPEID_PLAYER)
                     m_pInstance->SetData(CRITERIA_XT002, CRITERIA_NOT_MEETED);
         }
 
@@ -699,7 +699,7 @@ class mob_pummeller : public CreatureScript
         void KilledUnit(Unit* victim)
         {
             if (m_pInstance)
-                if (victim->GetTypeId() == TYPEID_PLAYER);
+                if (victim->GetTypeId() == TYPEID_PLAYER)
                     m_pInstance->SetData(CRITERIA_XT002, CRITERIA_NOT_MEETED);
         }
 
@@ -767,7 +767,7 @@ class mob_boombot : public CreatureScript
         void KilledUnit(Unit* victim)
         {
             if (m_pInstance)
-                if (victim->GetTypeId() == TYPEID_PLAYER);
+                if (victim->GetTypeId() == TYPEID_PLAYER)
                     m_pInstance->SetData(CRITERIA_XT002, CRITERIA_NOT_MEETED);
         }
         
@@ -819,7 +819,7 @@ class mob_void_zone : public CreatureScript
         void KilledUnit(Unit* victim)
         {
             if (m_pInstance)
-                if (victim->GetTypeId() == TYPEID_PLAYER);
+                if (victim->GetTypeId() == TYPEID_PLAYER)
                     m_pInstance->SetData(CRITERIA_XT002, CRITERIA_NOT_MEETED);
         }
 
@@ -868,7 +868,7 @@ class mob_life_spark : public CreatureScript
         void KilledUnit(Unit* victim)
         {
             if (m_pInstance)
-                if (victim->GetTypeId() == TYPEID_PLAYER);
+                if (victim->GetTypeId() == TYPEID_PLAYER)
                     m_pInstance->SetData(CRITERIA_XT002, CRITERIA_NOT_MEETED);
         }
 

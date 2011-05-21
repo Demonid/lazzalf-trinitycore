@@ -125,7 +125,7 @@ public:
 
     struct boss_kologarnAI : public BossAI
     {
-        boss_kologarnAI(Creature *pCreature) : BossAI(pCreature, BOSS_KOLOGARN), vehicle(pCreature->GetVehicleKit()),
+        boss_kologarnAI(Creature* pCreature) : BossAI(pCreature, BOSS_KOLOGARN), vehicle(pCreature->GetVehicleKit()),
             left(false), right(false)
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
@@ -135,7 +135,7 @@ public:
             emerged = false;
         }
 
-        Vehicle *vehicle;
+        Vehicle* vehicle;
 
         bool left, right;
         bool Gripped;
@@ -154,7 +154,7 @@ public:
             }
         }
 
-        void AttackStart(Unit *who)
+        void AttackStart(Unit* who)
         {
             me->Attack(who, true);
         }
@@ -314,7 +314,7 @@ public:
                     events.RescheduleEvent(EVENT_SHOCKWAVE, urand(15000, 25000));
                     break;
                 case EVENT_EYEBEAM:
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0, 50, true))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0, 50, true))
                     {
                         if (Creature* EyeBeam = me->SummonCreature(NPC_EYEBEAM_1,pTarget->GetPositionX(),pTarget->GetPositionY()+3,pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000))
                         {
@@ -397,7 +397,7 @@ public:
 
     struct npc_focused_eyebeamAI : public ScriptedAI
     {
-        npc_focused_eyebeamAI(Creature *c) : ScriptedAI(c)
+        npc_focused_eyebeamAI(Creature* c) : ScriptedAI(c)
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
@@ -422,7 +422,7 @@ public:
 
     struct npc_left_armAI : public ScriptedAI
     {
-        npc_left_armAI(Creature *c) : ScriptedAI(c)
+        npc_left_armAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
@@ -446,7 +446,7 @@ public:
             me->GetMotionMaster()->MoveTargetedHome();
         }
     
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature* summon)
         {
             summon->AI()->DoZoneInCombat();
         }
@@ -467,7 +467,7 @@ public:
 
     struct npc_right_armAI : public ScriptedAI
     {
-        npc_right_armAI(Creature *c) : ScriptedAI(c)
+        npc_right_armAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
@@ -502,17 +502,17 @@ public:
             me->GetMotionMaster()->MoveTargetedHome();
         }
     
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature* summon)
         {
             summon->AI()->DoZoneInCombat();
         }
 
-        void KilledUnit(Unit* Victim)
+        void KilledUnit(Unit* victim)
         {
-            if (Victim)
+            if (victim)
             {
-                Victim->ExitVehicle();
-                Victim->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
+                victim->ExitVehicle();
+                victim->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
             }
         }
 
@@ -561,7 +561,7 @@ public:
             }
         }
     
-        void DamageTaken(Unit* pKiller, uint32 &damage)
+        void DamageTaken(Unit* /*pKiller*/, uint32 &damage)
         {
             if (Gripped)
             {
