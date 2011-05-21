@@ -508,7 +508,7 @@ public:
             for (uint32 i = DATA_IMMORTAL_ARACHNID; i <= DATA_IMMORTAL_SAPPHI; ++i)
             {
                 loadStream >> buff;
-                sLog->outError("type='%u', value='%u'", i, buff);
+                //sLog->outError("type='%u', value='%u'", i, buff);
                 SetData(i, buff);
             }
 

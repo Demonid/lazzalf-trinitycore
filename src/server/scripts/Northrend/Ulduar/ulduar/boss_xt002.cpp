@@ -152,12 +152,10 @@ class boss_xt002 : public CreatureScript
     {
         boss_xt002_AI(Creature *pCreature) : BossAI(pCreature, BOSS_XT002), vehicle(me->GetVehicleKit())
         {
-            pInstance = pCreature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip
         }
 
-        InstanceScript *pInstance;
         Vehicle *vehicle;
         
         uint32 EncounterTime;
@@ -190,8 +188,11 @@ class boss_xt002 : public CreatureScript
             me->SetReactState(REACT_AGGRESSIVE);
             me->ResetLootMode();
 
-            while (Unit* pTarget = me->FindNearestCreature(NPC_LIFE_SPARK, 100.0f))
-                pTarget->RemoveFromWorld();
+            while (Unit* spark = me->FindNearestCreature(NPC_LIFE_SPARK, 100.0f))
+            {
+                spark->CombatStop();
+                spark->RemoveFromWorld();
+            }
 
             //Makes XT-002 to cast a light bomb 10 seconds after aggro.
             uiSearingLightTimer = TIMER_SEARING_LIGHT / 2;
@@ -217,7 +218,7 @@ class boss_xt002 : public CreatureScript
             vehicle->Reset();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
             _EnterCombat();
@@ -265,7 +266,7 @@ class boss_xt002 : public CreatureScript
             DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
         }
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
             _JustDied();
@@ -274,21 +275,24 @@ class boss_xt002 : public CreatureScript
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_DISABLE_MOVE);
 
             // Achievements
-            if (pInstance)
+            if (instance)
             {
                 // Heartbreaker
                 if (hardMode)
-                    pInstance->DoCompleteAchievement(ACHIEVEMENT_HEARTBREAKER);
+                    instance->DoCompleteAchievement(ACHIEVEMENT_HEARTBREAKER);
                 // Must Deconstruct Faster
                 if (EncounterTime <= MAX_ENCOUNTER_TIME)
-                    pInstance->DoCompleteAchievement(ACHIEVEMENT_DECONSTRUCT_FASTER);
+                    instance->DoCompleteAchievement(ACHIEVEMENT_DECONSTRUCT_FASTER);
                 // Nerf Engineering
                 if (achievement_nerf)
-                    pInstance->DoCompleteAchievement(ACHIEVEMENT_NERF_ENG);
+                    instance->DoCompleteAchievement(ACHIEVEMENT_NERF_ENG);
             }
 
-            while (Unit* pTarget = me->FindNearestCreature(NPC_LIFE_SPARK, 100.0f))
-                pTarget->RemoveFromWorld();
+            while (Unit* spark = me->FindNearestCreature(NPC_LIFE_SPARK, 100.0f))
+            {
+                spark->CombatStop();
+                spark->RemoveFromWorld();
+            }
         }
 
         void UpdateAI(const uint32 diff)
@@ -422,7 +426,7 @@ class boss_xt002 : public CreatureScript
                 {
                     if (uiSpawnLifeSparkTimer <= diff)
                     {
-                        if (Unit *pSearingLightTarget = me->GetUnit(*me, uiSearingLightTarget))
+                        if (Unit* pSearingLightTarget = me->GetUnit(*me, uiSearingLightTarget))
                             pSearingLightTarget->SummonCreature(NPC_LIFE_SPARK, pSearingLightTarget->GetPositionX(), pSearingLightTarget->GetPositionY(), pSearingLightTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
                         uiSpawnLifeSparkTimer = TIMER_SPAWN_LIFE_SPARK;
                         searing_light_active = false;
@@ -434,7 +438,7 @@ class boss_xt002 : public CreatureScript
                 {
                     if (uiSpawnGravityBombTimer <= diff)
                     {
-                        if (Unit *pGravityBombTarget = me->GetUnit(*me, uiGravityBombTarget))
+                        if (Unit* pGravityBombTarget = me->GetUnit(*me, uiGravityBombTarget))
                             DoCast(pGravityBombTarget, RAID_MODE(SPELL_VOID_ZONE_10, SPELL_VOID_ZONE_25));
                         uiSpawnGravityBombTimer = TIMER_SPAWN_GRAVITY_BOMB;
                         gravity_bomb_active = false;
@@ -535,7 +539,7 @@ class mob_xt002_heart : public CreatureScript
         bool Exposed;
         bool EndExposed;
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* /*killer*/)
         {
             if (m_pInstance)
                 if (Creature* pXT002 = me->GetCreature(*me, m_pInstance->GetData64(DATA_XT002)))
@@ -579,7 +583,7 @@ class mob_xt002_heart : public CreatureScript
             EndExposed = false;
         }
 
-        void DamageTaken(Unit *pDone, uint32 &damage)
+        void DamageTaken(Unit* pDone, uint32 &damage)
         {
             if (Creature* pXT002 = me->GetCreature(*me, m_pInstance->GetData64(DATA_XT002)))
             {
