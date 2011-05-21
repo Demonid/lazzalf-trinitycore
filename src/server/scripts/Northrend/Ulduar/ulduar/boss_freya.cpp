@@ -232,12 +232,9 @@ class boss_freya : public CreatureScript
     {
         boss_freyaAI(Creature* pCreature) : BossAI(pCreature, BOSS_FREYA)
         {
-            pInstance = pCreature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
         }
-        
-        InstanceScript* pInstance;
 
         uint8 spawnOrder[3];
         uint8 spawnedAdds;
@@ -257,11 +254,11 @@ class boss_freya : public CreatureScript
         {
             _Reset();
 
-            if (pInstance)
+            if (instance)
             {
                 for (uint8 data = DATA_BRIGHTLEAF; data <= DATA_STONEBARK; ++data)
                 {
-                    if (Creature *pCreature = Creature::GetCreature((*me), pInstance->GetData64(data)))
+                    if (Creature* pCreature = Creature::GetCreature((*me), instance->GetData64(data)))
                     {
                         if (pCreature->isAlive())
                             pCreature->AI()->EnterEvadeMode();
@@ -282,33 +279,33 @@ class boss_freya : public CreatureScript
             while (Unit* pTarget = me->FindNearestCreature(NPC_STRENGHTENED_IRON_ROOTS,50.0f))
                 pTarget->RemoveFromWorld();
 
-            Map::PlayerList const &players = pInstance->instance->GetPlayers();
+            Map::PlayerList const &players = instance->instance->GetPlayers();
             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 if (itr->getSource()->HasAura(RAID_MODE(RAID_10_SPELL_FREYA_IRON_ROOTS, RAID_25_SPELL_FREYA_IRON_ROOTS)))
                         itr->getSource()->RemoveAurasDueToSpell(RAID_MODE(RAID_10_SPELL_FREYA_IRON_ROOTS, RAID_25_SPELL_FREYA_IRON_ROOTS));
         }
 
-        void KilledUnit(Unit *victim)
+        void KilledUnit(Unit* victim)
         {
             DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
             _JustDied();
 
-            if (Creature* Ironbranch = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_IRONBRANCH) : 0))
+            if (Creature* Ironbranch = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_IRONBRANCH) : 0))
             {
                 Ironbranch->CombatStop();
                 Ironbranch->RemoveFromWorld();
             }
-            if (Creature* Stonebark = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_STONEBARK) : 0))
+            if (Creature* Stonebark = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_STONEBARK) : 0))
             {  
                 Stonebark->CombatStop();
                 Stonebark->RemoveFromWorld();
             }
-            if (Creature* Ironbranch = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_IRONBRANCH) : 0))
+            if (Creature* Ironbranch = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_IRONBRANCH) : 0))
             {  
                 Ironbranch->CombatStop();
                 Ironbranch->RemoveFromWorld();
@@ -316,37 +313,37 @@ class boss_freya : public CreatureScript
             
             me->setFaction(35);
             
-            if (pInstance)
+            if (instance)
             {
                 // Kill credit
-                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65074);
+                instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65074);
                 switch (EldersCount)
                 {
                     case 3:
                          // Knock, Knock, Knock on Wood
-                        pInstance->DoCompleteAchievement(ACHIEVEMENT_KNOCK_ON_WOOD_3);
+                        instance->DoCompleteAchievement(ACHIEVEMENT_KNOCK_ON_WOOD_3);
                     case 2:
                         // Knock, Knock on Wood 
-                        pInstance->DoCompleteAchievement(ACHIEVEMENT_KNOCK_ON_WOOD_2);
+                        instance->DoCompleteAchievement(ACHIEVEMENT_KNOCK_ON_WOOD_2);
                     case 1:
                         // Knock on Wood
-                        pInstance->DoCompleteAchievement(ACHIEVEMENT_KNOCK_ON_WOOD_1);
+                        instance->DoCompleteAchievement(ACHIEVEMENT_KNOCK_ON_WOOD_1);
                         break;
                 }       
                 // Getting Back to Nature
                 if (buffStackAmount >= 25)
-                    pInstance->DoCompleteAchievement(ACHIEVEMENT_BACK_TO_NATURE);
+                    instance->DoCompleteAchievement(ACHIEVEMENT_BACK_TO_NATURE);
                 // Con-speed-atory
-                if (pInstance->GetData(DATA_CONSPEEDATORY) == ACHI_IS_IN_PROGRESS)
+                if (instance->GetData(DATA_CONSPEEDATORY) == ACHI_IS_IN_PROGRESS)
                 {
-                    pInstance->DoCompleteAchievement(ACHIEVEMENT_CONSPEEDATORY);
-                    pInstance->SetData(DATA_CONSPEEDATORY, ACHI_COMPLETED);
+                    instance->DoCompleteAchievement(ACHIEVEMENT_CONSPEEDATORY);
+                    instance->SetData(DATA_CONSPEEDATORY, ACHI_COMPLETED);
                 }
 
                 while (Unit* pTarget = me->FindNearestCreature(NPC_STRENGHTENED_IRON_ROOTS,50.0f))
                     pTarget->RemoveFromWorld();
 
-                Map::PlayerList const &players = pInstance->instance->GetPlayers();
+                Map::PlayerList const &players = instance->instance->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     if (itr->getSource()->HasAura(RAID_MODE(RAID_10_SPELL_FREYA_IRON_ROOTS, RAID_25_SPELL_FREYA_IRON_ROOTS)))
                         itr->getSource()->RemoveAurasDueToSpell(RAID_MODE(RAID_10_SPELL_FREYA_IRON_ROOTS, RAID_25_SPELL_FREYA_IRON_ROOTS));
@@ -374,7 +371,7 @@ class boss_freya : public CreatureScript
             me->SummonGameObject(chest,(me->GetPositionX()+15*cos(me->GetOrientation())),(me->GetPositionY()+15*sin(me->GetOrientation())),me->GetPositionZ(),me->GetOrientation(),0,0,1,0,0);
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
             
@@ -389,7 +386,7 @@ class boss_freya : public CreatureScript
             events.ScheduleEvent(EVENT_BERSERK, 600000);
             
             // Freya hard mode can be triggered simply by letting the elders alive
-            if (Creature* Brightleaf = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_BRIGHTLEAF) : 0))
+            if (Creature* Brightleaf = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_BRIGHTLEAF) : 0))
                 if (Brightleaf->isAlive())
                 {
                     EldersCount++;
@@ -400,7 +397,7 @@ class boss_freya : public CreatureScript
                     events.ScheduleEvent(EVENT_BRIGHTLEAF, urand(15000, 30000));
                 }
                 
-            if (Creature* Ironbranch = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_IRONBRANCH) : 0))
+            if (Creature* Ironbranch = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_IRONBRANCH) : 0))
                 if (Ironbranch->isAlive())
                 {
                     EldersCount++;
@@ -411,7 +408,7 @@ class boss_freya : public CreatureScript
                     events.ScheduleEvent(EVENT_IRONBRANCH, urand(45000, 60000));
                 }
                 
-            if (Creature* Stonebark = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_STONEBARK) : 0))
+            if (Creature* Stonebark = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_STONEBARK) : 0))
                 if (Stonebark->isAlive())
                 {
                     EldersCount++;
@@ -452,7 +449,7 @@ class boss_freya : public CreatureScript
                 // this achievement is awarded while fighting freya, not when the boss is killed.
                 else if (deforestationCount == 6)
                 {
-                    pInstance->DoCompleteAchievement(ACHIEVEMENT_DEFORESTATION);
+                    instance->DoCompleteAchievement(ACHIEVEMENT_DEFORESTATION);
                     // after awarding the achievent, prevent further controls
                     checkDeforestation = false;
                 }
@@ -494,7 +491,7 @@ class boss_freya : public CreatureScript
                                 for (uint32 i = 0; i < 3; i++)
                                     Elemental[i]->ForcedDespawn(3000);
                                     
-                                if (Creature* Freya = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_FREYA) : 0))
+                                if (Creature* Freya = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_FREYA) : 0))
                                     Freya->AI()->DoAction(ACTION_ELEMENTAL);
                             }
                 }
@@ -516,7 +513,7 @@ class boss_freya : public CreatureScript
                 switch(eventId)
                 {
                     case EVENT_SUNBEAM:
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             if (pTarget->isAlive())
                                 DoCast(pTarget, RAID_MODE(RAID_10_SPELL_SUNBEAM, RAID_25_SPELL_SUNBEAM));
                         events.ScheduleEvent(EVENT_SUNBEAM, urand(10000, 15000));
@@ -705,19 +702,19 @@ class boss_elder_brightleaf : public CreatureScript
         int32 uiBrightleafFluxTimer;
         uint32 EldersCount;
         
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_BRIGHTLEAF_AGGRO, me);
             EldersCount = 0;
         }
         
-        void KilledUnit(Unit *victim)
+        void KilledUnit(Unit* victim)
         {
             if (!(rand()%5))
                  DoScriptText(RAND(SAY_BRIGHTLEAF_SLAY_1,SAY_BRIGHTLEAF_SLAY_2), me);
         }
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_BRIGHTLEAF_DEATH, me);
 
@@ -759,7 +756,7 @@ class boss_elder_brightleaf : public CreatureScript
 
             if(uiUnstableSunbeamTimer <= 0)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     if (pTarget->isAlive())
                         me->SummonCreature(NPC_UNSTABLE_SUN_BEAM, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000);
                 uiUnstableSunbeamTimer = 8000;
@@ -879,19 +876,19 @@ class boss_elder_ironbranch : public CreatureScript
                     itr->getSource()->RemoveAurasDueToSpell(RAID_MODE(RAID_10_SPELL_IRON_ROOTS, RAID_25_SPELL_IRON_ROOTS));
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_IRONBRANCH_AGGRO, me);
             EldersCount = 0;
         }
         
-        void KilledUnit(Unit *victim)
+        void KilledUnit(Unit* victim)
         {
             if (!(rand()%5))
                  DoScriptText(RAND(SAY_IRONBRANCH_SLAY_1,SAY_IRONBRANCH_SLAY_2), me);
         }
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_IRONBRANCH_DEATH, me);
 
@@ -986,9 +983,9 @@ class creature_iron_roots : public CreatureScript
             pPlayerGUID = target;
         }
 
-        void JustDied(Unit* victim)
+        void JustDied(Unit* /*killer*/)
         {
-            if (Player *pTarget = Unit::GetPlayer((*me), pPlayerGUID))
+            if (Player* pTarget = Unit::GetPlayer((*me), pPlayerGUID))
                 if (pTarget->isAlive())
                     pTarget->RemoveAurasDueToSpell(RAID_MODE(RAID_10_SPELL_IRON_ROOTS, RAID_25_SPELL_IRON_ROOTS));
         }
@@ -1025,19 +1022,19 @@ class boss_elder_stonebark : public CreatureScript
             uiPetrifiedBarkTimer = 35000;
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_STONEBARK_AGGRO, me);
             EldersCount = 0;
         }
         
-        void KilledUnit(Unit *victim)
+        void KilledUnit(Unit* victim)
         {
             if (!(rand()%5))
                  DoScriptText(RAND(SAY_STONEBARK_SLAY_1,SAY_STONEBARK_SLAY_2), me);
         }
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_STONEBARK_DEATH, me);
 
@@ -1204,7 +1201,7 @@ class creature_detonating_lasher : public CreatureScript
         int32 uiFlameLashTimer;
         int32 uiSwitchTargetTimer;
 
-        void JustDied(Unit* victim)
+        void JustDied(Unit* /*killer*/)
         {
             DoCast(me, RAID_MODE(RAID_10_SPELL_DETONATE, RAID_25_SPELL_DETONATE));
 
@@ -1232,7 +1229,7 @@ class creature_detonating_lasher : public CreatureScript
 
             if(uiSwitchTargetTimer <= 0)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     if (pTarget->isAlive())
                         me->Attack(pTarget, true);
                 uiSwitchTargetTimer = urand(2000, 4000);
@@ -1267,7 +1264,7 @@ class creature_ancient_conservator : public CreatureScript
         uint8 healthySporesSpawned;
         int32 uiSpawnPauseTimer;
         
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* /*who*/)
         {
             DoCast(me, SPELL_CONSERVATORS_GRIP);
         }
@@ -1280,7 +1277,7 @@ class creature_ancient_conservator : public CreatureScript
             uiSpawnPauseTimer = 20000;
         }
 
-        void JustDied(Unit* victim)
+        void JustDied(Unit* /*killer*/)
         {
             if(Creature* Freya = Unit::GetCreature(*me, m_pInstance ? m_pInstance->GetData64(DATA_FREYA) : 0))
                 Freya->AI()->DoAction(ACTION_ANCIENT);
@@ -1385,7 +1382,7 @@ class creature_storm_lasher : public CreatureScript
             uiStormboltTimer = 15000;
         }
 
-        void JustDied(Unit* victim)
+        void JustDied(Unit* /*killer*/)
         {
             if(Creature* Freya = Unit::GetCreature(*me, m_pInstance ? m_pInstance->GetData64(DATA_FREYA) : 0))
             {
@@ -1398,7 +1395,7 @@ class creature_storm_lasher : public CreatureScript
         {
             if(!UpdateVictim())
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                 {
                     me->AddThreat(pTarget, 100.0f);
                     me->AI()->AttackStart(pTarget);
@@ -1452,7 +1449,7 @@ class creature_snaplasher : public CreatureScript
         InstanceScript* m_pInstance;
         uint32 health;
 
-        void JustDied(Unit* victim)
+        void JustDied(Unit* /*killer*/)
         {
             if(Creature* Freya = Unit::GetCreature(*me, m_pInstance ? m_pInstance->GetData64(DATA_FREYA) : 0))
             {
@@ -1465,7 +1462,7 @@ class creature_snaplasher : public CreatureScript
         {
             if (!UpdateVictim())
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                 {
                     me->AddThreat(pTarget, 100.0f);
                     me->AI()->AttackStart(pTarget);
@@ -1504,7 +1501,7 @@ class creature_ancient_water_spirit : public CreatureScript
             uiTidalWaveTimer = 10000;
         }
 
-        void JustDied(Unit* victim)
+        void JustDied(Unit* /*killer*/)
         {
             if(Creature* Freya = Unit::GetCreature(*me, m_pInstance ? m_pInstance->GetData64(DATA_FREYA) : 0))
             {
@@ -1517,7 +1514,7 @@ class creature_ancient_water_spirit : public CreatureScript
         {
             if (!UpdateVictim())
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                 {
                     me->AddThreat(pTarget, 100.0f);
                     me->AI()->AttackStart(pTarget);
@@ -1555,14 +1552,14 @@ public:
 
     struct mob_freya_trashAI : public ScriptedAI
     {
-        mob_freya_trashAI(Creature *c) : ScriptedAI(c)
+        mob_freya_trashAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* /*killer*/)
         {
             if (pInstance)
                 if (pInstance->GetData(DATA_CONSPEEDATORY) == ACHI_IS_NOT_STARTED)

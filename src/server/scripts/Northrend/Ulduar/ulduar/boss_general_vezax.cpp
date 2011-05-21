@@ -111,12 +111,9 @@ class boss_general_vezax : public CreatureScript
     {
         boss_general_vezaxAI(Creature *pCreature) : BossAI(pCreature, BOSS_VEZAX)
         {
-            pInstance = pCreature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
         }
-     
-        InstanceScript *pInstance;
         
         int32 VaporsCount;
         bool HardMode, Dodged;
@@ -132,19 +129,19 @@ class boss_general_vezax : public CreatureScript
             Dodged = true;
         }
         
-        void KilledUnit(Unit* Victim)
+        void KilledUnit(Unit* victim)
         {
             if (!(rand()%5))
                 DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
         
-        void SpellHitTarget(Unit * pTarget, const SpellEntry * pSpell)
+        void SpellHitTarget(Unit* pTarget, const SpellEntry* pSpell)
         {
             if ((pSpell->Id == SPELL_SHADOW_CRASH_HIT || pSpell->Id == SPELL_SHADOW_CRASH) && pTarget->GetTypeId() == TYPEID_PLAYER)
                 Dodged = false;
         }
 
-        void EnterCombat(Unit *who)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
             DoScriptText(SAY_AGGRO, me);
@@ -156,10 +153,10 @@ class boss_general_vezax : public CreatureScript
             events.ScheduleEvent(EVENT_DARKNESS, 60000);
             events.ScheduleEvent(EVENT_BERSERK, 600000);
             
-            if (pInstance)
+            if (instance)
             {
                 // This ability affects Shaman with the Shamanistic Rage talent
-                Map::PlayerList const &players = pInstance->instance->GetPlayers();
+                Map::PlayerList const &players = instance->instance->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
                     Player* pPlayer = itr->getSource();
@@ -173,16 +170,19 @@ class boss_general_vezax : public CreatureScript
             }
         }
         
-        void JustDied(Unit *victim)
+        void JustDied(Unit* victim)
         {
             DoScriptText(SAY_DEATH, me);
             _JustDied();
             
             // Achievements
-            if (HardMode)
-                pInstance->DoCompleteAchievement(ACHIEVEMENT_SMELL_SARONITE);
-            if (Dodged)
-                pInstance->DoCompleteAchievement(ACHIEVEMENT_SHADOWDODGER);
+            if (instance)
+            {
+                if (HardMode)
+                    instance->DoCompleteAchievement(ACHIEVEMENT_SMELL_SARONITE);
+                if (Dodged)
+                    instance->DoCompleteAchievement(ACHIEVEMENT_SHADOWDODGER);
+            }
         }
         
         void UpdateAI(const uint32 diff)
@@ -346,7 +346,7 @@ class mob_saronite_vapors : public CreatureScript
 
     struct mob_saronite_vaporsAI : public ScriptedAI
     {
-        mob_saronite_vaporsAI(Creature *pCreature) : ScriptedAI(pCreature)
+        mob_saronite_vaporsAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             pInstance = pCreature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
@@ -354,9 +354,9 @@ class mob_saronite_vapors : public CreatureScript
             me->GetMotionMaster()->MoveRandom(30.0f);
         }
         
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
      
-        void DamageTaken(Unit *who, uint32 &damage)
+        void DamageTaken(Unit* /*who*/, uint32 &damage)
         {
             if (damage >= me->GetHealth())
             {
@@ -374,7 +374,7 @@ class mob_saronite_vapors : public CreatureScript
         }
     };
      
-    CreatureAI* GetAI(Creature *pCreature) const
+    CreatureAI* GetAI(Creature* pCreature) const
     {
         return new mob_saronite_vaporsAI(pCreature);
     };
@@ -398,7 +398,7 @@ class mob_saronite_animus : public CreatureScript
 
         uint32 ProfoundDarknessTimer;
         
-        void JustDied(Unit * killer)
+        void JustDied(Unit* /*killer*/)
         {
             if (Creature* Vezax = me->GetCreature(*me, pInstance->GetData64(DATA_VEZAX)))
             {

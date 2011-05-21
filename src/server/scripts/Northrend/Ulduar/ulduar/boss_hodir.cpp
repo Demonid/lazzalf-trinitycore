@@ -120,7 +120,7 @@ struct SummonLocation
     uint32 entry;
 };
 
-SummonLocation addLocations[]=
+SummonLocation addLocations[] =
 {
     {1983.75f, -243.36f, 432.767f, 1.57f, 32897}, // Priest 1
     {1999.90f, -230.49f, 432.767f, 1.57f, 33325}, // Druid 1
@@ -141,15 +141,12 @@ class boss_hodir : public CreatureScript
 
     struct boss_hodir_AI : public BossAI
     {
-        boss_hodir_AI(Creature *pCreature) : BossAI(pCreature, BOSS_HODIR)
+        boss_hodir_AI(Creature* pCreature) : BossAI(pCreature, BOSS_HODIR)
         {
-            pInstance = pCreature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true);  // Death Grip
             //me->ApplySpellImmune(0, IMMUNITY_ID, 65280, true);  // Singed
         }
-        
-        InstanceScript* pInstance;
 
         uint64 pHelperGUID[RAID_COUNT];
         
@@ -168,8 +165,8 @@ class boss_hodir : public CreatureScript
             // Spawn NPC Helpers
             for (int32 i = 0; i < RAID_MODE(NORMAL_COUNT, RAID_COUNT); i++)
             {
-                if (Creature *pHelper = me->SummonCreature(addLocations[i].entry,addLocations[i].x,addLocations[i].y,addLocations[i].z,addLocations[i].o))
-                    if (Creature *pIceBlock = pHelper->SummonCreature(NPC_FLASH_FREEZE_PRE,addLocations[i].x,addLocations[i].y,addLocations[i].z,addLocations[i].o))
+                if (Creature* pHelper = me->SummonCreature(addLocations[i].entry,addLocations[i].x,addLocations[i].y,addLocations[i].z,addLocations[i].o))
+                    if (Creature* pIceBlock = pHelper->SummonCreature(NPC_FLASH_FREEZE_PRE,addLocations[i].x,addLocations[i].y,addLocations[i].z,addLocations[i].o))
                     {
                         pHelperGUID[i] = pHelper->GetGUID();           
                         pHelper->AddThreat(me, 500000.0f);
@@ -180,7 +177,7 @@ class boss_hodir : public CreatureScript
             }
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
             DoScriptText(SAY_AGGRO, me);
@@ -205,33 +202,33 @@ class boss_hodir : public CreatureScript
                 DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* /*killer*/)
         {
             _JustDied();
             DoScriptText(SAY_DEATH, me);
             
             me->setFaction(35);
             
-            if (pInstance)
+            if (instance)
             {
                 // Kill credit
-                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2, 64899);
+                instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2, 64899);
                 // Getting Cold in Here
                 if (!bMoreThanTwoIntenseCold)
-                    pInstance->DoCompleteAchievement(ACHIEVEMENT_COLD_IN_HERE);
+                    instance->DoCompleteAchievement(ACHIEVEMENT_COLD_IN_HERE);
                 // Cheese the Freeze
                 if (CheeseTheFreeze)
-                    pInstance->DoCompleteAchievement(ACHIEVEMENT_CHEESE_THE_FREEZE);
+                    instance->DoCompleteAchievement(ACHIEVEMENT_CHEESE_THE_FREEZE);
                 // I Have the Coolest Friends
                 if (CoolestFriends)
-                    pInstance->DoCompleteAchievement(ACHIEVEMENT_COOLEST_FRIENDS);
+                    instance->DoCompleteAchievement(ACHIEVEMENT_COOLEST_FRIENDS);
                 // I Could Say That This Cache Was Rare
                 if (RareCache)
                 {
-                    pInstance->DoCompleteAchievement(ACHIEVEMENT_THIS_CACHE_WAS_RARE);
-                    pInstance->SetData(DATA_HODIR_RARE_CHEST, GO_STATE_READY);
+                    instance->DoCompleteAchievement(ACHIEVEMENT_THIS_CACHE_WAS_RARE);
+                    instance->SetData(DATA_HODIR_RARE_CHEST, GO_STATE_READY);
                 }
-                pInstance->SetData(DATA_HODIR_CHEST, GO_STATE_READY);
+                instance->SetData(DATA_HODIR_CHEST, GO_STATE_READY);
                 // Chest spawn
                 //uint32 chest = RAID_MODE(CACHE_OF_WINTER_10, CACHE_OF_WINTER_25);
                 //me->SummonGameObject(chest, 1966.43f, -203.906f, 432.687f, -0.90757f, 0,0,1,0,0);
@@ -256,7 +253,7 @@ class boss_hodir : public CreatureScript
                 std::list<HostileReference*> ThreatList = me->getThreatManager().getThreatList();
                 for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
                 {
-                    Unit *pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                    Unit* pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                     if (!pTarget || pTarget->GetTypeId() != TYPEID_PLAYER)
                         continue;
 
@@ -279,7 +276,7 @@ class boss_hodir : public CreatureScript
                         events.ScheduleEvent(EVENT_FREEZE, 50000);
                         break;
                     case EVENT_ICICLE:
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             if (pTarget->isAlive())
                                 DoCast(pTarget, SPELL_ICICLE);
                         events.ScheduleEvent(EVENT_ICICLE, RAID_MODE(4000,2000));
@@ -335,7 +332,7 @@ class boss_hodir : public CreatureScript
             std::list<HostileReference*> ThreatList = me->getThreatManager().getThreatList();
             for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
             {
-                if (Unit *pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                if (Unit* pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                 {
                     if (pTarget->HasAura(SPELL_BLOCK_OF_ICE))
                     {
@@ -346,7 +343,7 @@ class boss_hodir : public CreatureScript
                     {
                         if (GetClosestCreatureWithEntry(pTarget, NPC_ICICLE_TARGET, 5.0f))
                             continue;                            
-                        else if (Creature *pIceBlock = pTarget->SummonCreature(NPC_FLASH_FREEZE, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 105000))
+                        else if (Creature* pIceBlock = pTarget->SummonCreature(NPC_FLASH_FREEZE, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 105000))
                         { 
                            pIceBlock->CastSpell(pTarget, SPELL_BLOCK_OF_ICE, true);
                            if (pTarget->GetTypeId() == TYPEID_PLAYER)
@@ -524,7 +521,7 @@ class mob_hodir_priest : public CreatureScript
             DispelTimer = urand(20000, 30000);
         }
         
-        void AttackStart(Unit *who)
+        void AttackStart(Unit* who)
         {
             AttackStartCaster(who, 20);
         }
@@ -569,10 +566,10 @@ class mob_hodir_priest : public CreatureScript
             DoSpellAttackIfReady(SPELL_SMITE);
         }
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* /*killer*/)
  	    {
 	        // I Have the Coolest Friends
-  	        if (Creature* pHodir = me->FindNearestCreature(NPC_HODIR,60,true))
+  	        if (Creature* pHodir = me->FindNearestCreature(NPC_HODIR, 60, true))
   	            if (pHodir->AI())
   	                pHodir->AI()->DoAction(ACTION_FAILED_COOLEST_FRIENDS);
   	    }
@@ -607,7 +604,7 @@ class mob_hodir_shaman : public CreatureScript
             StormTimer = urand(15000, 20000);
         }
         
-        void AttackStart(Unit *who)
+        void AttackStart(Unit* who)
         {
             AttackStartCaster(who, 20);
         }
@@ -635,10 +632,10 @@ class mob_hodir_shaman : public CreatureScript
             DoSpellAttackIfReady(SPELL_LAVA_BURST);
         }
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* /*killer*/)
  	    {
 	        // I Have the Coolest Friends
-  	        if (Creature* pHodir = me->FindNearestCreature(NPC_HODIR,60,true))
+  	        if (Creature* pHodir = me->FindNearestCreature(NPC_HODIR, 60, true))
   	            if (pHodir->AI())
   	                pHodir->AI()->DoAction(ACTION_FAILED_COOLEST_FRIENDS);
   	    }
@@ -673,7 +670,7 @@ class mob_hodir_druid : public CreatureScript
             StarlightTimer = urand(10000, 15000);
         }
         
-        void AttackStart(Unit *who)
+        void AttackStart(Unit* who)
         {
             AttackStartCaster(who, 20);
         }
@@ -693,10 +690,10 @@ class mob_hodir_druid : public CreatureScript
             DoSpellAttackIfReady(SPELL_WRATH);
         }
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* /*killer*/)
  	    {
 	        // I Have the Coolest Friends
-  	        if (Creature* pHodir = me->FindNearestCreature(NPC_HODIR,60,true))
+  	        if (Creature* pHodir = me->FindNearestCreature(NPC_HODIR, 60, true))
   	            if (pHodir->AI())
   	                pHodir->AI()->DoAction(ACTION_FAILED_COOLEST_FRIENDS);
   	    }
@@ -733,7 +730,7 @@ class mob_hodir_mage : public CreatureScript
             MeltIceTimer = 5000;
         }
         
-        void AttackStart(Unit *who)
+        void AttackStart(Unit* who)
         {
             AttackStartCaster(who, 20);
         }
@@ -752,7 +749,7 @@ class mob_hodir_mage : public CreatureScript
             
             if (MeltIceTimer < uiDiff)
             {
-                if (Creature *pShard = me->FindNearestCreature(NPC_FLASH_FREEZE,50,true))
+                if (Creature* pShard = me->FindNearestCreature(NPC_FLASH_FREEZE, 50, true))
                 {
                     DoCast(pShard, SPELL_MELT_ICE, true);
                     MeltIceTimer = urand(5000,10000);
@@ -764,10 +761,10 @@ class mob_hodir_mage : public CreatureScript
             DoSpellAttackIfReady(SPELL_FIREBALL);
         }
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* /*killer*/)
  	    {
 	        // I Have the Coolest Friends
-  	        if (Creature* pHodir = me->FindNearestCreature(NPC_HODIR,60,true))
+  	        if (Creature* pHodir = me->FindNearestCreature(NPC_HODIR, 60, true))
   	            if (pHodir->AI())
   	                pHodir->AI()->DoAction(ACTION_FAILED_COOLEST_FRIENDS);
   	    }
@@ -799,12 +796,12 @@ class toasty_fire : public CreatureScript
             me->SetDisplayId(15880);
         }
         
-        void SpellHit(Unit* caster, const SpellEntry *spell) 
+        void SpellHit(Unit* /*caster*/, const SpellEntry* spell) 
         {
             // Toasty fire can be extinguished by falling ice or Flash Freeze
             if(spell->Id == SPELL_BLOCK_OF_ICE || spell->Id == 62457 || spell->Id == 65370)
             {
-                if (GameObject *pFire = me->FindNearestGameObject(194300, 2))
+                if (GameObject* pFire = me->FindNearestGameObject(194300, 2))
                     me->RemoveGameObject(pFire, true);
                 me->DespawnOrUnsummon();
             }
@@ -815,9 +812,9 @@ class toasty_fire : public CreatureScript
             DoCast(me, SPELL_SINGED, true);
         }
 
-        void JustDied(Unit * /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
-            if (GameObject *pFire = me->FindNearestGameObject(194300, 4))
+            if (GameObject* pFire = me->FindNearestGameObject(194300, 4))
                 me->RemoveGameObject(pFire, true);
         }
     };
@@ -835,7 +832,7 @@ public:
 
     struct npc_flash_freezeAI : public Scripted_NoMovementAI
     {
-        npc_flash_freezeAI(Creature *pCreature) : Scripted_NoMovementAI(pCreature)
+        npc_flash_freezeAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
@@ -887,7 +884,7 @@ public:
             }
         }
 
-        void JustDied(Unit * /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (me->ToTempSummon()->GetSummoner())
                 me->ToTempSummon()->GetSummoner()->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, false);
