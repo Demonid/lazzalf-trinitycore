@@ -437,7 +437,6 @@ void AddSC_boss_mimiron();
 void AddSC_boss_general_vezax();
 void AddSC_boss_yoggsaron();
 void AddSC_ulduar_teleporter();
-void AddSC_boss_freya();
 void AddSC_instance_ulduar();
 void AddSC_boss_keleseth();              //Utgarde Keep
 void AddSC_boss_skarvald_dalronn();
