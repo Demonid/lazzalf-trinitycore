@@ -36,6 +36,8 @@ enum ToC_Data
     SPELL_JARAXXUS_CHAINS       = 67924,
 
     DESPAWN_TIME                = 300000,
+
+    TOC_RAID_MAP = 649
 };
 
 const Position ToCCommonLoc[]=

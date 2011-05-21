@@ -187,6 +187,22 @@ class instance_ulduar : public InstanceMapScript
         bool proximityMineHit;
         bool bombBotHit;
         bool rocketStrikeHit;
+
+        // Champion/Conqueror of Ulduar
+        uint32 leviathanStatus;
+        uint32 ignisStatus;
+        uint32 razorscaleStatus;
+        uint32 xtStatus;
+        uint32 assemblyStatus;
+        uint32 kologarnStatus;
+        uint32 auriayaStatus;
+        uint32 mimironStatus;
+        uint32 hodirStatus;
+        uint32 thorimStatus;
+        uint32 freyaStatus;
+        uint32 vezaxStatus;
+        uint32 yoggStatus;
+        uint32 algalonStatus;
             
         GameObject* pLeviathanDoor, *KologarnChest, *HodirChest, *HodirRareChest, *ThorimChest, *ThorimRareChest, *pRunicDoor, *pStoneDoor, *pThorimLever,
             *MimironTram, *MimironElevator;
@@ -275,6 +291,22 @@ class instance_ulduar : public InstanceMapScript
             m_uiCelestialConsoleGUID = 0;
             m_uiUniverseFloorCelestialGUID = 0;
             m_uiAzerothGlobeGUID = 0;
+
+            // Champion/Conqueror of Ulduar
+            leviathanStatus = CRITERIA_MEETED;
+            ignisStatus = CRITERIA_MEETED;
+            razorscaleStatus = CRITERIA_MEETED;
+            xtStatus = CRITERIA_MEETED;
+            assemblyStatus = CRITERIA_MEETED;
+            kologarnStatus = CRITERIA_MEETED;
+            auriayaStatus = CRITERIA_MEETED;
+            mimironStatus = CRITERIA_MEETED;
+            hodirStatus = CRITERIA_MEETED;
+            thorimStatus = CRITERIA_MEETED;
+            freyaStatus = CRITERIA_MEETED;
+            vezaxStatus = CRITERIA_MEETED;
+            yoggStatus = CRITERIA_MEETED;
+            algalonStatus = CRITERIA_MEETED;
         }
 
         void OnGameObjectCreate(GameObject* pGo)
@@ -780,6 +812,48 @@ class instance_ulduar : public InstanceMapScript
                     if (value == 1 && activeKeepers < 4)
                         activeKeepers += value;
                     break;
+                case CRITERIA_LEVIATHAN:
+                    leviathanStatus = value;
+                    break;
+                case CRITERIA_IGNIS:
+                    ignisStatus = value;
+                    break;
+                case CRITERIA_RAZORSCALE:
+                    razorscaleStatus = value;
+                    break;
+                case CRITERIA_XT002:
+                    xtStatus = value;
+                    break;
+                case CRITERIA_ASSEMBLY:
+                    assemblyStatus = value;
+                    break;
+                case CRITERIA_KOLOGARN:
+                    kologarnStatus = value;
+                    break;
+                case CRITERIA_AURIAYA:
+                    auriayaStatus = value;
+                    break;
+                case CRITERIA_MIMIRON:
+                    mimironStatus = value;
+                    break;
+                case CRITERIA_HODIR:
+                    hodirStatus = value;
+                    break;
+                case CRITERIA_THORIM:
+                    thorimStatus = value;
+                    break;
+                case CRITERIA_FREYA:
+                    freyaStatus = value;
+                    break;
+                case CRITERIA_VEZAX:
+                    vezaxStatus = value;
+                    break;
+                case CRITERIA_YOGGSARON:
+                    yoggStatus = value;
+                    break;
+                case DATA_FEED:
+                    algalonStatus = value;
+                    break;
                 default:
                     break;
             }
@@ -862,6 +936,34 @@ class instance_ulduar : public InstanceMapScript
                         return CRITERIA_MEETED;
                 case DATA_ACTIVE_KEEPERS:
                     return activeKeepers;
+                case CRITERIA_LEVIATHAN:
+                    return leviathanStatus;
+                case CRITERIA_IGNIS:
+                    return ignisStatus;
+                case CRITERIA_RAZORSCALE:
+                    return razorscaleStatus;
+                case CRITERIA_XT002:
+                    return xtStatus;
+                case CRITERIA_ASSEMBLY:
+                    return assemblyStatus;
+                case CRITERIA_KOLOGARN:
+                    return kologarnStatus;
+                case CRITERIA_AURIAYA:
+                    return auriayaStatus;
+                case CRITERIA_MIMIRON:
+                    return mimironStatus;
+                case CRITERIA_HODIR:
+                    return hodirStatus;
+                case CRITERIA_THORIM:
+                    return thorimStatus;
+                case CRITERIA_FREYA:
+                    return freyaStatus;
+                case CRITERIA_VEZAX:
+                    return vezaxStatus;
+                case CRITERIA_YOGGSARON:
+                    return yoggStatus;
+                case DATA_FEED:
+                    return algalonStatus;
                 default:
                     return 0;
             }

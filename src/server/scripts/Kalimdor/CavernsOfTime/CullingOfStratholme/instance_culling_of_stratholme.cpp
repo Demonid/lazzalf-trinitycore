@@ -78,7 +78,7 @@ public:
             return false;
         }
 
-        void Inizialize()
+        void Initialize()
         {
             DoUpdateWorldState(WORLD_STATE_TIMER, 0);
             DoUpdateWorldState(WORLD_STATE_TIME_COUNTER, 0);

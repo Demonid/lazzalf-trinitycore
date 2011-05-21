@@ -112,5 +112,7 @@ const Position TeleporterPositions[5] =
 
 #define GO_BIRTH                181356
 
+#define NAXXRAMAS_MAP           533
+
 #endif
 

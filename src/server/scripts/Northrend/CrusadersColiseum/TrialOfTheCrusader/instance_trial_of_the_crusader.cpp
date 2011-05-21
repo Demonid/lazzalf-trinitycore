@@ -534,30 +534,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 }
             }
 
-            /*void TributeAchievements()
-            {
-                switch (tributeCheck)
-                {
-                    case 3:
-                        if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
-                            DoCompleteAchievement(ACHIEVEMENT_TRIBUTE_INSANITY_10);
-                        if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
-                            DoCompleteAchievement(ACHIEVEMENT_TRIBUTE_INSANITY_25);
-                    case 2:
-                        if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
-                            DoCompleteAchievement(ACHIEVEMENT_TRIBUTE_MAD_SKILL_10);
-                        if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
-                            DoCompleteAchievement(ACHIEVEMENT_TRIBUTE_MAD_SKILL_25);
-                    case 1:
-                        if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
-                            DoCompleteAchievement(ACHIEVEMENT_TRIBUTE_SKILL_10);
-                        if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
-                            DoCompleteAchievement(ACHIEVEMENT_TRIBUTE_SKILL_25);
-                    case 0:
-                        return;
-                }
-            }*/
-
             uint64 GetData64(uint32 type)
             {
                 switch (type)
@@ -876,8 +852,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             return new instance_trial_of_the_crusader_InstanceMapScript(map);
         }
 };
-
-#define TOC_RAID_MAP 649
 
 class criteria_tribute_to_immortality_h : public AchievementCriteriaScript
 {
