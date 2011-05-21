@@ -121,18 +121,6 @@ public:
             SetBossNumber(MAX_BOSS_NUMBER);
             LoadDoorData(doorData);
             LoadMinionData(minionData);
-            
-            /*somebodyDiedAnub = false;
-            somebodyDiedPatch = false;
-            somebodyDiedRazu = false;
-            somebodyDiedNoth = false;
-            somebodyDiedSapphi = false;
-
-            somebodyDiedArachnid = true;
-            somebodyDiedConstruct = true;
-            somebodyDiedMilitary = true;
-            somebodyDiedPlague = true;
-            somebodyDiedFrostwyrm = true;*/
         }
 
         //std::set<uint64> HeiganEruptionGUID[4];
@@ -173,7 +161,7 @@ public:
         uint32 nothStatus;
         uint32 sapphiStatus;
 
-        void Inizialize()
+        void Initialize()
         {
             GothikGateGUID = 0;
             HorsemenChestGUID = 0;
@@ -520,7 +508,7 @@ public:
             for (uint32 i = DATA_IMMORTAL_ARACHNID; i <= DATA_IMMORTAL_SAPPHI; ++i)
             {
                 loadStream >> buff;
-                //sLog->outError("type='%u', value='%u'", i, buff);
+                sLog->outError("type='%u', value='%u'", i, buff);
                 SetData(i, buff);
             }
 
@@ -616,8 +604,6 @@ class mr_bigglesworth_npc : public CreatureScript
     };
 };
 
-#define NAXXRAMAS_MAP 533
-
 class achievement_immortal : public AchievementCriteriaScript
 {
     public:
@@ -633,19 +619,19 @@ class achievement_immortal : public AchievementCriteriaScript
             if (!instance || source->GetMapId() != NAXXRAMAS_MAP)
                 return false;
 
-            if (instance->GetData(DATA_IMMORTAL_ARACHNID) == CRITERIA_NOT_MEETED)
+            if (instance->GetData(DATA_IMMORTAL_ARACHNID) != CRITERIA_MEETED)
                 return false;
 
-            if (instance->GetData(DATA_IMMORTAL_CONSTRUCT) == CRITERIA_NOT_MEETED)
+            if (instance->GetData(DATA_IMMORTAL_CONSTRUCT) != CRITERIA_MEETED)
                 return false;
 
-            if (instance->GetData(DATA_IMMORTAL_MILITARY) == CRITERIA_NOT_MEETED)
+            if (instance->GetData(DATA_IMMORTAL_MILITARY) != CRITERIA_MEETED)
                 return false;
 
-            if (instance->GetData(DATA_IMMORTAL_PLAGUE) == CRITERIA_NOT_MEETED)
+            if (instance->GetData(DATA_IMMORTAL_PLAGUE) != CRITERIA_MEETED)
                 return false;
 
-            if (instance->GetData(DATA_IMMORTAL_FROSTWYRM) == CRITERIA_NOT_MEETED)
+            if (instance->GetData(DATA_IMMORTAL_FROSTWYRM) != CRITERIA_MEETED)
                 return false;
 
             return true;

@@ -640,7 +640,7 @@ uint32 InstanceSaveManager::GetNumBoundGroupsTotal()
             uint32 mapid = fields[0].GetUInt16();
             Difficulty difficulty = Difficulty(fields[1].GetUInt32());
 
-            if (mapid != 533)
+            if (mapid != 603)
                 return;
 
             uint8 maxCriteria = 13;

@@ -258,6 +258,10 @@ class boss_xt002 : public CreatureScript
 
         void KilledUnit(Unit* victim)
         {
+            if (instance)
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    instance->SetData(CRITERIA_XT002, CRITERIA_NOT_MEETED);
+
             DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
         }
 
@@ -623,6 +627,13 @@ class mob_scrapbot : public CreatureScript
                 me->AI()->AttackStart(pXT002);
         }
 
+        void KilledUnit(Unit* victim)
+        {
+            if (m_pInstance)
+                if (victim->GetTypeId() == TYPEID_PLAYER);
+                    m_pInstance->SetData(CRITERIA_XT002, CRITERIA_NOT_MEETED);
+        }
+
         void UpdateAI(const uint32 diff)
         {
             if (Creature* pXT002 = me->GetCreature(*me, m_pInstance->GetData64(DATA_XT002)))
@@ -679,6 +690,13 @@ class mob_pummeller : public CreatureScript
             uiArcingSmashTimer = TIMER_ARCING_SMASH;
             uiTrampleTimer = TIMER_TRAMPLE;
             uiUppercutTimer = TIMER_UPPERCUT;
+        }
+
+        void KilledUnit(Unit* victim)
+        {
+            if (m_pInstance)
+                if (victim->GetTypeId() == TYPEID_PLAYER);
+                    m_pInstance->SetData(CRITERIA_XT002, CRITERIA_NOT_MEETED);
         }
 
         void UpdateAI(const uint32 diff)
@@ -741,6 +759,13 @@ class mob_boombot : public CreatureScript
             if (Creature* pXT002 = me->GetCreature(*me, m_pInstance->GetData64(DATA_XT002)))
                 me->AI()->AttackStart(pXT002);
         }
+
+        void KilledUnit(Unit* victim)
+        {
+            if (m_pInstance)
+                if (victim->GetTypeId() == TYPEID_PLAYER);
+                    m_pInstance->SetData(CRITERIA_XT002, CRITERIA_NOT_MEETED);
+        }
         
         void UpdateAI(const uint32 diff)
         {
@@ -787,6 +812,13 @@ class mob_void_zone : public CreatureScript
             uiVoidZoneTimer = TIMER_VOID_ZONE;
         }
 
+        void KilledUnit(Unit* victim)
+        {
+            if (m_pInstance)
+                if (victim->GetTypeId() == TYPEID_PLAYER);
+                    m_pInstance->SetData(CRITERIA_XT002, CRITERIA_NOT_MEETED);
+        }
+
         void UpdateAI(const uint32 diff)
         {
             if (uiVoidZoneTimer <= diff)
@@ -829,6 +861,13 @@ class mob_life_spark : public CreatureScript
             uiShockTimer = 0; // first one is immediate.
         }
 
+        void KilledUnit(Unit* victim)
+        {
+            if (m_pInstance)
+                if (victim->GetTypeId() == TYPEID_PLAYER);
+                    m_pInstance->SetData(CRITERIA_XT002, CRITERIA_NOT_MEETED);
+        }
+
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
@@ -852,6 +891,28 @@ class mob_life_spark : public CreatureScript
     };
 };
 
+class criteria_xt002 : public AchievementCriteriaScript
+{
+    public:
+        criteria_xt002() : AchievementCriteriaScript("criteria_xt002") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* instance = source->GetInstanceScript();
+
+            if (!instance || source->GetMapId() != ULDUAR_MAP)
+                return false;
+
+            if (instance->GetData(CRITERIA_XT002) != CRITERIA_MEETED)
+                return false;
+
+            return true;
+        }
+};
+
 void AddSC_boss_xt002()
 {
     new boss_xt002();
@@ -861,6 +922,7 @@ void AddSC_boss_xt002()
     new mob_boombot();
     new mob_void_zone();
     new mob_life_spark();
+    new criteria_xt002();
 
     if (VehicleSeatEntry* vehSeat = const_cast<VehicleSeatEntry*>(sVehicleSeatStore.LookupEntry(3004)))
         vehSeat->m_flags |= 0x400;

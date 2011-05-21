@@ -80,7 +80,7 @@ public:
         bool   m_bInProgress;
 
         /*
-        void Inizialize()
+        void Initialize()
         {
             m_uiChampionsNotStarted = 0;
             m_uiChampionsFailed = 0;
