@@ -446,15 +446,10 @@ class spell_mark_of_the_faceless : public SpellScriptLoader
 
             void HandleEffectPeriodic(AuraEffect const* aurEff)
             {
-                Unit* target = GetTarget();
                 Unit* caster = GetCaster();
-
-                if (!caster || !target)
+                if (!caster)
                     return;
-
-                // Casted by CastCustomSpell() because when it's cast by CastSpell(), damage is 1
-                int32 damage = int32(aurEff->GetBase()->GetEffect(EFFECT_0)->GetAmount());
-                caster->CastCustomSpell(SPELL_MARK_OF_THE_FACELESS_DAMAGE, SPELLVALUE_BASE_POINT1, damage, target, true);
+                caster->CastCustomSpell(SPELL_MARK_OF_THE_FACELESS_DAMAGE, SPELLVALUE_BASE_POINT1, aurEff->GetAmount(), GetTarget(), true);
             }
 
             void Register()
