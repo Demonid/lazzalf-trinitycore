@@ -64,7 +64,6 @@ public:
 
         void Reset()
         {
-            bIsSomeoneDied = false;
             _Reset();
         }
 
@@ -96,6 +95,7 @@ public:
             _EnterCombat();
             DoScriptText(SAY_AGGRO, me);
             EnterPhase(PHASE_FIGHT);
+            bIsSomeoneDied = false;
         }
 
         void EnterPhase(Phases newPhase)
