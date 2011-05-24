@@ -509,12 +509,12 @@ public:
         {
             if (!me->isInCombat() && me->IsWithinDist(who, 50.0f) && who->ToPlayer() && !who->ToPlayer()->isGameMaster())
             {
-                // Non attivare il combat se è da 25 senza keepers (finchè non si sistema l'achi della first kill)
-                //if ((instance->GetData(DATA_ACTIVE_KEEPERS) != 0) || (Difficulty(instance->instance->GetSpawnMode()) != RAID_DIFFICULTY_25MAN_NORMAL))
-                //{
+                //Non attivare il combat se è da 25 senza keepers (finchè non si sistema l'achi della first kill)
+                if ((instance->GetData(DATA_ACTIVE_KEEPERS) != 0) || (Difficulty(instance->instance->GetSpawnMode()) != RAID_DIFFICULTY_25MAN_NORMAL))
+                {
                     me->setFaction(16);
                     DoZoneInCombat();
-                //}
+                }
             }
         }
         
