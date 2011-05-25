@@ -295,11 +295,11 @@ class boss_hodir : public CreatureScript
                         break;
                     case EVENT_FLASH_EFFECT:
                     {
-                        std::list<Creature*> IcicleSnowdriftList;
-                        GetCreatureListWithEntryInGrid(IcicleSnowdriftList, me, NPC_ICICLE_TARGET, 100.0f);
-                        for (std::list<Creature*>::iterator itr = IcicleSnowdriftList.begin(); itr != IcicleSnowdriftList.end(); ++itr)
-                            (*itr)->CastSpell(me, SPELL_FLASH_FREEZE_VISUAL, true);
-                        //DoCast(SPELL_FLASH_FREEZE_VISUAL);
+                        //std::list<Creature*> IcicleSnowdriftList;
+                        //GetCreatureListWithEntryInGrid(IcicleSnowdriftList, me, NPC_ICICLE_TARGET, 100.0f);
+                        //for (std::list<Creature*>::iterator itr = IcicleSnowdriftList.begin(); itr != IcicleSnowdriftList.end(); ++itr)
+                        //    (*itr)->CastSpell(me, SPELL_FLASH_FREEZE_VISUAL, true);
+                        DoCast(SPELL_FLASH_FREEZE_VISUAL);
                         FlashFreeze();
                         events.CancelEvent(EVENT_FLASH_EFFECT);
                         break;
