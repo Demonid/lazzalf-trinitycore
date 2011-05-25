@@ -597,7 +597,10 @@ public:
                             {
                                 std::vector<uint64>::iterator itr = (ominous_list.begin() + rand()%ominous_list.size());
                                 if (Creature* pTarget = ObjectAccessor::GetCreature(*me, *itr))
-                                    pTarget->CastSpell(pTarget, SPELL_SUMMON_GUARDIAN, true);
+                                {
+                                    if (pTarget->isAlive())
+                                        pTarget->CastSpell(pTarget, SPELL_SUMMON_GUARDIAN, true);
+                                }
                             }
                             events.ScheduleEvent(EVENT_SUMMON_GUARDIAN, 8000 + urand(6000, 8000)*((float)me->GetHealth()/me->GetMaxHealth()), 0, PHASE_1);
                             break;
@@ -1251,10 +1254,10 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if(!UpdateVictim())
+            if (!UpdateVictim())
                 return;
 
-            if(uiCooldownTimer <= 0)
+            if (uiCooldownTimer <= 0)
             {
                 SummonCooldown = false;
                 uiCooldownTimer = 10000;
