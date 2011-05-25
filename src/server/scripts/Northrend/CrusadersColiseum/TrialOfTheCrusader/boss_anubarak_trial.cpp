@@ -151,6 +151,8 @@ public:
             // For an unknown reason this npc isn't recognize the Aura of Permafrost with this flags =/
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
             
+            m_uiIncreaseSpeedTimer = 0;
+            /*
             if (Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
                 if (pTarget && pTarget->isAlive())
                 {
@@ -160,9 +162,9 @@ public:
                     m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
                     me->TauntApply(pTarget);
                 }
+            */
         }
 
-        /*
         void EnterCombat(Unit *pWho)
         {
             if (Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
@@ -175,7 +177,6 @@ public:
                     me->TauntApply(pTarget);
                 }
         }
-        */
 
         void DamageTaken(Unit* /*pWho*/, uint32& uiDamage)
         {
@@ -223,6 +224,8 @@ public:
                         case 2:
                             DoCast(me, SPELL_SPIKE_SPEED3);
                             m_uiIncreaseSpeedTimer = 0;
+                            break;
+                        default:
                             break;
                     }
                 } else m_uiIncreaseSpeedTimer -= uiDiff;
