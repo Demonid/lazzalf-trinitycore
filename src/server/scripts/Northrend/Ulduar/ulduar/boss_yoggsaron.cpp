@@ -432,7 +432,7 @@ public:
             wipe = false;
         }
 
-        std::vector<Creature *> ominous_list;
+        std::vector<uint64> ominous_list;
         uint32 uiPhase_timer;
         uint32 uiStep;
         //uint8 keepers;
@@ -501,7 +501,7 @@ public:
                 Position pos;
                 me->GetRandomNearPosition(pos, 50);
                 if (Creature* OminousCloud = me->SummonCreature(NPC_OMINOUS_CLOUD, pos))
-                    ominous_list.push_back(OminousCloud);
+                    ominous_list.push_back(OminousCloud->GetGUID());
             }
         }
         
@@ -539,9 +539,9 @@ public:
                 
                 if (!ominous_list.empty())
                 {
-                    for (std::vector<Creature*>::iterator itr = ominous_list.begin(); itr != ominous_list.end(); ++itr)
+                    for (std::vector<uint64>::iterator itr = ominous_list.begin(); itr != ominous_list.end(); ++itr)
                     {
-                        if (Creature* pTarget = *itr)
+                        if (Creature* pTarget = ObjectAccessor::GetCreature(*me, *itr))
                             pTarget->AddThreat(me->getVictim(), 0.0f);
                     }
                 }
@@ -595,8 +595,8 @@ public:
                         case EVENT_SUMMON_GUARDIAN:
                             if (!ominous_list.empty())
                             {
-                                std::vector<Creature*>::iterator itr = (ominous_list.begin() + rand()%ominous_list.size());
-                                if (Creature* pTarget = *itr)
+                                std::vector<uint64>::iterator itr = (ominous_list.begin() + rand()%ominous_list.size());
+                                if (Creature* pTarget = ObjectAccessor::GetCreature(*me, *itr))
                                     pTarget->CastSpell(pTarget, SPELL_SUMMON_GUARDIAN, true);
                             }
                             events.ScheduleEvent(EVENT_SUMMON_GUARDIAN, 8000 + urand(6000, 8000)*((float)me->GetHealth()/me->GetMaxHealth()), 0, PHASE_1);
@@ -657,17 +657,19 @@ public:
                             me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
                             if (!ominous_list.empty())
                             {
-                                for (std::vector<Creature*>::iterator itr = ominous_list.begin(); itr != ominous_list.end(); )
+                                for (std::vector<uint64>::iterator itr = ominous_list.begin(); itr != ominous_list.end(); itr++)
                                 {
-                                    if (Creature* pTarget = *itr)
+                                    if (Creature* pTarget = ObjectAccessor::GetCreature(*me, *itr))
                                     {
-                                        pTarget->CombatStop();
-                                        pTarget->ForcedDespawn();
-                                        ominous_list.erase(itr++);
+                                        if (pTarget->isAlive())
+                                        {
+                                            pTarget->RemoveAllAuras();
+                                            pTarget->CombatStop();
+                                        }
+                                        pTarget->RemoveFromWorld();
                                     }
-                                    else
-                                        ++itr;
                                 }
+                                ominous_list.clear();
                             }
                             JumpToNextStep(5000);
                             break;
