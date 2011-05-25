@@ -583,7 +583,7 @@ class npc_memory : public CreatureScript
         {
             if (me->isSummon())
             {
-                if (Unit* pSummoner = CAST_SUM(me)->GetSummoner())
+                if (Unit* pSummoner = me->ToTempSummon()->GetSummoner())
                 {
                     if (pSummoner && pSummoner->isAlive())
                         CAST_CRE(pSummoner)->AI()->SetData(1,0);
