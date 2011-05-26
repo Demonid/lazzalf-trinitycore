@@ -844,7 +844,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if(!UpdateVictim())
+            if (!UpdateVictim())
                 return;
                 
             events.Update(diff);
@@ -904,9 +904,9 @@ public:
             }
             else
             {
-                while(uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch(eventId)
+                    switch (eventId)
                     {
                         case EVENT_LUNATIC_GAZE:
                             DoScriptText(SAY_LUNATIC_GAZE, me);
@@ -998,15 +998,23 @@ public:
 
         void OpenIllusion()
         {
-            switch(illusionCount)
+            switch (illusionCount)
             {
-                case 0: illusionHandler(illusionOrder[0]); break;
-                case 1: illusionHandler(illusionOrder[1]); break;
-                case 2: illusionHandler(illusionOrder[2]); break;
+                case 0: 
+                    illusionHandler(illusionOrder[0]); 
+                    break;
+                case 1: 
+                    illusionHandler(illusionOrder[1]); 
+                    break;
+                case 2: 
+                    illusionHandler(illusionOrder[2]); 
+                    break;
+                default:
+                    break;
             }
 
             illusionCount++;
-            if(illusionCount > 2)
+            if (illusionCount > 2)
             {
                 illusionCount = 0;
             }
@@ -1016,7 +1024,7 @@ public:
         {
             if (instance)
             {
-                switch(illusion)
+                switch (illusion)
                 {
                     case 0: // Chamber of the Aspects Illusion
                         if (Creature* pBrain = Creature::GetCreature((*me), instance->GetData64(DATA_YOGGSARON_BRAIN)))
@@ -1069,7 +1077,7 @@ public:
             }
 
             spawnedTentacles++;
-            if(spawnedTentacles > 2)
+            if (spawnedTentacles > 2)
             {
                 spawnedTentacles = 0;
             }
@@ -1084,8 +1092,7 @@ public:
                         pSara->SetVisible(false);
                     DoScriptText(SAY_PHASE3, me);
                     me->RemoveAurasDueToSpell(SPELL_SHADOWY_BARRIER_LARGE);
-                    uint32 hp = me->CountPctFromMaxHealth(30);
-                    if (hp) 
+                    if (uint32 hp = me->CountPctFromMaxHealth(30))
                         me->SetHealth(hp);
                     me->ResetPlayerDamageReq();
                     DoCast(me, SPELL_YOGG_SARON_TRANSFORMATION, true);
@@ -1154,7 +1161,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if(!UpdateVictim())
+            if (!UpdateVictim())
                 return;
 
             if (HealthBelowPct(30) && phase == PHASE_2)
@@ -2046,7 +2053,7 @@ class spell_yoggsaron_lunatic_gaze : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(OrientationCheck(GetCaster()));
+                unitList.remove_if (OrientationCheck(GetCaster()));
             }
 
             void Register()
@@ -2082,7 +2089,7 @@ class spell_yoggsaron_induce_madness : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(IllusionRoomCheck());
+                unitList.remove_if (IllusionRoomCheck());
             }
 
             void Register()
