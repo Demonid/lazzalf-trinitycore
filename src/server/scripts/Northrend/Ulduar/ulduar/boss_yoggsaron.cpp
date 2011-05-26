@@ -699,7 +699,7 @@ public:
                             break;
                         case 6:
                             DoScriptText(RAND(SAY_SARA_PHASE2_1, SAY_SARA_PHASE2_2), me);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            //me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             events.ScheduleEvent(EVENT_PSYCHOSIS, 0, 0, PHASE_2);
                             events.ScheduleEvent(EVENT_MALADY_OF_THE_MIND, urand(4000, 6000), 0, PHASE_2);
                             events.ScheduleEvent(EVENT_BRAIN_LINK, 30000, 0, PHASE_2);
