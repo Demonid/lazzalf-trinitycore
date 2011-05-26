@@ -5481,7 +5481,9 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (map->IsRaid())
                         if (InstanceSave* targetsave = target->ToPlayer()->GetInstanceSave(mapId, true))
                         {
-                            InstanceSave* m_castersave = m_caster->ToPlayer()->GetInstanceSave(mapId, true); 
+                            InstanceSave* m_castersave = m_caster->ToPlayer()->GetInstanceSave(mapId, true);
+                            if (!m_castersave)
+                                return SPELL_FAILED_BAD_TARGETS;
                             if (targetsave->GetInstanceId() != m_castersave->GetInstanceId()) 
                                 return SPELL_FAILED_TARGET_LOCKED_TO_RAID_INSTANCE;
                         }
