@@ -14833,6 +14833,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit * pTarget, uint32 procFlag,
             this->ToPlayer()->AddSpellCooldown(250000, 0, time(NULL) + cooldown);
         */
 
+        if (spellInfo->Id == 8178) //Grounding Totem Hackfix
+            useCharges = false;
+
         // Remove charge (aura can be removed by triggers)
         if (useCharges && takeCharges)
             i->aura->DropCharge();
