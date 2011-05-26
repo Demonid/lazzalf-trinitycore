@@ -1317,15 +1317,23 @@ int WardenSvcHandler::handle_input(ACE_HANDLE /*handle*/)
 {
     uint8 _cmd;
     Peer->recv_n(&_cmd, 1);
+    bool _valid = false;
 
     for (int i = 0; i < WARDEN_REPLY_TOTAL_COMMANDS; ++i)
     {
         if ((uint8)table[i].cmd == _cmd)
         {
+            _valid = true;
             if (!(*this.*table[i].handler)())
                 return 0;
             break;
         }
+    }
+    if (!_valid) // Empty the queue
+    {
+        uint8 _trash[1024];
+        sLog->outError("Unexpected packet [%u] from Wardend, trashing it", _cmd);
+        Peer->recv_n(_trash, 1024);
     }
     return 0;
 }
