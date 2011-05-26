@@ -1095,13 +1095,14 @@ public:
                     if (uint32 hp = me->CountPctFromMaxHealth(30))
                         me->SetHealth(hp);
                     me->ResetPlayerDamageReq();
-                    DoCast(me, SPELL_YOGG_SARON_TRANSFORMATION, true);
+                    DoCast(me, SPELL_YOGG_SARON_TRANSFORMATION, true); 
                     events.SetPhase(PHASE_3);
                     events.ScheduleEvent(EVENT_LUNATIC_GAZE, 15000, 0, PHASE_3);
                     events.ScheduleEvent(EVENT_IMMORTAL_GUARDIAN, 8000, 0, PHASE_3);
                     events.ScheduleEvent(EVENT_SHADOW_BEACON, 45000, 0, PHASE_3);
-                    if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
-                        events.ScheduleEvent(EVENT_DEAFENING_ROAR, urand(5000, 7000), 0, PHASE_3);
+                    if (instance)
+                        if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL && instance->GetData(DATA_ACTIVE_KEEPERS) < 4)
+                            events.ScheduleEvent(EVENT_DEAFENING_ROAR, urand(5000, 7000), 0, PHASE_3);
                     break;
             } 
         }
