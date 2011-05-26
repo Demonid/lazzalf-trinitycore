@@ -1053,6 +1053,8 @@ public:
                                 me->SummonCreature(NPC_PORTAL_STORMWIND, PortalPos[i], TEMPSUMMON_TIMED_DESPAWN, 30000);
                         }
                         break;
+                    default:
+                        break;
                 }
             }
         }
@@ -1213,6 +1215,8 @@ public:
                     for (uint32 i = 0; i < 14; i++)
                         me->SummonCreature(stormwindLocations[i].entry,stormwindLocations[i].x,stormwindLocations[i].y,stormwindLocations[i].z,stormwindLocations[i].o);
                     DoCast(SPELL_INDUCE_MADNESS);
+                    break;
+                default:
                     break;
             }
         }
