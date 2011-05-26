@@ -227,13 +227,11 @@ class boss_thorim : public CreatureScript
         boss_thorimAI(Creature* pCreature) : BossAI(pCreature, BOSS_THORIM)
             , phase(PHASE_NULL)
         {
-            pInstance = pCreature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
             FirstTime = true;
         }
         
-        InstanceScript* pInstance;
         Phases phase;
         int32 PreAddsCount;
         uint8 spawnedAdds;
@@ -256,11 +254,13 @@ class boss_thorim : public CreatureScript
             PreAddsCount = 0;
             spawnedAdds = 0;
             
-            // Respawn Mini Bosses
-            if (Creature* pRunicColossus = Unit::GetCreature(*me, pInstance->GetData64(DATA_RUNIC_COLOSSUS)))
-                pRunicColossus->Respawn(true);
-            if (Creature* pRuneGiant = Unit::GetCreature(*me, pInstance->GetData64(DATA_RUNE_GIANT)))
-                pRuneGiant->Respawn(true);
+            if (instance) {
+                // Respawn Mini Bosses
+                if (Creature* pRunicColossus = Unit::GetCreature(*me, instance->GetData64(DATA_RUNIC_COLOSSUS)))
+                    pRunicColossus->Respawn(true);
+                if (Creature* pRuneGiant = Unit::GetCreature(*me, instance->GetData64(DATA_RUNE_GIANT)))
+                    pRuneGiant->Respawn(true);
+            }
             
             // Spawn Thorim Phase Trigger
             me->SummonCreature(32892, 2135.04f, -310.787f, 438.23f, 0, TEMPSUMMON_MANUAL_DESPAWN);
@@ -274,12 +274,12 @@ class boss_thorim : public CreatureScript
             me->SummonCreature(PRE_PHASE_ADD[3], 2130.28f, -274.60f, 419.84f, 1.22f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
         }
 
-        void KilledUnit(Unit * victim)
+        void KilledUnit(Unit* victim)
         {
             DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
-        void JustDied(Unit * victim)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
             _JustDied();
@@ -287,22 +287,22 @@ class boss_thorim : public CreatureScript
             me->setFaction(35);
             
             // Achievements
-            if (pInstance)
+            if (instance)
             {
                 // Kill credit
-                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 64985);
+                instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 64985);
                 // Lose Your Illusion
                 if (HardMode)
                 {
-                    pInstance->DoCompleteAchievement(ACHIEVEMENT_LOSE_ILLUSION);
-                    pInstance->SetData(DATA_THORIM_RARE_CHEST, GO_STATE_READY);
+                    instance->DoCompleteAchievement(ACHIEVEMENT_LOSE_ILLUSION);
+                    instance->SetData(DATA_THORIM_RARE_CHEST, GO_STATE_READY);
                     //uint32 chest = RAID_MODE(CACHE_OF_STORMS_HARDMODE_10, CACHE_OF_STORMS_HARDMODE_25);
                     //me->SummonGameObject(chest, 2134.58f, -286.908f, 419.495f, 1.55988f, 0,0,1,0,0);
                     //me->SummonGameObject(RAID_MODE(CACHE_OF_STORMS_HARDMODE_10, CACHE_OF_STORMS_HARDMODE_25), 2134.58f, -286.908f, 419.495f, 1.55988f, 0, 0, 0.7f, 0.7f, 0); //604800
                 }
                 else
                 {
-                    pInstance->SetData(DATA_THORIM_CHEST, GO_STATE_READY);
+                    instance->SetData(DATA_THORIM_CHEST, GO_STATE_READY);
                     //uint32 chest = RAID_MODE(CACHE_OF_STORMS_10, CACHE_OF_STORMS_25);
                     //me->SummonGameObject(chest, 2134.58f, -286.908f, 419.495f, 1.55988f, 0,0,1,0,0);
                     //me->SummonGameObject(RAID_MODE(CACHE_OF_STORMS_10, CACHE_OF_STORMS_25), 2134.58f, -286.908f, 419.495f, 1.55988f, 0, 0, 0.7f, 0.7f, 0); //604800
@@ -327,7 +327,7 @@ class boss_thorim : public CreatureScript
             }
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2), me);
             _EnterCombat();
@@ -374,7 +374,7 @@ class boss_thorim : public CreatureScript
                     switch(eventId)
                     {
                         case EVENT_STORMHAMMER:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
                                 if (pTarget->isAlive() && IN_ARENA(pTarget))
                                     DoCast(pTarget, SPELL_STORMHAMMER);
                             events.ScheduleEvent(EVENT_STORMHAMMER, urand(15000, 20000), 0, PHASE_1);
@@ -406,7 +406,7 @@ class boss_thorim : public CreatureScript
                             events.ScheduleEvent(EVENT_UNBALANCING_STRIKE, 25000, 0, PHASE_2);
                             break;
                         case EVENT_CHAIN_LIGHTNING:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 if (pTarget->isAlive())
                                     DoCast(pTarget, RAID_MODE(SPELL_CHAIN_LIGHTNING_10, SPELL_CHAIN_LIGHTNING_25));
                             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(15000, 20000), 0, PHASE_2);
@@ -460,8 +460,8 @@ class boss_thorim : public CreatureScript
                         // Summon Sif
                         me->SummonCreature(33196, 2149.27f, -260.55f, 419.69f, 2.527f, TEMPSUMMON_CORPSE_DESPAWN);
                         // Achievement Siffed
-                        if (pInstance)
-                            pInstance->DoCompleteAchievement(ACHIEVEMENT_SIFFED);
+                        if (instance)
+                            instance->DoCompleteAchievement(ACHIEVEMENT_SIFFED);
                     }
                     else me->AddAura(SPELL_TOUCH_OF_DOMINION, me);
                     break;
@@ -600,12 +600,12 @@ class mob_arena_phase : public CreatureScript
         int32 ChargeTimer;
         bool IsInArena;
         
-        bool isOnSameSide(const Unit *pWho)
+        bool isOnSameSide(const Unit* who)
         {
-            return (IsInArena == IN_ARENA(pWho));
+            return (IsInArena == IN_ARENA(who));
         }
         
-        void DamageTaken(Unit *attacker, uint32 &damage)
+        void DamageTaken(Unit* attacker, uint32 &damage)
         {
             if (!isOnSameSide(attacker))
                 damage = 0;
@@ -641,7 +641,7 @@ class mob_arena_phase : public CreatureScript
             ChargeTimer = 8000;
         }
         
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* /*who*/)
         {
             if (id == DARK_RUNE_WARBRINGER)
                 DoCast(me, SPELL_AURA_OF_CELERITY);
@@ -677,7 +677,7 @@ class mob_arena_phase : public CreatureScript
             if (ChargeTimer <= int32(uiDiff))
             {
                 if (id == DARK_RUNE_CHAMPION)
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
                         DoCast(pTarget, SPELL_CHARGE);
                 ChargeTimer = 12000;
             }
@@ -772,14 +772,14 @@ class mob_runic_colossus : public CreatureScript
             DoMeleeAttackIfReady();
         }
         
-        void JustDied(Unit *victim)
+        void JustDied(Unit* /*killer*/)
         {
             // Open Runed Door
             if (pInstance)
                 pInstance->SetData(DATA_RUNIC_DOOR, GO_STATE_ACTIVE);
         }
         
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature* summon)
         {
             summons.Summon(summon);
         }
@@ -829,7 +829,7 @@ class mob_rune_giant : public CreatureScript
             me->SummonCreature(33110, 2230.93f, -434.27f, 412.26f, 1.931f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
         }
         
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* /*who*/)
         {
             me->MonsterTextEmote(EMOTE_MIGHT, 0, true);
             DoCast(me, SPELL_RUNIC_FORTIFICATION); // need core support
@@ -852,7 +852,7 @@ class mob_rune_giant : public CreatureScript
             
             if (DetonationTimer <= int32(uiDiff))
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
                     DoCast(pTarget, SPELL_RUNE_DETONATION);
                 DetonationTimer = urand(10000, 12000);
             }
@@ -861,14 +861,14 @@ class mob_rune_giant : public CreatureScript
             DoMeleeAttackIfReady();
         }
         
-        void JustDied(Unit *victim)
+        void JustDied(Unit* /*killer*/)
         {
             // Open Stone Door
             if (pInstance)
                 pInstance->SetData(DATA_STONE_DOOR, GO_STATE_ACTIVE);
         }
         
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature* summon)
         {
             summons.Summon(summon);
         }
@@ -895,7 +895,7 @@ class thorim_phase_trigger : public CreatureScript
 
         InstanceScript* pInstance;
         
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (Creature* pRunicColossus = Unit::GetCreature(*me, pInstance->GetData64(DATA_RUNIC_COLOSSUS)))
                 if (pRunicColossus->isDead())
@@ -957,7 +957,7 @@ class npc_sif : public CreatureScript
 
             if (FrostTimer <= int32(uiDiff))
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
                     DoCast(pTarget, SPELL_FROSTBOLT);
                 FrostTimer = 4000;
             }
@@ -965,7 +965,7 @@ class npc_sif : public CreatureScript
                 
             if (VolleyTimer <= int32(uiDiff))
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
                 {
                     DoResetThreat();
                     me->AddThreat(pTarget, 5000000.0f);
