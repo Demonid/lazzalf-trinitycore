@@ -1172,14 +1172,9 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
                 if (!miscValue1)
                     continue;
-
-                // additional requirements
-                if (achievementCriteria->additionalRequirements[0].additionalRequirement_type == ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE)
-                {                  
-                    if (GetPlayer()->GetMapId() != achievementCriteria->win_arena.mapID)
-                        continue;
-                    SetCriteriaProgress(achievementCriteria, miscValue1, PROGRESS_ACCUMULATE)
-                }
+                if (GetPlayer()->GetMapId() != achievementCriteria->win_arena.mapID)
+                    continue;
+                SetCriteriaProgress(achievementCriteria, miscValue1, PROGRESS_ACCUMULATE);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:
                 // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
