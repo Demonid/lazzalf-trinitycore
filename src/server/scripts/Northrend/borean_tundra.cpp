@@ -2566,6 +2566,53 @@ public:
 
 };
 
+/* Support to quest: Weakness to Lightning */
+
+#define CREDIT_BUNNY 26082
+#define SPELL_POWER_OF_THE_STORM 46432
+
+class npc_weakness_to_lightning : public CreatureScript
+{
+public:
+    npc_weakness_to_lightning() : CreatureScript("npc_weakness_to_lightning") { }
+
+    struct npc_weakness_to_lightningAI : public ScriptedAI
+    {
+        npc_weakness_to_lightningAI(Creature* pCreature) : ScriptedAI(pCreature)
+        {
+            hasAura = false;
+        }
+
+        bool hasAura;
+
+        void Reset()
+        {
+            hasAura = false;
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!hasAura && me->HasAura(SPELL_POWER_OF_THE_STORM))
+                hasAura = true;
+
+            if (hasAura && !me->HasAura(SPELL_POWER_OF_THE_STORM))
+                hasAura = false;
+        }
+
+        void JustDied(Unit* killer)
+        {
+            if (hasAura && (killer->GetTypeId() == TYPEID_PLAYER))
+                killer->ToPlayer()->KilledMonsterCredit(CREDIT_BUNNY, 0);
+        }
+
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_weakness_to_lightningAI(creature);
+    }
+};
+
 void AddSC_borean_tundra()
 {
     new npc_sinkhole_kill_credit;
@@ -2595,4 +2642,5 @@ void AddSC_borean_tundra()
     new npc_valiance_keep_cannoneer;
     new npc_warmage_coldarra;
     new npc_hidden_cultist;
+    new npc_weakness_to_lightning;
 }

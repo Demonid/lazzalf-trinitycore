@@ -51,4 +51,6 @@ enum mainCreatures
     CREATURE_ECK                                  = 29932
 };
 
+#define SPELL_ECK_RESIDUE 55817
+
 #endif
