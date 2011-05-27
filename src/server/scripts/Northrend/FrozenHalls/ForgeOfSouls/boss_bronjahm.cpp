@@ -105,7 +105,7 @@ class boss_bronjahm : public CreatureScript
                 instance->SetBossState(DATA_BRONJAHM, DONE);
             }
 
-            void KilledUnit(Unit * who)
+            void KilledUnit(Unit* who)
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
@@ -197,6 +197,14 @@ class mob_corrupted_soul_fragment : public CreatureScript
             mob_corrupted_soul_fragmentAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = me->GetInstanceScript();
+                if (instance)
+                    instance->SetData(DATA_SOUL_POWER, 1);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                if (instance)
+                    instance->SetData(DATA_SOUL_POWER, 0);
             }
 
             void MovementInform(uint32 type, uint32 id)
@@ -218,6 +226,7 @@ class mob_corrupted_soul_fragment : public CreatureScript
 
                         summ->GetMotionMaster()->MoveIdle();
                         summ->UnSummon();
+                        instance->SetData(DATA_SOUL_POWER, 0);
                     }
                 }
             }
@@ -403,6 +412,28 @@ class spell_bronjahm_soulstorm_targeting : public SpellScriptLoader
         }
 };
 
+class achievement_soul_power : public AchievementCriteriaScript
+{
+    public:
+        achievement_soul_power() : AchievementCriteriaScript("achievement_soul_power") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* instance = source->GetInstanceScript();
+
+            if (!instance || source->GetMapId() != FORGE_OF_SOULS_MAP)
+                return false;
+
+            if (instance->GetData(DATA_SOUL_POWER) < 4)
+                return false;
+
+            return true;
+        }
+};
+
 void AddSC_boss_bronjahm()
 {
     new boss_bronjahm();
@@ -412,4 +443,5 @@ void AddSC_boss_bronjahm()
     new spell_bronjahm_soulstorm_channel();
     new spell_bronjahm_soulstorm_visual();
     new spell_bronjahm_soulstorm_targeting();
+    new achievement_soul_power();
 }

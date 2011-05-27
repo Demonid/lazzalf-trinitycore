@@ -1021,7 +1021,7 @@ public:
         void JustDied(Unit* /*victim*/)
         {
             if (instance)
-                                sLog->outBoss("Yoggsaron Id: %u, JustDie", instance->instance->GetInstanceId());
+                sLog->outBoss("Yoggsaron Id: %u, JustDie", instance->instance->GetInstanceId());
             DoScriptText(SAY_DEATH, me);
             _JustDied();    
 
@@ -1262,7 +1262,7 @@ public:
             if (!UpdateVictim())
             {
                 if (instance)
-                sLog->outBoss("Brain Yoggsaron Id: %u, No Victim", instance->instance->GetInstanceId());
+                    sLog->outBoss("Brain Yoggsaron Id: %u, No Victim", instance->instance->GetInstanceId());
                 return;
             }
 
@@ -1270,7 +1270,7 @@ public:
             {
                 // Enter Phase 3
                 if (instance)
-                sLog->outBoss("Brain Yoggsaron Id: %u, Enter Phase 3", instance->instance->GetInstanceId());
+                    sLog->outBoss("Brain Yoggsaron Id: %u, Enter Phase 3", instance->instance->GetInstanceId());
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 me->InterruptNonMeleeSpells(true);
                 DoCast(me, SPELL_BRAIN_HURT, true);
