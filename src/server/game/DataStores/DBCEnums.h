@@ -411,4 +411,12 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK16           = 0x00008000,          // Light/Dark Bullet, Soul/Fiery Consumption, Twisted Visage, Twilight Whelp. Phase related?
 };
 
+// Mangos Script
+enum SpellEffectIndex
+{
+    EFFECT_INDEX_0     = 0,
+    EFFECT_INDEX_1     = 1,
+    EFFECT_INDEX_2     = 2
+};
+
 #endif

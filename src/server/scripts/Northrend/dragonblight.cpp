@@ -69,7 +69,160 @@ public:
     }
 };
 
+/* Emblazoned Battle Horn */
+
+#define NPC_GROMTHAR 27002
+
+const Position gromthar_position = {2720.921f, 427.441f, 67.002f, 5.996f};
+
+class item_emblazoned_battle_horn : public ItemScript
+{
+public:
+    item_emblazoned_battle_horn() : ItemScript("item_emblazoned_battle_horn") { }
+
+    bool OnUse(Player* pPlayer, Item* pItem, SpellCastTargets const& /*targets*/)
+    {
+        if (!pPlayer)
+            return true;
+
+        if (Creature* pCreature = pPlayer->FindNearestCreature(NPC_GROMTHAR, 100, true))
+            if (pCreature->isAlive())
+                return false;
+ 
+        pPlayer->SummonCreature(NPC_GROMTHAR, gromthar_position, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 180000);
+        return true;
+    }
+};
+
+/* Torturer LeCraft */
+
+#define SPELL_EXECUTOR_BRANDING_IRON 48603
+#define NPC_TORTURER_CREDIT 27394
+
+class npc_torturer_lecraft : public CreatureScript
+{
+public:
+    npc_torturer_lecraft() : CreatureScript("npc_torturer_lecraft") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_torturer_lecraftAI(pCreature);
+    }
+
+    struct npc_torturer_lecraftAI : public ScriptedAI
+    {
+        npc_torturer_lecraftAI(Creature *c) : ScriptedAI(c)
+        {
+            brandedTimes = 0;
+        }
+
+        uint8 brandedTimes;
+
+        void Reset()
+        {
+            brandedTimes = 0;
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            brandedTimes = 0;
+            me->MonsterSay("Come to play?", LANG_UNIVERSAL, 0);
+        }
+
+        void SpellHit(Unit* caster, const SpellEntry *spell)
+        {
+            if (Player* player = caster->ToPlayer())
+            {
+                if (spell->Id == SPELL_EXECUTOR_BRANDING_IRON)
+                {
+                    brandedTimes++;
+
+                    switch (brandedTimes)
+                    {
+                        case 1:
+                            me->MonsterWhisper("Ow! I'll tell you NOTHING, filthy $R!", player->GetGUID());
+                            break;
+                        case 2:
+                            me->MonsterWhisper("Wait... WAIT! What is it that you want to know? I know you're the $C named $N.", player->GetGUID());
+                            break;
+                        case 3:
+                            me->MonsterWhisper("OW...NO! We know that you've been stealing our armor and weapons and horses!", player->GetGUID());
+                            break;
+                        case 4:
+                            me->MonsterWhisper("We know... that you don't... know why we're immune... to your so-called blight. Grand Admiral Westwind somehow gave the high abbot that prayer. I beg you... no more... please?", player->GetGUID());
+                            break;
+                        case 5:
+                            me->MonsterWhisper("AHHHHHHHHH! Please... we know... that you... have a spy... disguised as... one of us! There... that's all that I know. Please... mercy... STOP!", player->GetGUID());
+                            player->KilledMonsterCredit(NPC_TORTURER_CREDIT, 0);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+        void UpdateAI(const uint32 /*diff*/)
+        {
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+};
+
+#define NEXUS_DRAKE_HATCHLING 26127
+
+class npc_dummy_raelorasz : public CreatureScript
+{
+public:
+    npc_dummy_raelorasz() : CreatureScript("npc_dummy_raelorasz") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_dummy_raeloraszAI(pCreature);
+    }
+
+    struct npc_dummy_raeloraszAI : public ScriptedAI
+    {
+        npc_dummy_raeloraszAI(Creature *c) : ScriptedAI(c)
+        {
+            uiFindTimer = 5000;
+        }
+
+        uint32 uiFindTimer;
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (uiFindTimer <= uiDiff)
+            {
+                std::list<Creature*> list;
+                me->GetCreatureListWithEntryInGrid(list, NEXUS_DRAKE_HATCHLING, 30.0f);
+                if (!list.empty())
+                    for (std::list<Creature*>::iterator itr = list.begin(); itr != list.end(); ++itr)
+                    {
+                        if (Unit* owner = (*itr)->GetOwner())
+                            if (owner->ToPlayer())
+                            {
+                                owner->ToPlayer()->CompleteQuest(11940);
+                                (*itr)->DespawnOrUnsummon();
+                            }
+                    }
+                uiFindTimer = 5000;
+            }
+            else
+                uiFindTimer -= uiDiff;
+        }
+    };
+
+};
+
 void AddSC_dragonblight()
 {
     new npc_alexstrasza_wr_gate;
+    new item_emblazoned_battle_horn();
+    new npc_torturer_lecraft();
+    new npc_dummy_raelorasz();
 }
