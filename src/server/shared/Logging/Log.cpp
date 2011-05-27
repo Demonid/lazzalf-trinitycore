@@ -29,7 +29,7 @@ extern LoginDatabaseWorkerPool LoginDatabase;
 
 Log::Log() :
     raLogfile(NULL), logfile(NULL), gmLogfile(NULL), charLogfile(NULL),
-    dberLogfile(NULL), chatLogfile(NULL), arenaLogFile(NULL), cheatLogFile(NULL), mailLogFile(NULL), sqlLogFile(NULL),
+    dberLogfile(NULL), chatLogfile(NULL), arenaLogFile(NULL), cheatLogFile(NULL), mailLogFile(NULL), bossLogFile(NULL), sqlLogFile(NULL),
     m_gmlog_per_account(false), m_enableLogDBLater(false),
     m_enableLogDB(false), m_colored(false)
 {
@@ -73,6 +73,10 @@ Log::~Log()
     if (mailLogFile != NULL)
         fclose(mailLogFile);
     mailLogFile = NULL;
+
+    if (bossLogFile != NULL)
+        fclose(bossLogFile);
+    bossLogFile = NULL;
     
     if (sqlLogFile != NULL)
         fclose(sqlLogFile);
@@ -170,6 +174,7 @@ void Log::Initialize()
     arenaLogFile = openLogFile("ArenaLogFile", NULL, "a");
     cheatLogFile = openLogFile("CheatLogFile", "CheatLogTimestamp", "a");
     mailLogFile = openLogFile("MailLogFile", "MailLogTimestamp", "a");
+    bossLogFile = openLogFile("BossLogFile", "BossLogTimestamp", "a");
     sqlLogFile = openLogFile("SQLDriverLogFile", NULL, "a");
 
     // Main log file settings
@@ -568,6 +573,23 @@ void Log::outMail(const char * str, ...)
         fprintf(mailLogFile, "\n");
         va_end(ap);
         fflush(mailLogFile);
+    }
+}
+
+void Log::outBoss(const char * str, ...)
+{
+    if (!str)
+        return;
+
+    if (bossLogFile)
+    {
+        va_list ap;
+        outTimestamp(bossLogFile);
+        va_start(ap, str);
+        vfprintf(bossLogFile, str, ap);
+        fprintf(bossLogFile, "\n");
+        va_end(ap);
+        fflush(bossLogFile);
     }
 }
 

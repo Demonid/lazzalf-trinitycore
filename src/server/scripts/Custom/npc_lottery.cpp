@@ -93,7 +93,7 @@ public:
                 }
                 break;
         }
-        pPlayer->PlayerTalkClass->CloseGossip();
+        pPlayer->PlayerTalkClass->SendCloseGossip();
         return true;
     }
 
@@ -271,7 +271,7 @@ public:
                 }
                 break;
         }
-        pPlayer->PlayerTalkClass->CloseGossip();
+        pPlayer->PlayerTalkClass->SendCloseGossip();
         return true;
     }
 

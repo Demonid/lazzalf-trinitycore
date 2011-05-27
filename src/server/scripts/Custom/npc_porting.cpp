@@ -197,7 +197,7 @@ class npc_porting : public CreatureScript
                     if (!pPlayer->HasEnoughMoney(10000000))
                     {
                         pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
-                        pPlayer->PlayerTalkClass->CloseGossip();
+                        pPlayer->PlayerTalkClass->SendCloseGossip();
                         break;
                     }
                     else
@@ -210,7 +210,7 @@ class npc_porting : public CreatureScript
                         pPlayer->CastSpell(pPlayer,63624,true,NULL,NULL,pPlayer->GetGUID());
 
                         // Should show another Gossip text with "Congratulations..."
-                        pPlayer->PlayerTalkClass->CloseGossip();
+                        pPlayer->PlayerTalkClass->SendCloseGossip();
                     }
                 }
                 break;
