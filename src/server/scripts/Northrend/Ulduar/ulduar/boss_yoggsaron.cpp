@@ -511,8 +511,6 @@ public:
         
         void MoveInLineOfSight(Unit* who)
         {
-            if (instance)
-                sLog->outBoss("Sara Id: %u, MoveInLineOfSight", instance->instance->GetInstanceId());
             if (!me->isInCombat() && me->IsWithinDist(who, 50.0f) && who->ToPlayer() && !who->ToPlayer()->isGameMaster())
             {
                 //Non attivare il combat se è da 25 senza keepers (finchè non si sistema l'achi della first kill)
@@ -570,11 +568,7 @@ public:
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
-            {
-                if (instance)
-                    sLog->outBoss("Sara Id: %u, No Victim", instance->instance->GetInstanceId());
                 return;
-            }
                 
             events.Update(diff);
 
@@ -621,10 +615,7 @@ public:
                             {
                                 std::vector<uint64>::iterator itr = (ominous_list.begin() + rand()%ominous_list.size());
                                 if (Creature* pTarget = ObjectAccessor::GetCreature(*me, *itr))
-                                {
-                                    if (pTarget->isAlive())
-                                        pTarget->CastSpell(pTarget, SPELL_SUMMON_GUARDIAN, true);
-                                }
+                                    pTarget->CastSpell(pTarget, SPELL_SUMMON_GUARDIAN, true);
                             }
                             events.ScheduleEvent(EVENT_SUMMON_GUARDIAN, 8000 + urand(6000, 8000)*((float)me->GetHealth()/me->GetMaxHealth()), 0, PHASE_1);
                             break;
@@ -753,8 +744,6 @@ public:
                             uiStep = 7;
                             break;
                         default:
-                            if (instance)
-                                sLog->outBoss("Sara Id: %u, step default", instance->instance->GetInstanceId());
                             break;
                     }
                 }
@@ -1285,9 +1274,9 @@ public:
             switch (action)
             {
                 case ACTION_TENTACLE_COUNT:
-                    if (instance)
-                        sLog->outBoss("Brain Yoggsaron Id: %u, Action Tentacle Count", instance->instance->GetInstanceId());
                     tentacleCount++;
+                    if (instance)
+                        sLog->outBoss("Brain Yoggsaron Id: %u, Action Tentacle Count %u", instance->instance->GetInstanceId(), tentacleCount);                    
                     if (tentacleCount == 8)
                     {
                         DoCastAOE(SPELL_SHATTERED_ILLUSION, true);
@@ -1375,8 +1364,8 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            //if (!UpdateVictim())
-            //    return;
+            if (!UpdateVictim())
+                return;
 
             if (uiCooldownTimer <= 0)
             {
