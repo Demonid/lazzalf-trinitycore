@@ -63,7 +63,7 @@ public:
 
     struct boss_anubrekhanAI : public BossAI
     {
-        boss_anubrekhanAI(Creature *c) : BossAI(c, BOSS_ANUBREKHAN) {}
+        boss_anubrekhanAI(Creature *c) : BossAI(c, BOSS_ANUBREKHAN) { }
 
         bool hasTaunted;
 
@@ -91,6 +91,10 @@ public:
 
         void KilledUnit(Unit* victim)
         {
+            if (instance)
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    instance->SetData(DATA_IMMORTAL_ARACHNID, CRITERIA_NOT_MEETED);
+            
             //Force the player to spawn corpse scarabs via spell, TODO: Check percent chance for scarabs, 20% at the moment
             if (!(rand()%5))
                 if (victim->GetTypeId() == TYPEID_PLAYER)
@@ -99,7 +103,7 @@ public:
             DoScriptText(SAY_SLAY, me);
         }
 
-        void JustDied(Unit *)
+        void JustDied(Unit* /*killer*/)
         {
             _JustDied();
 
@@ -107,9 +111,9 @@ public:
             if (instance)
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
-            _EnterCombat();
+            _EnterCombat();            
             DoScriptText(SAY_AGGRO, me);
             events.ScheduleEvent(EVENT_IMPALE, 10000 + rand()%10000);
             events.ScheduleEvent(EVENT_LOCUST, 90000);
@@ -117,9 +121,12 @@ public:
 
             if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
                 events.ScheduleEvent(EVENT_SPAWN_GUARDIAN_NORMAL, urand(15000, 20000));
+
+            if (instance)
+                instance->SetData(DATA_IMMORTAL_ARACHNID, instance->GetData(DATA_IMMORTAL_ANUB));
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!hasTaunted && me->IsWithinDistInMap(who, 60.0f) && who->GetTypeId() == TYPEID_PLAYER)
             {
@@ -129,7 +136,7 @@ public:
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void SummonedCreatureDespawn(Creature *summon)
+        void SummonedCreatureDespawn(Creature* summon)
         {
             BossAI::SummonedCreatureDespawn(summon);
 
@@ -155,7 +162,7 @@ public:
                         //Cast Impale on a random target
                         //Do NOT cast it when we are afflicted by locust swarm
                         if (!me->HasAura(RAID_MODE(SPELL_LOCUST_SWARM_10, SPELL_LOCUST_SWARM_25)))
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(pTarget, RAID_MODE(SPELL_IMPALE_10, SPELL_IMPALE_25));
                         events.ScheduleEvent(EVENT_IMPALE, urand(10000, 20000));
                         break;
