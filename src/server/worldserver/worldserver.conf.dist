@@ -624,6 +624,21 @@ CheatLogFile = ""
 
 CheatLogTimestamp = 0
 
+#
+#    BossLogFile
+#        Log file of Boss debug
+#        Default: "" - do not create cheat log file
+
+BossLogFile = ""
+
+#    BossLogTimestamp
+#        Boss Logfile with timestamp of server start in name
+#         in form Logname_YYYY-MM-DD_HH-MM-SS.Ext for Logname.Ext
+#        Default: 0 - no timestamp in name
+#                 1 - add timestamp in name
+
+BossLogTimestamp = 0
+
 #    MailLogFile
 #        Log file character's mails
 #        Default: "" - do not create mail log file

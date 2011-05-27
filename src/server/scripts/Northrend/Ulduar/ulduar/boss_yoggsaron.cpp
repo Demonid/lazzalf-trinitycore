@@ -443,6 +443,8 @@ public:
         void Reset()
         {
             if (instance)
+                sLog->outBoss("Sara Id: %u,  Reset", instance->instance->GetInstanceId());
+            if (instance)
             {
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SANITY);
                 // Reset Keepers
@@ -495,6 +497,8 @@ public:
         
         void JustReachedHome()
         {
+            if (instance)
+                sLog->outBoss("Sara Id: %u, JustReachedHome", instance->instance->GetInstanceId());
             ominous_list.clear();
             for (uint8 n = 0; n < 5; n++)
             {
@@ -507,6 +511,8 @@ public:
         
         void MoveInLineOfSight(Unit* who)
         {
+            if (instance)
+                sLog->outBoss("Sara Id: %u, MoveInLineOfSight", instance->instance->GetInstanceId());
             if (!me->isInCombat() && me->IsWithinDist(who, 50.0f) && who->ToPlayer() && !who->ToPlayer()->isGameMaster())
             {
                 //Non attivare il combat se è da 25 senza keepers (finchè non si sistema l'achi della first kill)
@@ -520,6 +526,8 @@ public:
         
         void EnterCombat(Unit* /*who*/)
         {
+            if (instance)
+                sLog->outBoss("Sara Id: %u, EnterCombat", instance->instance->GetInstanceId());
             DoScriptText(RAND(SAY_SARA_AGGRO_1,SAY_SARA_AGGRO_2,SAY_SARA_AGGRO_3), me);
             // Keepers activation
             if (instance)
@@ -562,14 +570,22 @@ public:
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
+            {
+                if (instance)
+                    sLog->outBoss("Sara Id: %u, No Victim", instance->instance->GetInstanceId());
                 return;
+            }
                 
             events.Update(diff);
 
             encounterTimer += diff;
 
             if (me->HasUnitState(UNIT_STAT_CASTING))
+            {
+                if (instance)
+                    sLog->outBoss("Sara Id: %u, Sto Castando", instance->instance->GetInstanceId());
                 return;
+            }
                 
             if (phase == PHASE_1)
             {
@@ -578,21 +594,29 @@ public:
                     switch(eventId)
                     {
                         case EVENT_FERVOR:
+                            if (instance)
+                                sLog->outBoss("Sara Id: %u, Event Fevor", instance->instance->GetInstanceId());
                             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
                                 DoCast(pTarget, SPELL_SARA_FERVOR);
                             events.ScheduleEvent(EVENT_FERVOR, urand(8000, 10000), 0, PHASE_1);
                             break;
                         case EVENT_BLESSING:
+                            if (instance)
+                                sLog->outBoss("Sara Id: %u, Event Blessing", instance->instance->GetInstanceId());
                             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
                                 DoCast(pTarget, SPELL_SARA_BLESSING);
                             events.ScheduleEvent(EVENT_BLESSING, urand(10000, 15000), 0, PHASE_1);
                             break;
                         case EVENT_ANGER:
+                            if (instance)
+                                sLog->outBoss("Sara Id: %u, Event Anger", instance->instance->GetInstanceId());
                             if (Creature* pGuardian = me->FindNearestCreature(NPC_GUARDIAN_OF_YOGGSARON, 50, true))
                                 DoCast(pGuardian, SPELL_SARA_ANGER);
                             events.ScheduleEvent(EVENT_ANGER, urand(15000, 20000), 0, PHASE_1);
                             break;
                         case EVENT_SUMMON_GUARDIAN:
+                            if (instance)
+                                sLog->outBoss("Sara Id: %u, Event Summon Guardian", instance->instance->GetInstanceId());
                             if (!ominous_list.empty())
                             {
                                 std::vector<uint64>::iterator itr = (ominous_list.begin() + rand()%ominous_list.size());
@@ -613,6 +637,8 @@ public:
                     {
                         case 1:
                             // Close door
+                            if (instance)
+                                sLog->outBoss("Sara Id: %u, Enter Combat, close Door", instance->instance->GetInstanceId());
                             _EnterCombat();
                             uiStep = 2;
                             break;
@@ -630,20 +656,28 @@ public:
                     switch(eventId)
                     {
                         case EVENT_PSYCHOSIS:
+                            if (instance)
+                                sLog->outBoss("Sara Id: %u, Event Psychosis", instance->instance->GetInstanceId());
                             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
                                 DoCast(pTarget, SPELL_PSYCHOSIS);
                             events.ScheduleEvent(EVENT_PSYCHOSIS, urand(4000, 6000), 0, PHASE_2);
                             break;
                         case EVENT_MALADY_OF_THE_MIND:
+                            if (instance)
+                                sLog->outBoss("Sara Id: %u, Event Melady Of the Mind", instance->instance->GetInstanceId());
                             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
                                 DoCast(pTarget, SPELL_MALADY_OF_THE_MIND);
                             events.ScheduleEvent(EVENT_MALADY_OF_THE_MIND, urand(15000, 20000), 0, PHASE_2);
                             break;
                         case EVENT_BRAIN_LINK:
+                            if (instance)
+                                sLog->outBoss("Sara Id: %u, Event Brain Link", instance->instance->GetInstanceId());
                             DoCastAOE(SPELL_BRAIN_LINK);
                             events.ScheduleEvent(EVENT_BRAIN_LINK, 30000, 0, PHASE_2);
                             break;
                         case EVENT_DEATH_RAY:
+                            if (instance)
+                                sLog->outBoss("Sara Id: %u, Event Death Ray", instance->instance->GetInstanceId());
                             for (uint32 i = 0; i < 4; ++i)
                                 me->SummonCreature(NPC_DEATH_ORB, DeathRayPos[rand()%12], TEMPSUMMON_TIMED_DESPAWN, 17000);
                             events.ScheduleEvent(EVENT_DEATH_RAY, 20000, 0, PHASE_2);
@@ -656,6 +690,8 @@ public:
                     switch (uiStep)
                     {
                         case 1:
+                            if (instance)
+                                sLog->outBoss("Sara Id: %u, step 1", instance->instance->GetInstanceId());
                             DoScriptText(SAY_PHASE2_1, me);
                             me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
                             if (!ominous_list.empty())
@@ -677,18 +713,26 @@ public:
                             JumpToNextStep(5000);
                             break;
                         case 2:
+                            if (instance)
+                                sLog->outBoss("Sara Id: %u, step 2", instance->instance->GetInstanceId());
                             DoScriptText(SAY_PHASE2_2, me);
                             JumpToNextStep(4000);
                             break;
                         case 3:
+                            if (instance)
+                                sLog->outBoss("Sara Id: %u, step 3", instance->instance->GetInstanceId());
                             DoScriptText(SAY_PHASE2_3, me);
                             JumpToNextStep(5000);
                             break;
                         case 4:
+                            if (instance)
+                                sLog->outBoss("Sara Id: %u, step 4", instance->instance->GetInstanceId());
                             DoScriptText(SAY_PHASE2_4, me);
                             JumpToNextStep(3000);
                             break;
                         case 5:
+                            if (instance)
+                                sLog->outBoss("Sara Id: %u, step 5", instance->instance->GetInstanceId());
                             me->SetDisplayId(29182);
                             me->setFaction(16);
                             events.SetPhase(PHASE_2);
@@ -698,8 +742,10 @@ public:
                             JumpToNextStep(5000);
                             break;
                         case 6:
+                            if (instance)
+                                sLog->outBoss("Sara Id: %u, step 6", instance->instance->GetInstanceId());
                             DoScriptText(RAND(SAY_SARA_PHASE2_1, SAY_SARA_PHASE2_2), me);
-                            //me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             events.ScheduleEvent(EVENT_PSYCHOSIS, 0, 0, PHASE_2);
                             events.ScheduleEvent(EVENT_MALADY_OF_THE_MIND, urand(4000, 6000), 0, PHASE_2);
                             events.ScheduleEvent(EVENT_BRAIN_LINK, 30000, 0, PHASE_2);
@@ -707,6 +753,8 @@ public:
                             uiStep = 7;
                             break;
                         default:
+                            if (instance)
+                                sLog->outBoss("Sara Id: %u, step default", instance->instance->GetInstanceId());
                             break;
                     }
                 }
@@ -719,6 +767,9 @@ public:
         {
             if (phase == PHASE_1 && damage >= me->GetHealth())
             {
+                if (instance)
+                    sLog->outBoss("Sara Id: %u, Ingresso fase 2", instance->instance->GetInstanceId());
+
                 damage = 0;
                 me->SetFullHealth();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -728,7 +779,10 @@ public:
                 JumpToNextStep(100);
             }
             else if (phase != PHASE_1)
+            {                
                 damage = 0; //per evitare che possa morire con spell aoe
+                me->SetFullHealth();
+            }
         }
         
         void JumpToNextStep(uint32 uiTimer)
@@ -782,6 +836,8 @@ public:
         
         void Reset()
         {
+            if (instance)
+                sLog->outBoss("Yoggsaron Id: %u, Reset", instance->instance->GetInstanceId());
             events.Reset();
             summons.DespawnAll();
             //keepers = 0;
@@ -789,6 +845,8 @@ public:
         
         void EnterCombat(Unit* /*who*/)
         {
+            if (instance)
+                sLog->outBoss("Yoggsaron Id: %u, EnterCombat", instance->instance->GetInstanceId());
             _EnterCombat();
 
             someoneGotInsane = false;
@@ -845,7 +903,11 @@ public:
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
+            {
+                if (instance)
+                sLog->outBoss("Yoggsaron Id: %u, No Victim", instance->instance->GetInstanceId());
                 return;
+            }
                 
             events.Update(diff);
             
@@ -853,6 +915,7 @@ public:
             {
                 if (instance)
                 {
+                    sLog->outBoss("Yoggsaron Id: %u, Sanity Check", instance->instance->GetInstanceId());
                     // Sanity Check
                     Map::PlayerList const &players = instance->instance->GetPlayers();
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -878,7 +941,11 @@ public:
             else insaneTimer -= diff;
                 
             if (me->HasUnitState(UNIT_STAT_CASTING))
+            {
+                if (instance)
+                    sLog->outBoss("Yoggsaron Id: %u,  Sto Castando", instance->instance->GetInstanceId());
                 return;
+            }
                 
             if (phase == PHASE_2)
             {
@@ -887,10 +954,14 @@ public:
                     switch(eventId)
                     {
                         case EVENT_TENTACLES:
+                            if (instance)
+                                sLog->outBoss("Yoggsaron Id: %u, Event Tentacles", instance->instance->GetInstanceId());
                             spawnTentacles();
                             events.ScheduleEvent(EVENT_TENTACLES, urand(25000, 30000), 0, PHASE_2);
                             break;
                         case EVENT_ILLUSION:
+                            if (instance)
+                                sLog->outBoss("Yoggsaron Id: %u, Event Illusion", instance->instance->GetInstanceId());
                             DoScriptText(SAY_VISION, me);
                             Map::PlayerList const &players = instance->instance->GetPlayers();
                             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -909,17 +980,23 @@ public:
                     switch (eventId)
                     {
                         case EVENT_LUNATIC_GAZE:
+                            if (instance)
+                                sLog->outBoss("Yoggsaron Id: %u, Event Lunatic Gaze", instance->instance->GetInstanceId());
                             DoScriptText(SAY_LUNATIC_GAZE, me);
                             DoCast(me, SPELL_LUNATIC_GAZE_P3);
                             events.ScheduleEvent(EVENT_LUNATIC_GAZE, urand(15000, 20000), 0, PHASE_3);
                             break;
                         case EVENT_IMMORTAL_GUARDIAN:
+                            if (instance)
+                                sLog->outBoss("Yoggsaron Id: %u, Event Immortal Guardian", instance->instance->GetInstanceId());
                             Position pos;
                             me->GetRandomNearPosition(pos, 25);
                             me->SummonCreature(NPC_IMMORTAL_GUARDIAN, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                             events.ScheduleEvent(EVENT_IMMORTAL_GUARDIAN, urand(25000, 30000), 0, PHASE_3);
                             break;
                         case EVENT_SHADOW_BEACON:
+                            if (instance)
+                                sLog->outBoss("Yoggsaron Id: %u, Shadow Beacon", instance->instance->GetInstanceId());
                             if (Creature* pImmortal = me->FindNearestCreature(NPC_IMMORTAL_GUARDIAN, 80, true))
                             {
                                 Map::PlayerList const &players = instance->instance->GetPlayers();
@@ -930,6 +1007,8 @@ public:
                             events.ScheduleEvent(EVENT_SHADOW_BEACON, 45000, 0, PHASE_3);
                             break;
                         case EVENT_DEAFENING_ROAR:
+                            if (instance)
+                                sLog->outBoss("Yoggsaron Id: %u, Event Deagening Roar", instance->instance->GetInstanceId());
                             DoScriptText(SAY_DEAFENING_ROAR, me);
                             DoCast(me, SPELL_DEAFENING_ROAR);
                             events.ScheduleEvent(EVENT_DEAFENING_ROAR, urand(20000, 25000), 0, PHASE_3);
@@ -941,6 +1020,8 @@ public:
         
         void JustDied(Unit* /*victim*/)
         {
+            if (instance)
+                                sLog->outBoss("Yoggsaron Id: %u, JustDie", instance->instance->GetInstanceId());
             DoScriptText(SAY_DEATH, me);
             _JustDied();    
 
@@ -982,6 +1063,8 @@ public:
 
         void randomizeIllusion()
         {
+            if (instance)
+                sLog->outBoss("Yoggsaron Id: %u, randomizeIllusion", instance->instance->GetInstanceId());
             illusionOrder[0] = 0; // Chamber of the Aspects Illusion
             illusionOrder[1] = 1; // Icecrown Illusion
             illusionOrder[2] = 2; // Stormwind Illusion
@@ -998,6 +1081,8 @@ public:
 
         void OpenIllusion()
         {
+            if (instance)
+                sLog->outBoss("Yoggsaron Id: %u, OpenIllusion %u", instance->instance->GetInstanceId(), illusionCount);
             switch (illusionCount)
             {
                 case 0: 
@@ -1022,6 +1107,8 @@ public:
 
         void illusionHandler(uint8 illusion)
         {
+            if (instance)
+                sLog->outBoss("Yoggsaron Id: %u, illusionHandler %u", instance->instance->GetInstanceId(), illusion);
             if (instance)
             {
                 switch (illusion)
@@ -1061,6 +1148,8 @@ public:
 
         void spawnTentacles()
         {
+            if (instance)
+                sLog->outBoss("Yoggsaron Id: %u, spawnTentacles", instance->instance->GetInstanceId(), spawnedTentacles);
             switch(spawnedTentacles)
             {
                 case 0:
@@ -1090,6 +1179,8 @@ public:
             switch (action)
             {
                 case ACTION_YOGGSARON_PHASE_3:
+                    if (instance)
+                        sLog->outBoss("Yoggsaron Id: %u, Action Yoggsaron Phase 3", instance->instance->GetInstanceId());
                     if (Unit* pSara = me->ToTempSummon()->GetSummoner())
                         pSara->SetVisible(false);
                     DoScriptText(SAY_PHASE3, me);
@@ -1142,6 +1233,8 @@ public:
 
         void Reset()
         {
+            if (instance)
+                sLog->outBoss("Brain Yoggsaron Id: %u, Reset", instance->instance->GetInstanceId());
             events.Reset();
             summons.DespawnAll();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -1159,17 +1252,25 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
+            if (instance)
+                sLog->outBoss("Brain Yoggsaron Id: %u, EnterCombat", instance->instance->GetInstanceId());
             _EnterCombat();
         }
 
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
+            {
+                if (instance)
+                sLog->outBoss("Brain Yoggsaron Id: %u, No Victim", instance->instance->GetInstanceId());
                 return;
+            }
 
             if (HealthBelowPct(30) && phase == PHASE_2)
             {
                 // Enter Phase 3
+                if (instance)
+                sLog->outBoss("Brain Yoggsaron Id: %u, Enter Phase 3", instance->instance->GetInstanceId());
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 me->InterruptNonMeleeSpells(true);
                 DoCast(me, SPELL_BRAIN_HURT, true);
@@ -1184,6 +1285,8 @@ public:
             switch (action)
             {
                 case ACTION_TENTACLE_COUNT:
+                    if (instance)
+                        sLog->outBoss("Brain Yoggsaron Id: %u, Action Tentacle Count", instance->instance->GetInstanceId());
                     tentacleCount++;
                     if (tentacleCount == 8)
                     {
@@ -1199,18 +1302,24 @@ public:
                     }
                     break;
                 case ACTION_CHAMBER_ILLUSION:
+                    if (instance)
+                        sLog->outBoss("Brain Yoggsaron Id: %u, Action Chamber Illusion", instance->instance->GetInstanceId());
                     illusion = 0;
                     for (uint32 i = 0; i < 16; i++)
                         me->SummonCreature(chamberLocations[i].entry,chamberLocations[i].x,chamberLocations[i].y,chamberLocations[i].z,chamberLocations[i].o);
                     DoCast(SPELL_INDUCE_MADNESS);
                     break;
                 case ACTION_ICECROWN_ILLUSION:
+                    if (instance)
+                        sLog->outBoss("Brain Yoggsaron Id: %u, Action Icecrown Illusion", instance->instance->GetInstanceId());
                     illusion = 1;
                     for (uint32 i = 0; i < 14; i++)
                         me->SummonCreature(icecrownLocations[i].entry,icecrownLocations[i].x,icecrownLocations[i].y,icecrownLocations[i].z,icecrownLocations[i].o);
                     DoCast(SPELL_INDUCE_MADNESS);
                     break;
                 case ACTION_STORMWIND_ILLUSION:
+                    if (instance)
+                        sLog->outBoss("Brain Yoggsaron Id: %u, Action Stormwind Illusion", instance->instance->GetInstanceId());
                     illusion = 2;
                     for (uint32 i = 0; i < 14; i++)
                         me->SummonCreature(stormwindLocations[i].entry,stormwindLocations[i].x,stormwindLocations[i].y,stormwindLocations[i].z,stormwindLocations[i].o);
