@@ -1,6 +1,6 @@
 /*
 SQLyog Community v8.71 
-MySQL - 5.1.37-1ubuntu5.5 : Database - extra
+MySQL - 5.1.37-1ubuntu5.5 : Database - extra2
 *********************************************************************
 */
 
@@ -28,7 +28,7 @@ CREATE TABLE `cheat_log` (
   `pos_z` float NOT NULL,
   `date` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=454870 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=48143 DEFAULT CHARSET=latin1;
 
 /*Table structure for table `item_stats` */
 
@@ -37,12 +37,13 @@ DROP TABLE IF EXISTS `item_stats`;
 CREATE TABLE `item_stats` (
   `id` int(9) NOT NULL AUTO_INCREMENT,
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `guid` int(9) NOT NULL,
+  `guid` int(9) unsigned NOT NULL,
   `item` int(6) NOT NULL,
   `state` tinyint(1) NOT NULL,
+  `group_guid` int(9) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `guid` (`guid`)
-) ENGINE=InnoDB AUTO_INCREMENT=181758 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=82627 DEFAULT CHARSET=latin1;
 
 /*Table structure for table `lotto_extractions` */
 
@@ -56,7 +57,7 @@ CREATE TABLE `lotto_extractions` (
   `position` int(10) unsigned NOT NULL DEFAULT '0',
   `reward` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=271 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8;
 
 /*Table structure for table `lotto_tickets` */
 
@@ -78,12 +79,12 @@ CREATE TABLE `mail_external` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `receiver` int(10) unsigned NOT NULL,
   `subject` varchar(200) DEFAULT 'Support Message',
-  `message` varchar(400) DEFAULT NULL,
+  `message` varchar(200) DEFAULT '',
   `money` int(10) unsigned NOT NULL DEFAULT '0',
   `item` int(10) unsigned NOT NULL DEFAULT '0',
   `item_count` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*Table structure for table `porting` */
 
