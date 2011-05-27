@@ -1375,8 +1375,8 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!UpdateVictim())
-                return;
+            //if (!UpdateVictim())
+            //    return;
 
             if (uiCooldownTimer <= 0)
             {
