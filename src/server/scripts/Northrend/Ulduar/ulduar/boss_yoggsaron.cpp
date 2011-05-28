@@ -904,7 +904,7 @@ public:
             {
                 if (instance)
                 {
-                    sLog->outBoss("Yoggsaron Id: %u, Sanity Check", instance->instance->GetInstanceId());
+                    sLog->outBoss("Yoggsaron Id: %u, Sanity Check, Phase %u", instance->instance->GetInstanceId(), phase);
                     // Sanity Check
                     Map::PlayerList const &players = instance->instance->GetPlayers();
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -958,6 +958,8 @@ public:
                             OpenIllusion();
                             events.ScheduleEvent(EVENT_ILLUSION, urand(80000, 85000), 0, PHASE_2);
                             break;
+                        default:
+                            break;
 
                     }
                 }
@@ -1001,6 +1003,8 @@ public:
                             DoScriptText(SAY_DEAFENING_ROAR, me);
                             DoCast(me, SPELL_DEAFENING_ROAR);
                             events.ScheduleEvent(EVENT_DEAFENING_ROAR, urand(20000, 25000), 0, PHASE_3);
+                            break;
+                        default:
                             break;
                     }
                 }
