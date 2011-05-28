@@ -949,15 +949,17 @@ public:
                             events.ScheduleEvent(EVENT_TENTACLES, urand(25000, 30000), 0, PHASE_2);
                             break;
                         case EVENT_ILLUSION:
-                            if (instance)
-                                sLog->outBoss("Yoggsaron Id: %u, Event Illusion", instance->instance->GetInstanceId());
-                            DoScriptText(SAY_VISION, me);
-                            Map::PlayerList const &players = instance->instance->GetPlayers();
-                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                                DoScriptText(EMOTE_PORTALS, me, itr->getSource());
-                            OpenIllusion();
-                            events.ScheduleEvent(EVENT_ILLUSION, urand(80000, 85000), 0, PHASE_2);
-                            break;
+                            {
+                                if (instance)
+                                    sLog->outBoss("Yoggsaron Id: %u, Event Illusion", instance->instance->GetInstanceId());
+                                DoScriptText(SAY_VISION, me);
+                                Map::PlayerList const &players = instance->instance->GetPlayers();
+                                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                                    DoScriptText(EMOTE_PORTALS, me, itr->getSource());
+                                OpenIllusion();
+                                events.ScheduleEvent(EVENT_ILLUSION, urand(80000, 85000), 0, PHASE_2);
+                                break;
+                            }
                         default:
                             break;
 
