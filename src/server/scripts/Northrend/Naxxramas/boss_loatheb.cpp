@@ -36,6 +36,9 @@ enum Events
     EVENT_DOOM,
 };
 
+#define ACHIEVEMENT_SPORE_LOSER RAID_MODE(2182,2183)
+#define NPC_LOATHEB 16011
+
 class boss_loatheb : public CreatureScript
 {
 public:
@@ -48,9 +51,40 @@ public:
 
     struct boss_loathebAI : public BossAI
     {
-        boss_loathebAI(Creature *c) : BossAI(c, BOSS_LOATHEB) {}
+        boss_loathebAI(Creature* c) : BossAI(c, BOSS_LOATHEB) {}
 
-        void EnterCombat(Unit * /*who*/)
+        bool KilledSpore;
+
+        void Reset()
+        {
+            _Reset();
+            
+            KilledSpore = false;
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            _JustDied();
+
+            if (instance)
+            {
+                if(!KilledSpore)     
+                    instance->DoCompleteAchievement(ACHIEVEMENT_SPORE_LOSER);
+            }
+
+            me->SummonCreature(CREATURE_TELEPORTER, TeleporterPositions[1]);
+        }
+
+        void KilledUnit(Unit* victim)
+        {
+            if (instance)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    instance->SetData(DATA_IMMORTAL_PLAGUE, CRITERIA_NOT_MEETED);
+            }
+        }
+
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
             events.ScheduleEvent(EVENT_AURA, 10000);
@@ -92,7 +126,38 @@ public:
 
 };
 
+enum SporeSpells
+{
+    SPELL_FUNGAL_CREEP                                     = 29232
+};
+
+class mob_loatheb_spore : public CreatureScript
+{
+public:
+    mob_loatheb_spore() : CreatureScript("mob_loatheb_spore") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_loatheb_sporeAI (pCreature);
+    }
+
+    struct mob_loatheb_sporeAI : public ScriptedAI
+    {
+        mob_loatheb_sporeAI(Creature* c) : ScriptedAI(c) {}
+
+        void JustDied(Unit* killer)
+        {
+            DoCast(killer, SPELL_FUNGAL_CREEP);
+
+            if (Creature* pLoatheb = me->FindNearestCreature(NPC_LOATHEB, 60, true))
+                CAST_AI(boss_loatheb::boss_loathebAI,pLoatheb->AI())->KilledSpore = true;
+        }
+    };
+
+};
+
 void AddSC_boss_loatheb()
 {
     new boss_loatheb();
+    new mob_loatheb_spore();
 }
