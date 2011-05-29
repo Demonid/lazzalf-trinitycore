@@ -95,6 +95,7 @@ public:
         uint32 CheckFrostResistTimer;
         Map* pMap;
 
+        /*
         void InitializeAI()
         {
             float x, y, z;
@@ -106,6 +107,7 @@ public:
 
             ScriptedAI::InitializeAI();
         }
+        */
 
         void Reset()
         {
@@ -120,7 +122,7 @@ public:
             CheckFrostResistTimer = 5000;
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
 
@@ -130,9 +132,12 @@ public:
             EnterPhaseGround();
 
             CheckPlayersFrostResist();
+
+            if (instance)
+                instance->SetData(DATA_IMMORTAL_FROSTWYRM, instance->GetData(DATA_IMMORTAL_SAPPHI));
         }
 
-        void SpellHitTarget(Unit *pTarget, const SpellEntry *spell)
+        void SpellHitTarget(Unit* pTarget, const SpellEntry* spell)
         {
             if (spell->Id == SPELL_ICEBOLT)
             {
@@ -141,6 +146,18 @@ public:
                 {
                     if (GameObject *iceblock = me->SummonGameObject(GO_ICEBLOCK, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, 0, 0, 0, 0, 25000))
                         itr->second = iceblock->GetGUID();
+                }
+            }
+        }
+
+        void KilledUnit(Unit* victim)
+        {
+            if (instance)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                {
+                    instance->SetData(DATA_IMMORTAL_FROSTWYRM, CRITERIA_NOT_MEETED);
+                    instance->SetData(DATA_IMMORTAL_SAPPHI, CRITERIA_NOT_MEETED);
                 }
             }
         }
@@ -360,7 +377,7 @@ public:
             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
             for (; i != me->getThreatManager().getThreatList().end(); ++i)
             {
-                Unit *pTarget = (*i)->getTarget();
+                Unit* pTarget = (*i)->getTarget();
                 if (pTarget->GetTypeId() != TYPEID_PLAYER)
                     continue;
 
@@ -375,7 +392,7 @@ public:
                 {
                     if (GameObject* pGo = GameObject::GetGameObject(*me, itr->second))
                     {
-                        if (pGo->IsInBetween(me, pTarget, 2.0f)
+                        if (pGo->IsInBetween(me, pTarget, 4.0f)
                             && me->GetExactDist2d(pTarget->GetPositionX(), pTarget->GetPositionY()) - me->GetExactDist2d(pGo->GetPositionX(), pGo->GetPositionY()) < 5.0f)
                         {
                             pTarget->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
