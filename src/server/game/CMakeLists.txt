@@ -22,6 +22,7 @@ file(GLOB_RECURSE sources_Calendar Calendar/*.cpp Calendar/*.h)
 file(GLOB_RECURSE sources_Chat Chat/*.cpp Chat/*.h)
 file(GLOB_RECURSE sources_Combat Combat/*.cpp Combat/*.h)
 file(GLOB_RECURSE sources_Conditions Conditions/*.cpp Conditions/*.h)
+file(GLOB_RECURSE sources_Custom Custom/*.cpp Custom/*.h)
 file(GLOB_RECURSE sources_DataStores DataStores/*.cpp DataStores/*.h)
 file(GLOB_RECURSE sources_DungeonFinding DungeonFinding/*.cpp DungeonFinding/*.h)
 file(GLOB_RECURSE sources_Entities Entities/*.cpp Entities/*.h)
@@ -47,6 +48,7 @@ file(GLOB_RECURSE sources_Spells Spells/*.cpp Spells/*.h)
 file(GLOB_RECURSE sources_Texts Texts/*.cpp Texts/*.h)
 file(GLOB_RECURSE sources_Tools Tools/*.cpp Tools/*.h)
 file(GLOB_RECURSE sources_Tickets Tickets/*.cpp Tickets/*.h)
+file(GLOB_RECURSE sources_Warden Warden/*.cpp Warden/*.h)
 file(GLOB_RECURSE sources_Weather Weather/*.cpp Weather/*.h)
 file(GLOB_RECURSE sources_World World/*.cpp World/*.h)
 
@@ -71,6 +73,7 @@ set(game_STAT_SRCS
   ${sources_Chat}
   ${sources_Combat}
   ${sources_Conditions}
+  ${sources_Custom}
   ${sources_DataStores}
   ${sources_DungeonFinding}
   ${sources_Entities}
@@ -96,6 +99,7 @@ set(game_STAT_SRCS
   ${sources_Texts}
   ${sources_Tools}
   ${sources_Tickets}
+  ${sources_Warden}
   ${sources_Weather}
   ${sources_World}
 )
@@ -122,6 +126,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Policies
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
+  ${CMAKE_SOURCE_DIR}/src/server/wardenserver
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/Accounts
   ${CMAKE_CURRENT_SOURCE_DIR}/Achievements
@@ -140,6 +145,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Chat/Commands
   ${CMAKE_CURRENT_SOURCE_DIR}/Combat
   ${CMAKE_CURRENT_SOURCE_DIR}/Conditions
+  ${CMAKE_CURRENT_SOURCE_DIR}/Custom
   ${CMAKE_CURRENT_SOURCE_DIR}/DataStores
   ${CMAKE_CURRENT_SOURCE_DIR}/DungeonFinding
   ${CMAKE_CURRENT_SOURCE_DIR}/Entities
@@ -187,14 +193,15 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Texts
   ${CMAKE_CURRENT_SOURCE_DIR}/Tools
   ${CMAKE_CURRENT_SOURCE_DIR}/Tickets
+  ${CMAKE_CURRENT_SOURCE_DIR}/Warden
   ${CMAKE_CURRENT_SOURCE_DIR}/Weather
   ${CMAKE_CURRENT_SOURCE_DIR}/World
   ${CMAKE_SOURCE_DIR}/src/server/scripts/PrecompiledHeaders
+  ${CMAKE_SOURCE_DIR}/src/server/wardenserver/Protocol
   ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
 )
-
 add_library(game STATIC ${game_STAT_SRCS})
 
 add_dependencies(game revision.h)
