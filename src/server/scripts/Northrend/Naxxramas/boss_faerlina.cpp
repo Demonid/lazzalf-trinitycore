@@ -93,10 +93,14 @@ class boss_faerlina : public CreatureScript
                 BossAI::MoveInLineOfSight(who);
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* victim)
             {
                 if (!urand(0, 2))
                     DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+
+                if (instance)
+                    if (victim->GetTypeId() == TYPEID_PLAYER)
+                        instance->SetData(DATA_IMMORTAL_ARACHNID, CRITERIA_NOT_MEETED);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -195,7 +199,8 @@ class mob_faerlina_add : public CreatureScript
 
             void Reset()
             {
-                if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL) {
+                if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL) 
+                {
                     me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_BIND, true);
                     me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
                 }
