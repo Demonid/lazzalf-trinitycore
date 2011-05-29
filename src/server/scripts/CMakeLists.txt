@@ -30,9 +30,7 @@ include(Commands/CMakeLists.txt)
 include(Examples/CMakeLists.txt)
 
 set(scripts_STAT_SRCS
-  ${scripts_STAT_SRCS}  
-   ../game/Custom/sc_bs_sp_wrkr.cpp
-   ../game/Custom/sc_bs_sp_wrkr.h
+  ${scripts_STAT_SRCS}
   ../game/AI/ScriptedAI/ScriptedEscortAI.cpp
   ../game/AI/ScriptedAI/ScriptedCreature.cpp
   ../game/AI/ScriptedAI/ScriptedFollowerAI.cpp
