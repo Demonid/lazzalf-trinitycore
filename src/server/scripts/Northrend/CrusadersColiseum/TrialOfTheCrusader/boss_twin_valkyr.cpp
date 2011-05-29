@@ -841,9 +841,9 @@ public:
                 if(Aura * aura = pWho->GetAura(RAID_MODE(SPELL_POWERING_UP_1, SPELL_POWERING_UP_2, SPELL_POWERING_UP_3, SPELL_POWERING_UP_4)))
                 {
                     if(aura->GetStackAmount()+n > 100)
-                        aura->SetStackAmount(100, true);
+                        aura->SetStackAmount(100);
                     else
-                    aura->SetStackAmount(aura->GetStackAmount()+n, true);
+                    aura->SetStackAmount(aura->GetStackAmount()+n);
                 }
             }
         }
