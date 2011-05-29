@@ -429,7 +429,7 @@ uint32 CalculatePowerCost(SpellEntry const * spellInfo, Unit const * caster, Spe
     return powerCost;
 }
 
-Unit* GetTriggeredSpellCaster(SpellEntry const * spellInfo, Unit * caster, Unit * target)
+bool IsSpellRequiringFocusedTarget(SpellEntry const * spellInfo)
 {
     for (uint8 i = 0 ; i < MAX_SPELL_EFFECTS; ++i)
     {
@@ -439,8 +439,15 @@ Unit* GetTriggeredSpellCaster(SpellEntry const * spellInfo, Unit * caster, Unit 
             || SpellTargetType[spellInfo->EffectImplicitTargetB[i]] == TARGET_TYPE_CHANNEL
             || SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_DEST_TARGET
             || SpellTargetType[spellInfo->EffectImplicitTargetB[i]] == TARGET_TYPE_DEST_TARGET)
-            return caster;
+            return true;
     }
+    return false;
+}
+
+Unit* GetTriggeredSpellCaster(SpellEntry const * spellInfo, Unit * caster, Unit * target)
+{
+    if (IsSpellRequiringFocusedTarget(spellInfo))
+        return caster;
     return target;
 }
 
@@ -4372,7 +4379,8 @@ void SpellMgr::LoadSpellCustomAttr()
             ++count;
             break;
         case 71266: // Swarming Shadows
-            spellInfo->AreaGroupId = 0;
+        case 72890: // Swarming Shadows
+            spellInfo->AreaGroupId = 0; // originally, these require area 4522, which is... outside of Icecrown Citadel
             ++count;
             break;
         case 70588: // Suppression
