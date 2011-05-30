@@ -9,7 +9,6 @@
 #include "Transport.h"
 #include "ObjectMgr.h"
 #include "MapManager.h"
-#include "WardenHandler.h"
 
 /**
  *
