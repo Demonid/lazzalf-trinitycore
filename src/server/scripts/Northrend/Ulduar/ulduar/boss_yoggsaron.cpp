@@ -397,12 +397,6 @@ const Position SanityWellPos[10] =
 #define ACHI_GETTING_ANY_OLDER              RAID_MODE(3012, 3013)
 #define MAX_SPEED_KILL_TIMER                7 * 60 * 1000 // 7 min
 
-// Hard Modes
-/*#define ACHI_THREE_LIGHTS_IN_THE_DARKNESS   RAID_MODE(3157, 3161)
-#define ACHI_TWO_LIGHTS_IN_THE_DARKNESS     RAID_MODE(3141, 3162)
-#define ACHI_ONE_LIGHT_IN_THE_DARKNESS      RAID_MODE(3158, 3163)
-#define ACHI_ALONE_IN_THE_DARKNESS          RAID_MODE(3159, 3164)*/
-
 
 /*------------------------------------------------------*
  *                        Sara                          *
@@ -435,7 +429,6 @@ public:
         std::vector<uint64> ominous_list;
         uint32 uiPhase_timer;
         uint32 uiStep;
-        //uint8 keepers;
         bool wipe;
 
         uint32 encounterTimer;
@@ -490,7 +483,6 @@ public:
             me->RestoreFaction();
             me->GetMotionMaster()->MoveTargetedHome();
             phase = PHASE_NULL;
-            //keepers = 0;
             encounterTimer = 0;
             _Reset();
         }
@@ -538,7 +530,6 @@ public:
                         {
                             pCreature->SetInCombatWith(me);
                             pCreature->AddThreat(me, 150.0f);
-                            //++keepers;
                         }
                     }
                 }
@@ -818,7 +809,6 @@ public:
         uint8 illusionOrder[3];
         uint8 illusionCount;
         uint8 spawnedTentacles;
-        //uint8 keepers;
 
         // achievement
         bool someoneGotInsane;
@@ -829,7 +819,6 @@ public:
                 sLog->outBoss("Yoggsaron Id: %u, Reset", instance->instance->GetInstanceId());
             events.Reset();
             summons.DespawnAll();
-            //keepers = 0;
         }
         
         void EnterCombat(Unit* /*who*/)
@@ -859,17 +848,6 @@ public:
                 events.SetPhase(PHASE_2);
                 events.ScheduleEvent(EVENT_TENTACLES, 1000, 0, PHASE_2);
                 events.ScheduleEvent(EVENT_ILLUSION, 60000, 0, PHASE_2);
-
-                /*for (uint8 data = DATA_YS_FREYA; data <= DATA_YS_HODIR; ++data)
-                {
-                    if (Creature *pCreature = Creature::GetCreature((*me), instance->GetData64(data)))
-                    {
-                        if (pCreature->HasAura(SPELL_KEEPER_ACTIVE))
-                        {
-                            ++keepers;
-                        }
-                    }
-                }*/
 
                 me->ResetLootMode();
                 switch (instance->GetData(DATA_ACTIVE_KEEPERS))
@@ -1013,7 +991,7 @@ public:
             }
         }
         
-        void JustDied(Unit* /*victim*/)
+        void JustDied(Unit* /*killer*/)
         {
             if (instance)
                 sLog->outBoss("Yoggsaron Id: %u, JustDie", instance->instance->GetInstanceId());
@@ -1032,22 +1010,6 @@ public:
 
                     pSara->ToCreature()->DisappearAndDie();
                 }
-
-                // Award Hard Mode Achievements
-                /*switch (instance->GetData(DATA_ACTIVE_KEEPERS))
-                {                
-                    case 0:
-                        instance->DoCompleteAchievement(ACHI_ALONE_IN_THE_DARKNESS);
-                    case 1:
-                        instance->DoCompleteAchievement(ACHI_ONE_LIGHT_IN_THE_DARKNESS);
-                    case 2:
-                        instance->DoCompleteAchievement(ACHI_TWO_LIGHTS_IN_THE_DARKNESS);
-                    case 3:
-                        instance->DoCompleteAchievement(ACHI_THREE_LIGHTS_IN_THE_DARKNESS);
-                        break;                
-                    default:
-                        break;
-                }*/
 
                 if (!someoneGotInsane)
                     instance->DoCompleteAchievement(ACHI_DRIVE_ME_CRAZY);
@@ -1113,6 +1075,7 @@ public:
                         {
                             pBrain->AI()->Reset();
                             pBrain->AI()->DoAction(ACTION_CHAMBER_ILLUSION);
+                            instance->SetData(DATA_ILLUSION, ACTION_CHAMBER_ILLUSION);
                             for (int32 i = 0; i < RAID_MODE(4, 10); ++i)
                                 me->SummonCreature(NPC_PORTAL_CHAMBER, PortalPos[i], TEMPSUMMON_TIMED_DESPAWN, 30000);
                         }
@@ -1122,6 +1085,7 @@ public:
                         {
                             pBrain->AI()->Reset();
                             pBrain->AI()->DoAction(ACTION_ICECROWN_ILLUSION);
+                            instance->SetData(DATA_ILLUSION, ACTION_ICECROWN_ILLUSION);
                             for (int32 i = 0; i < RAID_MODE(4, 10); ++i)
                                 me->SummonCreature(NPC_PORTAL_ICECROWN, PortalPos[i], TEMPSUMMON_TIMED_DESPAWN, 30000);
                         }
@@ -1131,6 +1095,7 @@ public:
                         {
                             pBrain->AI()->Reset();
                             pBrain->AI()->DoAction(ACTION_STORMWIND_ILLUSION);
+                            instance->SetData(DATA_ILLUSION, ACTION_STORMWIND_ILLUSION);
                             for (int32 i = 0; i < RAID_MODE(4, 10); ++i)
                                 me->SummonCreature(NPC_PORTAL_STORMWIND, PortalPos[i], TEMPSUMMON_TIMED_DESPAWN, 30000);
                         }
@@ -1358,7 +1323,7 @@ public:
             uiCooldownTimer = 3000;
         }
 
-        void MoveInLineOfSight(Unit *who)
+        void MoveInLineOfSight(Unit* who)
         {
             if (!SummonCooldown && me->IsWithinDistInMap(who, 6.0f) && who->ToPlayer() && !who->ToPlayer()->isGameMaster())
             {
@@ -1381,7 +1346,7 @@ public:
             else uiCooldownTimer -= diff;
         }
 
-        void JustSummoned(Creature *summon)
+        void JustSummoned(Creature* summon)
         {
             summons.Summon(summon);
         }
@@ -1415,7 +1380,7 @@ public:
             uiDarkVolleyTimer = 8000;
         }
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* /*killer*/)
         {
             DoCast(me, RAID_MODE(SPELL_SHADOW_NOVA_10, SPELL_SHADOW_NOVA_25), true);
             if (Creature *pSara = me->FindNearestCreature(NPC_SARA, 10.0f, true))
@@ -1534,7 +1499,7 @@ public:
     {
         npc_illusion_AI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) { }
 
-        void DamageTaken(Unit *attacker, uint32 &damage)
+        void DamageTaken(Unit* /*who*/, uint32 &damage)
         {
             if (me->GetEntry() != NPC_INFLUENCE_TENTACLE)
             {
@@ -1544,7 +1509,7 @@ public:
             }
         }
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* /*killer*/)
         {
             if (Unit* pBrain = me->ToTempSummon()->GetSummoner())
                 pBrain->ToCreature()->AI()->DoAction(ACTION_TENTACLE_COUNT);
@@ -1565,7 +1530,7 @@ public:
 
     struct npc_descend_into_madness_AI : public PassiveAI
     {
-        npc_descend_into_madness_AI(Creature *c) : PassiveAI(c) {}
+        npc_descend_into_madness_AI(Creature* c) : PassiveAI(c) {}
 
         void DoAction(const int32 param)
         {
@@ -1591,7 +1556,7 @@ public:
 
     struct npc_passive_illusion_AI : public PassiveAI
     {
-        npc_passive_illusion_AI(Creature *c) : PassiveAI(c) 
+        npc_passive_illusion_AI(Creature* c) : PassiveAI(c) 
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE);
         }
@@ -1641,9 +1606,9 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit *attacker, uint32 &damage)
+        void DamageTaken(Unit* who, uint32 &damage)
         {
-            if (attacker->IsWithinMeleeRange(me) && me->HasUnitState(UNIT_STAT_CASTING))
+            if (who->IsWithinMeleeRange(me) && me->HasUnitState(UNIT_STAT_CASTING))
                 me->InterruptNonMeleeSpells(true, SPELL_DIMINISH_POWER);
         }
     };
@@ -1718,7 +1683,7 @@ public:
 
             if (ApathyTimer <= 0)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
                     DoCast(pTarget, SPELL_APATHY);
                 //ApathyTimer = 4000;
                 ApathyTimer = 16000;
@@ -1727,7 +1692,7 @@ public:
 
             if (PoisonTimer <= 0)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
                     DoCast(pTarget, SPELL_DRAINING_POISON);
                 //PoisonTimer = 4000;
                 PoisonTimer = 16000;
@@ -1736,7 +1701,7 @@ public:
 
             if (PlagueTimer <= 0)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
                     DoCast(pTarget, SPELL_BLACK_PLAGUE);
                 //PlagueTimer = 4000;
                 PlagueTimer = 16000;
@@ -1745,7 +1710,7 @@ public:
 
             if (CurseTimer <= 0)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
                     DoCast(pTarget, SPELL_CURSE_OF_DOOM);
                 //CurseTimer = 4000;
                 CurseTimer = 16000;
@@ -1812,7 +1777,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* who, uint32 &damage)
+        void DamageTaken(Unit* /*who*/, uint32 &damage)
         {
             // Immortal Guardians stop taking damage when their health reaches 1%
             if (damage >= me->GetHealth())
@@ -1822,7 +1787,7 @@ public:
             }
         }
 
-        void SpellHit(Unit *caster, const SpellEntry *spell)
+        void SpellHit(Unit* caster, const SpellEntry* spell)
         {
             // Thorim kills weakened immortal creatures
             if (spell->Id == SPELL_TITANIC_STORM_EFFECT)
@@ -1858,25 +1823,25 @@ public:
             case NPC_IMAGE_OF_FREYA:
                 DoScriptText(SAY_FREYA_HELP, pCreature);
                 pCreature->AddAura(SPELL_KEEPER_ACTIVE, pCreature);
-                if (Creature *pFreya = pCreature->GetCreature(*pCreature, instance->GetData64(DATA_YS_FREYA)))
+                if (Creature* pFreya = pCreature->GetCreature(*pCreature, instance->GetData64(DATA_YS_FREYA)))
                     pFreya->AddAura(SPELL_KEEPER_ACTIVE, pFreya);
                 break;
             case NPC_IMAGE_OF_THORIM:
                 DoScriptText(SAY_THORIM_HELP, pCreature);
                 pCreature->AddAura(SPELL_KEEPER_ACTIVE, pCreature);
-                if (Creature *pThorim = pCreature->GetCreature(*pCreature, instance->GetData64(DATA_YS_THORIM)))
+                if (Creature* pThorim = pCreature->GetCreature(*pCreature, instance->GetData64(DATA_YS_THORIM)))
                     pThorim->AddAura(SPELL_KEEPER_ACTIVE, pThorim);
                 break;
             case NPC_IMAGE_OF_MIMIRON:
                 DoScriptText(SAY_MIMIRON_HELP, pCreature);
                 pCreature->AddAura(SPELL_KEEPER_ACTIVE, pCreature);
-                if (Creature *pMimiron = pCreature->GetCreature(*pCreature, instance->GetData64(DATA_YS_MIMIRON)))
+                if (Creature* pMimiron = pCreature->GetCreature(*pCreature, instance->GetData64(DATA_YS_MIMIRON)))
                     pMimiron->AddAura(SPELL_KEEPER_ACTIVE, pMimiron);
                 break;
             case NPC_IMAGE_OF_HODIR:
                 DoScriptText(SAY_HODIR_HELP, pCreature);
                 pCreature->AddAura(SPELL_KEEPER_ACTIVE, pCreature);
-                if (Creature *pHodir = pCreature->GetCreature(*pCreature, instance->GetData64(DATA_YS_HODIR)))
+                if (Creature* pHodir = pCreature->GetCreature(*pCreature, instance->GetData64(DATA_YS_HODIR)))
                     pHodir->AddAura(SPELL_KEEPER_ACTIVE, pHodir);
                 break;
         }
@@ -2301,6 +2266,72 @@ class criteria_three_lights_in_the_darkness : public AchievementCriteriaScript
         }
 };
 
+class criteria_assasination_of_king_lane : public AchievementCriteriaScript
+{
+    public:
+        criteria_assasination_of_king_lane() : AchievementCriteriaScript("criteria_assasination_of_king_lane") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* instance = source->GetInstanceScript();
+
+            if (!instance || source->GetMapId() != ULDUAR_MAP)
+                return false;
+
+            if (instance->GetData(DATA_ILLUSION) != ACTION_STORMWIND_ILLUSION)
+                return false;
+
+            return true;
+        }
+};
+
+class criteria_forging_demon_soul : public AchievementCriteriaScript
+{
+    public:
+        criteria_forging_demon_soul() : AchievementCriteriaScript("criteria_forging_demon_soul") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* instance = source->GetInstanceScript();
+
+            if (!instance || source->GetMapId() != ULDUAR_MAP)
+                return false;
+
+            if (instance->GetData(DATA_ILLUSION) != ACTION_CHAMBER_ILLUSION)
+                return false;
+
+            return true;
+        }
+};
+
+class criteria_tortured_champion : public AchievementCriteriaScript
+{
+    public:
+        criteria_tortured_champion() : AchievementCriteriaScript("criteria_tortured_champion") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* instance = source->GetInstanceScript();
+
+            if (!instance || source->GetMapId() != ULDUAR_MAP)
+                return false;
+
+            if (instance->GetData(DATA_ILLUSION) != ACTION_ICECROWN_ILLUSION)
+                return false;
+
+            return true;
+        }
+};
+
 void AddSC_boss_yoggsaron()
 {
     new boss_sara();
@@ -2329,4 +2360,7 @@ void AddSC_boss_yoggsaron()
     new criteria_one_light_in_the_darkness();
     new criteria_two_lights_in_the_darkness();
     new criteria_three_lights_in_the_darkness();
+    new criteria_assasination_of_king_lane();
+    new criteria_forging_demon_soul();
+    new criteria_tortured_champion();
 }

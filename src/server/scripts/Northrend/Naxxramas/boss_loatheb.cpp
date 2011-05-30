@@ -147,7 +147,7 @@ public:
 
         void JustDied(Unit* killer)
         {
-            DoCast(killer, SPELL_FUNGAL_CREEP);
+            DoCast(killer, SPELL_FUNGAL_CREEP, true);
 
             if (Creature* pLoatheb = me->FindNearestCreature(NPC_LOATHEB, 60, true))
                 CAST_AI(boss_loatheb::boss_loathebAI,pLoatheb->AI())->KilledSpore = true;

@@ -187,6 +187,8 @@ class instance_ulduar : public InstanceMapScript
         bool proximityMineHit;
         bool bombBotHit;
         bool rocketStrikeHit;
+        // In His House He Waits Dreaming
+        uint32 currentIllusion;
 
         // Champion/Conqueror of Ulduar
         uint32 leviathanStatus;
@@ -284,6 +286,7 @@ class instance_ulduar : public InstanceMapScript
             rocketStrikeHit = false;
             flag = 0;
             activeKeepers = 0;
+            currentIllusion = 0;
             memset(&uiLeviathanDoor, 0, sizeof(uiLeviathanDoor));
 
             // Celestial planetarium
@@ -854,6 +857,9 @@ class instance_ulduar : public InstanceMapScript
                 case DATA_FEED:
                     algalonStatus = value;
                     break;
+                case DATA_ILLUSION:
+                    currentIllusion = value;
+                    break;
                 default:
                     break;
             }
@@ -964,6 +970,8 @@ class instance_ulduar : public InstanceMapScript
                     return yoggStatus;
                 case DATA_FEED:
                     return algalonStatus;
+                case DATA_ILLUSION:
+                    return currentIllusion;
                 default:
                     return 0;
             }
