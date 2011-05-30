@@ -139,6 +139,8 @@ public:
             m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
             m_uiTargetGUID = 0;
+            if (m_pInstance)
+                sLog->outBoss("Anub Spike Id: %u,  Created", m_pInstance->instance->GetInstanceId());
         }
 
         InstanceScript* m_pInstance;
@@ -165,8 +167,11 @@ public:
             */
         }
 
-        void EnterCombat(Unit *pWho)
+        void EnterCombat(Unit* /*who*/)
         {
+            if (m_pInstance)
+                sLog->outBoss("Anub Spike Id: %u,  Enter combat, target GUID: %u", m_pInstance->instance->GetInstanceId(), m_uiTargetGUID);
+
             if (Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
                 if (pTarget && pTarget->isAlive())
                 {
@@ -178,13 +183,16 @@ public:
                 }
         }
 
-        void DamageTaken(Unit* /*pWho*/, uint32& uiDamage)
+        void DamageTaken(Unit* /*who*/, uint32& uiDamage)
         {
             uiDamage = 0;
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
+            if (m_pInstance)
+                sLog->outBoss("Anub Spike Id: %u,  UpdateAI, target GUID: %u", m_pInstance->instance->GetInstanceId(), m_uiTargetGUID);
+
             Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID);
 
             if (me->getVictim() && !me->getVictim()->ToPlayer())
@@ -354,6 +362,9 @@ public:
                 case NPC_SPIKE:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
+                        if (m_pInstance)
+                            sLog->outBoss("Anub Id: %u, Setting Spike Target, target GUID: %u", m_pInstance->instance->GetInstanceId(), target->GetGUID());
+
                         CAST_AI(mob_anubarak_spike::mob_anubarak_spikeAI,summoned->AI())->m_uiTargetGUID = target->GetGUID();
                         summoned->CombatStart(target);
                         DoScriptText(EMOTE_SPIKE, me, target);
