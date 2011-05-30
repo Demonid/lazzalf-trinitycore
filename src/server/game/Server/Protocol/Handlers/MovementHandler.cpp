@@ -348,7 +348,9 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     // begin anti cheat
     bool check_passed = true;   
 
-    if (plMover && sWorld->getBoolConfig(CONFIG_AC_ENABLE))
+    if (plMover && plMover->IsInWorld() && 
+        plMover->GetSession() && !plMover->GetSession()->isLogingOut() &&
+        sWorld->getBoolConfig(CONFIG_AC_ENABLE))
     {
         check_passed = plMover->GetAntiCheat()->DoAntiCheatCheck(opcode, movementInfo, mover);
     }

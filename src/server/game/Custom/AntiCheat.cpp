@@ -130,8 +130,8 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
 	if (plMover->GetSession() && plMover->GetSession()->GetSecurity() >= int32(sWorld->getIntConfig(CONFIG_AC_DISABLE_GM_LEVEL)))
 		return true;
     	
-    if (!plMover->IsInWorld())
-        return true;
+    //if (!plMover->IsInWorld())
+    //    return true;
 
     if (!activateACCheck || plMover->isInFlight() || 
         plMover->GetTransport() || plMover->GetVehicle() || 
@@ -330,7 +330,7 @@ bool AntiCheat::AntiCheatPunisher(MovementInfo& pMovementInfo)
                 announce += plMover->GetName();
                 announce += " per uso di Hack";
                 sWorld->SendServerMessage(SERVER_MSG_STRING,announce.c_str());
-                QueryResult result = LoginDatabase.PQuery("SELECT last_ip FROM account WHERE id=%u", plMover->GetSession()->GetAccountId());
+                QueryResult result = LoginDatabase.AsyncPQuery("SELECT last_ip FROM account WHERE id=%u", plMover->GetSession()->GetAccountId());
                 if (result)
                 {
                     Field *fields = result->Fetch();
