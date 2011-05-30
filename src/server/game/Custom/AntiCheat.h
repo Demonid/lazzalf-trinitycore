@@ -24,6 +24,26 @@ enum eCheat
     MAX_CHEAT
 };
 
+enum eWardenCheat
+{
+	CHECK_WARDEN_CHECKSUM = 0,
+	CHECK_WARDEN_MEMORY,
+	CHECK_WARDEN_KEY
+};
+
+enum WardenCheckType
+{
+    MEM_CHECK               = 0xF3,                         // byte strIndex + uint Offset + byte Len (checks to ensure memory isn't modified?)
+    PAGE_CHECK_A            = 0xB2,                         // uint Seed + byte[20] SHA1 + uint Addr + byte Len
+    PAGE_CHECK_B            = 0xBF,                         // uint Seed + byte[20] SHA1 + uint Addr + byte Len
+    MPQ_CHECK               = 0x98,                         // byte strIndex (checks to ensure MPQ file isn't modified?)
+    LUA_STR_CHECK           = 0x8B,                         // byte strIndex (checks to ensure LUA string isn't used?)
+    DRIVER_CHECK            = 0x71,                         // uint Seed + byte[20] SHA1 + byte strIndex (checks to ensure driver isn't loaded?)
+    TIMING_CHECK            = 0x57,                         // empty (checks to ensure TickCount isn't detoured?)
+    PROC_CHECK              = 0x7E,                         // uint Seed + byte[20] SHA1 + byte strIndex1 + byte strIndex2 + uint Offset + byte Len (checks to ensure proc isn't detoured?)
+    MODULE_CHECK            = 0xD9,                         // uint Seed + byte[20] SHA1 (checks to ensure module isn't loaded)
+};
+
 enum ePuniType
 {
     PUNI_NONE = 0,
@@ -112,6 +132,8 @@ class AntiCheat
         MovementInfo& GetLastPacket() { return lastpMovementInfo; }
         void SetLastOpcode(uint32 uiOpcode) { uiLastOpcode = uiOpcode; }
         uint32 GetLastOpcode() { return uiLastOpcode; }
+
+        void CheckWarden(eWardenCheat wardCheat, uint8 wardenType);
 };
 
 #endif
