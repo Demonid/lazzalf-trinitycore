@@ -9,6 +9,7 @@
 #include "Transport.h"
 #include "ObjectMgr.h"
 #include "MapManager.h"
+#include "WardenHandler.h"
 
 /**
  *
@@ -821,4 +822,65 @@ bool AntiCheat::CheckAntiClimb(MovementInfo& pOldPacket, MovementInfo& pNewPacke
         }
 	}    
 	return true;
+}
+
+void AntiCheat::CheckWarden(eWardenCheat wardCheat, uint8 wardenType)
+{ 
+    std::string cheat_type = "";
+    switch (wardCheat)
+    {
+        case CHECK_WARDEN_CHECKSUM:
+        	sLog->outCheat("AC-%s Map %u Area %u, X:%f Y:%f Z:%f, Warden detect not valid checksum in answer. Possible cheating (WPE hack)",
+                plMover->GetName(), plMover->GetMapId(), plMover->GetAreaId(), plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ());
+            break;
+        case CHECK_WARDEN_KEY:
+            sLog->outCheat("AC-%s Map %u Area %u, X:%f Y:%f Z:%f, Warden detect not valid key code in answer. Possible cheating (WPE hack)",
+                plMover->GetName(), plMover->GetMapId(), plMover->GetAreaId(), plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ());
+            break;
+        case CHECK_WARDEN_MEMORY:
+            switch (wardenType)
+            {
+                case MEM_CHECK:
+                    cheat_type = "WARDEN: memory check";
+                    break;
+                case PAGE_CHECK_A:
+                case PAGE_CHECK_B:
+                    cheat_type = "WARDEN: page check";
+                    break;
+                case MPQ_CHECK:
+                    cheat_type = "WARDEN: MPQ check";
+                    break;
+                case LUA_STR_CHECK:
+                    cheat_type = "WARDEN: LUA check";
+                    break;
+                case DRIVER_CHECK:
+                    cheat_type = "WARDEN: driver check";
+                    break;
+                case TIMING_CHECK:
+                    cheat_type = "WARDEN: timing check";
+                    break;
+                case PROC_CHECK:
+                    cheat_type = "WARDEN: proc check";
+                    break;
+                case MODULE_CHECK:
+                    cheat_type = "WARDEN: module check";
+                    break;
+                default:
+                    cheat_type = "WARDEN: unknown check";
+                    break;                
+            }
+            sLog->outCheat("AC-%s Map %u Area %u, X:%f Y:%f Z:%f, %s",
+                plMover->GetName(), plMover->GetMapId(), plMover->GetAreaId(), plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ(), cheat_type.c_str());
+            break;        
+        default:
+            break;
+    }
+
+    if (sWorld->getBoolConfig(CONFIG_AC_ENABLE_DBLOG))
+        if (difftime_log_db >= sWorld->getIntConfig(CONFIG_AC_DELTA_LOG_DB))
+        {		                    
+            ExtraDatabase.PExecute("INSERT INTO cheat_log(cheat_type, guid, name, level, map, area, pos_x, pos_y, pos_z, date) VALUES ('%s', '%u', '%s', '%u', '%u', '%u', '%f', '%f', '%f', NOW())", 
+                cheat_type.c_str(), plMover->GetGUIDLow(), plMover->GetName(), plMover->getLevel(), plMover->GetMapId(), plMover->GetAreaId(), plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ());
+            m_logdb_time = cServerTime;
+        }
 }
