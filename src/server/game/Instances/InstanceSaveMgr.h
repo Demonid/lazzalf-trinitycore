@@ -171,6 +171,9 @@ class InstanceSaveManager
         uint32 GetNumBoundPlayersTotal();
         uint32 GetNumBoundGroupsTotal();
 
+        /* achievement like The Immortal */
+        //static void resetImmortalCriteria(uint32 instanceId);
+
     protected:
         static uint16 ResetTimeDelay[];
 
