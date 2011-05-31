@@ -7732,8 +7732,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     if (((*itr)->GetCasterGUID() != GetGUID()) || ((*itr)->GetId() != triggered_spell_id))
                          continue;
 
-                    if ((*itr)->GetTotalTicks() >= (*itr)->GetTickNumber())
-                        basepoints0 += (*itr)->GetAmount() * ((*itr)->GetTotalTicks() - (*itr)->GetTickNumber());
+                    basepoints0 += uint32((*itr)->GetAmount() * std::max<int32>((*itr)->GetTotalTicks() - int32((*itr)->GetTickNumber()), 0));
                     break;
                 }
 
