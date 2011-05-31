@@ -272,6 +272,14 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
                 return false;
             }
             return true;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_ARENA_TYPE:
+            if (arena_type.arenaType != ARENA_TEAM_2v2 || arena_type.arenaType != ARENA_TEAM_3v3 || arena_type.arenaType != ARENA_TEAM_5v5)
+            {
+                sLog->outErrorDb("Table `achievement_criteria_requirement` (Entry: %u Type: %u) for requirement ACHIEVEMENT_CRITERIA_DATA_TYPE_ARENA_TYPE (%u) has unknown arena type in value1 (%u), ignored.",
+                    criteria->ID, criteria->requiredType, dataType, arena_type.arenaType);
+                return false;
+            }
+            return true;
         default:
             sLog->outErrorDb("Table `achievement_criteria_data` (Entry: %u Type: %u) has data for non-supported data type (%u), ignored.", criteria->ID, criteria->requiredType, dataType);
             return false;
