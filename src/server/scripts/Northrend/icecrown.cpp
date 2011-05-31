@@ -549,7 +549,7 @@ class npc_lake_frog : public CreatureScript
         {
             switch (emote)
             {
-                case TEXTEMOTE_KISS:
+                case TEXT_EMOTE_KISS:
                     for (int i = 0; i < 12; i++)
                     {
                         if (pPlayer->GetQuestStatus(new_quest[i].quest_id) == QUEST_STATUS_INCOMPLETE && pPlayer->HasAura(LIP_BALM_SPELL) && rand()%10 == 1)
