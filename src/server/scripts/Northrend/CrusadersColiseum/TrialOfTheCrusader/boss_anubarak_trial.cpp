@@ -197,15 +197,27 @@ public:
 
             if (me->getVictim() && !me->getVictim()->ToPlayer())
             {
+                if (m_pInstance)
+                    sLog->outBoss("Anub Spike Id: %u, Kill target non player", m_pInstance->instance->GetInstanceId());
                 me->Kill(me->getVictim());
                 if (pTarget)
+                {
+                    if (m_pInstance)
+                        sLog->outBoss("Anub Spike Id: %u, Taunt player GUID: %u", m_pInstance->instance->GetInstanceId(), m_uiTargetGUID);
                     me->TauntApply(pTarget);
+                }
             }
 
             if (!pTarget || !pTarget->isAlive() || !pTarget->HasAura(SPELL_MARK))
             {
+                f (m_pInstance)
+                    sLog->outBoss("Anub Spike Id: %u, Disappear", m_pInstance->instance->GetInstanceId());
                 if (Unit* pTarget = me->FindNearestCreature(NPC_FROST_SPHERE, 15.0f))
+                {
+                    f (m_pInstance)
+                        sLog->outBoss("Anub Spike Id: %u, Frost Sphere trovata", m_pInstance->instance->GetInstanceId());
                     pTarget->RemoveFromWorld();
+                }
                 if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ANUBARAK)))
                     pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);
                 me->DisappearAndDie();
