@@ -723,14 +723,14 @@ public:
             events.Reset();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            me->SetReactState(REACT_PASSIVE);
-            me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
-
-            //if (me->GetVehicleKit())
+            me->SetReactState(REACT_PASSIVE);			
+			//if (me->GetVehicleKit())
             //    me->GetVehicleKit()->Reset();
 
             phase = PHASE_NULL;
             events.SetPhase(PHASE_NULL);
+
+			vehicle->RemoveAllPassengers();
 
             if (vehicle->HasEmptySeat(3))
                  vehicle->Reset();
