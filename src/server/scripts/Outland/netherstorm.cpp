@@ -782,9 +782,10 @@ public:
                 PlayerGUID = who->GetGUID();
         }
 
-        void SpellHit(Unit * /*caster*/, const SpellEntry * /*spell*/)
+        void SpellHit(Unit * /*caster*/, const SpellEntry * spell)
         {
-            DoCast(me, SPELL_DE_MATERIALIZE);
+            if (spell->Id != SPELL_DE_MATERIALIZE)
+                DoCast(me, SPELL_DE_MATERIALIZE);
         }
 
         void UpdateAI(const uint32 diff)

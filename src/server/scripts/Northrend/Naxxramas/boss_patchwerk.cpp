@@ -62,7 +62,7 @@ public:
 
     struct boss_patchwerkAI : public BossAI
     {
-        boss_patchwerkAI(Creature *c) : BossAI(c, BOSS_PATCHWERK) {}
+        boss_patchwerkAI(Creature* c) : BossAI(c, BOSS_PATCHWERK) {}
 
         bool Enraged;
 
@@ -74,19 +74,28 @@ public:
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
         }
 
-        void KilledUnit(Unit* /*Victim*/)
+        void KilledUnit(Unit* victim)
         {
+            if (instance)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                {
+                    instance->SetData(DATA_IMMORTAL_CONSTRUCT, CRITERIA_NOT_MEETED);
+                    instance->SetData(DATA_IMMORTAL_PATCH, CRITERIA_NOT_MEETED);
+                }
+            }
+
             if (!(rand()%5))
                 DoScriptText(SAY_SLAY, me);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             _JustDied();
             DoScriptText(SAY_DEATH, me);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
             Enraged = false;
@@ -95,7 +104,10 @@ public:
             events.ScheduleEvent(EVENT_BERSERK, 360000);
 
             if (instance)
+            {
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
+                instance->SetData(DATA_IMMORTAL_CONSTRUCT, instance->GetData(DATA_IMMORTAL_PATCH));
+            }
         }
 
         void UpdateAI(const uint32 diff)
@@ -118,7 +130,7 @@ public:
                         std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
                         for (; i != me->getThreatManager().getThreatList().end(); ++i)
                         {
-                            Unit *pTarget = (*i)->getTarget();
+                            Unit* pTarget = (*i)->getTarget();
                             if (pTarget->isAlive() && pTarget != me->getVictim() && pTarget->GetHealth() > MostHP && me->IsWithinMeleeRange(pTarget))
                             {
                                 MostHP = pTarget->GetHealth();
