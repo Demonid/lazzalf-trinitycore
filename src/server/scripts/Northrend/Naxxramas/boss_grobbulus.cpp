@@ -45,12 +45,12 @@ public:
 
     struct boss_grobbulusAI : public BossAI
     {
-        boss_grobbulusAI(Creature *c) : BossAI(c, BOSS_GROBBULUS)
+        boss_grobbulusAI(Creature* c) : BossAI(c, BOSS_GROBBULUS)
         {
             me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_POISON_CLOUD_ADD, true);
         }
 
-        void EnterCombat(Unit * /*who*/)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
             events.ScheduleEvent(EVENT_CLOUD, 15000);
@@ -59,12 +59,21 @@ public:
             events.ScheduleEvent(EVENT_BERSERK, 12*60000);
         }
 
-        void SpellHitTarget(Unit *pTarget, const SpellEntry *spell)
+        void SpellHitTarget(Unit* pTarget, const SpellEntry* spell)
         {
             if (spell->Id == uint32(SPELL_SLIME_SPRAY))
             {
-                if (TempSummon *slime = me->SummonCreature(MOB_FALLOUT_SLIME, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
+                if (TempSummon* slime = me->SummonCreature(MOB_FALLOUT_SLIME, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
                     DoZoneInCombat(slime);
+            }
+        }
+
+        void KilledUnit(Unit* victim)
+        {
+            if (instance)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    instance->SetData(DATA_IMMORTAL_CONSTRUCT, CRITERIA_NOT_MEETED);
             }
         }
 
@@ -91,7 +100,7 @@ public:
                         events.ScheduleEvent(EVENT_SPRAY, 15000+rand()%15000);
                         return;
                     case EVENT_INJECT:
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
                             if (!pTarget->HasAura(SPELL_MUTATING_INJECTION))
                                 DoCast(pTarget, SPELL_MUTATING_INJECTION);
                         events.ScheduleEvent(EVENT_INJECT, 8000 + uint32(120 * me->GetHealthPct()));
