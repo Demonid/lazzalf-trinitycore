@@ -405,6 +405,7 @@ class npc_porting : public CreatureScript
                 GmTicket *ticket = sTicketMgr->GetTicketByPlayer(pPlayer->GetGUID());
                 if (ticket && !ticket->IsClosed() && !ticket->IsCompleted())
                 {
+                    sTicketMgr->CloseTicket(ticket->GetId());
                     sTicketMgr->RemoveTicket(ticket->GetId());
 
                     // send abandon ticket
