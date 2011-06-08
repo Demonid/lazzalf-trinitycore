@@ -128,7 +128,8 @@ enum Creatures
     NPC_WASTE                                              = 16427, // Soldiers of the Frozen Wastes
     NPC_ABOMINATION                                        = 16428, // Unstoppable Abominations
     NPC_WEAVER                                             = 16429, // Soul Weavers
-    NPC_ICECROWN                                           = 16441 // Guardians of Icecrown
+    NPC_ICECROWN                                           = 16441, // Guardians of Icecrown
+    KEL_THUZAD                                             = 15990
 };
 
 const Position Pos[12] =
@@ -243,6 +244,9 @@ const Position PosWeavers[MAX_WEAVERS] =
     {3704.71f, -5175.96f, 143.597f, 3.36549f},
 };
 
+#define ACHIEVEMENT_GET_ENOUGH RAID_MODE(2184,2185)
+#define MIN_ABOMIN_COUNT 18
+
 // predicate function to select not charmed target
 struct NotCharmedTargetSelector : public std::unary_function<Unit*, bool>
 {
@@ -281,6 +285,8 @@ public:
 
         SummonList spawns; // adds spawn by the trigger. kept in separated list (i.e. not in summons)
 
+        uint32 AbominationsCount;
+
         void Reset()
         {
             _Reset();
@@ -302,7 +308,7 @@ public:
 
             FindGameObjects();
 
-            if (GameObject *pKTTrigger = me->GetMap()->GetGameObject(KTTriggerGUID))
+            if (GameObject* pKTTrigger = me->GetMap()->GetGameObject(KTTriggerGUID))
             {
                 pKTTrigger->ResetDoorOrButton();
                 pKTTrigger->SetPhaseMask(1, true);
@@ -310,7 +316,7 @@ public:
 
             for (uint8 i = 0; i <= 3; ++i)
             {
-                if (GameObject *pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
+                if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
                 {
                     if (!((pPortal->getLootState() == GO_READY) || (pPortal->getLootState() == GO_NOT_READY)))
                         pPortal->ResetDoorOrButton();
@@ -323,14 +329,22 @@ public:
             Phase = 0;
             nAbomination = 0;
             nWeaver = 0;
+            
+            AbominationsCount = 0;
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* victim)
         {
+            if (instance)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    instance->SetData(DATA_IMMORTAL_FROSTWYRM, CRITERIA_NOT_MEETED);
+            }
+
             DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             _JustDied();
             DoScriptText(SAY_DEATH, me);
@@ -342,6 +356,14 @@ public:
                     pPlayer->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
             }
             chained.clear();
+
+            if (instance)
+            {
+                if (AbominationsCount >= MIN_ABOMIN_COUNT)
+                    instance->DoCompleteAchievement(ACHIEVEMENT_GET_ENOUGH);
+            }
+
+            me->SummonCreature(CREATURE_TELEPORTER, TeleporterPositions[4]);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -415,7 +437,7 @@ public:
                                 events.PopEvent();
                             break;
                         case EVENT_TRIGGER:
-                            if (GameObject *pKTTrigger = me->GetMap()->GetGameObject(KTTriggerGUID))
+                            if (GameObject* pKTTrigger = me->GetMap()->GetGameObject(KTTriggerGUID))
                                 pKTTrigger->SetPhaseMask(2, true);
                             events.PopEvent();
                             break;
@@ -457,7 +479,7 @@ public:
 
                         for (uint8 i = 0; i <= 3; ++i)
                         {
-                            if (GameObject *pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
+                            if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
                             {
                                 if (pPortal->getLootState() == GO_READY)
                                     pPortal->UseDoorOrButton();
@@ -498,7 +520,7 @@ public:
                             uint32 count = urand(1, 3);
                             for (uint8 i = 1; i <= count; i++)
                             {
-                                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true);
+                                Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true);
                                 if (pTarget && !pTarget->isCharmed() && (chained.find(pTarget->GetGUID()) == chained.end()))
                                 {
                                     DoCast(pTarget, SPELL_CHAINS_OF_KELTHUZAD);
@@ -530,7 +552,7 @@ public:
                                         continue;
                                     }
 
-                                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, NotCharmedTargetSelector()))
+                                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, NotCharmedTargetSelector()))
                                     {
                                         switch(player->getClass())
                                         {
@@ -616,12 +638,12 @@ public:
                             break;
                         }
                         case EVENT_FISSURE:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                                 DoCast(pTarget, SPELL_SHADOW_FISURE);
                             events.RepeatEvent(urand(10000, 45000));
                             break;
                         case EVENT_BLAST:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, RAID_MODE(1, 0), 0, true))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, RAID_MODE(1,0), 0, true))
                                 DoCast(pTarget, SPELL_FROST_BLAST);
                             if (rand()%2)
                                 DoScriptText(SAY_FROST_BLAST, me);
@@ -636,12 +658,54 @@ public:
                 DoMeleeAttackIfReady();
             }
         }
-    };
+
+        void UpdateAbominationCounter()
+        {
+            AbominationsCount++;
+        }
+    };	
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
         return new boss_kelthuzadAI (pCreature);
     }
+
+};
+
+class mob_unstoppable_abomination : public CreatureScript
+{
+public:
+    mob_unstoppable_abomination() : CreatureScript("mob_unstoppable_abomination") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_unstoppable_abominationAI (pCreature);
+    }
+
+    struct mob_unstoppable_abominationAI : public ScriptedAI
+    {
+        mob_unstoppable_abominationAI(Creature* c) : ScriptedAI(c) 
+        {
+            pInstance = c->GetInstanceScript();
+        }
+
+        InstanceScript* pInstance;
+
+        void KilledUnit(Unit* victim)
+        {
+            if (pInstance)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    pInstance->SetData(DATA_IMMORTAL_FROSTWYRM, CRITERIA_NOT_MEETED);
+            }
+         }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (Creature* pKel = me->FindNearestCreature(KEL_THUZAD,100,true))
+                CAST_AI(boss_kelthuzad::boss_kelthuzadAI,pKel->AI())->UpdateAbominationCounter();
+        }
+    };
 
 };
 
@@ -712,5 +776,6 @@ public:
 void AddSC_boss_kelthuzad()
 {
     new boss_kelthuzad();
+    new mob_unstoppable_abomination();
     new at_kelthuzad_center();
 }
