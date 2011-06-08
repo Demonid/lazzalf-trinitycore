@@ -112,6 +112,7 @@ public:
               if (rand()%100 < 65)
             {
             Unit *pTarget = NULL;
+            //pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
             pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
             if (pTarget)DoCast(pTarget, SPELL_POSSESS);
             }
