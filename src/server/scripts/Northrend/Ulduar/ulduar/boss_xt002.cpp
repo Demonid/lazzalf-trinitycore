@@ -966,9 +966,9 @@ void AddSC_boss_xt002()
     new mob_boombot();
     new mob_void_zone();
     new mob_life_spark();
-    new criteria_xt002();
+    new criteria_xt002();    
+    new spell_xt002_tympanic_tantrum();
 
     if (VehicleSeatEntry* vehSeat = const_cast<VehicleSeatEntry*>(sVehicleSeatStore.LookupEntry(3004)))
         vehSeat->m_flags |= 0x400;
-    new spell_xt002_tympanic_tantrum();
 }
