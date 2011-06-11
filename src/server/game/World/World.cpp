@@ -28,6 +28,7 @@
 #include "Opcodes.h"
 #include "WorldSession.h"
 #include "WorldPacket.h"
+#include "WardenDataStorage.h"
 #include "Player.h"
 #include "Vehicle.h"
 #include "SkillExtraItems.h"
@@ -568,6 +569,10 @@ void World::LoadConfigSettings(bool reload)
         sLog->outError("DurabilityLossChance.Block (%f) must be >=0. Using 0.0 instead.", rate_values[RATE_DURABILITY_LOSS_BLOCK]);
         rate_values[RATE_DURABILITY_LOSS_BLOCK] = 0.0f;
     }
+    
+    // Warden
+    m_bool_configs[CONFIG_BOOL_WARDEN_KICK] = sConfig->GetBoolDefault("Warden.Kick", false);
+    m_int_configs[CONFIG_INT_WARDEN_BANDAY]         = sConfig->GetIntDefault("Warden.BanDay", 0);
 
     // movement anticheat
     m_bool_configs[CONFIG_AC_ENABLE]                       = sConfig->GetBoolDefault("Anticheat.Movement.Enable", true);
@@ -1923,6 +1928,9 @@ void World::SetInitialWorldSettings()
     sLog->outString("Starting Game Event system...");
     uint32 nextGameEvent = sGameEventMgr->StartSystem();
     m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
+
+    sLog->outString("Loading Warden Data..." );
+    WardenDataStorage.Init();
 
     // Delete all characters which have been deleted X days before
     Player::DeleteOldCharacters();
