@@ -824,7 +824,7 @@ bool AntiCheat::CheckAntiClimb(MovementInfo& pOldPacket, MovementInfo& pNewPacke
 }
 
 void AntiCheat::CheckWarden(eWardenCheat wardCheat, uint8 wardenType)
-{ 
+{ /*
     std::string cheat_type = "";
     switch (wardCheat)
     {
@@ -882,4 +882,5 @@ void AntiCheat::CheckWarden(eWardenCheat wardCheat, uint8 wardenType)
                 cheat_type.c_str(), plMover->GetGUIDLow(), plMover->GetName(), plMover->getLevel(), plMover->GetMapId(), plMover->GetAreaId(), plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ());
             m_logdb_time = cServerTime;
         }
+    */
 }
