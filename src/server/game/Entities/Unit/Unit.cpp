@@ -5961,7 +5961,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     triggered_spell_id = 64413;
                     break;
                 }
-                case 47020: // Enter vehicle XT-002 (Scrapbot)
+                /*case 47020: // Enter vehicle XT-002 (Scrapbot)
                 {
                     if (GetTypeId() != TYPEID_UNIT)
                         return false;
@@ -5976,7 +5976,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     // Despawns the scrapbot
                     ToCreature()->DespawnOrUnsummon();
                     break;
-                }
+                }*/
             }
             break;
         }
