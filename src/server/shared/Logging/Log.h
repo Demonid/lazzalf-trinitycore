@@ -129,6 +129,7 @@ class Log
         void outRemote( const char * str, ... )                 ATTR_PRINTF(2, 3);
         void outChat( const char * str, ... )                   ATTR_PRINTF(2, 3);
         void outArena( const char * str, ... )                  ATTR_PRINTF(2, 3);
+        void outWarden( const char * str, ... )                 ATTR_PRINTF(2, 3);
         void outCheat(const char * str, ...)                    ATTR_PRINTF(2, 3);
         void outMail(const char * str, ...)                     ATTR_PRINTF(2, 3);
         void outBoss(const char * str, ...)                     ATTR_PRINTF(2, 3);
@@ -163,6 +164,7 @@ class Log
         FILE* dberLogfile;
         FILE* chatLogfile;
         FILE* arenaLogFile;
+        FILE* wardenLogFile;
         FILE* cheatLogFile;
         FILE* mailLogFile;
         FILE* bossLogFile;
