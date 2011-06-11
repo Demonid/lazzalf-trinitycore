@@ -2446,8 +2446,9 @@ void Player::RegenerateAll()
     if (m_regenTimerCount >= 2000)
     {
         // Not in combat or they have regeneration
-        if (!isInCombat() || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT) ||
-            HasAuraType(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT) || IsPolymorphed())
+        if (!isInCombat() || IsPolymorphed() || m_baseHealthRegen ||
+            HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT) ||
+            HasAuraType(SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT))
         {
             RegenerateHealth();
         }
@@ -2600,7 +2601,7 @@ void Player::RegenerateHealth()
     // normal regen case (maybe partly in combat case)
     else if (!isInCombat() || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT))
     {
-        addvalue = OCTRegenHPPerSpirit()* HealthIncreaseRate;
+        addvalue = OCTRegenHPPerSpirit() * HealthIncreaseRate;
         if (!isInCombat())
         {
             AuraEffectList const& mModHealthRegenPct = GetAuraEffectsByType(SPELL_AURA_MOD_HEALTH_REGEN_PERCENT);
@@ -2781,6 +2782,7 @@ void Player::SetGameMaster(bool on)
         m_ExtraFlags |= PLAYER_EXTRA_GM_ON;
         setFaction(35);
         SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM);
+        SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
 
         if (Pet* pet = GetPet())
         {
@@ -2814,6 +2816,7 @@ void Player::SetGameMaster(bool on)
         m_ExtraFlags &= ~ PLAYER_EXTRA_GM_ON;
         setFactionForRace(getRace());
         RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM);
+        RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
 
         if (Pet* pet = GetPet())
         {

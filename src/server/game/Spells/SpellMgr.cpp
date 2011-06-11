@@ -3800,12 +3800,8 @@ void SpellMgr::LoadSpellCustomAttr()
         case 57761: // Fireball!
         case 39805: // Lightning Overload
         case 64823: // Item - Druid T8 Balance 4P Bonus
-        case 44401:
+        case 44401: // Missile Barrage
             spellInfo->procCharges = 1;
-            ++count;
-            break;
-        case 53390: // Tidal Wave
-            spellInfo->procCharges = 2;
             ++count;
             break;
         case 44544: // Fingers of Frost
@@ -4021,7 +4017,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 63024: // Gravity Bomb
         case 64234: // Gravity Bomb (25m)
             spellInfo->MaxAffectedTargets = 1;
-            count++;
+            ++count;
             break;
         case 62834: // Boom
         // This hack is here because we suspect our implementation of spell effect execution on targets
@@ -4030,7 +4026,7 @@ void SpellMgr::LoadSpellCustomAttr()
         // The above situation causes the visual for this spell to be bugged, so we remove the instakill
         // effect and implement a script hack for that.
             spellInfo->Effect[EFFECT_1] = 0;
-            count++;
+            ++count;
             break;
         // ENDOF ULDUAR SPELLS
         //
@@ -4110,10 +4106,6 @@ void SpellMgr::LoadSpellCustomAttr()
         case 72786: // Empowered Flare (Blood Prince Council)
         case 72787: // Empowered Flare (Blood Prince Council)
             spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
-            ++count;
-            break;
-        case 71340: // Pact of the Darkfallen (Blood-Queen Lana'thel)
-            spellInfo->DurationIndex = 21;
             ++count;
             break;
         case 71266: // Swarming Shadows
@@ -4251,7 +4243,7 @@ void SpellMgr::LoadEnchantCustomAttr()
                 if (!ench)
                     continue;
                 mEnchantCustomAttr[enchId] = true;
-                count++;
+                ++count;
                 break;
             }
         }
