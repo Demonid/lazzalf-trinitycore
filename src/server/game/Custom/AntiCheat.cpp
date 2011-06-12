@@ -242,7 +242,7 @@ bool AntiCheat::DoAntiCheatCheck(uint16 opcode, MovementInfo& pMovementInfo, Uni
             m_CheatList_reset_diff = sWorld->getIntConfig(CONFIG_AC_RESET_CHEATLIST_DELTA_FOUND);
         if (map_puni)
         {
-            if (!AntiCheatPunisher(pMovementInfo)) // Try Punish him
+            if (!AntiCheatPunisher()) // Try Punish him
                 check_passed = false;                
         }
     }
@@ -282,7 +282,7 @@ bool AntiCheat::ControllPunisher()
     return false;
 }
 
-bool AntiCheat::AntiCheatPunisher(MovementInfo& pMovementInfo)
+bool AntiCheat::AntiCheatPunisher()
 {
     if (!sWorld->getIntConfig(CONFIG_AC_PUNI_TYPE))
         return true;
@@ -904,20 +904,20 @@ void AntiCheat::CheckWarden(eWardenCheat wardCheat, uint8 wardenType)
     warden_cheat_find = true;
 
     if (sWorld->getIntConfig(CONFIG_AC_REPORTS_FOR_GM_WARNING)) 
-        {
-            // display warning at the center of the screen, hacky way.
-            std::string str = "";
-            str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plMover->GetName()) + "|cFF00FFFF] Rilevazione Warden!";
-            WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
-            data << str;
-            sWorld->SendGlobalGMMessage(&data);
-        }
+    {
+        // display warning at the center of the screen, hacky way.
+        std::string str = "";
+        str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plMover->GetName()) + "|cFF00FFFF] Rilevazione Warden!";
+        WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
+        data << str;
+        sWorld->SendGlobalGMMessage(&data);
+    }
 
     // We are are not going to sleep
     SetAlarm(sWorld->getIntConfig(CONFIG_AC_ALARM_DELTA));
     // Increase reset cheat list time
     if (m_CheatList_reset_diff < sWorld->getIntConfig(CONFIG_AC_RESET_CHEATLIST_DELTA_FOUND))
         m_CheatList_reset_diff = sWorld->getIntConfig(CONFIG_AC_RESET_CHEATLIST_DELTA_FOUND);
-    if (!sWorld->iIgnoreMapIds_ACPuni.count(plMover->GetMapId())
-        AntiCheatPunisher(pMovementInfo) // Try Punish him
+    if (!sWorld->iIgnoreMapIds_ACPuni.count(plMover->GetMapId()))
+        AntiCheatPunisher(); // Try Punish him
 }
