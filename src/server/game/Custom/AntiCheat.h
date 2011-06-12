@@ -104,7 +104,7 @@ class AntiCheat
 		bool CheckAntiTeleToPlane(MovementInfo& pOldPacket, MovementInfo& pNewPacket);
         bool CheckAntiClimb(MovementInfo& pOldPacket, MovementInfo& pNewPacket, uint32 uiOpcode);
         void LogCheat(eCheat /*m_cheat*/, MovementInfo& /*pMovementInfo*/);
-        bool AntiCheatPunisher(MovementInfo& /*pMovementInfo*/);
+        bool AntiCheatPunisher();
         inline bool ControllPunisher();
 	
     public:
