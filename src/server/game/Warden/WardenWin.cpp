@@ -33,6 +33,7 @@
 #include "WardenWin.h"
 #include "WardenModuleWin.h"
 #include "WardenDataStorage.h"
+#include "AntiCheat.h"
 
 CWardenDataStorage WardenDataStorage;
 
@@ -395,7 +396,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
                 }
 
                 if (memcmp(buff.contents() + buff.rpos(), rs->res.AsByteArray(0, false), rd->Length) != 0)
-                {
+                {                    
                     sLog->outWarden("RESULT MEM_CHECK fail CheckId %u account Id %u", *itr, Client->GetAccountId());
                     found = true;
                     buff.rpos(buff.rpos() + rd->Length);
@@ -489,6 +490,10 @@ void WardenWin::HandleData(ByteBuffer &buff)
                 break;
         }
     }
+
+    if (found)
+        if (Player* plr = Client->GetPlayer())
+            plr->GetAntiCheat()->CheckWarden(CHECK_WARDEN_MEMORY, type);
 
     if (found && sWorld->getIntConfig(CONFIG_INT_WARDEN_BANDAY))
     {

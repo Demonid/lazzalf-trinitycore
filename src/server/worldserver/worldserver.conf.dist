@@ -2753,6 +2753,7 @@ Anticheat.AlarmDelta = 5000
 Anticheat.Punisher.TypeBan = 0
 Anticheat.Punisher.LevelMax = 80
 Anticheat.Punisher.BanTime = -1
+Anticheat.Punisher.WardenCheck = 0;
 
 #
 #    Anticheat.CheatResetListDelta

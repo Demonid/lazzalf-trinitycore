@@ -763,6 +763,9 @@ void World::LoadConfigSettings(bool reload)
         sLog->outError("Anticheat.Punisher.LevelMax (%d) must be > 0. Using 1 instead.", m_int_configs[CONFIG_AC_PUNI_LEVEL_MAX]);
         m_int_configs[CONFIG_AC_PUNI_LEVEL_MAX] = 1;
     }
+
+    m_bool_configs[CONFIG_AC_WARDEN_FIND]       = sConfig->GetBoolDefault("Anticheat.Punisher.WardenCheck", false);    
+    
     m_int_configs[CONFIG_AC_REPORTS_FOR_GM_WARNING] = sConfig->GetIntDefault("Anticheat.ReportsForGMWarnings", 0);
     if (m_int_configs[CONFIG_AC_REPORTS_FOR_GM_WARNING] < 0)
     {
