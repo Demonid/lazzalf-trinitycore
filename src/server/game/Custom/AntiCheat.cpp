@@ -57,6 +57,7 @@ AntiCheat::AntiCheat(Player* new_plMover)
     m_logdb_time = 0;                    // Time for logs DB
 
 	cheat_find = false;
+    warden_cheat_find = false;
     map_count = true;
     map_block = true;
     map_puni = true;
@@ -133,6 +134,7 @@ void AntiCheat::ResetCheatList(uint32 diff)
 		for (int i = 0; i < MAX_CHEAT; i++)
             m_CheatList[i] = 0;
         number_cheat_find = 0;
+        warden_cheat_find = false;
 
         m_CheatList_reset_diff = sWorld->getIntConfig(CONFIG_AC_RESET_CHEATLIST_DELTA);
     }
@@ -289,7 +291,10 @@ bool AntiCheat::AntiCheatPunisher(MovementInfo& pMovementInfo)
         return true;
 
     if (!ControllPunisher())
-        return true; 
+        return true;
+
+    if (!warden_cheat_find && sWorld->getBoolConfig(CONFIG_AC_WARDEN_FIND))
+        return true;
 
     // Yes, We Can!
     std::string announce = "";
@@ -853,32 +858,32 @@ void AntiCheat::CheckWarden(eWardenCheat wardCheat, uint8 wardenType)
             switch (wardenType)
             {
                 case MEM_CHECK:
-                    cheat_type = "WARDEN: memory check";
+                    cheat_type = "WARDEN: Memory Check";
                     break;
                 case PAGE_CHECK_A:
                 case PAGE_CHECK_B:
-                    cheat_type = "WARDEN: page check";
+                    cheat_type = "WARDEN: Page Check";
                     break;
                 case MPQ_CHECK:
-                    cheat_type = "WARDEN: MPQ check";
+                    cheat_type = "WARDEN: MPQ Check";
                     break;
                 case LUA_STR_CHECK:
-                    cheat_type = "WARDEN: LUA check";
+                    cheat_type = "WARDEN: LUA Check";
                     break;
                 case DRIVER_CHECK:
-                    cheat_type = "WARDEN: driver check";
+                    cheat_type = "WARDEN: Driver Check";
                     break;
                 case TIMING_CHECK:
-                    cheat_type = "WARDEN: timing check";
+                    cheat_type = "WARDEN: Timing Check";
                     break;
                 case PROC_CHECK:
-                    cheat_type = "WARDEN: proc check";
+                    cheat_type = "WARDEN: Proc Check";
                     break;
                 case MODULE_CHECK:
-                    cheat_type = "WARDEN: module check";
+                    cheat_type = "WARDEN: Module Check";
                     break;
                 default:
-                    cheat_type = "WARDEN: unknown check";
+                    cheat_type = "WARDEN: Unknown Check";
                     break;                
             }
             sLog->outCheat("AC-%s Map %u Area %u, X:%f Y:%f Z:%f, %s",
@@ -894,5 +899,25 @@ void AntiCheat::CheckWarden(eWardenCheat wardCheat, uint8 wardenType)
             ExtraDatabase.PExecute("INSERT INTO cheat_log(cheat_type, guid, name, level, map, area, pos_x, pos_y, pos_z, date) VALUES ('%s', '%u', '%s', '%u', '%u', '%u', '%f', '%f', '%f', NOW())", 
                 cheat_type.c_str(), plMover->GetGUIDLow(), plMover->GetName(), plMover->getLevel(), plMover->GetMapId(), plMover->GetAreaId(), plMover->GetPositionX(), plMover->GetPositionY(), plMover->GetPositionZ());
             m_logdb_time = cServerTime;
+        }    
+
+    warden_cheat_find = true;
+
+    if (sWorld->getIntConfig(CONFIG_AC_REPORTS_FOR_GM_WARNING)) 
+        {
+            // display warning at the center of the screen, hacky way.
+            std::string str = "";
+            str = "|cFFFFFC00[AC]|cFF00FFFF[|cFF60FF00" + std::string(plMover->GetName()) + "|cFF00FFFF] Rilevazione Warden!";
+            WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
+            data << str;
+            sWorld->SendGlobalGMMessage(&data);
         }
+
+    // We are are not going to sleep
+    SetAlarm(sWorld->getIntConfig(CONFIG_AC_ALARM_DELTA));
+    // Increase reset cheat list time
+    if (m_CheatList_reset_diff < sWorld->getIntConfig(CONFIG_AC_RESET_CHEATLIST_DELTA_FOUND))
+        m_CheatList_reset_diff = sWorld->getIntConfig(CONFIG_AC_RESET_CHEATLIST_DELTA_FOUND);
+    if (!sWorld->iIgnoreMapIds_ACPuni.count(plMover->GetMapId())
+        AntiCheatPunisher(pMovementInfo) // Try Punish him
 }
