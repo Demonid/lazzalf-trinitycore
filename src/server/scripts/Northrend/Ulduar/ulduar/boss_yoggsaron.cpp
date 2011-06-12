@@ -24,8 +24,10 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "PassiveAI.h"
 #include "ulduar.h"
 
 enum Sara_Yells

@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "ulduar.h"
 
 enum Yells
@@ -455,8 +456,8 @@ class boss_freya : public CreatureScript
                 }
             }
 
-            if (me->HasAura(SPELL_ATTUNED_TO_NATURE))
-                buffStackAmount = me->GetAura(SPELL_ATTUNED_TO_NATURE, 0)->GetStackAmount();
+            if (Aura* attunedNature = me->GetAura(SPELL_ATTUNED_TO_NATURE))
+                buffStackAmount = attunedNature->GetStackAmount();
             else
                 buffStackAmount = 0;
 
