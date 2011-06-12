@@ -25,6 +25,8 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "GridNotifiers.h"
 #include "ulduar.h"
 
 enum Spells
