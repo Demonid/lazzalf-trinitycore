@@ -11,6 +11,7 @@
 
 #include "Common.h"
 #include "WorldSession.h"
+#include "Object.h"
 
 enum eCheat
 {
