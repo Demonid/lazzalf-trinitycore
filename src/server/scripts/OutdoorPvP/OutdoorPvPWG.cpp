@@ -7,6 +7,7 @@
 #include "Group.h"
 #include "MapManager.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 
 Creature* FortressSpirit;
 uint32 entry;
