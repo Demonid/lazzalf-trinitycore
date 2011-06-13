@@ -1,6 +1,7 @@
 #ifndef OUTDOOR_PVP_WG_
 #define OUTDOOR_PVP_WG_
 
+#include "Player.h"
 #include "OutdoorPvP.h"
 #include "BattlegroundMgr.h"
 
