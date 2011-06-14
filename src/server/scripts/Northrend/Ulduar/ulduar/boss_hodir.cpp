@@ -92,6 +92,9 @@ enum Events
     EVENT_BLOWS,
     EVENT_RARE_CACHE,
     EVENT_BERSERK
+                if (me->getVictim()->GetGUID() != targetGUID || instance->GetBossState(BOSS_HODIR) != IN_PROGRESS) 
+                    me->DespawnOrUnsummon(); 
+
 };
 
 enum Yells
