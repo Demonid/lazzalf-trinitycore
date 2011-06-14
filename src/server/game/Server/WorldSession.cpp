@@ -329,7 +329,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     ProcessQueryCallbacks();
 
-    if (m_Socket)
+    if (m_Socket && m_Warden)
         m_Warden->Update();
 
     //check if we are safe to proceed with logout
