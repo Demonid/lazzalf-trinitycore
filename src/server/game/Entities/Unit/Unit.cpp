@@ -4080,7 +4080,7 @@ void Unit::RemoveAllAuras()
     }
 }
 
-void Unit::RemoveArenaAuras(bool onleave)
+void Unit::RemoveArenaAuras()
 {
     // in join, remove positive buffs, on end, remove negative
     // used to remove positive visible auras in arenas
@@ -4090,10 +4090,7 @@ void Unit::RemoveArenaAuras(bool onleave)
         Aura const* aura = aurApp->GetBase();
         if (!(aura->GetSpellProto()->AttributesEx4 & SPELL_ATTR4_UNK21) // don't remove stances, shadowform, pally/hunter auras
             && !aura->IsPassive()                               // don't remove passive auras
-            && !(aura->GetSpellProto()->AttributesEx3 & SPELL_ATTR3_DEATH_PERSISTENT) // not death persistent auras
-            && (aurApp->IsPositive() ^ onleave)                   // remove positive buffs on enter, negative buffs on leave
-            || (aura->GetId() == 57723)  // Exhaustion
-            || (aura->GetId() == 57724)) // Sated
+            && (aurApp->IsPositive() || !(aura->GetSpellProto()->AttributesEx3 & SPELL_ATTR3_DEATH_PERSISTENT))) // not negative death persistent auras
             RemoveAura(iter);
         else
             ++iter;
