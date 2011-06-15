@@ -60,15 +60,15 @@ void WardenMac::Init(WorldSession *pClient, BigNumber *K)
     iCrypto.Init(InputKey);
     oCrypto.Init(OutputKey);
     sLog->outWarden("Server side warden for client %u initializing...", pClient->GetAccountId());
-    PrintHexArray("  C->S Key: ", InputKey, 16, true);
-    PrintHexArray("  S->C Key: ", OutputKey, 16, true);
-    PrintHexArray("  Seed: ", Seed, 16, true);
+    //PrintHexArray("  C->S Key: ", InputKey, 16, true);
+    //PrintHexArray("  S->C Key: ", OutputKey, 16, true);
+    //PrintHexArray("  Seed: ", Seed, 16, true);
     sLog->outWarden("Loading Module...");
 
     Module = GetModuleForClient(Client);
 
-    PrintHexArray("  Module Key: ", Module->Key, 16, true);
-    PrintHexArray("  Module ID: ", Module->ID, 16, true);
+    //PrintHexArray("  Module Key: ", Module->Key, 16, true);
+    //PrintHexArray("  Module ID: ", Module->ID, 16, true);
     RequestModule();
 }
 
@@ -256,6 +256,10 @@ void WardenMac::HandleData(ByteBuffer &buff)
         sLog->outWarden("Handle data failed: MD5 hash is wrong!");
         found = true;
     }
+
+    if (found)
+        if (Player* plr = Client->GetPlayer())
+            plr->GetAntiCheat()->CheckWarden(CHECK_WARDEN_MEMORY, type);
 
     if (found && sWorld->getIntConfig(CONFIG_INT_WARDEN_BANDAY))
     {
