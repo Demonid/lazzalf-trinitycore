@@ -488,7 +488,6 @@ public:
                     m_uiTargetGUID = pTarget->GetGUID();
                     if (m_pInstance)
                         sLog->outBoss("Anub Spike Id: %u,  Enter combat, target GUID: %u", m_pInstance->instance->GetInstanceId(), m_uiTargetGUID);
-                    //me->Attack(pTarget);
                     DoScriptText(EMOTE_SPIKE, me, pTarget);
                     me->Attack(pTarget, false);
                     DoCast(pTarget, SPELL_MARK);
@@ -508,11 +507,6 @@ public:
         {
             if (m_pInstance)
                 sLog->outBoss("Anub Spike Id: %u,  Reset", m_pInstance->instance->GetInstanceId());
-
-            // For an unknown reason this npc isn't recognize the Aura of Permafrost with this flags =/
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            
-            m_uiIncreaseSpeedTimer = 0;
         }
 
         void EnterCombat(Unit* /*who*/)
