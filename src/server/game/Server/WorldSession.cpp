@@ -28,6 +28,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "WardenWin.h"
+#include "WardenMac.h"
 #include "Player.h"
 #include "Vehicle.h"
 #include "ObjectMgr.h"
@@ -329,7 +330,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     ProcessQueryCallbacks();
 
-    if (m_Socket && m_Warden)
+    if (m_Socket && !m_Socket->IsClosed() && m_Warden)
         m_Warden->Update();
 
     //check if we are safe to proceed with logout
@@ -1049,9 +1050,12 @@ void WorldSession::ProcessQueryCallbacks()
     }
 }
 
-void WorldSession::InitWarden(BigNumber *K)
+void WorldSession::InitWarden(BigNumber *K, std::string os)
 {
-    // TODO: check client's os and create proper warden class
-    m_Warden = (WardenBase*)new WardenWin();
+    if (os == "niW")                                        // Windows
+        m_Warden = (WardenBase*)new WardenWin();
+    else                                                    // MacOS
+        m_Warden = (WardenBase*)new WardenMac();
+
     m_Warden->Init(this, K);
 }
