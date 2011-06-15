@@ -205,7 +205,7 @@ void WardenMac::RequestData()
 
 void WardenMac::HandleData(ByteBuffer &buff)
 {
-    sLog->outWarden("Handle data");
+    sLog->outStaticDebug("Handle data");
 
     m_WardenDataSent = false;
     m_WardenKickTimer = 0;
@@ -238,7 +238,7 @@ void WardenMac::HandleData(ByteBuffer &buff)
 
     if (memcmp(SHA1Hash, sha1.GetDigest(), 20))
     {
-        sLog->outWarden("Handle data failed: SHA1 hash is wrong!");
+        sLog->outStaticDebug("Handle data failed: SHA1 hash is wrong!");
         found = true;
     }
 
@@ -253,13 +253,13 @@ void WardenMac::HandleData(ByteBuffer &buff)
 
     if (memcmp(ourMD5Hash, theirsMD5Hash, 16))
     {
-        sLog->outWarden("Handle data failed: MD5 hash is wrong!");
+        sLog->outStaticDebug("Handle data failed: MD5 hash is wrong!");
         found = true;
     }
 
     if (found)
         if (Player* plr = Client->GetPlayer())
-            plr->GetAntiCheat()->CheckWarden(CHECK_WARDEN_MEMORY, type);
+            plr->GetAntiCheat()->CheckWarden(CHECK_WARDEN_MEMORY, 0);
 
     if (found && sWorld->getIntConfig(CONFIG_INT_WARDEN_BANDAY))
     {
