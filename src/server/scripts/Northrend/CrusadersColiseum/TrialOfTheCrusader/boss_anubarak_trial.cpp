@@ -472,7 +472,7 @@ public:
         mob_anubarak_spikeAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
-            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+            // me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
             if (m_pInstance)
                 sLog->outBoss("Anub Spike Id: %u,  Created", m_pInstance->instance->GetInstanceId());
 
@@ -500,7 +500,8 @@ public:
                     if (m_pInstance)
                         sLog->outBoss("Anub Spike Id: %u,  Enter combat, target GUID: %u", m_pInstance->instance->GetInstanceId(), m_uiTargetGUID);
                     DoScriptText(EMOTE_SPIKE, me, pTarget);
-                    me->Attack(pTarget, true);
+                    me->CombatStart(pTarget);
+                    //me->Attack(pTarget, true);
                     DoCast(pTarget, SPELL_MARK);
                     me->SetSpeed(MOVE_RUN, 0.5f);
                     m_uiSpeed = 0;
