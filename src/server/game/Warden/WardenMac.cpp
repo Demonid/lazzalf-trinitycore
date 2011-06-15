@@ -59,11 +59,11 @@ void WardenMac::Init(WorldSession *pClient, BigNumber *K)
 
     iCrypto.Init(InputKey);
     oCrypto.Init(OutputKey);
-    sLog->outWarden("Server side warden for client %u initializing...", pClient->GetAccountId());
+    sLog->outStaticDebug("Server side warden for client %u initializing...", pClient->GetAccountId());
     //PrintHexArray("  C->S Key: ", InputKey, 16, true);
     //PrintHexArray("  S->C Key: ", OutputKey, 16, true);
     //PrintHexArray("  Seed: ", Seed, 16, true);
-    sLog->outWarden("Loading Module...");
+    sLog->outStaticDebug("Loading Module...");
 
     Module = GetModuleForClient(Client);
 
@@ -95,12 +95,12 @@ ClientWardenModule *WardenMac::GetModuleForClient(WorldSession *session)
 
 void WardenMac::InitializeModule()
 {
-    sLog->outWarden("Initialize module");
+    sLog->outStaticDebug("Initialize module");
 }
 
 void WardenMac::RequestHash()
 {
-    sLog->outWarden("Request hash");
+    sLog->outStaticDebug("Request hash");
 
     // Create packet structure
     WardenHashRequest Request;
@@ -159,7 +159,7 @@ void WardenMac::HandleHashResult(ByteBuffer &buff)
         return;
     }
 
-    sLog->outWarden("Request hash reply: succeed");
+    sLog->outStaticDebug("Request hash reply: succeed");
 
     // client 7F96EEFDA5B63D20A4DF8E00CBF48304
     //const uint8 client_key[16] = { 0x7F, 0x96, 0xEE, 0xFD, 0xA5, 0xB6, 0x3D, 0x20, 0xA4, 0xDF, 0x8E, 0x00, 0xCB, 0xF4, 0x83, 0x04 };
@@ -181,7 +181,7 @@ void WardenMac::HandleHashResult(ByteBuffer &buff)
 
 void WardenMac::RequestData()
 {
-    sLog->outWarden("Request data");
+    sLog->outStaticDebug("Request data");
 
     ByteBuffer buff;
     buff << uint8(WARDEN_SMSG_CHEAT_CHECKS_REQUEST);
