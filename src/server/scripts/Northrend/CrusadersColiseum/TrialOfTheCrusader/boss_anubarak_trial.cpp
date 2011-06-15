@@ -480,8 +480,19 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
             
             m_uiIncreaseSpeedTimer = 0;
-            m_uiTargetGUID = 0;
-            
+            m_uiTargetGUID = 0;    
+        }
+
+        InstanceScript* m_pInstance;
+        uint32 m_uiIncreaseSpeedTimer;
+        uint8  m_uiSpeed;
+        uint64 m_uiTargetGUID;
+
+        void Reset()
+        {
+            if (m_pInstance)
+                sLog->outBoss("Anub Spike Id: %u,  Reset", m_pInstance->instance->GetInstanceId());
+
             if (Unit* pTarget = CheckPlayersInRange(1, 0.0f, 120.f))
                 if (pTarget && pTarget->isAlive())
                 {
@@ -495,18 +506,7 @@ public:
                     m_uiSpeed = 0;
                     m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
                     me->TauntApply(pTarget);
-                }			
-        }
-
-        InstanceScript* m_pInstance;
-        uint32 m_uiIncreaseSpeedTimer;
-        uint8  m_uiSpeed;
-        uint64 m_uiTargetGUID;
-
-        void Reset()
-        {
-            if (m_pInstance)
-                sLog->outBoss("Anub Spike Id: %u,  Reset", m_pInstance->instance->GetInstanceId());
+                }
         }
 
         void EnterCombat(Unit* /*who*/)
