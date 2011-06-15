@@ -495,7 +495,9 @@ public:
             if (Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
                 if (pTarget && pTarget->isAlive())
                 {
-                    me->Attack(pTarget);
+                    if (m_pInstance)
+                        sLog->outBoss("Anub Spike Id: %u,  Enter combat, target GUID: %u", m_pInstance->instance->GetInstanceId(), m_uiTargetGUID);
+                    //me->Attack(pTarget);
                     DoCast(pTarget, SPELL_MARK);
                     me->SetSpeed(MOVE_RUN, 0.5f);
                     m_uiSpeed = 0;
