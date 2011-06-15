@@ -476,6 +476,15 @@ public:
             m_uiTargetGUID = 0;
             if (m_pInstance)
                 sLog->outBoss("Anub Spike Id: %u,  Created", m_pInstance->instance->GetInstanceId());
+            
+			if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+            {
+                if (m_pInstance)
+                    sLog->outBoss("Anub Id: %u, Setting Spike Target, target GUID: %u", m_pInstance->instance->GetInstanceId(), target->GetGUID());
+                m_uiTargetGUID = target->GetGUID();
+                me->CombatStart(target);
+                DoScriptText(EMOTE_SPIKE, me, target);
+            }
         }
 
         InstanceScript* m_pInstance;
@@ -485,17 +494,11 @@ public:
 
         void Reset()
         {
+            if (m_pInstance)
+                sLog->outBoss("Anub Spike Id: %u,  Reset", m_pInstance->instance->GetInstanceId());
+
             // For an unknown reason this npc isn't recognize the Aura of Permafrost with this flags =/
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
-
-			if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-            {
-                if (m_pInstance)
-                    sLog->outBoss("Anub Id: %u, Setting Spike Target, target GUID: %u", m_pInstance->instance->GetInstanceId(), target->GetGUID());
-                m_uiTargetGUID = target->GetGUID();
-                me->CombatStart(target);
-                DoScriptText(EMOTE_SPIKE, me, target);
-            }
             
             m_uiIncreaseSpeedTimer = 0;
             /*
@@ -743,10 +746,11 @@ public:
 
             if (!me->HasAura(SPELL_SUBMERGE_EFFECT) && me->getVictim())
             {
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);                
                 if (m_uiExposeWeaknessTimer <= uiDiff)
                 {
                     if (me->IsWithinMeleeRange(me->getVictim()))
-                        DoCastVictim(67720, true);
+                        DoCastVictim(SPELL_EXPOSE_WEAKNESS, true);
                     m_uiExposeWeaknessTimer = 2*IN_MILLISECONDS;
                 }
                 else 
@@ -754,7 +758,10 @@ public:
             }
 
             if (!me->HasAura(SPELL_SUBMERGE_EFFECT))
+            {
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 DoMeleeAttackIfReady();
+            }
         }
     };
 
