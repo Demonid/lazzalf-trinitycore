@@ -543,7 +543,7 @@ public:
 
                         uplayerfound++;
                         
-                        if (!pPlayer->isAlive())
+                        if (!pPlayer->isAlive() || pPlayer->isGameMaster())
                             continue;
 
                         PlayerList.push_back(pPlayer);

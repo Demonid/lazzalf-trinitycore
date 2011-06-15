@@ -310,7 +310,7 @@ class boss_general_vezax : public CreatureScript
 
                         uplayerfound++;
                         
-                        if (!pPlayer->isAlive())
+                        if (!pPlayer->isAlive() || pPlayer->isGameMaster())
                             continue;
 
                         PlayerList.push_back(pPlayer);
