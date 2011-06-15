@@ -122,8 +122,6 @@ const Position SphereSpawn[6] =
     { 706.6383f, 161.5266f, 155.6701f, 0 },
 };
 
-uint64 m_uiTargetGUID;
-
 class boss_anubarak_trial : public CreatureScript
 {
 public:
@@ -177,8 +175,6 @@ public:
             m_uiSummonScarabTimer = 2*IN_MILLISECONDS;
 
             m_uiSummonFrostSphereTimer = 20*IN_MILLISECONDS;
-
-            m_uiTargetGUID = 0;
 
             m_uiBerserkTimer = 15*MINUTE*IN_MILLISECONDS;
             m_uiStage = 0;
@@ -336,14 +332,7 @@ public:
                     break;
                 case 2:
                     if (m_uiPursuingSpikeTimer <= uiDiff)
-                    {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        {
-                            if (m_pInstance)
-                                sLog->outBoss("Anub Id: %u, Setting Spike Target, target GUID: %u", m_pInstance->instance->GetInstanceId(), target->GetGUID());
-                            m_uiTargetGUID = target->GetGUID();
-                            DoScriptText(EMOTE_SPIKE, me, target);
-                        }
+                    {                        
                         DoCast(SPELL_SPIKE_CALL);
                         // Just to make sure it won't happen again in this phase
                         m_uiPursuingSpikeTimer = 90*IN_MILLISECONDS;
@@ -491,13 +480,16 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
             
             m_uiIncreaseSpeedTimer = 0;
-
-            if (Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
+            m_uiTargetGUID = 0;
+            
+            if (Unit* pTarget = CheckPlayersInRange(1, 0.0f, 120.f))
                 if (pTarget && pTarget->isAlive())
                 {
+                    m_uiTargetGUID = pTarget->GetGUID();
                     if (m_pInstance)
                         sLog->outBoss("Anub Spike Id: %u,  Enter combat, target GUID: %u", m_pInstance->instance->GetInstanceId(), m_uiTargetGUID);
                     //me->Attack(pTarget);
+                    DoScriptText(EMOTE_SPIKE, me, pTarget);
                     DoCast(pTarget, SPELL_MARK);
                     me->SetSpeed(MOVE_RUN, 0.5f);
                     m_uiSpeed = 0;
@@ -508,7 +500,8 @@ public:
 
         InstanceScript* m_pInstance;
         uint32 m_uiIncreaseSpeedTimer;
-        uint8  m_uiSpeed;        
+        uint8  m_uiSpeed;
+        uint64 m_uiTargetGUID;
 
         void Reset()
         {
@@ -524,25 +517,52 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             if (m_pInstance)
-                sLog->outBoss("Anub Spike Id: %u,  Enter combat, target GUID: %u", m_pInstance->instance->GetInstanceId(), m_uiTargetGUID);
-
-            /*
-            if (Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
-                if (pTarget && pTarget->isAlive())
-                {
-                    me->Attack(pTarget);
-                    DoCast(pTarget, SPELL_MARK);
-                    me->SetSpeed(MOVE_RUN, 0.5f);
-                    m_uiSpeed = 0;
-                    m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
-                    me->TauntApply(pTarget);
-                }
-            */
+                sLog->outBoss("Anub Spike Id: %u,  Enter combat, target GUID: %u", m_pInstance->instance->GetInstanceId(), m_uiTargetGUID);            
         }
 
         void DamageTaken(Unit* /*who*/, uint32& uiDamage)
         {
             uiDamage = 0;
+        }
+
+        Unit* CheckPlayersInRange(uint32 uiPlayersMin, float uiRangeMin, float uiRangeMax)
+        {
+            Map * pMap = me->GetMap();
+            if (pMap)
+            {                
+                uint32 uplayerfound = 0;
+                std::list<Player*> PlayerList;
+                Map::PlayerList const &Players = pMap->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = Players.begin(); itr != Players.end(); ++itr)
+                {
+                    if (Player * pPlayer = itr->getSource())
+                    {
+                        float uiDistance = pPlayer->GetDistance(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                        if (uiDistance < uiRangeMin || uiRangeMax < uiDistance)
+                            continue;
+
+                        uplayerfound++;
+                        
+                        if (!pPlayer->isAlive())
+                            continue;
+
+                        PlayerList.push_back(pPlayer);
+                    }
+                }
+
+                if (PlayerList.empty())
+                    return NULL;
+
+                size_t size = PlayerList.size();
+                if (uplayerfound < uiPlayersMin)
+                    return NULL;
+
+                std::list<Player*>::const_iterator itr = PlayerList.begin();
+                std::advance(itr, urand(0, size - 1));
+                return *itr;
+            }
+            else
+                return NULL;
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -564,15 +584,7 @@ public:
                 if (Unit* pTarget = me->FindNearestCreature(NPC_FROST_SPHERE, 15.0f))
                     pTarget->RemoveFromWorld();
                 if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ANUBARAK)))
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    {
-                        if (m_pInstance)
-                            sLog->outBoss("Anub Id: %u, Setting Spike Target, target GUID: %u", m_pInstance->instance->GetInstanceId(), target->GetGUID());
-                        m_uiTargetGUID = target->GetGUID();
-                    }
                     pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);
-                }
                 me->DisappearAndDie();
                 return;
             }
