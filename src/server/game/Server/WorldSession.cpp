@@ -1055,7 +1055,8 @@ void WorldSession::InitWarden(BigNumber *K, std::string os)
     if (os == "niW")                                        // Windows
         m_Warden = (WardenBase*)new WardenWin();
     else                                                    // MacOS
-        m_Warden = (WardenBase*)new WardenMac();
+        m_Warden = NULL; //(WardenBase*)new WardenMac();
 
-    m_Warden->Init(this, K);
+    if (m_Warden)
+        m_Warden->Init(this, K);
 }
