@@ -2067,7 +2067,7 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement, b
     else
     {
         sWorld->m_AchievDelay = 10000;
-        sWorld->m_AchievId = achievement;
+        sWorld->m_AchievId = achievement->ID;
     }
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT);
