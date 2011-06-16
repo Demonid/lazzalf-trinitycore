@@ -113,6 +113,9 @@ World::World()
     m_guildhousetimer = 60000;
     m_BGannouncetimer = 30000;
 
+    m_AchievDelay = 0;
+    m_AchievId = NULL;
+
     m_defaultDbcLocale = LOCALE_enUS;
     m_availableDbcLocaleMask = 0;
 
@@ -2169,6 +2172,16 @@ void World::Update(uint32 diff)
         m_BGannouncetimer = 30000;
     }
     else m_BGannouncetimer-=m_updateTime;
+
+    if (m_AchievDelay)
+        if (m_AchievDelay <= m_updateTime)
+        {
+            m_AchievDelay = 0;
+            if (m_AchievId)
+                sAchievementMgr->SetRealmCompleted(m_AchievId);
+            m_AchievId = NULL;
+        }
+        else m_AchievDelay-=m_updateTime;
 
     /// <ul><li> Handle auctions when the timer has passed
     if (m_timers[WUPDATE_AUCTIONS].Passed())

@@ -896,10 +896,14 @@ class World
         // GuildHouse controll 
         uint32 m_guildhousetimer;
 
+        // BG announce Delay
         uint32 m_BGannouncetimer;
 
-        // AntiCheat
     public:
+        uint32 m_AchievDelay; 
+        AchievementEntry const* m_AchievId;
+
+        // AntiCheat
         UNORDERED_MAP<unsigned int , bool> iIgnoreMapIds_AC;
         UNORDERED_MAP<unsigned int , bool> iIgnoreMapIds_ACCount;
         UNORDERED_MAP<unsigned int , bool> iIgnoreMapIds_ACBlock;

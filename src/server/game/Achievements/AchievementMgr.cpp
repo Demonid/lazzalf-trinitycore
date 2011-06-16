@@ -2064,6 +2064,11 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement, b
     // TODO: where do set this instead?
     if (!(achievement->flags & ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
         sAchievementMgr->SetRealmCompleted(achievement);
+    else
+    {
+        sWorld->m_AchievDelay = 10000;
+        sWorld->m_AchievId = achievement;
+    }
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT);
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS, achievement->points);
