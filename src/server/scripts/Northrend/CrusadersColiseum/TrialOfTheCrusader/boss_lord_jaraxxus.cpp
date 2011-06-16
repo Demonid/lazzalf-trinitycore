@@ -120,6 +120,7 @@ public:
         uint32 m_uiTouchOfJaraxxusTimer;
         uint32 m_uiSummonNetherPortalTimer;
         uint32 m_uiSummonInfernalEruptionTimer;
+        uint32 m_uiEnrageTimer;
 
         void Reset()
         {
@@ -134,6 +135,7 @@ public:
             m_uiTouchOfJaraxxusTimer = urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS);
             m_uiSummonNetherPortalTimer = 15*IN_MILLISECONDS;
             m_uiSummonInfernalEruptionTimer = 45*IN_MILLISECONDS;
+            m_uiEnrageTimer = 600*IN_MILLISECONDS;
             Summons.DespawnAll();
         }
 
@@ -252,6 +254,13 @@ public:
                 }
                 m_uiLegionFlameTimer = 30*IN_MILLISECONDS;
             } else m_uiLegionFlameTimer -= uiDiff;
+
+            if (m_uiEnrageTimer)
+                if (m_uiEnrageTimer <= uiDiff)
+                {
+                    DoCast(me, SPELL_BERSERK);
+                    m_uiEnrageTimer = 0;
+                } else m_uiEnrageTimer -= uiDiff;
 
             if (GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC && m_uiTouchOfJaraxxusTimer <= uiDiff)
             {
