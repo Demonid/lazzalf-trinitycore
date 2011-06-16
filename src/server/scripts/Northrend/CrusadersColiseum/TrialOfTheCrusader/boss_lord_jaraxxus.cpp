@@ -256,7 +256,7 @@ public:
             if (GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC && m_uiTouchOfJaraxxusTimer <= uiDiff)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true))
                     DoCast(pTarget, SPELL_TOUCH_OF_JARAXXUS);
                 m_uiTouchOfJaraxxusTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             } else m_uiTouchOfJaraxxusTimer -= uiDiff;
@@ -643,6 +643,32 @@ public:
     }
 };
 
+class spell_curse_of_nether : public SpellScriptLoader
+{
+    public:
+        spell_curse_of_nether() : SpellScriptLoader("spell_curse_of_nether") { }
+
+        class spell_curse_of_nether_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_curse_of_nether_SpellScript);
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                unitList.remove(GetTargetUnit());
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_curse_of_nether_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_DST);
+            }
+        };
+
+        SpellScript *GetSpellScript() const
+        {
+            return new spell_curse_of_nether_SpellScript();
+        }
+};
+
 void AddSC_boss_jaraxxus()
 {
     new boss_jaraxxus();
@@ -652,4 +678,5 @@ void AddSC_boss_jaraxxus()
     new mob_nether_portal();
     new mob_mistress_of_pain();
     new spell_spinning_pain_strike();
+    new spell_curse_of_nether();
 }
