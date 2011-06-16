@@ -901,7 +901,7 @@ class World
 
     public:
         uint32 m_AchievDelay; 
-        AchievementEntry const* m_AchievId;
+        uint32 m_AchievId;
 
         // AntiCheat
         UNORDERED_MAP<unsigned int , bool> iIgnoreMapIds_AC;

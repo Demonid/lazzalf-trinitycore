@@ -114,7 +114,7 @@ World::World()
     m_BGannouncetimer = 30000;
 
     m_AchievDelay = 0;
-    m_AchievId = NULL;
+    m_AchievId = 0;
 
     m_defaultDbcLocale = LOCALE_enUS;
     m_availableDbcLocaleMask = 0;
@@ -2177,9 +2177,9 @@ void World::Update(uint32 diff)
         if (m_AchievDelay <= m_updateTime)
         {
             m_AchievDelay = 0;
-            if (m_AchievId)
-                sAchievementMgr->SetRealmCompleted(m_AchievId);
-            m_AchievId = NULL;
+            if (AchievementEntry const* achievement = sAchievementStore.LookupEntry(m_AchievId))                
+                sAchievementMgr->SetRealmCompleted(achievement);
+            m_AchievId = 0;
         }
         else m_AchievDelay-=m_updateTime;
 
