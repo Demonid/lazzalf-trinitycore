@@ -501,7 +501,6 @@ public:
                         sLog->outBoss("Anub Spike Id: %u,  Enter combat, target GUID: %u", m_pInstance->instance->GetInstanceId(), m_uiTargetGUID);
                     DoScriptText(EMOTE_SPIKE, me, pTarget);
                     me->CombatStart(pTarget);
-                    //me->Attack(pTarget, true);
                     DoCast(pTarget, SPELL_MARK);
                     me->SetSpeed(MOVE_RUN, 0.5f);
                     m_uiSpeed = 0;
@@ -831,15 +830,6 @@ public:
             if (me->GetHealth() < uiDamage)
             {
                 uiDamage = 0;
-
-                /*if (pWho->ToTempSummon() && pWho->GetEntry() == NPC_SPIKE)
-                {
-                    pWho->ToTempSummon()->DisappearAndDie();
-                    if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ANUBARAK)))
-                        pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);
-                    me->DisappearAndDie();
-                    return;
-                }*/
 
                 if (!m_bFall)
                 {
