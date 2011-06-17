@@ -267,7 +267,7 @@ public:
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true))
                     DoCast(pTarget, SPELL_TOUCH_OF_JARAXXUS);
-                m_uiTouchOfJaraxxusTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
+                m_uiTouchOfJaraxxusTimer = urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS);
             } else m_uiTouchOfJaraxxusTimer -= uiDiff;
 
             DoMeleeAttackIfReady();
@@ -663,12 +663,18 @@ class spell_curse_of_nether : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove(GetTargetUnit());
+                for (std::list<Unit*>::iterator itr = targetList.begin() ; itr != targetList.end();)
+                {
+                    if ((*itr)->HasAura(66209)) // Touch of Jaraxxus
+                        itr = targetList.erase(itr);
+                    else
+                        ++itr;
+                }
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_curse_of_nether_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_DST);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_curse_of_nether_SpellScript::FilterTargets, EFFECT_0, TARGET_SRC_CASTER);
             }
         };
 
