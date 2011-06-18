@@ -64,10 +64,19 @@ public:
 
     struct boss_razuviousAI : public BossAI
     {
-        boss_razuviousAI(Creature *c) : BossAI(c, BOSS_RAZUVIOUS) {}
+        boss_razuviousAI(Creature* c) : BossAI(c, BOSS_RAZUVIOUS) {}
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* victim)
         {
+            if (instance)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                {
+                    instance->SetData(DATA_IMMORTAL_MILITARY, CRITERIA_NOT_MEETED);
+                    instance->SetData(DATA_IMMORTAL_RAZU, CRITERIA_NOT_MEETED);
+                }
+            }
+
             if (!(rand()%3))
                 DoPlaySoundToSet(me, SOUND_SLAY);
         }
@@ -96,6 +105,9 @@ public:
             events.ScheduleEvent(EVENT_SHOUT, 25000);
             events.ScheduleEvent(EVENT_COMMAND, 40000);
             events.ScheduleEvent(EVENT_KNIFE, 10000);
+
+            if (instance)
+                instance->SetData(DATA_IMMORTAL_MILITARY, instance->GetData(DATA_IMMORTAL_RAZU));
         }
 
         void UpdateAI(const uint32 diff)
