@@ -4278,6 +4278,10 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         // ULDUAR SPELLS
         //
+        case 62400: // Missile Barrage
+            spellInfo->EffectRadiusIndex[0] = 22; // 200 yard
+            ++count;
+            break;
         case 63342: // Focused Eyebeam Summon Trigger (Kologarn)
             spellInfo->MaxAffectedTargets = 1;
             ++count;
