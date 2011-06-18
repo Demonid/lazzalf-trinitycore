@@ -163,6 +163,7 @@ enum AchievementControl
     ACHI_INCREASE,
     CRITERIA_MEETED,
     CRITERIA_NOT_MEETED,
+    GO_ARCHIVUM_DOOR                             = 194556,
 };
 
 /*enum eTowerEvents
