@@ -663,10 +663,10 @@ class spell_curse_of_nether : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                for (std::list<Unit*>::iterator itr = targetList.begin() ; itr != targetList.end();)
+                for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();)
                 {
                     if ((*itr)->HasAura(66209)) // Touch of Jaraxxus
-                        itr = targetList.erase(itr);
+                        itr = unitList.erase(itr);
                     else
                         ++itr;
                 }
