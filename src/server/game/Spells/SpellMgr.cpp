@@ -2895,10 +2895,10 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
                 return DIMINISHING_FEAR;
             // Psychic Scream
             if (spellproto->SpellFamilyFlags[0] & 0x1000)
-                return DIMINISHING_FEAR_BLIND;
+                return DIMINISHING_FEAR;
             // Repentance
             if (spellproto->SpellFamilyFlags[0] & 0x4)
-                return DIMINISHING_POLYMORPH;
+                return DIMINISHING_DISORIENT;
             // Judgement of Justice
             if (spellproto->SpellFamilyFlags[0] & 0x100000)
                 return DIMINISHING_LIMITONLY;
@@ -2950,7 +2950,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
         {
             // Fear
             if (spellproto->SpellFamilyFlags[1] & 0x00000400)
-                return DIMINISHING_FEAR_BLIND;
+                return DIMINISHING_FEAR;
             // Death Coil
             else if (spellproto->SpellFamilyFlags[0] & 0x80000)
                 return DIMINISHING_HORROR;
