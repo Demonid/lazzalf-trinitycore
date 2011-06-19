@@ -489,7 +489,7 @@ class AuraScript : public _SpellScript
         };
         typedef std::stack<ScriptStateStore> ScriptStateStack;
         ScriptStateStack m_scriptStates;
-        
+
     public:
         //
         // AuraScript interface
