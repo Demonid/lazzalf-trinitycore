@@ -5691,89 +5691,89 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     }
                     break;
                 case 58730: // No Fly Zone - Wintergrasp
-                if (pvpWG && (pvpWG->isWarTime() == false))
+                    if (pvpWG && (pvpWG->isWarTime() == false))
+                        break;
+
+                    if (GetTickNumber() == 10)
+                    {
+                        target->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
+                        target->RemoveAurasByType(SPELL_AURA_FLY);
+                        target->CastSpell(target, 61286, true);
+                    }
                     break;
-
-                if (GetTickNumber() == 10)
-                {
-                    target->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
-                    target->RemoveAurasByType(SPELL_AURA_FLY);
-                    target->CastSpell(target, 61286, true);
-                }
-                break;
-            case 58600: // No fly Zone - Dalaran
-                if (GetTickNumber() == 10)
-                {
-                    target->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
-                    target->RemoveAurasByType(SPELL_AURA_FLY);
-                    target->CastSpell(target, 61286, true);
-                }
-                break;
+                case 58600: // No fly Zone - Dalaran
+                    if (GetTickNumber() == 10)
+                    {
+                        target->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
+                        target->RemoveAurasByType(SPELL_AURA_FLY);
+                        target->CastSpell(target, 61286, true);
+                    }
+                    break;
                 case 63276: // Mark of the Faceless
-                if (caster) 
-                {
-                    uint32 count = 0;
-                    Position *pos = target;
-                    std::list<Unit*> unitList;
-                    Trinity::SpellNotifierCreatureAndPlayer notifier(caster, unitList, 15, PUSH_DST_CENTER, SPELL_TARGETS_ENEMY, pos, 0);
-                    caster->GetMap()->VisitAll(pos->m_positionX, pos->m_positionY, 15, notifier);
-                    int32 bp = GetAmount();
-                    for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                    if (caster) 
                     {
-                        if (*itr == target)
-                            continue;
-                        caster->CastCustomSpell(*itr, 63278, NULL, &bp, NULL, true, NULL);
-                        count++;
+                        uint32 count = 0;
+                        Position *pos = target;
+                        std::list<Unit*> unitList;
+                        Trinity::SpellNotifierCreatureAndPlayer notifier(caster, unitList, 15, PUSH_DST_CENTER, SPELL_TARGETS_ENEMY, pos, 0);
+                        caster->GetMap()->VisitAll(pos->m_positionX, pos->m_positionY, 15, notifier);
+                        int32 bp = GetAmount();
+                        for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                        {
+                            if (*itr == target)
+                                continue;
+                            caster->CastCustomSpell(*itr, 63278, NULL, &bp, NULL, true, NULL);
+                            count++;
+                        }
+                        if (count > 0 && caster->isAlive()) // prevent healing after death
+                            caster->HealBySpell(caster, GetSpellProto(), bp * 20);
                     }
-                    if (count > 0 && caster->isAlive()) // prevent healing after death
-                        caster->HealBySpell(caster, GetSpellProto(), bp * 20);
-                }
-                break;
-            case 63802: // Brain Link
-                if (caster)
-                {
-                    std::list<Unit*> unitList;
-                    target->GetRaidMember(unitList, 80);
-                    for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                    break;
+                case 63802: // Brain Link
+                    if (caster)
                     {
-                        Unit* pUnit = *itr;
-                        if (!pUnit || pUnit == target || !pUnit->HasAura(63802))
-                            continue;
+                        std::list<Unit*> unitList;
+                        target->GetRaidMember(unitList, 80);
+                        for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                        {
+                            Unit* pUnit = *itr;
+                            if (!pUnit || pUnit == target || !pUnit->HasAura(63802))
+                                continue;
 
-                        // Afflicted targets suffer Shadow damage whenever they are more than 20 yards apart
-                        if (target->IsWithinDist(pUnit, 20))
-                            target->CastSpell(pUnit, 63804, true, 0, 0);
-                        else
-                            target->CastSpell(pUnit, 63803, true, 0, 0);
-                        return;
+                            // Afflicted targets suffer Shadow damage whenever they are more than 20 yards apart
+                            if (target->IsWithinDist(pUnit, 20))
+                                target->CastSpell(pUnit, 63804, true, 0, 0);
+                            else
+                                target->CastSpell(pUnit, 63803, true, 0, 0);
+                            return;
+                        }
                     }
-                }
-                break;
-            case 62038: // Biting Cold
-                if (target->GetTypeId() == TYPEID_PLAYER)
-                {
-                    // Toasty Fire
-                    if (target->GetAura(62039) &&  target->GetAura(62821))
-                        target->RemoveAurasDueToSpell(62039);
-                    // DoT stacks when the target remains stationary for 4 seconds                                        
-                    else if (GetAmount() && GetAmount() % 4 == 0)
-                        target->AddAura(62039, target);
-                    else if (target->HasAura(62039) && (target->isMoving() || target->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_JUMPING)))
-                        target->RemoveAuraFromStack(62039);
-                }
-                break;
-            case 62039: // Biting Cold damage
-                {
-                    uint8 stackAmount = target->GetAura(62039)->GetStackAmount();
-                    int32 damage = (int32)(200 * pow(2.0f,stackAmount));
-                    target->CastCustomSpell(target,62188,&damage,0,0,true);                    
-                }
-                break;
-            case 63382: // Rapid Burst
-                {
-                    if (target->GetMap())
-                        caster->CastSpell(target, (target->GetMap()->IsHeroic() ? RAND(64531, 64532) : RAND(63387, 64019)), true);
-                }
+                    break;
+                case 62038: // Biting Cold
+                    if (target->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        // Toasty Fire
+                        if (target->GetAura(62039) &&  target->GetAura(62821))
+                            target->RemoveAurasDueToSpell(62039);
+                        // DoT stacks when the target remains stationary for 4 seconds                                        
+                        else if (GetAmount() && GetAmount() % 4 == 0)
+                            target->AddAura(62039, target);
+                        else if (target->HasAura(62039) && (target->isMoving() || target->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_JUMPING)))
+                            target->RemoveAuraFromStack(62039);
+                    }
+                    break;
+                case 62039: // Biting Cold damage
+                    {
+                        uint8 stackAmount = target->GetAura(62039)->GetStackAmount();
+                        int32 damage = (int32)(200 * pow(2.0f,stackAmount));
+                        target->CastCustomSpell(target,62188,&damage,0,0,true);                    
+                    }
+                    break;
+                case 63382: // Rapid Burst
+                    {
+                        if (target->GetMap())
+                            caster->CastSpell(target, (target->GetMap()->IsHeroic() ? RAND(64531, 64532) : RAND(63387, 64019)), true);
+                    }
                 case 64821: // Fuse Armor (Razorscale)
                     if (GetBase()->GetStackAmount() == GetSpellProto()->StackAmount)
                     {
