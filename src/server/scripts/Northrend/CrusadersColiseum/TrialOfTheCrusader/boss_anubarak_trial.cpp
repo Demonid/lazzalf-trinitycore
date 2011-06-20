@@ -472,7 +472,7 @@ public:
         mob_anubarak_spikeAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
             m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
-            // me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
             if (m_pInstance)
                 sLog->outBoss("Anub Spike Id: %u,  Created", m_pInstance->instance->GetInstanceId());
 
@@ -564,6 +564,8 @@ public:
         {
             if (m_pInstance)
                 sLog->outBoss("Anub Spike Id: %u,  UpdateAI, target GUID: %u", m_pInstance->instance->GetInstanceId(), m_uiTargetGUID);
+
+            me->RemoveAurasWithMechanic(1 << MECHANIC_SNARE);
 
             Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID);
 
