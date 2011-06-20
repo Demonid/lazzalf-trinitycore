@@ -473,8 +473,8 @@ public:
         {
             m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-            if (m_pInstance)
-                sLog->outBoss("Anub Spike Id: %u,  Created", m_pInstance->instance->GetInstanceId());
+            //if (m_pInstance)
+            //    sLog->outBoss("Anub Spike Id: %u,  Created", m_pInstance->instance->GetInstanceId());
 
             // For an unknown reason this npc isn't recognize the Aura of Permafrost with this flags =/
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
@@ -490,15 +490,15 @@ public:
 
         void Reset()
         {
-            if (m_pInstance)
-                sLog->outBoss("Anub Spike Id: %u,  Reset", m_pInstance->instance->GetInstanceId());
+            //if (m_pInstance)
+            //    sLog->outBoss("Anub Spike Id: %u,  Reset", m_pInstance->instance->GetInstanceId());
 
             if (Unit* pTarget = CheckPlayersInRange(1, 0.0f, 120.f))
                 if (pTarget && pTarget->isAlive())
                 {
                     m_uiTargetGUID = pTarget->GetGUID();
-                    if (m_pInstance)
-                        sLog->outBoss("Anub Spike Id: %u,  Enter combat, target GUID: %u", m_pInstance->instance->GetInstanceId(), m_uiTargetGUID);
+                    //if (m_pInstance)
+                    //    sLog->outBoss("Anub Spike Id: %u,  Enter combat, target GUID: %u", m_pInstance->instance->GetInstanceId(), m_uiTargetGUID);
                     DoScriptText(EMOTE_SPIKE, me, pTarget);
                     me->CombatStart(pTarget);
                     DoCast(pTarget, SPELL_MARK);
@@ -509,11 +509,13 @@ public:
                 }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        /*
+        void EnterCombat(Unit* who)
         {
             if (m_pInstance)
                 sLog->outBoss("Anub Spike Id: %u,  Enter combat, target GUID: %u", m_pInstance->instance->GetInstanceId(), m_uiTargetGUID);            
         }
+        */
 
         void DamageTaken(Unit* /*who*/, uint32& uiDamage)
         {
@@ -562,8 +564,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (m_pInstance)
-                sLog->outBoss("Anub Spike Id: %u,  UpdateAI, target GUID: %u", m_pInstance->instance->GetInstanceId(), m_uiTargetGUID);
+            //if (m_pInstance)
+            //    sLog->outBoss("Anub Spike Id: %u,  UpdateAI, target GUID: %u", m_pInstance->instance->GetInstanceId(), m_uiTargetGUID);
 
             me->RemoveAurasWithMechanic(1 << MECHANIC_SNARE);
 
