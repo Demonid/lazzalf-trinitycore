@@ -205,9 +205,14 @@ class spell_heigan_eruption : public SpellScriptLoader
                     return;
 
                 if (GetHitDamage() >= int32(GetHitUnit()->GetHealth()))
-                    if (InstanceScript* instance = caster->GetInstanceScript())
-                        if (Creature* Heigan = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_HEIGAN)))
-                            Heigan->AI()->DoAction(ACTION_SAFETY_DANCE_FAIL);
+                    if (GetHitUnit()->GetTypeId() == TYPEID_PLAYER)
+                        if (InstanceScript* instance = caster->GetInstanceScript())
+                        {
+                            instance->SetData(DATA_IMMORTAL_PLAGUE, CRITERIA_NOT_MEETED);
+
+                            if (Creature* Heigan = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_HEIGAN)))
+                                Heigan->AI()->DoAction(ACTION_SAFETY_DANCE_FAIL);
+                        }
             }
 
             void Register()
