@@ -1375,7 +1375,9 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
         if (m_spellInfo->speed > 0.0f && unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE) && unit->GetCharmerOrOwnerGUID() != m_caster->GetGUID())
             return SPELL_MISS_EVADE;
 
-        if (!m_caster->IsFriendlyTo(unit))
+        // check for IsHostileTo() instead of !IsFriendlyTo()
+        // ex: spell 47463 needs to be casted by different units on the same neutral target
+        if (m_caster->IsHostileTo(unit))
         {
             // spell misses if target has Invisibility or Vanish and isn't visible for caster
             if (m_spellInfo->speed > 0.0f && unit == m_targets.getUnitTarget()
@@ -1391,7 +1393,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
             if ((m_customAttr & SPELL_ATTR0_CU_AURA_CC) && unit->IsControlledByPlayer())
                 unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
         }
-        else
+        else if (m_caster->IsFriendlyTo(unit))
         {
             // for delayed spells ignore negative spells (after duel end) for friendly targets
             // TODO: this cause soul transfer bugged
