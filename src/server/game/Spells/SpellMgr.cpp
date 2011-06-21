@@ -4531,6 +4531,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_SUMMONER;
             ++count;
             break;
+        case 66210: // Curse of the Nether
+            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_EXCLUDE_SELF;
+            ++count;
+            break;
         default:
             break;
         }
