@@ -675,7 +675,7 @@ class spell_curse_of_nether : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_curse_of_nether_SpellScript::FilterTargets, EFFECT_0, TARGET_SRC_CASTER);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_curse_of_nether_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
             }
         };
 

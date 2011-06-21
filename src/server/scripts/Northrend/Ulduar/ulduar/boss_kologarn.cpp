@@ -589,6 +589,32 @@ public:
 
 };
 
+class spell_kologarn_stone_shout : public SpellScriptLoader
+{
+    public:
+        spell_kologarn_stone_shout() : SpellScriptLoader("spell_kologarn_stone_shout") { }
+
+        class spell_kologarn_stone_shout_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_kologarn_stone_shout_SpellScript);
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                unitList.remove_if(PlayerOrPetCheck());
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_kologarn_stone_shout_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_kologarn_stone_shout_SpellScript();
+        }
+};
+
 
 void AddSC_boss_kologarn()
 {
@@ -596,4 +622,5 @@ void AddSC_boss_kologarn()
     new npc_focused_eyebeam();
     new npc_left_arm();
     new npc_right_arm();
+    new spell_kologarn_stone_shout();
 }
