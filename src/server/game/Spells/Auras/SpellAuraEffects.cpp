@@ -4819,8 +4819,11 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 {
                     int32 mana = int32(GetAmount() * pow(2.0f, GetBase()->GetStackAmount())); // mana restore - bp * 2^stackamount
                     int32 damage = mana * 2; // damage
-                    caster->CastCustomSpell(target, 63337, &mana, NULL, NULL, true);
-                    caster->CastCustomSpell(target, 63338, &damage, NULL, NULL, true);
+                    if (caster && target)
+                    {
+                        caster->CastCustomSpell(target, 63337, &mana, NULL, NULL, true);
+                        caster->CastCustomSpell(target, 63338, &damage, NULL, NULL, true);
+                    }
                     break;
                 }
                 case 71563:
