@@ -47,7 +47,7 @@ enum Yells
     SAY_WHISPER                                 = -1608044
 };
 
-#define DATA_VOID_DANCE                         2153
+#define ACHIEVEMENT_VOID_DANCE 2153
 
 class boss_zuramat : public CreatureScript
 {
@@ -71,7 +71,8 @@ public:
         uint32 SpellVoidShiftTimer;
         uint32 SpellSummonVoidTimer;
         uint32 SpellShroudOfDarknessTimer;
-        bool voidDance;
+
+        bool KilledVoidSentry;
 
         void Reset()
         {
@@ -86,7 +87,8 @@ public:
             SpellShroudOfDarknessTimer = 22000;
             SpellVoidShiftTimer = 15000;
             SpellSummonVoidTimer = 12000;
-            voidDance = true;
+
+            KilledVoidSentry = false;
         }
 
         void AttackStart(Unit* pWho)
@@ -151,32 +153,15 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void SummonedCreatureDies(Creature* summoned, Unit* /*who*/)
-        {
-            if (summoned->GetEntry() == CREATURE_VOID_SENTRY)
-                SetData(DATA_VOID_DANCE, 0);
-        }
-
-        void SetData(uint32 id, uint32 data)
-        {
-            if (id == DATA_VOID_DANCE)
-                voidDance = data ? true : false;
-        }
-
-        uint32 GetData(uint32 type)
-        {
-            if (type == DATA_VOID_DANCE)
-                return voidDance ? 1 : 0;
-
-            return 0;
-        }
-
         void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
 
             if (pInstance)
             {
+                if(IsHeroic() && !KilledVoidSentry)
+                    pInstance->DoCompleteAchievement(ACHIEVEMENT_VOID_DANCE);					
+        
                 if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
                 {
                     pInstance->SetData(DATA_1ST_BOSS_EVENT, DONE);
@@ -208,25 +193,41 @@ public:
 
 };
 
-class achievement_void_dance : public AchievementCriteriaScript
+class mob_void_sentry : public CreatureScript
 {
-    public:
-        achievement_void_dance() : AchievementCriteriaScript("achievement_void_dance")
+public:
+    mob_void_sentry() : CreatureScript("mob_void_sentry") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_void_sentryAI (pCreature);
+    }
+
+    struct mob_void_sentryAI : public ScriptedAI
+    {
+        mob_void_sentryAI(Creature *c) : ScriptedAI(c) 
         {
+            pInstance = c->GetInstanceScript();
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target)
-        {
-            if (Creature* Zuramat = target->ToCreature())
-                if (Zuramat->AI()->GetData(DATA_VOID_DANCE))
-                    return true;
+        InstanceScript* pInstance;
 
-            return false;
+        void JustDied(Unit* killer)
+        {
+            if (pInstance)
+            {
+                if (IsHeroic())
+                    if (Creature* pZuramat = Unit::GetCreature(*me, pInstance->GetData64(DATA_ZURAMAT)))
+                        if (pZuramat->isAlive())
+                            CAST_AI(boss_zuramat::boss_zuramatAI,pZuramat->AI())->KilledVoidSentry = true;
+            }
         }
+    };
+
 };
 
 void AddSC_boss_zuramat()
 {
     new boss_zuramat();
-    new achievement_void_dance();
+    new mob_void_sentry();
 }
