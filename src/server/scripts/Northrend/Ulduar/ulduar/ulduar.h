@@ -180,6 +180,7 @@ enum eTowerEvents
     TOWER_OF_FLAMES_DESTROYED,
     TOWER_OF_FROST_DESTROYED,    
 };
+
 class PlayerOrPetCheck
 {
     public:
