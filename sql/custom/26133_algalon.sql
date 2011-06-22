@@ -7,6 +7,7 @@ DELETE FROM gameobject WHERE id = 194911;
 */
 
 -- For Achievement He Feeds on your Tears
+/*
 DELETE FROM achievement_criteria_data WHERE `type` = 18 AND criteria_id IN
 (10568,10570);
 
@@ -17,6 +18,7 @@ VALUES
 
 DELETE FROM disables WHERE sourceType = 4 AND entry IN 
 (10568,10570);
+*/
 
 -- spawn algalon
 DELETE FROM `creature` WHERE `id`=32871;
