@@ -152,6 +152,41 @@ enum eNPCs
     //NPC_AERIAL_COMMAND_UNIT     = 33670,
 };
 
+enum eGameObjects
+{
+    GO_LEVIATHAN_DOOR        = 194905,
+    GO_LEVIATHAN_GATE        = 194630,
+    GO_KOLOGARN_CHEST_HERO   = 195047,
+    GO_KOLOGARN_CHEST        = 195046,
+    GO_KOLOGARN_BRIDGE       = 194232,
+    GO_KOLOGARN_DOOR         = 194553,
+    GO_Hodir_CHEST_HERO      = 194308,
+    GO_Hodir_CHEST           = 194307,
+    GO_Hodir_Rare_CHEST      = 194200,
+    GO_Hodir_Rare_CHEST_HERO = 194201,
+    GO_Thorim_CHEST_HERO     = 194314,
+    GO_Thorim_CHEST          = 194312,
+    GO_Thorim_Rare_CHEST     = 194313,
+    GO_Thorim_Rare_CHEST_HERO= 194315,
+    GO_Runic_DOOR            = 194557,
+    GO_Stone_DOOR            = 194558,
+    GO_Thorim_LEVER          = 194265,
+    GO_Mimiron_TRAM          = 194675,
+    GO_Mimiron_ELEVATOR      = 194749,
+    GO_Keepers_DOOR          = 194255,
+
+    // planetarium: Algalon
+    GO_ALGALON_ACCESS           = 194628,
+    GO_ALGALON_DOOR_1           = 194911,
+    GO_ALGALON_DOOR_2           = 194767,
+    GO_ALGALON_PLATFORM         = 194715,
+    GO_ALGALON_GLOBE            = 194148,
+    GO_ALGALON_BRIDGE           = 194253,
+    GO_ALGALON_B_VISUAL         = 194716,
+    GO_ALGALON_B_DOOR           = 194910,
+    GO_GIFT_OF_THE_OBSERVER     = 194821
+};
+
 enum AchievementControl
 {
     ACHI_IS_NOT_STARTED = 1,
@@ -179,6 +214,12 @@ enum eTowerEvents
     TOWER_OF_LIFE_DESTROYED,
     TOWER_OF_FLAMES_DESTROYED,
     TOWER_OF_FROST_DESTROYED,    
+};
+
+enum UlduarWorldstates
+{
+    WORLDSTATE_ALGALON_TIME = 4131,
+    WORLDSTATE_ALGALON_SHOW = 4132
 };
 
 class PlayerOrPetCheck
