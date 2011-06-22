@@ -42,38 +42,6 @@ const DoorData doorData[] =
     {0,         0,              DOOR_TYPE_ROOM,     0}, // EOF
 };
 
-enum eGameObjects
-{
-    GO_LEVIATHAN_DOOR        = 194905,
-    GO_LEVIATHAN_GATE        = 194630,
-    GO_KOLOGARN_CHEST_HERO   = 195047,
-    GO_KOLOGARN_CHEST        = 195046,
-    GO_KOLOGARN_BRIDGE       = 194232,
-    GO_KOLOGARN_DOOR         = 194553,
-    GO_Hodir_CHEST_HERO      = 194308,
-    GO_Hodir_CHEST           = 194307,
-    GO_Hodir_Rare_CHEST      = 194200,
-    GO_Hodir_Rare_CHEST_HERO = 194201,
-    GO_Thorim_CHEST_HERO     = 194314,
-    GO_Thorim_CHEST          = 194312,
-    GO_Thorim_Rare_CHEST     = 194313,
-    GO_Thorim_Rare_CHEST_HERO= 194315,
-    GO_Runic_DOOR            = 194557,
-    GO_Stone_DOOR            = 194558,
-    GO_Thorim_LEVER          = 194265,
-    GO_Mimiron_TRAM          = 194675,
-    GO_Mimiron_ELEVATOR      = 194749,
-    GO_Keepers_DOOR          = 194255,
-
-    // planetarium: algalon
-    GO_CELESTIAL_ACCES          = 194628,
-    GO_CELESTIAL_ACCES_H        = 194752,
-    GO_CELESTIAL_DOOR           = 194767,
-    GO_UNIVERSE_FLOOR_ARCHIVUM  = 194715,
-    GO_UNIVERSE_FLOOR_CELESTIAL = 194716,
-    GO_AZEROTH_GLOBE            = 194148,
-};
-
 #define ACHIEVEMENT_DWARFAGEDDON_10         3097
 #define ACHIEVEMENT_DWARFAGEDDON_25         3098
 #define DWARFAGEDDON_MAX_TIMER              10 * 1000 // 10s
@@ -145,13 +113,6 @@ class instance_ulduar : public InstanceMapScript
         uint64 uiHodirYS;
         uint64 uiYoggSaronBrain;
         uint64 uiYoggSaron;
-        uint64 uiAlgalon;
-
-        // Celestial planetarium
-        uint64 m_uiCelestialDoorGUID;
-        uint64 m_uiCelestialConsoleGUID;
-        uint64 m_uiUniverseFloorCelestialGUID;
-        uint64 m_uiAzerothGlobeGUID;
 
         uint64 uiLeviathanDoor[7];
         uint8  flag;
@@ -205,6 +166,23 @@ class instance_ulduar : public InstanceMapScript
         uint32 vezaxStatus;
         uint32 yoggStatus;
         uint32 algalonStatus;
+
+        // Algalon
+        uint64 uiAlgalonGUID;
+        uint64 uiAlgalonBridgeGUID;
+        uint64 uiAlgalonBridgeVisualGUID;
+        uint64 uiAlgalonBridgeDoorGUID;
+        uint64 uiAlgalonGlobeGUID;
+        uint64 uiAlgalonDoor1GUID;
+        uint64 uiAlgalonDoor2GUID;
+        uint64 uiAlgalonAccessGUID;
+
+        uint32 uiCountdownTimer;
+        uint32 uiAlgalonCountdown;
+        //   62 - not ready to engage
+        //   61 - ready to engage, not engaged yet
+        // < 61 - engaged, timer running
+        //    0 - failed
             
         GameObject* pLeviathanDoor, *KologarnChest, *HodirChest, *HodirRareChest, *ThorimChest, *ThorimRareChest, *pRunicDoor, *pStoneDoor, *pThorimLever,
             *MimironTram, *MimironElevator;
@@ -250,7 +228,18 @@ class instance_ulduar : public InstanceMapScript
             uiHodirYS = 0;
             uiYoggSaronBrain = 0;
             uiYoggSaron = 0;
-            uiAlgalon = 0;
+
+            uiAlgalonGUID             = 0;
+            uiAlgalonBridgeGUID       = 0;
+            uiAlgalonBridgeVisualGUID = 0;
+            uiAlgalonBridgeDoorGUID   = 0;
+            uiAlgalonGlobeGUID        = 0;
+            uiAlgalonDoor1GUID        = 0;
+            uiAlgalonDoor2GUID        = 0;
+            uiAlgalonAccessGUID       = 0;
+
+            uiCountdownTimer          = 1*MINUTE*IN_MILLISECONDS;
+            uiAlgalonCountdown        = 62;
 
             pLeviathanDoor = NULL;
             KologarnChest = NULL;
@@ -289,12 +278,6 @@ class instance_ulduar : public InstanceMapScript
             currentIllusion = 0;
             memset(&uiLeviathanDoor, 0, sizeof(uiLeviathanDoor));
 
-            // Celestial planetarium
-            m_uiCelestialDoorGUID = 0;
-            m_uiCelestialConsoleGUID = 0;
-            m_uiUniverseFloorCelestialGUID = 0;
-            m_uiAzerothGlobeGUID = 0;
-
             // Champion/Conqueror of Ulduar
             leviathanStatus = CRITERIA_MEETED;
             ignisStatus = CRITERIA_MEETED;
@@ -312,104 +295,126 @@ class instance_ulduar : public InstanceMapScript
             algalonStatus = CRITERIA_MEETED;
         }
 
-        void OnGameObjectCreate(GameObject* pGo)
+        void OnGameObjectCreate(GameObject* go)
         {
-            AddDoor(pGo, true);
+            AddDoor(go, true);
 
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
                 case GO_LEVIATHAN_DOOR:                    
-                    uiLeviathanDoor[flag] = pGo->GetGUID();
-                    HandleGameObject(NULL, true, pGo);
+                    uiLeviathanDoor[flag] = go->GetGUID();
+                    HandleGameObject(NULL, true, go);
                     flag++;
                     if (flag == 7)
                         flag = 0;
                     break;
                 case GO_LEVIATHAN_GATE:
-                    pLeviathanDoor = pGo;
-                    HandleGameObject(NULL, false, pGo);
+                    pLeviathanDoor = go;
+                    HandleGameObject(NULL, false, go);
                     break;
                 case GO_KOLOGARN_CHEST_HERO: 
-                    KologarnChest = pGo;
+                    KologarnChest = go;
                     break;
                 case GO_KOLOGARN_CHEST: 
-                    KologarnChest = pGo;
+                    KologarnChest = go;
                     break;
                 case GO_KOLOGARN_BRIDGE: 
-                    uiKologarnBridge = pGo->GetGUID(); 
+                    uiKologarnBridge = go->GetGUID(); 
                     HandleGameObject(uiKologarnBridge, true); 
                     break;
                 case GO_Hodir_CHEST_HERO: 
-                    HodirChest = pGo; 
+                    HodirChest = go; 
                     break;
                 case GO_Hodir_CHEST: 
-                    HodirChest = pGo; 
+                    HodirChest = go; 
                     break;                
                 case GO_Hodir_Rare_CHEST_HERO: 
-                    HodirRareChest = pGo; 
+                    HodirRareChest = go; 
                     break;
                 case GO_Hodir_Rare_CHEST: 
-                    HodirRareChest = pGo; 
+                    HodirRareChest = go; 
                     break;
                 case GO_Thorim_CHEST_HERO: 
-                    ThorimChest = pGo; 
+                    ThorimChest = go; 
                     break;
                 case GO_Thorim_CHEST: 
-                    ThorimChest = pGo; 
+                    ThorimChest = go; 
                     break;
                 case GO_Thorim_Rare_CHEST_HERO: 
-                    ThorimRareChest = pGo; 
+                    ThorimRareChest = go; 
                     break;                    
                 case GO_Thorim_Rare_CHEST: 
-                    ThorimRareChest = pGo; 
+                    ThorimRareChest = go; 
                     break;
                 case GO_Runic_DOOR: 
-                    pRunicDoor = pGo; 
+                    pRunicDoor = go; 
                     break;
                 case GO_Stone_DOOR: 
-                    pStoneDoor = pGo; 
+                    pStoneDoor = go; 
                     break;
                 case GO_Thorim_LEVER: 
-                    pThorimLever = pGo; 
+                    pThorimLever = go; 
                     break;
                 case GO_Mimiron_TRAM: 
-                    MimironTram = pGo; 
+                    MimironTram = go; 
                     break;
                 case GO_Mimiron_ELEVATOR: 
-                    MimironElevator = pGo; 
+                    MimironElevator = go; 
                     break;
-                case GO_Keepers_DOOR: KeepersGateGUID = pGo->GetGUID();
+                case GO_Keepers_DOOR: KeepersGateGUID = go->GetGUID();
                 {
-                    InstanceScript *data = pGo->GetInstanceScript();
-                    pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_LOCKED);
+                    InstanceScript *data = go->GetInstanceScript();
+                    go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_LOCKED);
                     if (data)
                         for (uint32 i = BOSS_MIMIRON; i < BOSS_VEZAX; ++i)
                             if (data->GetBossState(i) != DONE)
-                                pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_LOCKED);
+                                go->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_LOCKED);
                     break;
                 }
-                // Celestial Planetarium
-                case GO_CELESTIAL_ACCES:
-                    m_uiCelestialConsoleGUID = pGo->GetGUID();
+                case GO_ALGALON_PLATFORM:
+                    HandleGameObject(NULL, false, go);
                     break;
-                case GO_CELESTIAL_DOOR:
-                    m_uiCelestialDoorGUID = pGo->GetGUID();
+                case GO_ALGALON_BRIDGE:
+                    uiAlgalonBridgeGUID = go->GetGUID();
+                    HandleGameObject(NULL, false, go);
                     break;
-                case GO_UNIVERSE_FLOOR_CELESTIAL:
-                    m_uiUniverseFloorCelestialGUID = pGo->GetGUID();
+                case GO_ALGALON_B_VISUAL:
+                    uiAlgalonBridgeVisualGUID = go->GetGUID();
+                    HandleGameObject(NULL, false, go);
                     break;
-                case GO_AZEROTH_GLOBE:
-                    m_uiAzerothGlobeGUID = pGo->GetGUID();
+                case GO_ALGALON_B_DOOR:
+                    uiAlgalonBridgeDoorGUID = go->GetGUID();
+                    HandleGameObject(NULL, true, go);
+                    break;
+                case GO_ALGALON_GLOBE:
+                    uiAlgalonGlobeGUID = go->GetGUID();
+                    HandleGameObject(NULL, false, go);
+                    break;
+                case GO_ALGALON_DOOR_1:
+                    uiAlgalonDoor1GUID = go->GetGUID();
+                    HandleGameObject(NULL, uiAlgalonCountdown < 62 ? true : false, go);
+                    break;
+                case GO_ALGALON_DOOR_2:
+                    uiAlgalonDoor2GUID = go->GetGUID();
+                    HandleGameObject(NULL, uiAlgalonCountdown < 62 ? true : false, go);
+                    break;
+                case GO_ALGALON_ACCESS:
+                    uiAlgalonAccessGUID = go->GetGUID();
+                    if (uiAlgalonCountdown < 62)
+                    {
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        go->SetGoState(GO_STATE_ACTIVE);
+                    }
                     break;
             }
         }
 
-        void OnGameObjectRemove(GameObject* pGo)
+        void OnGameObjectRemove(GameObject* go)
         {
-            AddDoor(pGo, false);
+            AddDoor(go, false);
         }
 
-        void OnCreatureCreate(Creature* pCreature)
+        void OnCreatureCreate(Creature* creature)
         {
             Map::PlayerList const &players = instance->GetPlayers();
             uint32 TeamInInstance = 0;
@@ -418,166 +423,190 @@ class instance_ulduar : public InstanceMapScript
                 if (Player* pPlayer = players.begin()->getSource())
                     TeamInInstance = pPlayer->GetTeam();
             
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
                 case NPC_LEVIATHAN: 
-                    uiLeviathanGUID = pCreature->GetGUID(); 
+                    uiLeviathanGUID = creature->GetGUID(); 
                     return;
                 case NPC_LEVIATHAN_LOOT:
-                    uiLeviathanLoot  = pCreature->GetGUID();
+                    uiLeviathanLoot  = creature->GetGUID();
                     return;
                 case 33686: 
-                    uiNorgannon = pCreature->GetGUID(); 
+                    uiNorgannon = creature->GetGUID(); 
                     return;
                 case NPC_IGNIS: 
-                    uiIgnis = pCreature->GetGUID(); 
+                    uiIgnis = creature->GetGUID(); 
                     return;
                 case NPC_RAZORSCALE: 
-                    uiRazorscale = pCreature->GetGUID(); 
+                    uiRazorscale = creature->GetGUID(); 
                     return;
                 case NPC_EXPEDITION_COMMANDER: 
-                    uiExpCommander = pCreature->GetGUID(); 
+                    uiExpCommander = creature->GetGUID(); 
                     return;
                 case NPC_XT002: 
-                    uiXT002 = pCreature->GetGUID(); 
+                    uiXT002 = creature->GetGUID(); 
                     return;
                 case NPC_STEELBREAKER: 
-                    uiSteelbreaker = pCreature->GetGUID(); 
+                    uiSteelbreaker = creature->GetGUID(); 
                     return;
                 case NPC_MOLGEIM: 
-                    uiMolgeim = pCreature->GetGUID(); 
+                    uiMolgeim = creature->GetGUID(); 
                     return;
                 case NPC_BRUNDIR: 
-                    uiBrundir = pCreature->GetGUID(); 
+                    uiBrundir = creature->GetGUID(); 
                     return;
                 case NPC_KOLOGARN: 
-                    uiKologarn = pCreature->GetGUID(); 
+                    uiKologarn = creature->GetGUID(); 
                     return;
                 case NPC_RIGHT_ARM: 
-                    uiRightArm = pCreature->GetGUID(); 
+                    uiRightArm = creature->GetGUID(); 
                     return;
                 case NPC_LEFT_ARM: 
-                    uiLeftArm = pCreature->GetGUID(); 
+                    uiLeftArm = creature->GetGUID(); 
                     return;
                 case NPC_AURIAYA: 
-                    uiAuriaya = pCreature->GetGUID(); 
+                    uiAuriaya = creature->GetGUID(); 
                     return;
                 case 32915: 
-                    uiBrightleaf = pCreature->GetGUID(); 
+                    uiBrightleaf = creature->GetGUID(); 
                     return;
                 case 32913: 
-                    uiIronbranch = pCreature->GetGUID(); 
+                    uiIronbranch = creature->GetGUID(); 
                     return;
                 case 32914: 
-                    uiStonebark = pCreature->GetGUID(); 
+                    uiStonebark = creature->GetGUID(); 
                     return;
                 case NPC_FREYA: 
-                    uiFreya = pCreature->GetGUID(); 
+                    uiFreya = creature->GetGUID(); 
                     return;
                 case NPC_THORIM: 
-                    uiThorim = pCreature->GetGUID(); 
+                    uiThorim = creature->GetGUID(); 
                     return;
                 case 32872: 
-                    uiRunicColossus = pCreature->GetGUID(); 
+                    uiRunicColossus = creature->GetGUID(); 
                     return;
                 case 32873: 
-                    uiRuneGiant = pCreature->GetGUID(); 
+                    uiRuneGiant = creature->GetGUID(); 
                     return;
                 case NPC_MIMIRON: 
-                    uiMimiron = pCreature->GetGUID(); 
+                    uiMimiron = creature->GetGUID(); 
                     return;
                 case 33432: 
-                    uiLeviathanMKII = pCreature->GetGUID(); 
+                    uiLeviathanMKII = creature->GetGUID(); 
                     return;
                 case 33651: 
-                    uiVX001 = pCreature->GetGUID(); 
+                    uiVX001 = creature->GetGUID(); 
                     return;
                 case 33670: 
-                    uiAerialUnit = pCreature->GetGUID(); 
+                    uiAerialUnit = creature->GetGUID(); 
                     return;
                 case 34068: 
-                    uiMagneticCore = pCreature->GetGUID(); 
+                    uiMagneticCore = creature->GetGUID(); 
                     return;
                 case NPC_VEZAX: 
-                    uiVezax = pCreature->GetGUID(); 
+                    uiVezax = creature->GetGUID(); 
                     return;
                 case 33410: 
-                    uiFreyaYS = pCreature->GetGUID(); 
+                    uiFreyaYS = creature->GetGUID(); 
                     return;
                 case 33413: 
-                    uiThorimYS = pCreature->GetGUID(); 
+                    uiThorimYS = creature->GetGUID(); 
                     return;
                 case 33412: 
-                    uiMimironYS = pCreature->GetGUID(); 
+                    uiMimironYS = creature->GetGUID(); 
                     return;
                 case 33411: 
-                    uiHodirYS = pCreature->GetGUID(); 
+                    uiHodirYS = creature->GetGUID(); 
                     return;
                 case 33890: 
-                    uiYoggSaronBrain = pCreature->GetGUID(); 
+                    uiYoggSaronBrain = creature->GetGUID(); 
                     return;
                 case NPC_YOGGSARON: 
-                    uiYoggSaron = pCreature->GetGUID(); 
-                    return;
-                case NPC_ALGALON:
-                    uiAlgalon = pCreature->GetGUID(); 
+                    uiYoggSaron = creature->GetGUID(); 
                     return;
 
                 // Keeper's Images
                 case 33241: 
-                    uiFreyaImage = pCreature->GetGUID();
+                    uiFreyaImage = creature->GetGUID();
                     {
-                        InstanceScript *data = pCreature->GetInstanceScript();
-                        pCreature->SetVisible(false);
+                        InstanceScript *data = creature->GetInstanceScript();
+                        creature->SetVisible(false);
                         if (data && data->GetBossState(BOSS_VEZAX) == DONE)
-                            pCreature->SetVisible(true);
+                            creature->SetVisible(true);
                     }
                     return;
                 case 33242: 
-                    uiThorimImage = pCreature->GetGUID();
+                    uiThorimImage = creature->GetGUID();
                     {
-                        InstanceScript *data = pCreature->GetInstanceScript();
-                        pCreature->SetVisible(false);
+                        InstanceScript *data = creature->GetInstanceScript();
+                        creature->SetVisible(false);
                         if (data && data->GetBossState(BOSS_VEZAX) == DONE)
-                            pCreature->SetVisible(true);
+                            creature->SetVisible(true);
                     }
                     return;
                 case 33244: 
-                    uiMimironImage = pCreature->GetGUID();
+                    uiMimironImage = creature->GetGUID();
                     {
-                        InstanceScript *data = pCreature->GetInstanceScript();
-                        pCreature->SetVisible(false);
+                        InstanceScript *data = creature->GetInstanceScript();
+                        creature->SetVisible(false);
                         if (data && data->GetBossState(BOSS_VEZAX) == DONE)
-                            pCreature->SetVisible(true);
+                            creature->SetVisible(true);
                     }            
                     return;
                 case 33213: 
-                    uiHodirImage = pCreature->GetGUID();
+                    uiHodirImage = creature->GetGUID();
                     {
-                        InstanceScript *data = pCreature->GetInstanceScript();
-                        pCreature->SetVisible(false);
+                        InstanceScript *data = creature->GetInstanceScript();
+                        creature->SetVisible(false);
                         if (data && data->GetBossState(BOSS_VEZAX) == DONE)
-                            pCreature->SetVisible(true);
+                            creature->SetVisible(true);
                     }
+                    return;
+
+                case NPC_ALGALON:
+                    uiAlgalonGUID = creature->GetGUID();
+                    if (uiAlgalonCountdown < 62)
+                    {
+                        creature->setFaction(7);
+                        creature->setActive(true);
+                    }
+                    else
+                        creature->SetVisible(false);
                     return;
             }
 
             // Hodir: Alliance npcs are spawned by default
             if (TeamInInstance == HORDE)
-                switch(pCreature->GetEntry())
+                switch(creature->GetEntry())
                 {
-                    case 33325: pCreature->UpdateEntry(32941, HORDE); return;
-                    case 32901: pCreature->UpdateEntry(33333, HORDE); return;
-                    case 33328: pCreature->UpdateEntry(33332, HORDE); return;
-                    case 32900: pCreature->UpdateEntry(32950, HORDE); return;
-                    case 32893: pCreature->UpdateEntry(33331, HORDE); return;
-                    case 33327: pCreature->UpdateEntry(32946, HORDE); return;
-                    case 32897: pCreature->UpdateEntry(32948, HORDE); return;
-                    case 33326: pCreature->UpdateEntry(33330, HORDE); return;
-                    case 32908: pCreature->UpdateEntry(32907, HORDE); return;
-                    case 32885: pCreature->UpdateEntry(32883, HORDE); return;
+                    case 33325: creature->UpdateEntry(32941, HORDE); return;
+                    case 32901: creature->UpdateEntry(33333, HORDE); return;
+                    case 33328: creature->UpdateEntry(33332, HORDE); return;
+                    case 32900: creature->UpdateEntry(32950, HORDE); return;
+                    case 32893: creature->UpdateEntry(33331, HORDE); return;
+                    case 33327: creature->UpdateEntry(32946, HORDE); return;
+                    case 32897: creature->UpdateEntry(32948, HORDE); return;
+                    case 33326: creature->UpdateEntry(33330, HORDE); return;
+                    case 32908: creature->UpdateEntry(32907, HORDE); return;
+                    case 32885: creature->UpdateEntry(32883, HORDE); return;
                 }
         }
+
+        /*
+        void OnPlayerKilled(Player* player) 
+        {
+            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            {
+                if (uiEncounter[i] == IN_PROGRESS)
+                {
+                    if (i < TYPE_ALGALON)
+                        uiPlayerDeathFlag |= UlduarBossDeadFlags(TypeToDeadFlag(i));
+                    else if (i == TYPE_ALGALON)
+                        uiAlgalonKillCount++; // He feeds on your tears
+                }
+            }
+        }
+        */
 
         uint64 GetData64(uint32 id)
         {
@@ -649,8 +678,8 @@ class instance_ulduar : public InstanceMapScript
                     return uiYoggSaronBrain;
                 case DATA_YOGGSARON:
                     return uiYoggSaron;
-                case DATA_ALGALON:
-                    return uiAlgalon;
+                case DATA_ALGALON:              
+                    return uiAlgalonGUID;
             }
             return 0;
         }
@@ -1043,6 +1072,51 @@ class instance_ulduar : public InstanceMapScript
                             pHodir->SetVisible(true);
                     }
                     break;
+                case BOSS_ALGALON:
+                    switch (state)
+                    {
+                        case SPECIAL:
+                            if (Creature* algalon = instance->GetCreature(uiAlgalonGUID))
+                            {
+                                algalon->setFaction(7);
+                                algalon->setActive(true);
+                                algalon->SetVisible(true);
+                            }
+                            HandleGameObject(uiAlgalonDoor1GUID, true);
+                            HandleGameObject(uiAlgalonDoor2GUID, true);
+                            uiAlgalonCountdown = 61;
+                            SaveToDB();
+                            break;
+                        case NOT_STARTED:
+                            HandleGameObject(uiAlgalonGlobeGUID, false);
+                            HandleGameObject(uiAlgalonBridgeGUID, false);
+                            HandleGameObject(uiAlgalonBridgeVisualGUID, false);
+                            HandleGameObject(uiAlgalonBridgeDoorGUID, true);
+                            break;
+                        case IN_PROGRESS:
+                            if (uiAlgalonCountdown > 60)
+                            {
+                                uiAlgalonCountdown = 60;
+                                DoUpdateWorldState(WORLDSTATE_ALGALON_SHOW, 1);
+                                DoUpdateWorldState(WORLDSTATE_ALGALON_TIME, uiAlgalonCountdown);
+                                SaveToDB();
+                            }
+                            HandleGameObject(uiAlgalonGlobeGUID, true);
+                            HandleGameObject(uiAlgalonBridgeGUID, true);
+                            HandleGameObject(uiAlgalonBridgeVisualGUID, true);
+                            HandleGameObject(uiAlgalonBridgeDoorGUID, false);
+                            break;
+                        case DONE:
+                            uiAlgalonCountdown = 0;
+                            DoUpdateWorldState(WORLDSTATE_ALGALON_SHOW, 0);
+                            SaveToDB();
+                            HandleGameObject(uiAlgalonGlobeGUID, false);
+                            HandleGameObject(uiAlgalonBridgeGUID, false);
+                            HandleGameObject(uiAlgalonBridgeVisualGUID, false);
+                            HandleGameObject(uiAlgalonBridgeDoorGUID, true);
+                            break;
+                    }
+                    break;
             }
             
             return true;
@@ -1050,19 +1124,86 @@ class instance_ulduar : public InstanceMapScript
         
         void CheckKeepersState()
         {
-            if (GameObject* pGo = instance->GetGameObject(KeepersGateGUID))
+            if (GameObject* go = instance->GetGameObject(KeepersGateGUID))
             {
-                InstanceScript *data = pGo->GetInstanceScript();
-                pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_LOCKED);
+                InstanceScript *data = go->GetInstanceScript();
+                go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_LOCKED);
                 if (data)
                     for (uint32 i = BOSS_MIMIRON; i < BOSS_VEZAX; ++i)
                         if (data->GetBossState(i) != DONE)
-                            pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_LOCKED);
+                            go->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_LOCKED);
             }
+        }
+
+        std::string GetSaveData()
+        {
+            OUT_SAVE_INST_DATA;
+
+            std::ostringstream saveStream;
+            saveStream << "U U " << GetBossSaveData() << " " << uiAlgalonCountdown;
+
+            OUT_SAVE_INST_DATA_COMPLETE;
+            return saveStream.str();
+        }
+
+        void Load(const char* strIn)
+        {
+            if (!strIn)
+            {
+                OUT_LOAD_INST_DATA_FAIL;
+                return;
+            }
+
+            OUT_LOAD_INST_DATA(strIn);
+
+            char dataHead1, dataHead2;
+
+            std::istringstream loadStream(strIn);
+            loadStream >> dataHead1 >> dataHead2;
+
+            if (dataHead1 == 'U' && dataHead2 == 'U')
+            {
+                for (uint8 i = 0; i < MAX_BOSS_NUMBER; ++i)
+                {
+                    uint32 tmpState;
+                    loadStream >> tmpState;
+                    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                        tmpState = NOT_STARTED;
+
+                    SetBossState(i, EncounterState(tmpState));
+                }
+                uint32 tmpState;
+                loadStream >> tmpState;
+                uiAlgalonCountdown = tmpState;
+            }
+
+            OUT_LOAD_INST_DATA_COMPLETE;
         }
 
         void Update(uint32 diff)
         {
+            if (uiAlgalonCountdown > 0 && uiAlgalonCountdown < 61)
+            {
+                if (uiCountdownTimer < diff)
+                {
+                    uiAlgalonCountdown--;
+
+                    if (uiAlgalonCountdown)
+                    {
+                        DoUpdateWorldState(WORLDSTATE_ALGALON_SHOW, 1);
+                        DoUpdateWorldState(WORLDSTATE_ALGALON_TIME, uiAlgalonCountdown);
+                    }
+                    else
+                    {
+                        if (Creature* algalon = instance->GetCreature(uiAlgalonGUID))
+                            algalon->AI()->DoAction(1);
+                    }
+                    SaveToDB();
+                    uiCountdownTimer += 1*MINUTE*IN_MILLISECONDS;
+                }
+                uiCountdownTimer -= diff;
+            }
+
             // Achievement Dwarfageddon control            
             if (dwarfageddonTimer)
             {
@@ -1149,14 +1290,14 @@ class go_call_tram : public GameObjectScript
     public:
     go_call_tram() : GameObjectScript("go_call_tram") {}
     
-    bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+    bool OnGossipHello(Player* pPlayer, GameObject* go)
     {
-        InstanceScript* pInstance = pGo->GetInstanceScript();
+        InstanceScript* pInstance = go->GetInstanceScript();
 
         if (!pInstance)
             return false;
 
-        switch(pGo->GetEntry())
+        switch(go->GetEntry())
         {
             case 194914:
             case 194438:
@@ -1194,9 +1335,9 @@ class go_archivum_console : public GameObjectScript
     public:
         go_archivum_console() : GameObjectScript("go_archivum_console") { }
 
-    bool OnGossipHello(Player *pPlayer, GameObject *pGO)
+    bool OnGossipHello(Player *pPlayer, GameObject *go)
     {
-        InstanceScript* pInstance = pGO->GetInstanceScript();
+        InstanceScript* pInstance = go->GetInstanceScript();
 
         if (!pInstance)
             return false;
@@ -1213,12 +1354,12 @@ class go_archivum_console : public GameObjectScript
             pPlayer->ADD_GOSSIP_ITEM(0, "Tell me about Thorim and his sigil", GOSSIP_SENDER_MAIN, THORIM);
         }
 
-        pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, pGO->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, go->GetGUID());
 
         return true;
     };
 
-    bool OnGossipSelect(Player *pPlayer, GameObject *pGO, uint32 sender, uint32 action)
+    bool OnGossipSelect(Player *pPlayer, GameObject *go, uint32 sender, uint32 action)
     {
         if (sender != GOSSIP_SENDER_MAIN) 
             return true;
@@ -1230,7 +1371,7 @@ class go_archivum_console : public GameObjectScript
             case HODIR:
             case MIMIRON:
             case THORIM:
-                pGO->MonsterSay("Entry denied. Access level insufficient.", LANG_UNIVERSAL, 0);
+                go->MonsterSay("Entry denied. Access level insufficient.", LANG_UNIVERSAL, 0);
                 pPlayer->CLOSE_GOSSIP_MENU();
                 //go->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 break;
