@@ -102,25 +102,25 @@ class instance_eye_of_eternity : public InstanceMapScript
      
         void SetData(uint32 uiType, uint32 uiData)
         {
-            switch(uiType)
+            switch (uiType)
             {
                 case TYPE_MALYGOS:
                     if (uiData == IN_PROGRESS)
                     {
-                        if(GameObject* m_uiExitPortal = instance->GetGameObject(m_uiExitPortalGUID))
+                        if (GameObject* m_uiExitPortal = instance->GetGameObject(m_uiExitPortalGUID))
                             m_uiExitPortal->SetPhaseMask(2, true);
-                        if(GameObject* m_uiFocusingIris = instance->GetGameObject(m_uiFocusingIrisGUID))
+                        if (GameObject* m_uiFocusingIris = instance->GetGameObject(m_uiFocusingIrisGUID))
                             m_uiFocusingIris->SetPhaseMask(2, true);
                     }
-                    if (uiData == NOT_STARTED)
+                    else if (uiData == NOT_STARTED)
                     {
                         //Summon Platform
                         SetData(TYPE_DESTROY_PLATFORM, NOT_STARTED);
                         //Summon focusing iris
-                        if(GameObject* pGo = instance->GetGameObject(m_uiFocusingIrisGUID))
+                        if (GameObject* pGo = instance->GetGameObject(m_uiFocusingIrisGUID))
                             pGo->SetPhaseMask(1, true);
                         //Summon exit portal
-                        if(GameObject* pGo = instance->GetGameObject(m_uiExitPortalGUID))
+                        if (GameObject* pGo = instance->GetGameObject(m_uiExitPortalGUID))
                             pGo->SetPhaseMask(1, true);
                     }
                     m_auiEncounter[0] = uiData;
@@ -134,7 +134,8 @@ class instance_eye_of_eternity : public InstanceMapScript
                         if (GameObject* m_uiMalygosPlatform = instance->GetGameObject(m_uiMalygosPlatformGUID))
                         {
                             m_uiMalygosPlatform->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
-                            m_uiMalygosPlatform->
+                            //m_uiMalygosPlatform->RemoveFromWorld();
+                            //m_uiMalygosPlatformGUID = 0;
                         }
                     }
                     else if (uiData == NOT_STARTED)
@@ -148,13 +149,13 @@ class instance_eye_of_eternity : public InstanceMapScript
                     m_uiMalygosPlatformData = uiData;
                     break;
                 case TYPE_VORTEX:
-                    if(uiData)
+                    if (uiData)
                         m_bVortex = true;
                     else
                         m_bVortex = false;
                     break;
                 case TYPE_PLAYER_HOVER:
-                    if(uiData == DATA_DROP_PLAYERS)
+                    if (uiData == DATA_DROP_PLAYERS)
                         dropAllPlayers();
                     break;
             }
@@ -239,10 +240,10 @@ class instance_eye_of_eternity : public InstanceMapScript
 
         void OnPlayerEnter(Player* pPlayer)
         {
-            if(GetData(TYPE_MALYGOS) == DONE)
+            if (GetData(TYPE_MALYGOS) == DONE)
             {
                 Creature *pTemp = pPlayer->SummonCreature(NPC_WYRMREST_SKYTALON, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ() - 5, 0);
-                if(pTemp)
+                if (pTemp)
                 {
                     pTemp->SetCreatorGUID(pPlayer->GetGUID());
                     pPlayer->EnterVehicle(pTemp, 0);
