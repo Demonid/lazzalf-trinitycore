@@ -567,17 +567,8 @@ public:
             //if (m_pInstance)
             //    sLog->outBoss("Anub Spike Id: %u,  UpdateAI, target GUID: %u", m_pInstance->instance->GetInstanceId(), m_uiTargetGUID);
 
-            Unit* permafrostCaster = NULL;
-            Aura* permafrostAura = NULL;
-            if (permafrostAura = me->GetAura(66193))
-                permafrostCaster = permafrostAura->GetCaster();
-            else if (permafrostAura = me->GetAura(67855))
-                permafrostCaster = permafrostAura->GetCaster();
-            else if (permafrostAura = me->GetAura(67856))
-                permafrostCaster = permafrostAura->GetCaster();
-            else if (permafrostAura = me->GetAura(67857))
-                permafrostCaster = permafrostAura->GetCaster();
-            if (!permafrostCaster)
+            if (!me->GetAura(66193) && !me->GetAura(67855) && 
+                !me->GetAura(67856) && !me->GetAura(67857))
                 me->RemoveAurasWithMechanic(1 << MECHANIC_SNARE);
 
             Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID);
