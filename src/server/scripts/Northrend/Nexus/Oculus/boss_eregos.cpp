@@ -220,15 +220,19 @@ public:
                 for (uint8 i = 0; i < 6; i++)
                 {
                     Creature* pSummoned = me->SummonCreature(30879, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 15000); 
-	                Unit* target = pSummoned->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                    if (target->GetVehicleBase())
+	                if (pSummoned)
                     {
-                        pSummoned->CombatStart(target->GetVehicleBase(), true);
-                        pSummoned->AddThreat(target->GetVehicleBase(), 50000.0f);
+                        if (pSummoned->AI())
+                            if (Unit* target = pSummoned->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                if (target->GetVehicleBase())
+                                {
+                                    pSummoned->CombatStart(target->GetVehicleBase(), true);
+                                    pSummoned->AddThreat(target->GetVehicleBase(), 50000.0f);
+                                }
+                        pSummoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        pSummoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+                        pSummoned->SetDisplayId(11686);
                     }
-                    pSummoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    pSummoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
-                    pSummoned->SetDisplayId(11686);
                 }
 
 
