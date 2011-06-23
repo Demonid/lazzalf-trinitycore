@@ -1420,7 +1420,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
         if (m_caster->IsHostileTo(unit))
         {
             // spell misses if target has Invisibility or Vanish and isn't visible for caster
-            if (m_spellInfo->speed > 0.0f && unit == m_targets.getUnitTarget()
+            if (m_spellInfo->speed > 0.0f && unit == m_targets.GetUnitTarget()
                 && ((unit->HasInvisibilityAura() || m_caster->HasInvisibilityAura())
                 || unit->HasAuraTypeWithFamilyFlags(SPELL_AURA_MOD_STEALTH, SPELLFAMILY_ROGUE, SPELLFAMILYFLAG_ROGUE_VANISH))
                 && !m_caster->canSeeOrDetect(unit))
@@ -2607,7 +2607,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                                         case TYPEID_UNIT:
                                         case TYPEID_PLAYER:
                                             m_targets.SetUnitTarget((Unit*)result);
-                                            AddUnitTarget(m_targets.getUnitTarget(), 0);
+                                            AddUnitTarget(m_targets.GetUnitTarget(), 0);
                                             break;
                                         default:
                                             break;
@@ -2861,7 +2861,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                 {
                     case 63025: // Gravity Bomb Normal
  	                case 64233: // Gravity Bomb Hero
-                        unitList.remove(m_targets.getUnitTarget());
+                        unitList.remove(m_targets.GetUnitTarget());
                         break;
                     default:
                         break;
@@ -5151,7 +5151,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         
     // Dispel check - only if the first effect is dispel
     if (!m_IsTriggeredSpell && (m_spellInfo->Effect[EFFECT_0] == SPELL_EFFECT_DISPEL))
-        if (Unit const * target = m_targets.getUnitTarget())
+        if (Unit const * target = m_targets.GetUnitTarget())
             if (!GetSpellRadius(m_spellInfo, EFFECT_0, target->IsFriendlyTo(m_caster)))
             {
                 bool check = true;
@@ -5364,7 +5364,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (m_caster->HasUnitState(UNIT_STAT_ROOT))
                     return SPELL_FAILED_ROOTED;
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                    if (Unit* target = m_targets.getUnitTarget())
+                    if (Unit* target = m_targets.GetUnitTarget())
                         if (!target->isAlive())
                             return SPELL_FAILED_BAD_TARGETS;
                 break;
@@ -5580,8 +5580,8 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_EFFECT_REDIRECT_THREAT:
             {
-                if (m_spellInfo->Id == 57934 && m_targets.getUnitTarget() &&
-                    m_targets.getUnitTarget()->GetTypeId() != TYPEID_PLAYER)
+                if (m_spellInfo->Id == 57934 && m_targets.GetUnitTarget() &&
+                    m_targets.GetUnitTarget()->GetTypeId() != TYPEID_PLAYER)
                     return SPELL_FAILED_BAD_TARGETS;
                 break;
             }
