@@ -208,7 +208,7 @@ void WardenWin::RequestData()
 
     uint32 id;
     uint8 type;
-    WardenData *wd;
+    WardenData *wd = NULL;
 
     SendDataId.clear();
 
@@ -228,6 +228,8 @@ void WardenWin::RequestData()
     {
         id = irand(1, maxid - 1);
         wd = WardenDataStorage.GetWardenDataById(id);
+        if (!wd)
+            continue;
         SendDataId.push_back(id);
         switch (wd->Type)
         {
@@ -252,6 +254,9 @@ void WardenWin::RequestData()
     for (std::vector<uint32>::iterator itr = SendDataId.begin(); itr != SendDataId.end(); ++itr)
     {
         wd = WardenDataStorage.GetWardenDataById(*itr);
+
+        if (!wd)
+            continue;
 
         type = wd->Type;
         buff << uint8(type ^ xorByte);
