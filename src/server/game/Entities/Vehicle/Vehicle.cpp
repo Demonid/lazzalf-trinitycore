@@ -417,6 +417,10 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         */
     }
 
+    // hide passenger from selection
+    if (seat->second.seatInfo->m_flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE)
+        unit->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
     if (me->IsInWorld())
     {
         unit->SendClearTarget();                                // SMSG_BREAK_TARGET
@@ -477,6 +481,10 @@ void Vehicle::RemovePassenger(Unit* unit)
             m_bonusHP = 0;
         }
     }
+
+    // restore passenger selection
+    if (seat->second.seatInfo->m_flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE)
+        unit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
     if (me->IsInWorld())
     {
