@@ -115,6 +115,13 @@ enum EmeraldDrake
     SPELL_EMERALD_DREAM_FUNNEL = 50344 //(60 yds) - Channeled - Transfers 5% of the caster's max health to a friendly drake every second for 10 seconds as long as the caster channels.
 };
 
+enum Achievements
+{
+    ACHI_RUBY_VOID      = 2044,
+    ACHI_AMBER_VOID     = 2046,
+    ACHI_EMERALD_VOID   = 2045,
+};
+
 class boss_eregos : public CreatureScript
 {
 public:
@@ -153,14 +160,14 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            if(Creature* RubyDrake = me->FindNearestCreature(27756, 200, true))
-                if(RubyDrake->HasAura(49464))
+            if (Creature* RubyDrake = me->FindNearestCreature(NPC_RUBY_DRAKE_VEHICLE, 200, true))
+                if (RubyDrake->HasAura(SPELL_RUBY_DRAKE_SADDLE))
                     RubyVoid = false;
-            if(Creature* AmberDrake = me->FindNearestCreature(27755, 200, true))
-                if(AmberDrake->HasAura(49460))
+            if (Creature* AmberDrake = me->FindNearestCreature(NPC_AMBER_DRAKE_VEHICLE, 200, true))
+                if (AmberDrake->HasAura(SPELL_AMBER_DRAKE_SADDLE))
                     AmberVoid = false;
-            if(Creature* EmeraldDrake = me->FindNearestCreature(27692, 200, true))
-                if(EmeraldDrake->HasAura(49346))
+            if (Creature* EmeraldDrake = me->FindNearestCreature(NPC_EMERALD_DRAKE_VEHICLE, 200, true))
+                if (EmeraldDrake->HasAura(SPELL_EMERALD_DRAKE_SADDLE))
                     EmeraldVoid = false;
 			    
             _EnterCombat();
@@ -214,7 +221,7 @@ public:
                 {
                     Creature* pSummoned = me->SummonCreature(30879, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 15000); 
 	                Unit* target = pSummoned->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                    if(target->GetVehicleBase())
+                    if (target->GetVehicleBase())
                     {
                         pSummoned->CombatStart(target->GetVehicleBase(), true);
                         pSummoned->AddThreat(target->GetVehicleBase(), 50000.0f);
@@ -244,14 +251,14 @@ public:
                 switch (eventId)
                 {
                     case EVENT_ARCANE_BARRAGE:
-                        if(me->GetMap()->IsHeroic())
+                        if (me->GetMap()->IsHeroic())
                             DoCast(me->getVictim(), SPELL_ARCANE_BARRAGE_H);
                         else
                             DoCast(me->getVictim(), SPELL_ARCANE_BARRAGE);
                         events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(3, 10) * IN_MILLISECONDS, 0, PHASE_NORMAL);
                         break;
                     case EVENT_ARCANE_VOLLEY:
-                        if(me->GetMap()->IsHeroic())
+                        if (me->GetMap()->IsHeroic())
                             DoCastAOE(SPELL_ARCANE_VOLLEY_H);
                         else
                             DoCastAOE(SPELL_ARCANE_VOLLEY);
@@ -275,12 +282,12 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if(EmeraldVoid == true)
-                instance->DoCompleteAchievement(2045);
-            if(RubyVoid == true)
-                instance->DoCompleteAchievement(2044);
-            if(AmberVoid == true)
-                instance->DoCompleteAchievement(2046);
+            if (EmeraldVoid == true)
+                instance->DoCompleteAchievement(ACHI_EMERALD_VOID);
+            if (RubyVoid == true)
+                instance->DoCompleteAchievement(ACHI_RUBY_VOID);
+            if (AmberVoid == true)
+                instance->DoCompleteAchievement(ACHI_AMBER_VOID);
 
             Talk(SAY_DEATH);
 
@@ -320,8 +327,68 @@ class spell_eregos_planar_shift : public SpellScriptLoader
         }
 };
 
+// criteria_id = 7179
+class achievement_experienced_drake_rider_ruby : public AchievementCriteriaScript
+{
+    public:
+        achievement_experienced_drake_rider_ruby() : AchievementCriteriaScript("achievement_experienced_drake_rider_ruby") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            if (Creature* mount = source->GetVehicleCreatureBase())
+                if (mount->GetEntry() == NPC_RUBY_DRAKE_VEHICLE)
+                    return true;
+
+            return false;
+        }
+};
+
+// criteria_id = 7177
+class achievement_experienced_drake_rider_amber : public AchievementCriteriaScript
+{
+    public:
+        achievement_experienced_drake_rider_amber() : AchievementCriteriaScript("achievement_experienced_drake_rider_amber") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            if (Creature* mount = source->GetVehicleCreatureBase())
+                if (mount->GetEntry() == NPC_AMBER_DRAKE_VEHICLE)
+                    return true;
+
+            return false;
+        }
+};
+
+// criteria_id = 7178
+class achievement_experienced_drake_rider_emerald : public AchievementCriteriaScript
+{
+    public:
+        achievement_experienced_drake_rider_emerald() : AchievementCriteriaScript("achievement_experienced_drake_rider_emerald") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            if (Creature* mount = source->GetVehicleCreatureBase())
+                if (mount->GetEntry() == NPC_EMERALD_DRAKE_VEHICLE)
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_eregos()
 {
     new boss_eregos();
     new spell_eregos_planar_shift();
+    new achievement_experienced_drake_rider_ruby();
+    new achievement_experienced_drake_rider_amber();
+    new achievement_experienced_drake_rider_emerald();
 }
