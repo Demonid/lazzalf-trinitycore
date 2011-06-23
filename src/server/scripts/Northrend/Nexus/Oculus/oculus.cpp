@@ -190,7 +190,7 @@ public:
 
         void OnHitEffect()
         {
-            if(GetCaster())
+            if (GetCaster())
                 GetCaster()->DealDamage(GetCaster(), (GetCaster()->GetMaxHealth()*3/10)/2);
         }
 
@@ -217,7 +217,7 @@ public:
 
         void RecalculateDamage()
         {
-            if(Aura* aur = GetHitUnit()->GetAura(SPELL_SHOCK_CHARGE, GetHitUnit()->GetGUID()))
+            if (Aura* aur = GetHitUnit()->GetAura(SPELL_SHOCK_CHARGE, GetHitUnit()->GetGUID()))
             {
                 SetHitDamage(6525*aur->GetStackAmount());
                 aur->Remove();
@@ -247,10 +247,10 @@ public:
 
         void OnHitEffect()
         {
-            if(GetHitUnit())
+            if (GetHitUnit())
             {
                 GetHitUnit()->SetAuraStack(SPELL_SHOCK_CHARGE, GetHitUnit(), 5);
-                if(GetCaster() && GetCaster()->HasAura(SPELL_SHOCK_CHARGE))
+                if (GetCaster() && GetCaster()->HasAura(SPELL_SHOCK_CHARGE))
                     GetCaster()->RemoveAura(SPELL_SHOCK_CHARGE);
             }
         }
@@ -281,16 +281,16 @@ class spell_amber_drake_temporal_rift : public SpellScriptLoader
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if(GetTarget())
+                if (GetTarget())
                     TargetHealth = GetTarget()->GetHealth();
                 damage = 0;
             }
 
             void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
-                if(damage = damage + (TargetHealth - GetTarget()->GetHealth()))
+                if (damage = damage + (TargetHealth - GetTarget()->GetHealth()))
                 {
-                    for( ; damage >= 15000; damage=damage-15000)
+                    for ( ; damage >= 15000; damage=damage-15000)
                         GetTarget()->AddAura(SPELL_SHOCK_CHARGE, GetTarget());
                     TargetHealth = GetTarget()->GetHealth();
                 }
@@ -350,13 +350,13 @@ public:
 
         void DamageTaken(Unit* pAttacker, uint32& )
         {	
-            if(pAttacker->IsVehicle())
+            if (pAttacker->IsVehicle())
                 pAttacker->DealDamage(pAttacker, pAttacker->GetHealth());
         }
 
         void EnterCombat(Unit* )
         {
-            if(me->GetMap()->IsHeroic())
+            if (me->GetMap()->IsHeroic())
                 me->AddAura(59276, me);
             else
                 me->AddAura(50717, me);
@@ -383,7 +383,7 @@ public:
 
         void DamageTaken(Unit* pAttacker, uint32& )
         {	
-            if(pAttacker->IsVehicle())
+            if (pAttacker->IsVehicle())
                 pAttacker->DealDamage(pAttacker, pAttacker->GetHealth());
         }
 
@@ -395,11 +395,11 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if(BlizzardTimer <= diff)
+            if (BlizzardTimer <= diff)
             {
-                if(!me->IsNonMeleeSpellCasted(false))
+                if (!me->IsNonMeleeSpellCasted(false))
                 {
-                    if(me->GetMap()->IsHeroic())
+                    if (me->GetMap()->IsHeroic())
                         DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true), 59278);
                     else
                         DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true), 50715);
@@ -409,11 +409,11 @@ public:
             }
             else BlizzardTimer -= diff;
 
-            if(FlameStrikeTimer <= diff)
+            if (FlameStrikeTimer <= diff)
             {
-                if(!me->IsNonMeleeSpellCasted(false))
+                if (!me->IsNonMeleeSpellCasted(false))
                 {
-                    if(me->GetMap()->IsHeroic())
+                    if (me->GetMap()->IsHeroic())
                         DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true), 61402);
                     else
                         DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true), 16102);
@@ -444,7 +444,7 @@ public:
 
         void DamageTaken(Unit* pAttacker, uint32& )
         {	
-            if(pAttacker->IsVehicle())
+            if (pAttacker->IsVehicle())
                 pAttacker->DealDamage(pAttacker, pAttacker->GetHealth());
         }
     };
