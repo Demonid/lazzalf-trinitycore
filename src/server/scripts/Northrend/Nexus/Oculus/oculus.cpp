@@ -36,7 +36,7 @@ enum Drakes
     GOSSIP_TEXTID_BELGARISTRASZ3                  = 13254,
     GOSSIP_TEXTID_VERDISA1                        = 1,
     GOSSIP_TEXTID_VERDISA2                        = 1,
-    GOSSIP_TEXTID_VERDISA3                        = 1,
+    GOSSIP_TEXTID_VERDISA3                        = 13258,
     GOSSIP_TEXTID_ETERNOS1                        = 1,
     GOSSIP_TEXTID_ETERNOS2                        = 1,
     GOSSIP_TEXTID_ETERNOS3                        = 13256,
@@ -47,7 +47,10 @@ enum Drakes
 
     NPC_VERDISA                                   = 27657,
     NPC_BELGARISTRASZ                             = 27658,
-    NPC_ETERNOS                                   = 27659
+    NPC_ETERNOS                                   = 27659,
+
+	SPELL_SHOCK_CHARGE                            = 49836,
+	SPELL_MARTYR                                  = 50253
 };
 
 class npc_oculus_drake : public CreatureScript
@@ -174,7 +177,293 @@ public:
 
 };
 
+
+
+class spell_emerald_drake_touch_the_nightmare : public SpellScriptLoader
+{
+public:
+    spell_emerald_drake_touch_the_nightmare() : SpellScriptLoader("spell_emerald_drake_touch_the_nightmare") { }
+
+    class spell_emerald_drake_touch_the_nightmare_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_emerald_drake_touch_the_nightmare_SpellScript);
+
+        void OnHitEffect()
+        {
+            if(GetCaster())
+                GetCaster()->DealDamage(GetCaster(), (GetCaster()->GetMaxHealth()*3/10)/2);
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_emerald_drake_touch_the_nightmare_SpellScript::OnHitEffect);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_emerald_drake_touch_the_nightmare_SpellScript();
+    }
+};
+
+class spell_amber_drake_schock_lance : public SpellScriptLoader
+{
+public:
+    spell_amber_drake_schock_lance() : SpellScriptLoader("spell_amber_drake_schock_lance") { }
+
+    class spell_amber_drake_schock_lance_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_amber_drake_schock_lance_SpellScript);
+
+        void RecalculateDamage()
+        {
+            if(Aura* aur = GetHitUnit()->GetAura(SPELL_SHOCK_CHARGE, GetHitUnit()->GetGUID()))
+            {
+                SetHitDamage(6525*aur->GetStackAmount());
+                aur->Remove();
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_amber_drake_schock_lance_SpellScript::RecalculateDamage);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_amber_drake_schock_lance_SpellScript();
+    }
+};
+
+class spell_amber_drake_time_stop : public SpellScriptLoader
+{
+public:
+    spell_amber_drake_time_stop() : SpellScriptLoader("spell_amber_drake_time_stop") { }
+
+    class spell_amber_drake_time_stop_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_amber_drake_time_stop_SpellScript);
+
+        void OnHitEffect()
+        {
+            if(GetHitUnit())
+            {
+                GetHitUnit()->SetAuraStack(SPELL_SHOCK_CHARGE, GetHitUnit(), 5);
+                if(GetCaster() && GetCaster()->HasAura(SPELL_SHOCK_CHARGE))
+                    GetCaster()->RemoveAura(SPELL_SHOCK_CHARGE);
+            }
+        }
+
+        void Register()
+        {
+            OnHit += SpellHitFn(spell_amber_drake_time_stop_SpellScript::OnHitEffect);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_amber_drake_time_stop_SpellScript();
+    }
+};
+
+class spell_amber_drake_temporal_rift : public SpellScriptLoader
+{
+    public:
+        spell_amber_drake_temporal_rift() : SpellScriptLoader("spell_amber_drake_temporal_rift") { }
+
+        class spell_amber_drake_temporal_rift_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_amber_drake_temporal_rift_AuraScript);
+
+            uint32 TargetHealth;
+            uint32 damage;
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if(GetTarget())
+                    TargetHealth = GetTarget()->GetHealth();
+                damage = 0;
+            }
+
+            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
+            {
+                if(damage = damage + (TargetHealth - GetTarget()->GetHealth()))
+                {
+                    for( ; damage >= 15000; damage=damage-15000)
+                        GetTarget()->AddAura(SPELL_SHOCK_CHARGE, GetTarget());
+                    TargetHealth = GetTarget()->GetHealth();
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_amber_drake_temporal_rift_AuraScript::OnApply, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_amber_drake_temporal_rift_AuraScript::HandlePeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_amber_drake_temporal_rift_AuraScript();
+        }
+};
+
+class npc_oculus_drakes : public CreatureScript
+{
+public:
+    npc_oculus_drakes() : CreatureScript("npc_oculus_drakes") { }
+
+    struct npc_oculus_drakesAI : public ScriptedAI
+    {
+        npc_oculus_drakesAI(Creature *c) : ScriptedAI(c) {}
+
+        uint32 DespawnTimer;
+
+        void Reset()
+        {
+            DespawnTimer = 20000;
+            me->SetSpeed(MOVE_FLIGHT, (float)2.8);
+        }
+        void UpdateAI(uint32 const diff)
+        {
+            if (DespawnTimer <= diff)
+                me->DisappearAndDie();
+            else DespawnTimer -= diff;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+	    return new npc_oculus_drakesAI(creature);
+    }
+};
+
+class npc_oculus_ringlord_conjurer : public CreatureScript
+{
+public:
+    npc_oculus_ringlord_conjurer() : CreatureScript("npc_oculus_ringlord_conjurer") { }
+
+    struct npc_oculus_ringlord_conjurerAI : public ScriptedAI
+    {
+        npc_oculus_ringlord_conjurerAI(Creature *c) : ScriptedAI(c) {}
+
+        void DamageTaken(Unit* pAttacker, uint32& )
+        {	
+            if(pAttacker->IsVehicle())
+                pAttacker->DealDamage(pAttacker, pAttacker->GetHealth());
+        }
+
+        void EnterCombat(Unit* )
+        {
+            if(me->GetMap()->IsHeroic())
+                me->AddAura(59276, me);
+            else
+                me->AddAura(50717, me);
+        }
+
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_oculus_ringlord_conjurerAI(creature);
+    }
+};
+
+class npc_oculus_ringlord_sorceress : public CreatureScript
+{
+public:
+    npc_oculus_ringlord_sorceress() : CreatureScript("npc_oculus_ringlord_sorceress") { }
+
+    struct npc_oculus_ringlord_sorceressAI : public ScriptedAI
+    {
+        npc_oculus_ringlord_sorceressAI(Creature *c) : ScriptedAI(c) {}
+
+        uint32 BlizzardTimer, FlameStrikeTimer;
+
+        void DamageTaken(Unit* pAttacker, uint32& )
+        {	
+            if(pAttacker->IsVehicle())
+                pAttacker->DealDamage(pAttacker, pAttacker->GetHealth());
+        }
+
+        void Reset()
+        {
+            BlizzardTimer = 6000;
+            FlameStrikeTimer = 3000;
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if(BlizzardTimer <= diff)
+            {
+                if(!me->IsNonMeleeSpellCasted(false))
+                {
+                    if(me->GetMap()->IsHeroic())
+                        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true), 59278);
+                    else
+                        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true), 50715);
+                    BlizzardTimer = urand(12000, 17000);
+                }
+                else BlizzardTimer = urand(5000,10000);
+            }
+            else BlizzardTimer -= diff;
+
+            if(FlameStrikeTimer <= diff)
+            {
+                if(!me->IsNonMeleeSpellCasted(false))
+                {
+                    if(me->GetMap()->IsHeroic())
+                        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true), 61402);
+                    else
+                        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true), 16102);
+                    FlameStrikeTimer = urand(6000, 13000);
+                }
+                else FlameStrikeTimer = urand(4000, 8000);
+            }
+            else FlameStrikeTimer -= diff;
+            DoMeleeAttackIfReady();
+        }
+
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_oculus_ringlord_sorceressAI(creature);
+    }
+};
+
+class npc_oculus_centrifuge_construct : public CreatureScript
+{
+public:
+    npc_oculus_centrifuge_construct() : CreatureScript("npc_oculus_centrifuge_construct") { }
+
+    struct npc_oculus_centrifuge_constructAI : public ScriptedAI
+    {
+        npc_oculus_centrifuge_constructAI(Creature *c) : ScriptedAI(c) {}
+
+        void DamageTaken(Unit* pAttacker, uint32& )
+        {	
+            if(pAttacker->IsVehicle())
+                pAttacker->DealDamage(pAttacker, pAttacker->GetHealth());
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_oculus_centrifuge_constructAI(creature);
+    }
+};
+
 void AddSC_oculus()
 {
     new npc_oculus_drake();
+    new spell_emerald_drake_touch_the_nightmare();
+    new spell_amber_drake_schock_lance();
+    new spell_amber_drake_time_stop();
+    new spell_amber_drake_temporal_rift();
+    new npc_oculus_drakes();
+    new npc_oculus_ringlord_conjurer();
+    new npc_oculus_ringlord_sorceress();
+    new npc_oculus_centrifuge_construct();
 }

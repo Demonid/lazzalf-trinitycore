@@ -49,8 +49,6 @@ public:
             uromGUID = 0;
             eregosGUID = 0;
 
-            eregosCacheGUID = 0;
-
             platformUrom = 0;
             centrifugueConstructCounter = 0;
 
@@ -269,10 +267,10 @@ public:
             uint64 uromGUID;
             uint64 eregosGUID;
 
-            uint64 eregosCacheGUID;
-
             uint8 platformUrom;
             uint8 centrifugueConstructCounter;
+
+            uint64 eregosCacheGUID;
 
             std::string str_data;
 
