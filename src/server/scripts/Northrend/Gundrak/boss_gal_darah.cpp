@@ -32,7 +32,7 @@ enum Spells
     SPELL_STAMPEDE                                = 55218,
     SPELL_WHIRLING_SLASH                          = 55250,
     H_SPELL_WHIRLING_SLASH                        = 59824,
-    SPELL_ECK_RESIDUE                             = 55817
+    // SPELL_ECK_RESIDUE                             = 55817,
 };
 
 //Yells
@@ -58,7 +58,7 @@ enum Achievements
 enum Displays
 {
     DISPLAY_RHINO                                 = 26265,
-    DISPLAY_TROLL                                 = 27061
+    DISPLAY_TROLL                                 = 27061,
 };
 
 enum CombatPhase
@@ -190,7 +190,7 @@ public:
                             ++uiPhaseCounter;
                         } else uiWhirlingSlashTimer -= diff;
                     }
-                break;
+                    break;
                 case RHINO:
                     if (uiPhaseCounter == 2)
                     {
