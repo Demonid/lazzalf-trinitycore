@@ -52,7 +52,7 @@ enum Yells
 enum Displays
 {
     DISPLAY_RHINO                                 = 26265,
-    DISPLAY_TROLL                                 = 27061
+    DISPLAY_TROLL                                 = 27061,
 };
 
 enum CombatPhase
@@ -75,7 +75,8 @@ public:
 
     struct boss_gal_darahAI : public ScriptedAI
     {
-        boss_gal_darahAI(Creature *c) : ScriptedAI(c)
+        boss_gal_darahAI(Creature *c) : ScriptedAI(c), lSummons(me)
+
         {
             pInstance = c->GetInstanceScript();
         }
@@ -89,6 +90,8 @@ public:
         uint32 uiTransformationTimer;
         std::list<uint64> impaledList;
         uint8 shareTheLove;
+        
+        SummonList lSummons;
 
         CombatPhase Phase;
 
@@ -110,6 +113,8 @@ public:
             uiPhaseCounter = 0;
 
             impaledList.clear();
+            lSummons.DespawnAll();
+
             shareTheLove = 0;
 
             bStartOfTransformation = true;
@@ -174,12 +179,12 @@ public:
 
                         if (uiWhirlingSlashTimer <= diff)
                         {
-                            DoCast(me->getVictim(), SPELL_WHIRLING_SLASH);
+                            DoCast(me->getVictim(), DUNGEON_MODE(SPELL_WHIRLING_SLASH, H_SPELL_WHIRLING_SLASH));
                             uiWhirlingSlashTimer = 21*IN_MILLISECONDS;
                             ++uiPhaseCounter;
                         } else uiWhirlingSlashTimer -= diff;
                     }
-                break;
+                    break;
                 case RHINO:
                     if (uiPhaseCounter == 2)
                     {
@@ -210,19 +215,19 @@ public:
                     {
                         if (uiPunctureTimer <= diff)
                         {
-                            DoCast(me->getVictim(), SPELL_PUNCTURE);
+                            DoCast(me->getVictim(), DUNGEON_MODE(SPELL_PUNCTURE, H_SPELL_PUNCTURE));
                             uiPunctureTimer = 8*IN_MILLISECONDS;
                         } else uiPunctureTimer -= diff;
 
                         if (uiEnrageTimer <= diff)
                         {
-                            DoCast(me->getVictim(), SPELL_ENRAGE);
+                            DoCast(me->getVictim(), DUNGEON_MODE(SPELL_ENRAGE, H_SPELL_ENRAGE));
                             uiEnrageTimer = 20*IN_MILLISECONDS;
                         } else uiEnrageTimer -= diff;
 
                         if (uiStompTimer <= diff)
                         {
-                            DoCast(me->getVictim(), SPELL_STOMP);
+                            DoCast(me->getVictim(), DUNGEON_MODE(SPELL_STOMP, H_SPELL_STOMP));
                             uiStompTimer = 20*IN_MILLISECONDS;
                         } else uiStompTimer -= diff;
 
@@ -230,7 +235,7 @@ public:
                         {
                             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             {
-                                DoCast(pTarget, SPELL_IMPALING_CHARGE);
+                                DoCast(pTarget, DUNGEON_MODE(SPELL_IMPALING_CHARGE, H_SPELL_IMPALING_CHARGE));
                                 CheckAchievement(pTarget->GetGUID());
                             }
                             uiImpalingChargeTimer = 31*IN_MILLISECONDS;
@@ -241,6 +246,12 @@ public:
             }
 
             DoMeleeAttackIfReady();
+        }
+        
+        void JustSummoned(Creature *summon)
+        {
+            summon->AI()->DoZoneInCombat();
+            lSummons.Summon(summon);
         }
 
         // 5 UNIQUE party members
@@ -272,6 +283,9 @@ public:
             if (pInstance)
                 pInstance->SetData(DATA_GAL_DARAH_EVENT, DONE);
         }
+            
+            lSummons.DespawnAll();
+
 
         void KilledUnit(Unit* victim)
         {
