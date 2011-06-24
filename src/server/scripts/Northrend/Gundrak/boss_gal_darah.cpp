@@ -282,10 +282,9 @@ public:
 
             if (pInstance)
                 pInstance->SetData(DATA_GAL_DARAH_EVENT, DONE);
-        }
-            
-            lSummons.DespawnAll();
 
+            lSummons.DespawnAll();
+        }      
 
         void KilledUnit(Unit* victim)
         {
