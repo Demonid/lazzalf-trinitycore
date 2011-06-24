@@ -63,7 +63,7 @@ enum AchievementCriteriaDataType
     ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT          = 18, // 0              0             maker instance script call for check current criteria requirements fit
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPED_ITEM      = 19, // item_level     item_quality  for equipped item in slot to check item level and quality
     ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID              = 20, // map_id         0             player must be on map with id in map_id
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_ARENA_TYPE          = 21, // arena_type     0             
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_ARENA_TYPE          = 21, // arena_type     0             player must be in the arena bracket specified by arena_type
 };
 
 #define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               22 // maximum value in AchievementCriteriaDataType enum

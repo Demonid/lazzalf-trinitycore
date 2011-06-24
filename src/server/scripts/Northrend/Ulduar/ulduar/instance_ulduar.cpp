@@ -111,6 +111,7 @@ class instance_ulduar : public InstanceMapScript
         uint64 uiThorimYS;
         uint64 uiMimironYS;
         uint64 uiHodirYS;
+        uint64 uiSara;
         uint64 uiYoggSaronBrain;
         uint64 uiYoggSaron;
 
@@ -226,6 +227,7 @@ class instance_ulduar : public InstanceMapScript
             uiThorimYS = 0;
             uiMimironYS = 0;
             uiHodirYS = 0;
+            uiSara = 0;
             uiYoggSaronBrain = 0;
             uiYoggSaron = 0;
 
@@ -292,6 +294,7 @@ class instance_ulduar : public InstanceMapScript
             freyaStatus = CRITERIA_MEETED;
             vezaxStatus = CRITERIA_MEETED;
             yoggStatus = CRITERIA_MEETED;
+            // He Feeds On Your Tears
             algalonStatus = CRITERIA_MEETED;
         }
 
@@ -518,6 +521,9 @@ class instance_ulduar : public InstanceMapScript
                 case 33411: 
                     uiHodirYS = creature->GetGUID(); 
                     return;
+                case 33134:
+                    uiSara = creature->GetGUID();
+                    return;
                 case 33890: 
                     uiYoggSaronBrain = creature->GetGUID(); 
                     return;
@@ -674,6 +680,8 @@ class instance_ulduar : public InstanceMapScript
                     return uiMimironYS;
                 case DATA_YS_HODIR:
                     return uiHodirYS;
+                case DATA_SARA:
+                    return uiSara;
                 case DATA_YOGGSARON_BRAIN:
                     return uiYoggSaronBrain;
                 case DATA_YOGGSARON:
