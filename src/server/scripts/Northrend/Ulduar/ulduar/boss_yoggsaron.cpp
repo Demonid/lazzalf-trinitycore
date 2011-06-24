@@ -754,7 +754,7 @@ public:
 
                 damage = 0;
                 me->SetFullHealth();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 phase = PHASE_2;
                 uiStep = 0;
                 uiPhase_timer = -1;
@@ -2334,6 +2334,32 @@ class criteria_tortured_champion : public AchievementCriteriaScript
         }
 };
 
+class criteria_kiss_and_makeup : public AchievementCriteriaScript
+{
+    public:
+        criteria_kiss_and_makeup() : AchievementCriteriaScript("criteria_kiss_and_makeup") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* instance = source->GetInstanceScript();
+
+            if (!instance || source->GetMapId() != ULDUAR_MAP)
+                return false;
+            
+            // Here we check if Sara is in phase 2. There's no need to check
+            // if player is targetting Sara: it's handled in achievement_criteria_data table
+            // Cannot use Sara->IsHostile(source) function because she is hostile also in phase 1
+            if (Creature* Sara = Unit::GetCreature(*source, instance ? instance->GetData64(DATA_SARA) : 0))
+                if (Sara->GetDisplayId() == 29182)
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_yoggsaron()
 {
     new boss_sara();
@@ -2365,4 +2391,5 @@ void AddSC_boss_yoggsaron()
     new criteria_assasination_of_king_lane();
     new criteria_forging_demon_soul();
     new criteria_tortured_champion();
+    new criteria_kiss_and_makeup();
 }

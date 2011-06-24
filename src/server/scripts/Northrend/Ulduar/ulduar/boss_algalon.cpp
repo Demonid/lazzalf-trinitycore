@@ -213,9 +213,13 @@ public:
                 instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_BOSS_FINISHED);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* victim)
         {
             DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+
+            if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (instance)
+                    instance->SetData(DATA_FEED, CRITERIA_NOT_MEETED);
         }
 
         void JumpToNextStep(uint32 timer)
@@ -868,6 +872,28 @@ class spell_algalon_phased : public SpellScriptLoader
         }
 };
 
+class criteria_feeds_tears : public AchievementCriteriaScript
+{
+    public:
+        criteria_feeds_tears() : AchievementCriteriaScript("criteria_feeds_tears") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* instance = source->GetInstanceScript();
+
+            if (!instance || source->GetMapId() != ULDUAR_MAP)
+                return false;
+            
+            if (instance->GetData(DATA_FEED) == CRITERIA_MEETED)
+                return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_algalon()
 {
     new boss_algalon();
@@ -882,4 +908,5 @@ void AddSC_boss_algalon()
     new spell_cosmic_smash_missile_target();
     new spell_remove_player_from_phase();
     new spell_algalon_phased();
+    new criteria_feeds_tears();
 }

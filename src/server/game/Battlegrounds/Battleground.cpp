@@ -804,10 +804,14 @@ void Battleground::EndBattleground(uint32 winner)
             else
             {
                 loser_arena_team->MemberLost(plr, winner_matchmaker_rating, loser_change);
-
-                // Arena lost => reset the win_rated_arena having the "no_lose" condition
-                plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE);
-                plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA, 1, loser_arena_team->GetType());
+                
+                ArenaTeamMember* member = loser_arena_team->GetMember(plr->GetGUID());
+                if (member)
+                {
+                    // Arena lost => reset the win_rated_arena having the "no_lose" condition
+                    plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE);
+                    plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA, 1, loser_arena_team->GetType());
+                }
             }
         }
 
