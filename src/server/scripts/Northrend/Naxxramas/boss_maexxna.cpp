@@ -68,7 +68,7 @@ public:
 
     struct boss_maexxnaAI : public BossAI
     {
-        boss_maexxnaAI(Creature *c) : BossAI(c, BOSS_MAEXXNA) {}
+        boss_maexxnaAI(Creature* c) : BossAI(c, BOSS_MAEXXNA) {}
 
         bool enraged;
 
@@ -81,6 +81,22 @@ public:
             events.ScheduleEvent(EVENT_SHOCK, urand(5000, 10000));
             events.ScheduleEvent(EVENT_POISON, urand(10000, 15000));
             events.ScheduleEvent(EVENT_SUMMON, 30000);
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            _JustDied();
+
+            me->SummonCreature(CREATURE_TELEPORTER, TeleporterPositions[2]);
+        }
+
+        void KilledUnit(Unit* victim)
+        {
+            if (instance)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    instance->SetData(DATA_IMMORTAL_ARACHNID, CRITERIA_NOT_MEETED);
+            }
         }
 
         void UpdateAI(const uint32 diff)
@@ -104,7 +120,7 @@ public:
                         // TODO : Add missing text
                         for (uint8 i = 0; i < RAID_MODE(1, 2); ++i)
                         {
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, -SPELL_WEB_WRAP))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, -SPELL_WEB_WRAP))
                             {
                                 pTarget->RemoveAura(RAID_MODE(SPELL_WEB_SPRAY_10, SPELL_WEB_SPRAY_25));
                                 uint8 pos = rand()%MAX_POS_WRAP;
@@ -159,7 +175,7 @@ public:
 
     struct mob_webwrapAI : public NullCreatureAI
     {
-        mob_webwrapAI(Creature *c) : NullCreatureAI(c), victimGUID(0) {}
+        mob_webwrapAI(Creature* c) : NullCreatureAI(c), victimGUID(0) {}
 
         uint64 victimGUID;
 
