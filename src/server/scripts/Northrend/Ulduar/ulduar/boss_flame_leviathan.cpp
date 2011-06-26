@@ -872,14 +872,14 @@ public:
 };
 
 // WHY IS THIS CALLED spell_???
-class spell_pool_of_tar : public CreatureScript
+class npc_pool_of_tar : public CreatureScript
 {
     public:
-        spell_pool_of_tar() : CreatureScript("spell_pool_of_tar") { }
+        npc_pool_of_tar() : CreatureScript("npc_pool_of_tar") { }
 
-        struct spell_pool_of_tarAI : public ScriptedAI
+        struct npc_pool_of_tarAI : public ScriptedAI
         {
-            spell_pool_of_tarAI(Creature* creature) : ScriptedAI(creature)
+            npc_pool_of_tarAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -903,7 +903,7 @@ class spell_pool_of_tar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new spell_pool_of_tarAI(creature);
+            return new npc_pool_of_tarAI(creature);
         }
 };
 
@@ -1721,7 +1721,7 @@ void AddSC_boss_flame_leviathan()
     new boss_flame_leviathan_overload_device();
     new boss_flame_leviathan_safety_container();
     new npc_mechanolift();
-    new spell_pool_of_tar();
+    new npc_pool_of_tar();
     new npc_colossus();
     new npc_thorims_hammer();
     new npc_mimirons_inferno();
