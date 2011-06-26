@@ -511,9 +511,9 @@ class spell_voljin_war_drums : public SpellScriptLoader
 void AddSC_durotar()
 {
     new npc_lazy_peon();
-    new npc_tiger_matriarch_credit();
-    new npc_tiger_matriarch();
-    new npc_troll_volunteer();
-    new spell_mount_check();
-    new spell_voljin_war_drums();
+    //new npc_tiger_matriarch_credit();
+    //new npc_tiger_matriarch();
+    //new npc_troll_volunteer();
+    //new spell_mount_check();
+    //new spell_voljin_war_drums();
 }
