@@ -5856,18 +5856,18 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                         // eff_radius == 0
                         float radius = GetSpellMaxRange(GetSpellProto(), false);
 
-                        CellPair p(Trinity::ComputeCellPair(caster->GetPositionX(), caster->GetPositionY()));
+                        CellPair p(Trinity::ComputeCellPair(target->GetPositionX(), target->GetPositionY()));
                         Cell cell(p);
                         cell.data.Part.reserved = ALL_DISTRICT;
 
-                        Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck u_check(caster, caster, radius);
-                        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck> checker(caster, targets, u_check);
+                        Trinity::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck u_check(target, target, radius);
+                        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck> checker(target, targets, u_check);
 
-                        TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck>, GridTypeMapContainer > grid_object_checker(checker);
-                        TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
+                        TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck>, GridTypeMapContainer > grid_object_checker(checker);
+                        TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyAttackableVisibleUnitInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
 
-                        cell.Visit(p, grid_object_checker,  *GetBase()->GetOwner()->GetMap(), *caster, radius);
-                        cell.Visit(p, world_object_checker, *GetBase()->GetOwner()->GetMap(), *caster, radius);
+                        cell.Visit(p, grid_object_checker,  *GetBase()->GetOwner()->GetMap(), *target, radius);
+                        cell.Visit(p, world_object_checker, *GetBase()->GetOwner()->GetMap(), *target, radius);
                     }
 
                     if (targets.empty())
@@ -5875,7 +5875,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
 
                     for (UnitList::iterator itr = targets.begin(); itr != targets.end();)
                     {
-                        if ((*itr)->isTotem() || (*itr)->GetCreatureType() == CREATURE_TYPE_CRITTER)
+                        if ((*itr)->isTotem()/* || (*itr)->GetCreatureType() == CREATURE_TYPE_CRITTER*/)
                             targets.erase(itr++);
                         else
                             ++itr;

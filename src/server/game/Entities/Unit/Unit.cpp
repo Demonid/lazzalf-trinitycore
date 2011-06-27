@@ -3139,7 +3139,7 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const* newAura, uint
         casterGUID = caster->GetGUID();
 
     // passive and Incanter's Absorption and auras with different type can stack with themselves any number of times
-    if (!IsPassiveSpell(newAura) && newAura->Id != 44413)
+    if (!IsMultiSlotAura(newAura))
     {
         // check if cast item changed
         uint64 castItemGUID = 0;
@@ -16054,7 +16054,10 @@ void Unit::SetStunned(bool apply)
         SetUInt64Value(UNIT_FIELD_TARGET, 0);
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
 
-//      AddUnitMovementFlag(MOVEMENTFLAG_ROOT);   
+        // MOVEMENTFLAG_ROOT cannot be used in conjunction with ie. MOVEMENTFLAG_FORWARD,
+        // this will freeze clients. That's why we remove any current movement flags before
+        // setting MOVEMENTFLAG_ROOT
+        SetUnitMovementFlags(MOVEMENTFLAG_ROOT);
 
         // Creature specific
         if (GetTypeId() != TYPEID_PLAYER)
@@ -16086,7 +16089,7 @@ void Unit::SetStunned(bool apply)
             data << uint32(0);
             SendMessageToSet(&data, true);
 
-//          RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
+            RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
         }
     }
 }
