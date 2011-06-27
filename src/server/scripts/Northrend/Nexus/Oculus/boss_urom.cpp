@@ -47,6 +47,10 @@ enum Yells
     SAY_AGGRO_3                                   = -1578002,
     SAY_AGGRO_4                                   = -1578003,
     SAY_TELEPORT                                  = -1578004,
+    SAY_DEATH                                     = -1578018,
+    SAY_KILL_1                                    = -1578019,
+    SAY_KILL_2                                    = -1578020,
+    SAY_KILL_3                                    = -1578021
 };
 
 enum eCreature
@@ -102,7 +106,7 @@ public:
 
         void Reset()
         {
-            if (instance->GetBossState(DATA_VAROS_EVENT) != DONE)
+            if (instance->GetBossState(DATA_VAROS_EVENT) != DONE && instance->GetData(DATA_UROM_PLATAFORM) < 3)
                 DoCast(SPELL_ARCANE_SHIELD);
 
             _Reset();
@@ -127,6 +131,12 @@ public:
             timeBombTimer = urand(20000, 25000);
         }
 
+        void DamageTaken(Unit* pAttacker, uint32& )
+        {	
+            if(pAttacker->IsVehicle())
+                pAttacker->DealDamage(pAttacker, pAttacker->GetHealth());
+        }
+
         void EnterCombat(Unit* /*pWho*/)
         {
             _EnterCombat();
@@ -137,6 +147,11 @@ public:
 
             if (instance->GetData(DATA_UROM_PLATAFORM) != 3)
                 instance->SetData(DATA_UROM_PLATAFORM, instance->GetData(DATA_UROM_PLATAFORM)+1);
+        }
+
+        void KilledUnit(Unit* /*victim*/)
+        {
+            DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2, SAY_KILL_3), me);
         }
 
         void AttackStart(Unit* pWho)
@@ -222,7 +237,7 @@ public:
         void UpdateAI(const uint32 uiDiff)
         {
             //Return since we have no target
-            if (!UpdateVictim())
+            if (!me->IsNonMeleeSpellCasted(false) && !UpdateVictim())
                 return;
 
             if (!instance || instance->GetData(DATA_UROM_PLATAFORM) < 2)
@@ -231,6 +246,8 @@ public:
             if (teleportTimer <= uiDiff)
             {
                 me->InterruptNonMeleeSpells(false);
+                if (frostBombTimer <= 8000)
+                    frostBombTimer += 8000;
                 DoScriptText(SAY_TELEPORT, me);
                 me->GetMotionMaster()->MoveIdle();
                 DoCast(SPELL_TELEPORT);
@@ -244,7 +261,10 @@ public:
                 {
                     canCast = false;
                     canGoBack = true;
-                    DoCastAOE(SPELL_EMPOWERED_ARCANE_EXPLOSION);
+                    if(me->GetMap()->IsHeroic())
+                        DoCastAOE(SPELL_EMPOWERED_ARCANE_EXPLOSION_2);
+                    else
+                        DoCastAOE(SPELL_EMPOWERED_ARCANE_EXPLOSION);
                     castArcaneExplosionTimer = 2000;
                 }else castArcaneExplosionTimer -= uiDiff;
             }
@@ -277,7 +297,12 @@ public:
                 if (timeBombTimer <= uiDiff)
                 {
                     if (Unit* pUnit = SelectTarget(SELECT_TARGET_RANDOM))
-                        DoCast(pUnit, SPELL_TIME_BOMB);
+					{
+                        if(me->GetMap()->IsHeroic())
+                           DoCast(pUnit, SPELL_TIME_BOMB_2);
+                        else
+                            DoCast(pUnit, SPELL_TIME_BOMB);
+					}
 
                     timeBombTimer = urand(20000, 25000);
                 } else timeBombTimer -= uiDiff;
@@ -288,6 +313,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
+             DoScriptText(SAY_DEATH, me);
             _JustDied();
         }
 

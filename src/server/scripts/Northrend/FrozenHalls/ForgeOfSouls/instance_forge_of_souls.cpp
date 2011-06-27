@@ -39,6 +39,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 devourerOfSouls = 0;
 
                 teamInInstance = 0;
+                soulFragmentsAlive = 0;
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -77,11 +78,28 @@ class instance_forge_of_souls : public InstanceMapScript
                 {
                     case DATA_TEAM_IN_INSTANCE:
                         return teamInInstance;
+                    case DATA_SOUL_POWER:
+                        return soulFragmentsAlive;
                     default:
                         break;
                 }
 
                 return 0;
+            }
+
+            void SetData(uint32 data, uint32 value)
+            {
+                switch (data)
+                {
+                    case DATA_SOUL_POWER:
+                        if (value == 1)
+                            ++soulFragmentsAlive;
+                        else if (value == 0)
+                            --soulFragmentsAlive;
+                        break;
+                    default:
+                        break;
+                }
             }
 
             uint64 GetData64(uint32 type)
@@ -145,6 +163,7 @@ class instance_forge_of_souls : public InstanceMapScript
             uint64 devourerOfSouls;
 
             uint32 teamInInstance;
+            uint32 soulFragmentsAlive;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap *map) const
