@@ -205,19 +205,19 @@ void Vehicle::RemoveAllPassengers()
     // for (itr = Seats.begin(); itr != Seats.end(); ++itr)
     //     ASSERT(!itr->second.passenger);
     for (SeatMap::iterator itr = Seats.begin(); itr != Seats.end(); ++itr)
-        if (Unit *passenger = ObjectAccessor::GetUnit(*GetBase(), itr->second.passenger))
+        if (Unit *passenger = ObjectAccessor::GetUnit(*GetBase(), itr->second.Passenger))
         {
             if (passenger->IsVehicle())
                 passenger->GetVehicleKit()->RemoveAllPassengers();
 
             if (passenger->GetVehicle() != this)
-                sLog->outCrash("Vehicle %u has invalid passenger %u. Seat: %i", me->GetEntry(), passenger->GetEntry(), itr->first);
+                sLog->outCrash("Vehicle %u has invalid passenger %u. Seat: %i", _me->GetEntry(), passenger->GetEntry(), itr->first);
 
             passenger->ExitVehicle();
-            if (itr->second.passenger)
+            if (itr->second.Passenger)
             {
-                sLog->outCrash("Vehicle %u cannot remove passenger %u. "UI64FMTD" is still on vehicle.", me->GetEntry(), passenger->GetEntry(), itr->second.passenger);
-                itr->second.passenger = 0;
+                sLog->outCrash("Vehicle %u cannot remove passenger %u. "UI64FMTD" is still on vehicle.", _me->GetEntry(), passenger->GetEntry(), itr->second.Passenger);
+                itr->second.Passenger = 0;
             }
         }
 }
@@ -557,7 +557,7 @@ uint8 Vehicle::GetAvailableSeatCount() const
 
 void Vehicle::Relocate(Position pos)
 {
-    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Relocate %u", me->GetEntry());
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Relocate %u", _me->GetEntry());
 
     std::set<Unit*> vehiclePlayers;
     for (int8 i = 0; i < 8; i++)
@@ -576,7 +576,7 @@ void Vehicle::Relocate(Position pos)
         }
     }
 
-    me->SetPosition(pos, true);
+    _me->SetPosition(pos, true);
     // problems, and impossible to do delayed enter
     //pPlayer->EnterVehicle(veh);
 }
