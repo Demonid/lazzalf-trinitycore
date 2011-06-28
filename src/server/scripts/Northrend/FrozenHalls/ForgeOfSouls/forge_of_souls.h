@@ -20,12 +20,15 @@
 
 #define FoSScriptName "instance_forge_of_souls"
 
+#define FORGE_OF_SOULS_MAP 632
+
 enum Data
 {
     DATA_BRONJAHM           = 0,
     DATA_DEVOURER           = 1,
     DATA_DEVOURER_EVENT     = 2,
     DATA_TEAM_IN_INSTANCE   = 3,
+    DATA_SOUL_POWER,
 };
 
 enum Creatures
