@@ -421,6 +421,145 @@ public:
     }
 };
 
+enum AhuneSummons
+{
+    NPC_FROZEN_CORE = 25865,
+    NPC_AHUNITE_HAILSTONE = 25755,
+    NPC_AHUNITE_COLDWAVE = 25756,
+    NPC_AHUNITE_FROSTWIND = 25757,
+};
+
+enum AhunePhases
+{
+    AHUNE_PHASE_1 = 1,
+    AHUNE_PHASE_2,
+    AHUNE_PHASE_3,
+};
+
+enum AhuneSpells
+{
+    SPELL_AHUNE_SHIELD = 45954,
+    SPELL_COLD_SLAP = 46145,
+};
+
+// TODO: da prendere nell'ista
+const Position SummonsPositions[3] =
+{
+    {0.0f, 0.0f, 0.0f, 0.0f},  // Boss
+    {0.0f, 0.0f, 0.0f, 0.0f},
+    {0.0f, 0.0f, 0.0f, 0.0f},
+};
+
+#define GO_ICE_CHEST 187892
+
+class boss_ahune : public CreatureScript
+{
+public:
+    boss_ahune() : CreatureScript("boss_ahune") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new boss_ahuneAI (pCreature);
+    }
+
+    struct boss_ahuneAI : public ScriptedAI
+    {
+        boss_ahuneAI(Creature* c) : ScriptedAI(c)
+        {
+            me->SummonCreature(NPC_FROZEN_CORE, SummonsPositions[0], TEMPSUMMON_CORPSE_DESPAWN);
+            // Deve castarsi ahune's shield
+        }
+
+        uint8 phase;
+        uint32 coldSlapTimer;
+        uint32 iceSpearTimer;
+        uint32 summonAddsTimer;
+        uint32 addsPhaseTimer;
+        uint32 corePhaseTimer;
+
+        void Reset()
+        {
+            //me->DisappearAndDie(); // se si wippa deve sparire
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            // Summon/attivazione della cassa
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            me->SummonCreature(NPC_AHUNITE_HAILSTONE, SummonsPositions[0], TEMPSUMMON_CORPSE_DESPAWN);
+            summonAddsTimer = 10 * IN_MILLISECONDS;
+            iceSpearTimer = 7 * IN_MILLISECONDS;
+            coldSlapTimer = 13 * IN_MILLISECONDS;
+            addsPhaseTimer = MINUTE * IN_MILLISECONDS;
+            phase = AHUNE_PHASE_1;
+        }
+
+        void UpdateAI(uint32 const diff)
+        {
+            // Check if we have a current target
+            if (!UpdateVictim())
+                return;
+
+            // Ice Spear viene castato in tutte le fasi
+            if (iceSpearTimer <= diff)
+            {
+                // Casta ice spear
+                iceSpearTimer = 7 * IN_MILLISECONDS;
+            }
+            else
+                iceSpearTimer -= diff;
+
+            if (phase == AHUNE_PHASE_1 || phase == AHUNE_PHASE_3)
+            {
+                if (summonAddsTimer <= diff)
+                {
+                    for (uint8 i = 0; i < 2; ++i)
+                        me->SummonCreature(NPC_AHUNITE_COLDWAVE, SummonsPositions[urand(0,2)], TEMPSUMMON_CORPSE_DESPAWN);
+
+                    if (phase == AHUNE_PHASE_3)
+                        me->SummonCreature(NPC_AHUNITE_FROSTWIND, SummonsPositions[urand(0,2)], TEMPSUMMON_CORPSE_DESPAWN);
+
+                    summonAddsTimer = 5 * IN_MILLISECONDS;
+                }
+                else
+                    summonAddsTimer -= diff;
+
+                if (coldSlapTimer <= diff)
+                {
+                    // casta cold slap
+                    coldSlapTimer = 7 * IN_MILLISECONDS;
+                }
+                else
+                    coldSlapTimer -= diff;
+
+                if (addsPhaseTimer <= diff)
+                {
+                    phase = AHUNE_PHASE_2;                    
+                    corePhaseTimer = 30 * IN_MILLISECONDS;
+                }
+                else
+                    addsPhaseTimer -= diff;
+            }
+            else if (phase == AHUNE_PHASE_2)
+            {
+                if (corePhaseTimer <= diff)
+                {
+                    phase = AHUNE_PHASE_3; 
+                    addsPhaseTimer = MINUTE * IN_MILLISECONDS;
+                }
+                else
+                    corePhaseTimer -= diff;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+};
+
 /*######
 ## AddSC
 ######*/
@@ -433,4 +572,5 @@ void AddSC_zangarmarsh()
     new npc_mortog_steamhead();
     new npc_kayra_longmane();
     new npc_timothy_daniels();
+    new boss_ahune();
 }
