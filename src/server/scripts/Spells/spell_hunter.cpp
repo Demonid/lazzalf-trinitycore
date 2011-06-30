@@ -196,7 +196,7 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            Unit *caster = GetCaster();
+            Unit* caster = GetCaster();
             int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(30));
             caster->CastCustomSpell(caster, HUNTER_PET_SPELL_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
         }
@@ -272,7 +272,7 @@ public:
         PrepareSpellScript(spell_hun_readiness_SpellScript)
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            Unit *caster = GetCaster();
+            Unit* caster = GetCaster();
             if (caster->GetTypeId() != TYPEID_PLAYER)
                 return;
 
@@ -430,8 +430,8 @@ public:
 
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
-            Unit *caster = GetCaster();
-            Unit *owner = caster->GetOwner();
+            Unit* caster = GetCaster();
+            Unit* owner = caster->GetOwner();
             if (!owner || caster->HasAura(HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF))
                 return;
             owner->CastCustomSpell(HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED, SPELLVALUE_BASE_POINT0, 100, caster, true);
@@ -477,7 +477,7 @@ public:
         {
             if (!GetHitUnit())
                 return;
-            Unit *caster = GetCaster();
+            Unit* caster = GetCaster();
             caster->CastSpell(caster, HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED, false);
         }
 

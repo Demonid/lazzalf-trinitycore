@@ -374,7 +374,7 @@ public:
             FindGameObjects();
             for (uint8 i = 0; i <= 3; ++i)
             {
-                if (GameObject *pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
+                if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
                     pPortal->ResetDoorOrButton();
             }
             DoCast(me, SPELL_KELTHUZAD_CHANNEL, false);
@@ -638,12 +638,12 @@ public:
                             break;
                         }
                         case EVENT_FISSURE:
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(pTarget, SPELL_SHADOW_FISURE);
                             events.RepeatEvent(urand(10000, 45000));
                             break;
                         case EVENT_BLAST:
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, RAID_MODE(1,0), 0, true))
+                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, RAID_MODE(1, 0), 0, true))
                                 DoCast(pTarget, SPELL_FROST_BLAST);
                             if (rand()%2)
                                 DoScriptText(SAY_FROST_BLAST, me);

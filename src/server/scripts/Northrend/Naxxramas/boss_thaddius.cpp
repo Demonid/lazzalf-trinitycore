@@ -460,7 +460,7 @@ class mob_feugen : public CreatureScript
         void JustDied(Unit* /*killer*/)
         {
             if (pInstance)
-                if (Creature *pThaddius = me->GetCreature(*me, pInstance->GetData64(DATA_THADDIUS)))
+                if (Creature* pThaddius = me->GetCreature(*me, pInstance->GetData64(DATA_THADDIUS)))
                     if (pThaddius->AI())
                     {
                         DoScriptText(SAY_FEUG_DEATH, me);

@@ -59,7 +59,7 @@ public:
             events.ScheduleEvent(EVENT_BERSERK, 12*60000);
         }
 
-        void SpellHitTarget(Unit* pTarget, const SpellEntry* spell)
+        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
         {
             if (spell->Id == uint32(SPELL_SLIME_SPRAY))
             {

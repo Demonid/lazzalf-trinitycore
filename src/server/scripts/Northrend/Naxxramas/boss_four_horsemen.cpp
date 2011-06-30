@@ -224,7 +224,7 @@ public:
                 movementCompleted = true;
                 me->SetReactState(REACT_AGGRESSIVE);
 
-                Unit *eventStarter = Unit::GetUnit(*me, uiEventStarterGUID);
+                Unit* eventStarter = Unit::GetUnit(*me, uiEventStarterGUID);
 
                 if (eventStarter && me->canAttack(eventStarter))
                     AttackStart(eventStarter);
@@ -248,7 +248,7 @@ public:
         }
 
         // switch to "who" if nearer than current target.
-        void SelectNearestTarget(Unit *who)
+        void SelectNearestTarget(Unit* who)
         {
             if (me->getVictim() && me->GetDistanceOrder(who, me->getVictim()) && me->canAttack(who))
             {
