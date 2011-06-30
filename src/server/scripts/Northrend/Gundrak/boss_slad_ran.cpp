@@ -79,7 +79,7 @@ public:
 
     struct boss_slad_ranAI : public ScriptedAI
     {
-        boss_slad_ranAI(Creature *c) : ScriptedAI(c), lSummons(me)
+        boss_slad_ranAI(Creature* c) : ScriptedAI(c), lSummons(me)
         {
             pInstance = c->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
@@ -256,7 +256,7 @@ public:
 
     struct mob_slad_ran_constrictorAI : public ScriptedAI
     {
-        mob_slad_ran_constrictorAI(Creature *c) : ScriptedAI(c) {}
+        mob_slad_ran_constrictorAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 uiGripOfSladRanTimer;
 
@@ -305,7 +305,7 @@ public:
 
     struct mob_slad_ran_viperAI : public ScriptedAI
     {
-        mob_slad_ran_viperAI(Creature *c) : ScriptedAI(c) {}
+        mob_slad_ran_viperAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 uiVenomousBiteTimer;
 

@@ -140,7 +140,7 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Unit *unitTarget = GetHitUnit())
+            if (Unit* unitTarget = GetHitUnit())
             {
                 uint32 spell_id = 0;
                 switch(unitTarget->getClass())
@@ -280,9 +280,9 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Unit *unitTarget = GetHitUnit())
+            if (Unit* unitTarget = GetHitUnit())
             {
-                Unit *caster = GetCaster();
+                Unit* caster = GetCaster();
 
                 uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
 
@@ -316,7 +316,7 @@ public:
         PrepareSpellScript(spell_pal_judgement_of_command_SpellScript)
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Unit *unitTarget = GetHitUnit())
+            if (Unit* unitTarget = GetHitUnit())
                 if (SpellEntry const* spell_proto = sSpellStore.LookupEntry(GetEffectValue()))
                     GetCaster()->CastSpell(unitTarget, spell_proto, true, NULL);
         }

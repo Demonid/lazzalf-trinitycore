@@ -137,14 +137,14 @@ public:
                 instance->SetData(DATA_IMMORTAL_FROSTWYRM, instance->GetData(DATA_IMMORTAL_SAPPHI));
         }
 
-        void SpellHitTarget(Unit* pTarget, const SpellEntry* spell)
+        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
         {
             if (spell->Id == SPELL_ICEBOLT)
             {
                 IceBlockMap::iterator itr = iceblocks.find(pTarget->GetGUID());
                 if (itr != iceblocks.end() && !itr->second)
                 {
-                    if (GameObject *iceblock = me->SummonGameObject(GO_ICEBLOCK, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, 0, 0, 0, 0, 25000))
+                    if (GameObject* iceblock = me->SummonGameObject(GO_ICEBLOCK, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, 0, 0, 0, 0, 25000))
                         itr->second = iceblock->GetGUID();
                 }
             }
@@ -282,7 +282,7 @@ public:
                         case EVENT_BLIZZARD:
                         {
                             //DoCastAOE(SPELL_SUMMON_BLIZZARD);
-                            if (Creature *pSummon = DoSummon(MOB_BLIZZARD, me, 0.0f, urand(25000, 30000), TEMPSUMMON_TIMED_DESPAWN))
+                            if (Creature* pSummon = DoSummon(MOB_BLIZZARD, me, 0.0f, urand(25000, 30000), TEMPSUMMON_TIMED_DESPAWN))
                                 pSummon->GetMotionMaster()->MoveRandom(40);
                             events.ScheduleEvent(EVENT_BLIZZARD, RAID_MODE(20000, 7000), 0, PHASE_GROUND);
                             break;

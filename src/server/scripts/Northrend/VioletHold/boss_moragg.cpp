@@ -38,7 +38,7 @@ public:
 
     struct boss_moraggAI : public ScriptedAI
     {
-        boss_moraggAI(Creature *c) : ScriptedAI(c)
+        boss_moraggAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -68,7 +68,7 @@ public:
         {
             if (pInstance)
             {
-                if (GameObject *pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_MORAGG_CELL)))
+                if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_MORAGG_CELL)))
                     if (pDoor->GetGoState() == GO_STATE_READY)
                    {
                         EnterEvadeMode();
