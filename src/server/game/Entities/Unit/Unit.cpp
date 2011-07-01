@@ -3153,7 +3153,7 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const* newAura, uint
             // extremely rare case
             // let's just recreate aura
             if (effMask != foundAura->GetEffectMask())
-                return NULL;
+                return NULL;            
 
             // update basepoints with new values - effect amount will be recalculated in ModStackAmount
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -16069,7 +16069,8 @@ void Unit::SetStunned(bool apply)
         // this will freeze clients. That's why we remove any current movement flags before
         // setting MOVEMENTFLAG_ROOT
         RemoveUnitMovementFlag(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT);
-        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
+        if (GetTypeId() != TYPEID_PLAYER)
+            AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
         // Creature specific
         if (GetTypeId() != TYPEID_PLAYER)
@@ -16101,7 +16102,8 @@ void Unit::SetStunned(bool apply)
             data << uint32(0);
             SendMessageToSet(&data, true);
 
-            RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
+            if (GetTypeId() != TYPEID_PLAYER)
+                RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
         }
     }
 }
