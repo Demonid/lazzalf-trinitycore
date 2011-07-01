@@ -108,8 +108,8 @@ bool ChatHandler::HandleJailCommand(const char *args)
         uint32 jail_gmacc = m_session->GetAccountId();
         std::string jail_gmchar = m_session->GetPlayerName();
 
-        CharacterDatabase.escape_string(jail_char);
-        CharacterDatabase.escape_string(jail_reason);
+        CharacterDatabase.EscapeString(jail_char);
+        CharacterDatabase.EscapeString(jail_reason);
 		if (!result) 
             CharacterDatabase.PExecute("INSERT INTO `jail` VALUES ('%u','%s','%u','%u','%s','%u','%u','%s',CURRENT_TIMESTAMP,'%u')", jail_guid, jail_char.c_str(), jail_release, jail_amnestietime, jail_reason.c_str(), jail_times, jail_gmacc, jail_gmchar.c_str(), jailtime);
         else 
