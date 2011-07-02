@@ -3155,6 +3155,20 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellEntry const* newAura, uint
             if (effMask != foundAura->GetEffectMask())
                 return NULL;            
 
+            switch (newAura->Id)
+            {
+                case 53390: // Tidal Waves
+                case 16246: // Clearcasting di Elemental Focus
+                case 54274: // Backdraft 1
+                case 54276: // Backdraft 2
+                case 54277: // Backdraft 3
+                    RemoveAurasDueToSpell(newAura->Id);
+                    return NULL;
+                    break;
+                default:
+                    break;
+            }
+
             // update basepoints with new values - effect amount will be recalculated in ModStackAmount
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
