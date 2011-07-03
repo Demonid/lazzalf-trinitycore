@@ -471,7 +471,7 @@ public:
                             {
                                 target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                                 
-                                if (!pTarget || target->ToPlayer())
+                                if (!target || target->ToPlayer())
                                     continue;
                                     
                                 if (target->GetEntry() == VEHICLE_SIEGE || target->GetEntry() == VEHICLE_DEMOLISHER)
@@ -691,7 +691,7 @@ public:
 
             /*if (NapalmTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     if (!me->IsWithinDist(target, 20))
                         DoCast(target, SPELL_NAPALM);
                 NapalmTimer = urand(10000, 15000);

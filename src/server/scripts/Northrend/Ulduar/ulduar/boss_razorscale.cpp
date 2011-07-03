@@ -317,12 +317,12 @@ class boss_razorscale : public CreatureScript
                             events.ScheduleEvent(EVENT_BREATH, 20000, 0, PHASE_PERMAGROUND);
                             return;
                         case EVENT_FIREBALL:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                                 DoCast(target, RAID_MODE(SPELL_FIREBALL_10, SPELL_FIREBALL_25));
                             events.ScheduleEvent(EVENT_FIREBALL, 3000, 0, PHASE_PERMAGROUND);
                             return;
                         case EVENT_DEVOURING:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                                 DoCast(target, SPELL_DEVOURING_FLAME);
                             events.ScheduleEvent(EVENT_DEVOURING, 10000, 0, PHASE_PERMAGROUND);
                             return;
@@ -354,12 +354,12 @@ class boss_razorscale : public CreatureScript
                             events.ScheduleEvent(EVENT_LAND, 5500, 0, PHASE_GROUND);
                             return;
                         case EVENT_FIREBALL:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                                 DoCast(target, RAID_MODE(SPELL_FIREBALL_10, SPELL_FIREBALL_25));
                             events.ScheduleEvent(EVENT_FIREBALL, 3000, 0, PHASE_FLIGHT);
                             return;
                         case EVENT_DEVOURING:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                                 DoCast(target, SPELL_DEVOURING_FLAME);
                             events.ScheduleEvent(EVENT_DEVOURING, 10000, 0, PHASE_FLIGHT);
                             return;

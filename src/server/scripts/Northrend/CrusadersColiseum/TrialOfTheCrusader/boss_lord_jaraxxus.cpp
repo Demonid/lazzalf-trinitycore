@@ -433,7 +433,7 @@ public:
             }
         }
 
-        /*void SpellHitTarget(Unit *pTarget, const SpellEntry *pSpell)
+        /*void SpellHitTarget(Unit *target, const SpellEntry *pSpell)
         {
             if (pSpell->Id == SPELL_FEL_STREAK)
                 DoCastAOE(SPELL_FEL_INFERNO); //66517
@@ -449,7 +449,7 @@ public:
 
             if (m_uiFelStreakTimer <= uiDiff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_FEL_STREAK);
                 m_uiFelStreakTimer = 30*IN_MILLISECONDS;
             } else m_uiFelStreakTimer -= uiDiff;
@@ -596,7 +596,7 @@ public:
 
             if (m_uiSpinningStrikeTimer <= uiDiff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                 {
                     DoCast(target,SPELL_SPINNING_STRIKE_1);
                     DoCast(target,SPELL_SPINNING_STRIKE_2);
@@ -607,7 +607,7 @@ public:
 
             if (IsHeroic() && m_uiMistressKissTimer <= uiDiff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                     DoCast(target, SPELL_MISTRESS_KISS);
                 m_uiMistressKissTimer = 30*IN_MILLISECONDS;
             } else m_uiMistressKissTimer -= uiDiff;
@@ -636,7 +636,7 @@ public:
         {
             uint32 dmg = 0;
             if(Unit* target = GetHitUnit())
-                dmg = ((float)pTarget->GetMaxHealth())*50.0f/100.0f;
+                dmg = ((float)target->GetMaxHealth())*50.0f/100.0f;
             SetHitDamage(dmg);
         }
 

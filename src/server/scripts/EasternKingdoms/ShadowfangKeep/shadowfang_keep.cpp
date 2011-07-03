@@ -550,17 +550,17 @@ public:
                 switch(eventId)
                 {
                     case EVENT_CHANGE_TARGET:
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             me->AI()->AttackStart(target);
                         events.RescheduleEvent(EVENT_CHANGE_TARGET, 10000);
                         break;
                     case EVENT_THROW_PERFUME:
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_THROW_PERFUME);
                         events.RescheduleEvent(EVENT_THROW_PERFUME, 35000);
                         break;
                     case EVENT_THROW_COLOGNE:
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_THROW_COLOGNE);
                         events.RescheduleEvent(EVENT_THROW_COLOGNE, 35000);
                         break;

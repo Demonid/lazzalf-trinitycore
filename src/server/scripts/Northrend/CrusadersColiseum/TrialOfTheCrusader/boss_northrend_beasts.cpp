@@ -324,7 +324,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (Unit *pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
+            if (Unit *target = Unit::GetPlayer(*me, m_uiTargetGUID))
                 if (target->isAlive())
                     target->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
             if (m_pInstance)
@@ -347,7 +347,7 @@ public:
 
             if (Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID))
             {
-                if (!pTarget->isAlive())
+                if (!target->isAlive())
                 {
                     if (m_pInstance)
                     {

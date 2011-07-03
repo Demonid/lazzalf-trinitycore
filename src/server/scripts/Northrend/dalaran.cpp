@@ -83,10 +83,10 @@ public:
                 return;
 
             // Check for disguise (needed for quests An Audience With The Arcanist / A Meeting With The Magister)
-            if (pPlayer->HasAura(SILVER_COVENANT_DISGUISE_F) || 
-                pPlayer->HasAura(SILVER_COVENANT_DISGUISE_M) || 
-                pPlayer->HasAura(SUNREAVER_DISGUISE_F) || 
-                pPlayer->HasAura(SUNREAVER_DISGUISE_M))
+            if (player->HasAura(SILVER_COVENANT_DISGUISE_F) || 
+                player->HasAura(SILVER_COVENANT_DISGUISE_M) || 
+                player->HasAura(SUNREAVER_DISGUISE_F) || 
+                player->HasAura(SUNREAVER_DISGUISE_M))
                 return;
 
             switch (me->GetEntry())

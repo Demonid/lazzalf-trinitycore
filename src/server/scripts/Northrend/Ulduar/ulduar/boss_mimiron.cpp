@@ -329,7 +329,7 @@ public:
                 if (FlameTimer <= diff)
                 {
                     for (uint8 i = 0; i < 3; ++i)
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             if (Creature* Flame = me->SummonCreature(NPC_FLAME, target->GetPositionX() + irand(-6,6), target->GetPositionY() + irand(-6,6), target->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN))
                                 Flame->AI()->AttackStart(target);
                     FlameTimer = 30000;
@@ -1147,7 +1147,7 @@ public:
                     {
                         case EVENT_RAPID_BURST:
                             me->GetMotionMaster()->Initialize();
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 if (Creature *BurstTarget = me->SummonCreature(NPC_BURST_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 3000))
                                     DoCast(BurstTarget, SPELL_RAPID_BURST);
                             events.RescheduleEvent(EVENT_RAPID_BURST, 3000, 0, PHASE_VX001_SOLO);
@@ -1164,11 +1164,11 @@ public:
                             events.CancelEvent(EVENT_LASER_BARRAGE);
                             break;
                         case EVENT_ROCKET_STRIKE:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 if (Creature *missile = CAST_CRE(me->GetVehicleKit()->GetPassenger(5)))
                                     missile->CastSpell(target, SPELL_ROCKET_STRIKE, true);
                             if (phase == PHASE_VX001_ASSEMBLED)
-                                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                     if (Creature *missile = CAST_CRE(me->GetVehicleKit()->GetPassenger(6)))
                                         missile->CastSpell(target, SPELL_ROCKET_STRIKE, true);
                             events.RescheduleEvent(EVENT_ROCKET_STRIKE, urand(20000, 25000));
@@ -1178,7 +1178,7 @@ public:
                             events.RescheduleEvent(EVENT_HEAT_WAVE, 10000, 0, PHASE_VX001_SOLO);
                             break;
                         case EVENT_HAND_PULSE:
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 DoCast(target, SPELL_HAND_PULSE);
                             events.RescheduleEvent(EVENT_HAND_PULSE, urand(10000, 12000));
                             break;
@@ -1384,7 +1384,7 @@ public:
                             {
                                 if (me->getVictim()->IsWithinDist3d(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 35))
                                     DoCastVictim(SPELL_PLASMA_BALL);
-                                else if (Unit *pTarget = SelectTarget(SELECT_TARGET_NEAREST, 0))
+                                else if (Unit *target = SelectTarget(SELECT_TARGET_NEAREST, 0))
                                     DoCast(target, SPELL_PLASMA_BALL);
                             }
                             events.RescheduleEvent(EVENT_PLASMA_BALL, 2000);

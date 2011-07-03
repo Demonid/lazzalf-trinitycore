@@ -191,7 +191,7 @@ class boss_auriaya : public CreatureScript
                         events.CancelEvent(EVENT_DEFENDER);
                         break;
                     case EVENT_SUMMON:
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                             DoCast(target, SPELL_SUMMON_SWARMING_GUARDIAN);
                         events.ScheduleEvent(EVENT_SUMMON, 35000);
                         break;
@@ -301,7 +301,7 @@ class npc_sanctum_sentry : public CreatureScript
         {
             if (!UpdateVictim())
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                 {
                     me->AddThreat(target, 100.0f);
                     me->AI()->AttackStart(target);
@@ -318,7 +318,7 @@ class npc_sanctum_sentry : public CreatureScript
             
             if (PounceTimer <= int32(uiDiff))
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                 {
                     me->AddThreat(target, 100.0f);
                     me->AI()->AttackStart(target);
@@ -401,7 +401,7 @@ class npc_feral_defender : public CreatureScript
         {
             if (!UpdateVictim())
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                 {
                     me->AddThreat(target, 100.0f);
                     me->AI()->AttackStart(target);
@@ -415,7 +415,7 @@ class npc_feral_defender : public CreatureScript
 
             if (PounceTimer <= int32(uiDiff))
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                 {
                     me->AddThreat(target, 100.0f);
                     me->AI()->AttackStart(target);
@@ -427,7 +427,7 @@ class npc_feral_defender : public CreatureScript
             
             if (RushTimer <= int32(uiDiff))
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
+                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                 {
                     me->AddThreat(target, 100.0f);
                     me->AI()->AttackStart(target);

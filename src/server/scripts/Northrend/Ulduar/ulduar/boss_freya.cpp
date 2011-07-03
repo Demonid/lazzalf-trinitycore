@@ -1296,7 +1296,7 @@ class creature_ancient_conservator : public CreatureScript
             {
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                 //Prevent casting natures fury on a target that is already affected
-                if (target && !pTarget->HasAura(RAID_MODE(RAID_10_SPELL_NATURES_FURY, RAID_25_SPELL_NATURES_FURY)))
+                if (target && !target->HasAura(RAID_MODE(RAID_10_SPELL_NATURES_FURY, RAID_25_SPELL_NATURES_FURY)))
                     DoCast(target, RAID_MODE(RAID_10_SPELL_NATURES_FURY, RAID_25_SPELL_NATURES_FURY));
                 me->AddAura(SPELL_CONSERVATOR_GRIP, me);
                 uiNaturesFuryTimer = 5000;

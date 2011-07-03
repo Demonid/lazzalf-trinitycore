@@ -222,8 +222,6 @@ class achievement_torch_juggler : public AchievementCriteriaScript
         }
 };
 
-};
-
 void AddSC_achievement_scripts()
 {
     new achievement_storm_glory();

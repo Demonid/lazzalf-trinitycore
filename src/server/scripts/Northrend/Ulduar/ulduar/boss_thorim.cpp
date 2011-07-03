@@ -763,7 +763,7 @@ class mob_runic_colossus : public CreatureScript
             
             if (ChargeTimer <= int32(uiDiff))
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true))
+                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true))
                     DoCast(target, RAID_MODE(SPELL_CHARGE_10, SPELL_CHARGE_25));
                 ChargeTimer = 20000;
             }

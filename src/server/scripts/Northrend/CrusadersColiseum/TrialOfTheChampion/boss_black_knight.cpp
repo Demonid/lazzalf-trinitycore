@@ -279,7 +279,7 @@ class boss_black_knight : public CreatureScript
 
                     if (uiDesecration1 <= uiDiff)
                     {
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         {
                             if (target && target->isAlive())
                                 DoCast(target,SPELL_DESECRATION);
@@ -313,7 +313,7 @@ class boss_black_knight : public CreatureScript
 
                     if (uiDeathRespiteTimer <= uiDiff)
                     {
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         {
                             if (target && target->isAlive())
                             DoCast(target,SPELL_DEATH_RESPITE);
