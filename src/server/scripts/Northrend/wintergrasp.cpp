@@ -14,7 +14,7 @@ class npc_demolisher_engineerer : public CreatureScript
 
     struct npc_demolisher_engineererAI : public PassiveAI
     {
-        npc_demolisher_engineererAI(Creature* pCreature) : PassiveAI(pCreature)
+        npc_demolisher_engineererAI(Creature* creature) : PassiveAI(creature)
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -23,22 +23,22 @@ class npc_demolisher_engineerer : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_demolisher_engineererAI (pCreature);
+        return new npc_demolisher_engineererAI (creature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         OutdoorPvPWG *pvpWG = (OutdoorPvPWG*) sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORTHREND_WINTERGRASP);
 
         if (!pvpWG)
             return false;
 
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(creature->GetGUID());
 
-        if (pPlayer->isGameMaster() || pCreature->GetZoneScript() && pCreature->GetZoneScript()->GetData(pCreature->GetDBTableGUIDLow()))
+        if (pPlayer->isGameMaster() || creature->GetZoneScript() && creature->GetZoneScript()->GetData(creature->GetDBTableGUIDLow()))
         {
             if (pPlayer->HasAura(SPELL_CORPORAL))
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, pvpWG->GetLocaleString(WG_STRING_ENG_GOSSIP_1, sWorld->GetDefaultDbcLocale()), GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF);
@@ -52,23 +52,23 @@ class npc_demolisher_engineerer : public CreatureScript
         else
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, pvpWG->GetLocaleString(WG_STRING_ENG_GOSSIP_4, sWorld->GetDefaultDbcLocale()), GOSSIP_SENDER_MAIN,   GOSSIP_ACTION_INFO_DEF+9);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 uiSender, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         pPlayer->CLOSE_GOSSIP_MENU();
 
-        if (pPlayer->isGameMaster() || pCreature->GetZoneScript() && pCreature->GetZoneScript()->GetData(pCreature->GetDBTableGUIDLow()))
+        if (pPlayer->isGameMaster() || creature->GetZoneScript() && creature->GetZoneScript()->GetData(creature->GetDBTableGUIDLow()))
         {
             switch(uiAction - GOSSIP_ACTION_INFO_DEF)
             {
-                case 0: pPlayer->CastSpell(pPlayer, SPELL_BUILD_CATAPULT, false, NULL, NULL, pCreature->GetGUID()); break;
-                case 1: pPlayer->CastSpell(pPlayer, SPELL_BUILD_DEMOLISHER, false, NULL, NULL, pCreature->GetGUID()); break;
-                case 2: pPlayer->CastSpell(pPlayer, pPlayer->GetTeamId() ? SPELL_BUILD_SIEGE_ENGINE_H : SPELL_BUILD_SIEGE_ENGINE_A, false, NULL, NULL, pCreature->GetGUID()); break;
+                case 0: pPlayer->CastSpell(pPlayer, SPELL_BUILD_CATAPULT, false, NULL, NULL, creature->GetGUID()); break;
+                case 1: pPlayer->CastSpell(pPlayer, SPELL_BUILD_DEMOLISHER, false, NULL, NULL, creature->GetGUID()); break;
+                case 2: pPlayer->CastSpell(pPlayer, pPlayer->GetTeamId() ? SPELL_BUILD_SIEGE_ENGINE_H : SPELL_BUILD_SIEGE_ENGINE_A, false, NULL, NULL, creature->GetGUID()); break;
             }
         }
 
@@ -117,7 +117,7 @@ class npc_wg_misc : public CreatureScript
 
     struct npc_wg_miscAI : public ScriptedAI
     {
-        npc_wg_miscAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_wg_miscAI(Creature* creature) : ScriptedAI(creature) {}
 
         EventMap events;
         OutdoorPvPWG *pvpWG;
@@ -291,9 +291,9 @@ class npc_wg_misc : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_wg_miscAI (pCreature);
+        return new npc_wg_miscAI (creature);
     }
 };
 
@@ -308,11 +308,11 @@ class npc_winterguard : public CreatureScript
 
     struct npc_winterguardAI : public Scripted_NoMovementAI
     {
-        npc_winterguardAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
+        npc_winterguardAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-            pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            pCreature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_NORMAL, true);
-            pCreature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
+            creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_NORMAL, true);
+            creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
             
             pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORTHREND_WINTERGRASP);
         }
@@ -351,9 +351,9 @@ class npc_winterguard : public CreatureScript
         void UpdateAI(const uint32 /*diff*/){}
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_winterguardAI(pCreature);
+        return new npc_winterguardAI(creature);
     }
 };
 
@@ -374,7 +374,7 @@ public:
         return new npc_wg_ally_battle_mageAI(creature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         if (!sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
             return false;
@@ -384,16 +384,16 @@ public:
             if (pvpWG->isWarTime())
             {
                 if (pvpWG->getDefenderTeamId() == TEAM_HORDE)
-                    pPlayer->SEND_GOSSIP_MENU(14777, pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(14777, creature->GetGUID());
                 else
-                    pPlayer->SEND_GOSSIP_MENU(14781, pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(14781, creature->GetGUID());
             }
             else
             {
                 if (pvpWG->getDefenderTeamId() == TEAM_HORDE)
-                    pPlayer->SEND_GOSSIP_MENU(14775, pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(14775, creature->GetGUID());
                 else
-                    pPlayer->SEND_GOSSIP_MENU(14782, pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(14782, creature->GetGUID());
             }
         }
         return true;
@@ -401,7 +401,7 @@ public:
 
     struct npc_wg_ally_battle_mageAI : public ScriptedAI
     {
-        npc_wg_ally_battle_mageAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_wg_ally_battle_mageAI(Creature* creature) : ScriptedAI(creature)
         {
             uiPortalTimer = 0;
             uiPortalPhase = 0;
@@ -533,7 +533,7 @@ public:
         return new npc_wg_horde_battle_mageAI(creature);
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         if (!sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
             return false;
@@ -543,16 +543,16 @@ public:
             if (pvpWG->isWarTime())
             {
                 if (pvpWG->getDefenderTeamId() == TEAM_HORDE)
-                    pPlayer->SEND_GOSSIP_MENU(14777, pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(14777, creature->GetGUID());
                 else
-                    pPlayer->SEND_GOSSIP_MENU(14781, pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(14781, creature->GetGUID());
             }
             else
             {
                 if (pvpWG->getDefenderTeamId() == TEAM_HORDE)
-                    pPlayer->SEND_GOSSIP_MENU(14775, pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(14775, creature->GetGUID());
                 else
-                    pPlayer->SEND_GOSSIP_MENU(14782, pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(14782, creature->GetGUID());
             }
         }
         return true;
@@ -560,7 +560,7 @@ public:
 
     struct npc_wg_horde_battle_mageAI : public ScriptedAI
     {
-        npc_wg_horde_battle_mageAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_wg_horde_battle_mageAI(Creature* creature) : ScriptedAI(creature)
         {
             uiPortalTimer = 0;
             uiPortalPhase = 0;

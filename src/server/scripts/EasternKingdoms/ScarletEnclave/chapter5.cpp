@@ -1695,7 +1695,7 @@ class npc_temp_highlord_darion_mograine : public CreatureScript
 public:
     npc_temp_highlord_darion_mograine() : CreatureScript("npc_temp_highlord_darion_mograine") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         switch (uiAction)
@@ -1707,15 +1707,15 @@ public:
         }
         return true;
     }
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(creature->GetGUID());
 
         if (pPlayer->GetQuestStatus(12801) == QUEST_STATUS_INCOMPLETE)
             pPlayer->ADD_GOSSIP_ITEM(0, "Complete me the quest Light of Dawn.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }

@@ -220,7 +220,7 @@ class npc_squire_danny : public CreatureScript
 public:
     npc_squire_danny() : CreatureScript("npc_squire_danny") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         if (pPlayer->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_HORDE_UNDERCITY) == QUEST_STATUS_INCOMPLETE
             || pPlayer->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_HORDE_SENJIN) == QUEST_STATUS_INCOMPLETE
@@ -237,19 +237,19 @@ public:
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
         }
 
-        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_SQUIRE_DANNY, pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_SQUIRE_DANNY, creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 uiSender, uint32 uiAction)
     {
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
             pPlayer->CLOSE_GOSSIP_MENU();
-            pCreature->SummonCreature(NPC_ARGENT_CHAMPION,8562.451f,1095.72f,556.784f,1.76f);
+            creature->SummonCreature(NPC_ARGENT_CHAMPION,8562.451f,1095.72f,556.784f,1.76f);
         }
         //else
-            //pPlayer->SEND_GOSSIP_MENU(???, pCreature->GetGUID()); Missing text
+            //pPlayer->SEND_GOSSIP_MENU(???, creature->GetGUID()); Missing text
         return true;
     };
 };
@@ -354,18 +354,18 @@ public:
 
     struct npc_argent_tournament_postAI : public ScriptedAI
     {
-        npc_argent_tournament_postAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_argent_tournament_postAI(Creature* creature) : ScriptedAI(creature) {}
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (me->IsNonMeleeSpellCasted(false))
                 return;
 
-            if (Creature* pTarget = me->FindNearestCreature(NPC_GORMOK_THE_IMPALER, 6.0f))
-                DoCast(pTarget, SPELL_ROPE_BEAM);
+            if (Creature* target = me->FindNearestCreature(NPC_GORMOK_THE_IMPALER, 6.0f))
+                DoCast(target, SPELL_ROPE_BEAM);
 
-            if (Creature* pTarget2 = me->FindNearestCreature(NPC_ICEHOWL, 6.0f))
-                DoCast(pTarget2, SPELL_ROPE_BEAM);
+            if (Creature* target2 = me->FindNearestCreature(NPC_ICEHOWL, 6.0f))
+                DoCast(target2, SPELL_ROPE_BEAM);
 
             if (!UpdateVictim())
                 return;
@@ -456,10 +456,10 @@ public:
 
     struct npc_argent_championAI : public ScriptedAI
     {
-        npc_argent_championAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_argent_championAI(Creature* creature) : ScriptedAI(creature)
         {
-            pCreature->GetMotionMaster()->MovePoint(0,8552.43f,1124.95f,556.786f);
-            pCreature->setFaction(35); //wrong faction in db?
+            creature->GetMotionMaster()->MovePoint(0,8552.43f,1124.95f,556.786f);
+            creature->setFaction(35); //wrong faction in db?
         }
 
         uint32 uiChargeTimer;
@@ -513,9 +513,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_argent_championAI (pCreature);
+        return new npc_argent_championAI (creature);
     };
 };
 
@@ -570,9 +570,9 @@ class npc_lake_frog : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_lake_frogAI (pCreature);
+        return new npc_lake_frogAI (creature);
     };
 };
 
@@ -639,34 +639,34 @@ class npc_ring_champions : public CreatureScript
 public:
     npc_ring_champions() : CreatureScript("npc_ring_champions") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         if (pPlayer->GetQuestStatus(13790) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13793) == QUEST_STATUS_INCOMPLETE ||
             pPlayer->GetQuestStatus(13811) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13814) == QUEST_STATUS_INCOMPLETE)
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE__CHAMP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         }
-        pPlayer->SEND_GOSSIP_MENU(14407, pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(14407, creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
             pPlayer->CLOSE_GOSSIP_MENU();
-            pCreature->MonsterSay(urand(0,1) ? SAY_START_1 : SAY_START_2, LANG_UNIVERSAL, 0);
-            pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            pCreature->setFaction(14);
-            pCreature->CombatStart(pPlayer);
+            creature->MonsterSay(urand(0,1) ? SAY_START_1 : SAY_START_2, LANG_UNIVERSAL, 0);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            creature->setFaction(14);
+            creature->CombatStart(pPlayer);
         }
         return true;
     }
 
     struct npc_ring_championsAI : public ScriptedAI
     {
-        npc_ring_championsAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_ring_championsAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
@@ -735,7 +735,7 @@ class npc_ring_valiants : public CreatureScript
 public:
     npc_ring_valiants() : CreatureScript("npc_ring_valiants") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         if (pPlayer->GetQuestStatus(13665) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13745) == QUEST_STATUS_INCOMPLETE ||
             pPlayer->GetQuestStatus(13761) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13767) == QUEST_STATUS_INCOMPLETE ||
@@ -745,27 +745,27 @@ public:
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE__CHAMP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         }
-        pPlayer->SEND_GOSSIP_MENU(14407, pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(14407, creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
             pPlayer->CLOSE_GOSSIP_MENU();
-            pCreature->MonsterSay(urand(0,1) ? SAY_START_1 : SAY_START_2, LANG_UNIVERSAL, 0);
-            pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            pCreature->setFaction(14);
-            pCreature->CombatStart(pPlayer);
+            creature->MonsterSay(urand(0,1) ? SAY_START_1 : SAY_START_2, LANG_UNIVERSAL, 0);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            creature->setFaction(14);
+            creature->CombatStart(pPlayer);
         }
         return true;
     }
 
     struct npc_ring_valiantsAI : public ScriptedAI
     {
-        npc_ring_valiantsAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_ring_valiantsAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 

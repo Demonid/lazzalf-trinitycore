@@ -171,11 +171,11 @@ enum Actions
 
 struct boss_twin_baseAI : public ScriptedAI
 {
-    boss_twin_baseAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
+    boss_twin_baseAI(Creature* creature) : ScriptedAI(creature), Summons(me)
     {
         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
         me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-        m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+        m_pInstance = (InstanceScript*)creature->GetInstanceScript();
     }
 
     InstanceScript* m_pInstance;
@@ -363,7 +363,7 @@ struct boss_twin_baseAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* /*pKiller*/)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
         if (m_pInstance)
@@ -500,8 +500,8 @@ struct boss_twin_baseAI : public ScriptedAI
 
         if (IsHeroic() && m_uiTouchTimer <= uiDiff)
         {
-            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true, m_uiOtherEssenceSpellId))
-                me->CastCustomSpell(m_uiTouchSpellId, SPELLVALUE_MAX_TARGETS, 1, pTarget, false);
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true, m_uiOtherEssenceSpellId))
+                me->CastCustomSpell(m_uiTouchSpellId, SPELLVALUE_MAX_TARGETS, 1, target, false);
             m_uiTouchTimer = urand(10, 15)*IN_MILLISECONDS;
         }
         else
@@ -546,14 +546,14 @@ class boss_fjola : public CreatureScript
 public:
     boss_fjola() : CreatureScript("boss_fjola") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_fjolaAI(pCreature);
+        return new boss_fjolaAI(creature);
     }
 
     struct boss_fjolaAI : public boss_twin_baseAI
     {
-        boss_fjolaAI(Creature* pCreature) : boss_twin_baseAI(pCreature) 
+        boss_fjolaAI(Creature* creature) : boss_twin_baseAI(creature) 
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);     
@@ -603,7 +603,7 @@ public:
             }*/
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
             if (saltAndPepperTimer <= SALT_AND_PEPPER_MAX_TIMER)
                 m_pInstance->DoCompleteAchievement(ACHIEVEMENT_SALT_AND_PEPPER);
@@ -617,7 +617,7 @@ public:
                 player->KilledMonsterCredit(34496, 0);
             }
             
-            boss_twin_baseAI::JustDied(pKiller);
+            boss_twin_baseAI::JustDied(killer);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -638,14 +638,14 @@ class boss_eydis : public CreatureScript
 public:
     boss_eydis() : CreatureScript("boss_eydis") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_eydisAI(pCreature);
+        return new boss_eydisAI(creature);
     }
 
     struct boss_eydisAI : public boss_twin_baseAI
     {
-        boss_eydisAI(Creature* pCreature) : boss_twin_baseAI(pCreature) {}
+        boss_eydisAI(Creature* creature) : boss_twin_baseAI(creature) {}
 
         void Reset() 
         {
@@ -672,7 +672,7 @@ public:
             EssenceLocation[1] = TwinValkyrsLoc[1];
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
             Map::PlayerList const &players = m_pInstance->instance->GetPlayers();
             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -683,7 +683,7 @@ public:
                 player->KilledMonsterCredit(34497, 0);
             }
 
-            boss_twin_baseAI::JustDied(pKiller);
+            boss_twin_baseAI::JustDied(killer);
         }
     };
 
@@ -722,9 +722,9 @@ public:
 
 struct mob_unleashed_ballAI : public ScriptedAI
 {
-    mob_unleashed_ballAI(Creature* pCreature) : ScriptedAI(pCreature)
+    mob_unleashed_ballAI(Creature* creature) : ScriptedAI(creature)
     {
-        m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+        m_pInstance = (InstanceScript*)creature->GetInstanceScript();
     }
 
     InstanceScript* m_pInstance;
@@ -774,14 +774,14 @@ class mob_unleashed_dark : public CreatureScript
 public:
     mob_unleashed_dark() : CreatureScript("mob_unleashed_dark") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_unleashed_darkAI(pCreature);
+        return new mob_unleashed_darkAI(creature);
     }
 
     struct mob_unleashed_darkAI : public mob_unleashed_ballAI
     {
-        mob_unleashed_darkAI(Creature* pCreature) : mob_unleashed_ballAI(pCreature) {}
+        mob_unleashed_darkAI(Creature* creature) : mob_unleashed_ballAI(creature) {}
 
         void SpellHitTarget(Unit* pWho, const SpellEntry* spell)
         {
@@ -803,8 +803,8 @@ public:
         {
             if (m_uiRangeCheckTimer < uiDiff)
             {
-                if (Unit* pTarget = me->SelectNearestTarget(2.0f))
-                    if (pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
+                if (Unit* target = me->SelectNearestTarget(2.0f))
+                    if (target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
                     {
                         DoCastAOE(SPELL_UNLEASHED_DARK);
                         me->GetMotionMaster()->MoveIdle();
@@ -823,14 +823,14 @@ class mob_unleashed_light : public CreatureScript
 public:
     mob_unleashed_light() : CreatureScript("mob_unleashed_light") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_unleashed_lightAI(pCreature);
+        return new mob_unleashed_lightAI(creature);
     }
 
     struct mob_unleashed_lightAI : public mob_unleashed_ballAI
     {
-        mob_unleashed_lightAI(Creature* pCreature) : mob_unleashed_ballAI(pCreature) {}
+        mob_unleashed_lightAI(Creature* creature) : mob_unleashed_ballAI(creature) {}
 
         void SpellHitTarget(Unit* pWho, const SpellEntry* spell)
         {
@@ -852,8 +852,8 @@ public:
         {
             if (m_uiRangeCheckTimer < uiDiff)
             {
-                if (Unit* pTarget = me->SelectNearestTarget(2.0f))
-                    if (pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
+                if (Unit* target = me->SelectNearestTarget(2.0f))
+                    if (target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
                     {
                         DoCastAOE(SPELL_UNLEASHED_LIGHT);
                         me->GetMotionMaster()->MoveIdle();
@@ -894,49 +894,49 @@ class spell_powering_up : public SpellScriptLoader
 
         void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            if (Unit* pTarget = GetTarget())
+            if (Unit* target = GetTarget())
             {
-                if (Aura* pAura = pTarget->GetAura(GetId()))
+                if (Aura* pAura = target->GetAura(GetId()))
                 {
                     if (pAura->GetStackAmount() == 100)
                     {
-                        if (pTarget->HasAura(SPELL_DARK_ESSENCE))
+                        if (target->HasAura(SPELL_DARK_ESSENCE))
                         {
                             switch(GetId())
                             {
                                 case SPELL_POWERING_UP_1:
-                                    pTarget->CastSpell(pTarget, SPELL_EMPOWERED_DARKNESS_1, true) ;
+                                    target->CastSpell(target, SPELL_EMPOWERED_DARKNESS_1, true) ;
                                     break;
                                 case SPELL_POWERING_UP_2:
-                                    pTarget->CastSpell(pTarget, SPELL_EMPOWERED_DARKNESS_2, true) ;
+                                    target->CastSpell(target, SPELL_EMPOWERED_DARKNESS_2, true) ;
                                     break;
                                 case SPELL_POWERING_UP_3:
-                                    pTarget->CastSpell(pTarget, SPELL_EMPOWERED_DARKNESS_3, true) ;
+                                    target->CastSpell(target, SPELL_EMPOWERED_DARKNESS_3, true) ;
                                     break;
                                 case SPELL_POWERING_UP_4:
-                                    pTarget->CastSpell(pTarget, SPELL_EMPOWERED_DARKNESS_4, true) ;
+                                    target->CastSpell(target, SPELL_EMPOWERED_DARKNESS_4, true) ;
                                     break;
                             }
                         }
-                        if (pTarget->HasAura(SPELL_LIGHT_ESSENCE))
+                        if (target->HasAura(SPELL_LIGHT_ESSENCE))
                         {
                             switch(GetId())
                             {
                                 case SPELL_POWERING_UP_1:
-                                    pTarget->CastSpell(pTarget, SPELL_EMPOWERED_LIGHT_1, true) ;
+                                    target->CastSpell(target, SPELL_EMPOWERED_LIGHT_1, true) ;
                                     break;
                                 case SPELL_POWERING_UP_2:
-                                    pTarget->CastSpell(pTarget, SPELL_EMPOWERED_LIGHT_2, true) ;
+                                    target->CastSpell(target, SPELL_EMPOWERED_LIGHT_2, true) ;
                                     break;
                                 case SPELL_POWERING_UP_3:
-                                    pTarget->CastSpell(pTarget, SPELL_EMPOWERED_LIGHT_3, true) ;
+                                    target->CastSpell(target, SPELL_EMPOWERED_LIGHT_3, true) ;
                                     break;
                                 case SPELL_POWERING_UP_4:
-                                    pTarget->CastSpell(pTarget, SPELL_EMPOWERED_LIGHT_4, true) ;
+                                    target->CastSpell(target, SPELL_EMPOWERED_LIGHT_4, true) ;
                                     break;
                             }
                         }
-                        pTarget->RemoveAurasDueToSpell(GetId());
+                        target->RemoveAurasDueToSpell(GetId());
                     }
                 }
             }
@@ -964,22 +964,22 @@ class spell_powering_up : public SpellScriptLoader
 
         void HandleScriptEffect(SpellEffIndex /*effIndex*/)
         {
-            if (Unit* pTarget = GetTargetUnit())
+            if (Unit* target = GetTargetUnit())
                 if (rand()%100 < 30)
                 {
                     switch(GetSpellInfo()->Id)
                     {
                         case SPELL_POWERING_UP_1:
-                            pTarget->CastSpell(pTarget, SPELL_SURGE_OF_SPEED_1, true) ;
+                            target->CastSpell(target, SPELL_SURGE_OF_SPEED_1, true) ;
                             break;
                         case SPELL_POWERING_UP_2:
-                            pTarget->CastSpell(pTarget, SPELL_SURGE_OF_SPEED_2, true) ;
+                            target->CastSpell(target, SPELL_SURGE_OF_SPEED_2, true) ;
                             break;
                         case SPELL_POWERING_UP_3:
-                            pTarget->CastSpell(pTarget, SPELL_SURGE_OF_SPEED_3, true) ;
+                            target->CastSpell(target, SPELL_SURGE_OF_SPEED_3, true) ;
                             break;
                         case SPELL_POWERING_UP_4:
-                            pTarget->CastSpell(pTarget, SPELL_SURGE_OF_SPEED_4, true) ;
+                            target->CastSpell(target, SPELL_SURGE_OF_SPEED_4, true) ;
                             break;
                 }
             }

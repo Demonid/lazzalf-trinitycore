@@ -452,16 +452,16 @@ class lightning_charge_trigger : public CreatureScript
 public:
     lightning_charge_trigger() : CreatureScript("lightning_charge_trigger") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new lightning_charge_triggerAI (pCreature);
+        return new lightning_charge_triggerAI (creature);
     }
 
     struct lightning_charge_triggerAI : public ScriptedAI
     {
-        lightning_charge_triggerAI(Creature *pCreature) : ScriptedAI(pCreature)
+        lightning_charge_triggerAI(Creature *creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;

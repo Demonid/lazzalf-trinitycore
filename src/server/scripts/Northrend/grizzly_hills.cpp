@@ -960,14 +960,14 @@ class npc_directional_rune : public CreatureScript
 public:
     npc_directional_rune() : CreatureScript("npc_directional_rune") { }
 
-    CreatureAI *GetAI(Creature *pCreature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
-        return new npc_directional_runeAI(pCreature);
+        return new npc_directional_runeAI(creature);
     }
 
     struct npc_directional_runeAI : public ScriptedAI
     {
-        npc_directional_runeAI(Creature *pCreature) : ScriptedAI(pCreature) { }
+        npc_directional_runeAI(Creature *creature) : ScriptedAI(creature) { }
 
         uint8 runeWeaverCounter;
         GameObject* rune;
@@ -1025,14 +1025,14 @@ class npc_iron_rune_weaver : public CreatureScript
 public:
     npc_iron_rune_weaver() : CreatureScript("npc_iron_rune_weaver") { }
 
-    CreatureAI *GetAI(Creature *pCreature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
-        return new npc_iron_rune_weaverAI(pCreature);
+        return new npc_iron_rune_weaverAI(creature);
     }
 
     struct npc_iron_rune_weaverAI : public ScriptedAI
     {
-        npc_iron_rune_weaverAI(Creature *pCreature) : ScriptedAI(pCreature) { }
+        npc_iron_rune_weaverAI(Creature *creature) : ScriptedAI(creature) { }
 
         void JustDied(Unit* /*killer*/)
         {

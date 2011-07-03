@@ -40,16 +40,16 @@ class boss_drakkari_colossus : public CreatureScript
 public:
     boss_drakkari_colossus() : CreatureScript("boss_drakkari_colossus") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_drakkari_colossusAI (pCreature);
+        return new boss_drakkari_colossusAI (creature);
     }
 
     struct boss_drakkari_colossusAI : public ScriptedAI
     {
-        boss_drakkari_colossusAI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_drakkari_colossusAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
@@ -154,16 +154,16 @@ class boss_drakkari_elemental : public CreatureScript
 public:
     boss_drakkari_elemental() : CreatureScript("boss_drakkari_elemental") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_drakkari_elementalAI (pCreature);
+        return new boss_drakkari_elementalAI (creature);
     }
 
     struct boss_drakkari_elementalAI : public ScriptedAI
     {
-        boss_drakkari_elementalAI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_drakkari_elementalAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
@@ -276,9 +276,9 @@ public:
 
     struct npc_living_mojoAI : public ScriptedAI
     {
-        npc_living_mojoAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_living_mojoAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;

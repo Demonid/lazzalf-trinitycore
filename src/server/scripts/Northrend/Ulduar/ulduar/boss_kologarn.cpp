@@ -118,14 +118,14 @@ class boss_kologarn : public CreatureScript
 public:
     boss_kologarn() : CreatureScript("boss_kologarn") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_kologarnAI (pCreature);
+        return new boss_kologarnAI (creature);
     }
 
     struct boss_kologarnAI : public BossAI
     {
-        boss_kologarnAI(Creature* pCreature) : BossAI(pCreature, BOSS_KOLOGARN), vehicle(pCreature->GetVehicleKit()),
+        boss_kologarnAI(Creature* creature) : BossAI(creature, BOSS_KOLOGARN), vehicle(creature->GetVehicleKit()),
             left(false), right(false)
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
@@ -297,7 +297,7 @@ public:
                             for (int32 n = 0; n < RAID_MODE(1, 2); ++n)
                             {
                                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 40, true))
-                                    GripTargetGUID[n] = pTarget->GetGUID();
+                                    GripTargetGUID[n] = target->GetGUID();
                             }
                             RightArm->ToCreature()->AI()->DoAction(ACTION_GRIP);
                         }
@@ -314,19 +314,19 @@ public:
                     events.RescheduleEvent(EVENT_SHOCKWAVE, urand(15000, 25000));
                     break;
                 case EVENT_EYEBEAM:
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0, 50, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 50, true))
                     {
-                        if (Creature* EyeBeam = me->SummonCreature(NPC_EYEBEAM_1,pTarget->GetPositionX(),pTarget->GetPositionY()+3,pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000))
+                        if (Creature* EyeBeam = me->SummonCreature(NPC_EYEBEAM_1,target->GetPositionX(),target->GetPositionY()+3,target->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000))
                         {
                             EyeBeam->CastSpell(me, SPELL_EYEBEAM_VISUAL_1, true);
                             EyeBeam->ClearUnitState(UNIT_STAT_CASTING);
-                            EyeBeam->AI()->AttackStart(pTarget);
+                            EyeBeam->AI()->AttackStart(target);
                         }
-                        if (Creature* EyeBeam = me->SummonCreature(NPC_EYEBEAM_2,pTarget->GetPositionX(),pTarget->GetPositionY()-3,pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000))
+                        if (Creature* EyeBeam = me->SummonCreature(NPC_EYEBEAM_2,target->GetPositionX(),target->GetPositionY()-3,target->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000))
                         {
                             EyeBeam->CastSpell(me, SPELL_EYEBEAM_VISUAL_2, true);
                             EyeBeam->ClearUnitState(UNIT_STAT_CASTING);
-                            EyeBeam->AI()->AttackStart(pTarget);
+                            EyeBeam->AI()->AttackStart(target);
                         }
                     }
                     events.RescheduleEvent(EVENT_EYEBEAM, 25000);
@@ -390,9 +390,9 @@ class npc_focused_eyebeam : public CreatureScript
 public:
     npc_focused_eyebeam() : CreatureScript("npc_focused_eyebeam") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_focused_eyebeamAI (pCreature);
+        return new npc_focused_eyebeamAI (creature);
     }
 
     struct npc_focused_eyebeamAI : public ScriptedAI
@@ -415,9 +415,9 @@ class npc_left_arm : public CreatureScript
 public:
     npc_left_arm() : CreatureScript("npc_left_arm") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_left_armAI (pCreature);
+        return new npc_left_armAI (creature);
     }
 
     struct npc_left_armAI : public ScriptedAI
@@ -460,9 +460,9 @@ class npc_right_arm : public CreatureScript
 public:
     npc_right_arm() : CreatureScript("npc_right_arm") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_right_armAI (pCreature);
+        return new npc_right_armAI (creature);
     }
 
     struct npc_right_armAI : public ScriptedAI
@@ -548,8 +548,8 @@ public:
                             if (GripTarget && GripTarget->isAlive())
                             {
                                 GripTarget->_EnterVehicle(me->GetVehicleKit(), n);
-                                me->AddAura(SPELL_STONE_GRIP, GripTarget);
-                                me->AddAura(SPELL_STONE_GRIP_STUN, GripTarget);
+                                me->AddAura(SPELL_STONE_GRIP, Gritarget);
+                                me->AddAura(SPELL_STONE_GRIP_STUN, Gritarget);
                                 GripTargetGUID[n] = NULL;
                             }
                         }
@@ -561,7 +561,7 @@ public:
             }
         }
     
-        void DamageTaken(Unit* /*pKiller*/, uint32 &damage)
+        void DamageTaken(Unit* /*killer*/, uint32 &damage)
         {
             if (Gripped)
             {

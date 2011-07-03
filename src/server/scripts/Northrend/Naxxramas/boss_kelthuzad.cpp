@@ -677,9 +677,9 @@ class mob_unstoppable_abomination : public CreatureScript
 public:
     mob_unstoppable_abomination() : CreatureScript("mob_unstoppable_abomination") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_unstoppable_abominationAI (pCreature);
+        return new mob_unstoppable_abominationAI (creature);
     }
 
     struct mob_unstoppable_abominationAI : public ScriptedAI

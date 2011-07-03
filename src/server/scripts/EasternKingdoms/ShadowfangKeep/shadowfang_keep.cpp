@@ -253,9 +253,9 @@ class npc_apothecary_hummel : public CreatureScript
 public:
     npc_apothecary_hummel() : CreatureScript("npc_apothecary_hummel") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_apothecary_hummelAI (pCreature);
+        return new npc_apothecary_hummelAI (creature);
     }
 
     struct npc_apothecary_hummelAI : public ScriptedAI
@@ -389,9 +389,9 @@ class npc_apothecary_baxter : public CreatureScript
 public:
     npc_apothecary_baxter() : CreatureScript("npc_apothecary_baxter") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_apothecary_baxterAI (pCreature);
+        return new npc_apothecary_baxterAI (creature);
     }
 
     struct npc_apothecary_baxterAI : public ScriptedAI
@@ -489,9 +489,9 @@ class npc_apothecary_frye : public CreatureScript
 public:
     npc_apothecary_frye() : CreatureScript("npc_apothecary_frye") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_apothecary_fryeAI (pCreature);
+        return new npc_apothecary_fryeAI (creature);
     }
 
     struct npc_apothecary_fryeAI : public ScriptedAI
@@ -551,17 +551,17 @@ public:
                 {
                     case EVENT_CHANGE_TARGET:
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            me->AI()->AttackStart(pTarget);
+                            me->AI()->AttackStart(target);
                         events.RescheduleEvent(EVENT_CHANGE_TARGET, 10000);
                         break;
                     case EVENT_THROW_PERFUME:
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_THROW_PERFUME);
+                            DoCast(target, SPELL_THROW_PERFUME);
                         events.RescheduleEvent(EVENT_THROW_PERFUME, 35000);
                         break;
                     case EVENT_THROW_COLOGNE:
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_THROW_COLOGNE);
+                            DoCast(target, SPELL_THROW_COLOGNE);
                         events.RescheduleEvent(EVENT_THROW_COLOGNE, 35000);
                         break;
                 }

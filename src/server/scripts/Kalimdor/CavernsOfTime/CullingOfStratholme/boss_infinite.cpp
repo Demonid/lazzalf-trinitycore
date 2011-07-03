@@ -77,8 +77,8 @@ public:
 
             if (uiCorruptingBlight <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
-                    DoCast(pTarget, SPELL_CORRUPTING_BLIGHT);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0))
+                    DoCast(target, SPELL_CORRUPTING_BLIGHT);
                 uiCorruptingBlight = 17000;
             } else uiCorruptingBlight -= diff;
 

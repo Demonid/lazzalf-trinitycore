@@ -191,14 +191,14 @@ public:
             Unit* target = GetTarget();
             if (Unit* pCaster = GetCaster())
                 pCaster->CastSpell(target, PALADIN_SPELL_BLESSING_OF_SANCTUARY_BUFF, true);
-            pTarget->CastSpell(pTarget, PALADIN_SPELL_BLESSING_OF_SANCTUARY_HELPER, true);
+            target->CastSpell(target, PALADIN_SPELL_BLESSING_OF_SANCTUARY_HELPER, true);
         }
 
         void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* target = GetTarget();
             target->RemoveAura(PALADIN_SPELL_BLESSING_OF_SANCTUARY_BUFF, GetCasterGUID());
-            pTarget->RemoveAura(PALADIN_SPELL_BLESSING_OF_SANCTUARY_HELPER);
+            target->RemoveAura(PALADIN_SPELL_BLESSING_OF_SANCTUARY_HELPER);
         }
 
         void Register()

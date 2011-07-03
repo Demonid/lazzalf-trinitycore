@@ -176,8 +176,8 @@ public:
 
             Summons.DespawnAll();            
             m_uiSummonWhelpCount = 0;
-            while (Unit* pTarget = me->FindNearestCreature(NPC_WHELP,100.0f))
-                pTarget->RemoveFromWorld();
+            while (Unit* target = me->FindNearestCreature(NPC_WHELP,100.0f))
+                target->RemoveFromWorld();
             m_bIsMoving = false;
 
             if (m_pInstance)
@@ -206,10 +206,10 @@ public:
                 m_pInstance->SetData(DATA_ONYXIA, DONE);
 
             Summons.DespawnAll();
-            while (Unit* pTarget = me->FindNearestCreature(NPC_WHELP,100.0f))
+            while (Unit* target = me->FindNearestCreature(NPC_WHELP,100.0f))
             {
-                pTarget->CombatStop();
-                pTarget->RemoveFromWorld();
+                target->CombatStop();
+                target->RemoveFromWorld();
             }
         }
 

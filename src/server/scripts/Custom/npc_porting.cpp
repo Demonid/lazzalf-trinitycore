@@ -154,7 +154,7 @@ class npc_porting : public CreatureScript
     public:
         npc_porting() : CreatureScript("npc_porting") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         QueryResult result = ExtraDatabase.PQuery("SELECT `fase` FROM `porting` WHERE `guid` = %u AND `active` <> 0", pPlayer->GetGUIDLow());
 
@@ -178,11 +178,11 @@ class npc_porting : public CreatureScript
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, MSG_GOSSIP_CLOSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 uiSender, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
 
@@ -309,7 +309,7 @@ class npc_porting : public CreatureScript
                         ExtraDatabase.PExecute("UPDATE `porting` SET `fase` = 1 WHERE `guid` = %u", pPlayer->GetGUIDLow());                        
                         pPlayer->SaveToDB();
                         std::string msg = "Equipaggia le 4 bags e poi continua il porting";
-                        pCreature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
+                        creature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
                     }
                     pPlayer->CLOSE_GOSSIP_MENU();
                 }
@@ -327,7 +327,7 @@ class npc_porting : public CreatureScript
                     if (result)
                     {
                         Field *fields = result->Fetch();
-                        pCreature->MonsterWhisper((fields[0].GetString()).c_str(), pPlayer->GetGUID());
+                        creature->MonsterWhisper((fields[0].GetString()).c_str(), pPlayer->GetGUID());
                     }                    
                     pPlayer->CLOSE_GOSSIP_MENU();
                 }
@@ -338,7 +338,7 @@ class npc_porting : public CreatureScript
         return true;
     }
 
-    bool OnGossipSelectCode(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction, const char* code)
+    bool OnGossipSelectCode(Player* pPlayer, Creature* creature, uint32 uiSender, uint32 uiAction, const char* code)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiSender == GOSSIP_SENDER_MAIN)
@@ -348,12 +348,12 @@ class npc_porting : public CreatureScript
                 case GOSSIP_ACTION_INFO_DEF+3:
                     if (strcmp(code,"SI") == 0)
                     {
-                        PortingFase2(pPlayer, pCreature);
+                        PortingFase2(pPlayer, creature);
                     }
                     else
                     {
                         std::string msg = "Codice errato, scrivi SI (in maiuscolo) e premi Accept";
-                        pCreature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
+                        creature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
                     }
                     pPlayer->CLOSE_GOSSIP_MENU();
                     return true;
@@ -365,7 +365,7 @@ class npc_porting : public CreatureScript
         return false;
     }
 
-    void PortingFase2(Player* pPlayer, Creature* pCreature)
+    void PortingFase2(Player* pPlayer, Creature* creature)
     {
         QueryResult result = ExtraDatabase.PQuery("SELECT id_equip_1, id_equip_2, id_equip_3, id_items FROM `porting` WHERE `guid` = %u", pPlayer->GetGUIDLow());               
         if (result)
@@ -419,7 +419,7 @@ class npc_porting : public CreatureScript
                 }
 
                 std::string msg = "Porting concluso! Il Ticket è stato chiuso!";
-                pCreature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
+                creature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
             }
             else if (fields[0].GetInt32() == 2)
             {
@@ -430,13 +430,13 @@ class npc_porting : public CreatureScript
                     ticket->SetMessage(ticketText);
                     sTicketMgr->AddTicket(ticket);
                     std::string msg = "Porting completato in parte! Ticket editato in automatico per completare il porting con un GM!";
-                    pCreature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
+                    creature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
                 }
                 else
                 {                            
                     std::string msg = "Porting completato in parte! Apri ticket per completare il porting con un GM! Motivo del parziale completamento:";
-                    pCreature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
-                    pCreature->MonsterWhisper((fields[1].GetString()).c_str(), pPlayer->GetGUID());
+                    creature->MonsterWhisper(msg.c_str(), pPlayer->GetGUID());
+                    creature->MonsterWhisper((fields[1].GetString()).c_str(), pPlayer->GetGUID());
                 }
             }
             ExtraDatabase.PExecute("UPDATE `porting` SET `fase` = 2 WHERE `guid` = %u", pPlayer->GetGUIDLow());

@@ -1241,9 +1241,9 @@ class mob_risen_zombie : public CreatureScript
        }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_risen_zombieAI (pCreature);
+        return new mob_risen_zombieAI (creature);
     };
 };
 

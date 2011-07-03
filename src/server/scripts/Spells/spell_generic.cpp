@@ -54,8 +54,8 @@ public:
 
         void HandleScript(SpellEffIndex /*effIndex*/)
         {           
-            if (Unit* pTarget = GetTargetUnit())
-                if (Player* pPlayerTarget = pTarget->ToPlayer())
+            if (Unit* target = GetTargetUnit())
+                if (Player* pPlayerTarget = target->ToPlayer())
                     if (Aura* aur = pPlayerTarget->GetAura(SPELL_TRICKY_TREAT))
                     {
                         uint8 stack = aur->GetStackAmount();
@@ -127,8 +127,8 @@ public:
 
         void HandleEffectPeriodic(AuraEffect const * /*aurEff*/)
         {
-            if (Unit* pTarget = GetTarget())
-                if (Player* pPlayerTarget = pTarget->ToPlayer())
+            if (Unit* target = GetTarget())
+                if (Player* pPlayerTarget = target->ToPlayer())
                 {
                     std::list<GameObject*> ChestList;
                     pPlayerTarget->GetGameObjectListWithEntryInGrid(ChestList, GO_FIENO, 4.0f);
@@ -183,8 +183,8 @@ public:
 
         void HandleEffectPeriodic(AuraEffect const * /*aurEff*/)
         {
-            if (Unit* pTarget = GetTarget())
-                if (Player* pPlayerTarget = pTarget->ToPlayer())
+            if (Unit* target = GetTarget())
+                if (Player* pPlayerTarget = target->ToPlayer())
                 {
                     std::list<GameObject*> ChestList;
                     pPlayerTarget->GetGameObjectListWithEntryInGrid(ChestList, GO_FIENO, 4.0f);
@@ -239,8 +239,8 @@ public:
 
         void HandleEffectPeriodic(AuraEffect const * /*aurEff*/)
         {
-            if (Unit* pTarget = GetTarget())
-                if (Player* pPlayerTarget = pTarget->ToPlayer())
+            if (Unit* target = GetTarget())
+                if (Player* pPlayerTarget = target->ToPlayer())
                 {
                     std::list<GameObject*> ChestList;
                     pPlayerTarget->GetGameObjectListWithEntryInGrid(ChestList, GO_FIENO, 4.0f);
@@ -292,8 +292,8 @@ public:
 
         void HandleEffectPeriodic(AuraEffect const * /*aurEff*/)
         {
-            if (Unit* pTarget = GetTarget())
-                if (Player* pPlayerTarget = pTarget->ToPlayer())
+            if (Unit* target = GetTarget())
+                if (Player* pPlayerTarget = target->ToPlayer())
                 {
                     std::list<GameObject*> ChestList;
                     pPlayerTarget->GetGameObjectListWithEntryInGrid(ChestList, GO_FIENO, 4.0f);

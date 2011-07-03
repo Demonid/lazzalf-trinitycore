@@ -180,7 +180,7 @@ class boss_emalon : public CreatureScript
                 {
                     case EVENT_CHAIN_LIGHTNING:
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
+                            DoCast(target, SPELL_CHAIN_LIGHTNING);
                         events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 25000);
                         break;
                     case EVENT_LIGHTNING_NOVA:

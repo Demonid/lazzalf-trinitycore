@@ -233,14 +233,14 @@ class boss_flame_leviathan : public CreatureScript
 public:
     boss_flame_leviathan() : CreatureScript("boss_flame_leviathan") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_flame_leviathanAI (pCreature);
+        return new boss_flame_leviathanAI (creature);
     }
 
     struct boss_flame_leviathanAI : public BossAI
     {
-        boss_flame_leviathanAI(Creature* pCreature) : BossAI(pCreature, BOSS_LEVIATHAN), vehicle(pCreature->GetVehicleKit())
+        boss_flame_leviathanAI(Creature* creature) : BossAI(creature, BOSS_LEVIATHAN), vehicle(creature->GetVehicleKit())
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -354,12 +354,12 @@ public:
                 for (uint8 i = RAID_MODE(2,0); i < 4; ++i)
                 {
                     if (vehicle->GetPassenger(i))
-                        if (Unit* pTarget = vehicle->GetPassenger(i))
+                        if (Unit* target = vehicle->GetPassenger(i))
                         {
                             if (Creature* pTurret = (me->SummonCreature(NPC_TURRET, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN)))
-                                pTurret->EnterVehicle(pTarget, SEAT_TURRET);
+                                pTurret->EnterVehicle(target, SEAT_TURRET);
                             if (Creature* pDevice = (me->SummonCreature(NPC_DEVICE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN)))
-                                pDevice->EnterVehicle(pTarget, SEAT_DEVICE);
+                                pDevice->EnterVehicle(target, SEAT_DEVICE);
                         }
                 }
             }
@@ -464,45 +464,45 @@ public:
                         DoScriptText(RAND(SAY_TARGET_1, SAY_TARGET_2, SAY_TARGET_3), me);
                         {
                             DoZoneInCombat();
-                            Unit* pTarget;
+                            Unit* target;
                             std::vector<Unit *> target_list;
                             std::list<HostileReference*> ThreatList = me->getThreatManager().getThreatList();
                             for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
                             {
-                                pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                                target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                                 
-                                if (!pTarget || pTarget->ToPlayer())
+                                if (!pTarget || target->ToPlayer())
                                     continue;
                                     
-                                if (pTarget->GetEntry() == VEHICLE_SIEGE || pTarget->GetEntry() == VEHICLE_DEMOLISHER)
-                                    target_list.push_back(pTarget);
+                                if (target->GetEntry() == VEHICLE_SIEGE || target->GetEntry() == VEHICLE_DEMOLISHER)
+                                    target_list.push_back(target);
                                     
-                                pTarget = NULL;
+                                target = NULL;
                             }
                             
                             if (!target_list.empty())
-                                pTarget = *(target_list.begin()+rand()%target_list.size());
+                                target = *(target_list.begin()+rand()%target_list.size());
                             else
-                                pTarget = me->getVictim();
+                                target = me->getVictim();
                                 
-                            if (pTarget && pTarget->isAlive())
+                            if (target && target->isAlive())
                             {
                                 DoResetThreat();
-                                me->AddThreat(pTarget, 5000000.0f);
-                                me->AddAura(SPELL_PURSUED, pTarget);
-                                if (Vehicle* pVehicle = pTarget->GetVehicleKit())
+                                me->AddThreat(target, 5000000.0f);
+                                me->AddAura(SPELL_PURSUED, target);
+                                if (Vehicle* pVehicle = target->GetVehicleKit())
                                 {
                                     if (Unit* pDriver = pVehicle->GetPassenger(0))
                                         me->MonsterTextEmote(EMOTE_PURSUE, pDriver->GetGUID(), true);
                                 }
-                                else me->MonsterTextEmote(EMOTE_PURSUE, pTarget->GetGUID(), true);
+                                else me->MonsterTextEmote(EMOTE_PURSUE, target->GetGUID(), true);
                             }
                         }
                         events.RescheduleEvent(EVENT_PURSUE, 35000);
                         break;
                     case EVENT_MISSILE:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(pTarget, SPELL_MISSILE_BARRAGE);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            DoCast(target, SPELL_MISSILE_BARRAGE);
                         events.RescheduleEvent(EVENT_MISSILE, 3000);
                         break;
                     case EVENT_VENT:
@@ -603,14 +603,14 @@ class boss_flame_leviathan_seat : public CreatureScript
 public:
     boss_flame_leviathan_seat() : CreatureScript("boss_flame_leviathan_seat") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_flame_leviathan_seatAI (pCreature);
+        return new boss_flame_leviathan_seatAI (creature);
     }
 
     struct boss_flame_leviathan_seatAI : public PassiveAI
     {
-        boss_flame_leviathan_seatAI(Creature* pCreature) : PassiveAI(pCreature), vehicle(pCreature->GetVehicleKit())
+        boss_flame_leviathan_seatAI(Creature* creature) : PassiveAI(creature), vehicle(creature->GetVehicleKit())
         {
             assert(vehicle);
             me->SetDisplayId(11686);
@@ -668,14 +668,14 @@ class boss_flame_leviathan_defense_cannon : public CreatureScript
 public:
     boss_flame_leviathan_defense_cannon() : CreatureScript("boss_flame_leviathan_defense_cannon") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_flame_leviathan_defense_cannonAI (pCreature);
+        return new boss_flame_leviathan_defense_cannonAI (creature);
     }
 
     struct boss_flame_leviathan_defense_cannonAI : public ScriptedAI
     {
-        boss_flame_leviathan_defense_cannonAI(Creature* pCreature) : ScriptedAI(pCreature) 
+        boss_flame_leviathan_defense_cannonAI(Creature* creature) : ScriptedAI(creature) 
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -692,8 +692,8 @@ public:
             /*if (NapalmTimer <= diff)
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    if (!me->IsWithinDist(pTarget, 20))
-                        DoCast(pTarget, SPELL_NAPALM);
+                    if (!me->IsWithinDist(target, 20))
+                        DoCast(target, SPELL_NAPALM);
                 NapalmTimer = urand(10000, 15000);
             }
             else NapalmTimer -= diff;*/
@@ -706,9 +706,9 @@ class boss_flame_leviathan_defense_turret : public CreatureScript
 public:
     boss_flame_leviathan_defense_turret() : CreatureScript("boss_flame_leviathan_defense_turret") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_flame_leviathan_defense_turretAI (pCreature);
+        return new boss_flame_leviathan_defense_turretAI (creature);
     }
 
     struct boss_flame_leviathan_defense_turretAI : public TurretAI
@@ -736,16 +736,16 @@ class boss_flame_leviathan_overload_device : public CreatureScript
 public:
     boss_flame_leviathan_overload_device() : CreatureScript("boss_flame_leviathan_overload_device") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_flame_leviathan_overload_deviceAI (pCreature);
+        return new boss_flame_leviathan_overload_deviceAI (creature);
     }
 
     struct boss_flame_leviathan_overload_deviceAI : public PassiveAI
     {
-        boss_flame_leviathan_overload_deviceAI(Creature* pCreature) : PassiveAI(pCreature)
+        boss_flame_leviathan_overload_deviceAI(Creature* creature) : PassiveAI(creature)
         {
-            instance = pCreature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             me->SetDisplayId(28469);
         }
 
@@ -778,14 +778,14 @@ class boss_flame_leviathan_safety_container : public CreatureScript
 public:
     boss_flame_leviathan_safety_container() : CreatureScript("boss_flame_leviathan_safety_container") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_flame_leviathan_safety_containerAI(pCreature);
+        return new boss_flame_leviathan_safety_containerAI(creature);
     }
 
     struct boss_flame_leviathan_safety_containerAI : public PassiveAI
     {
-        boss_flame_leviathan_safety_containerAI(Creature* pCreature) : PassiveAI(pCreature)
+        boss_flame_leviathan_safety_containerAI(Creature* creature) : PassiveAI(creature)
         {
         }
 
@@ -809,14 +809,14 @@ class npc_mechanolift : public CreatureScript
 public:
     npc_mechanolift() : CreatureScript("npc_mechanolift") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_mechanoliftAI(pCreature);
+        return new npc_mechanoliftAI(creature);
     }
 
     struct npc_mechanoliftAI : public PassiveAI
     {
-        npc_mechanoliftAI(Creature* pCreature) : PassiveAI(pCreature), vehicle(pCreature->GetVehicleKit())
+        npc_mechanoliftAI(Creature* creature) : PassiveAI(creature), vehicle(creature->GetVehicleKit())
         {
             assert(vehicle);
         }
@@ -831,14 +831,14 @@ public:
             me->GetMotionMaster()->MoveRandom(50);
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
             me->GetMotionMaster()->MoveTargetedHome();
             Creature* pLiquid = DoSummon(NPC_LIQUID, me, 0);
             if (pLiquid)
             {
                 pLiquid->CastSpell(pLiquid, SPELL_LIQUID_PYRITE, true);
-                pLiquid->GetMotionMaster()->MoveFall(pKiller->GetPositionZ());
+                pLiquid->GetMotionMaster()->MoveFall(killer->GetPositionZ());
             }
         }
 
@@ -913,16 +913,16 @@ class npc_colossus : public CreatureScript
 public:
     npc_colossus() : CreatureScript("npc_colossus") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new  npc_colossusAI(pCreature);
+        return new  npc_colossusAI(creature);
     }
 
     struct npc_colossusAI : public ScriptedAI
     {
-        npc_colossusAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_colossusAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = pCreature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -965,14 +965,14 @@ class npc_thorims_hammer : public CreatureScript
 public:
     npc_thorims_hammer() : CreatureScript("npc_thorims_hammer") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new  npc_thorims_hammerAI(pCreature);
+        return new  npc_thorims_hammerAI(creature);
     }
 
     struct npc_thorims_hammerAI : public Scripted_NoMovementAI
     {
-        npc_thorims_hammerAI(Creature* pCreature) : Scripted_NoMovementAI (pCreature)
+        npc_thorims_hammerAI(Creature* creature) : Scripted_NoMovementAI (creature)
         {
             me->AddAura(LIGHTNING_SKYBEAM, me);
             me->SetReactState(REACT_PASSIVE);
@@ -1004,14 +1004,14 @@ class npc_mimirons_inferno : public CreatureScript
 public:
     npc_mimirons_inferno() : CreatureScript("npc_mimirons_inferno") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new  npc_mimirons_infernoAI(pCreature);
+        return new  npc_mimirons_infernoAI(creature);
     }
 
     struct npc_mimirons_infernoAI : public ScriptedAI
     {
-        npc_mimirons_infernoAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_mimirons_infernoAI(Creature* creature) : ScriptedAI(creature)
         {
             me->AddAura(RED_SKYBEAM, me);
             me->SetReactState(REACT_PASSIVE);
@@ -1062,14 +1062,14 @@ class npc_hodirs_fury : public CreatureScript
 public:
     npc_hodirs_fury() : CreatureScript("npc_hodirs_fury") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new  npc_hodirs_furyAI(pCreature);
+        return new  npc_hodirs_furyAI(creature);
     }
 
     struct npc_hodirs_furyAI : public ScriptedAI
     {
-        npc_hodirs_furyAI(Creature* pCreature) : ScriptedAI (pCreature)
+        npc_hodirs_furyAI(Creature* creature) : ScriptedAI (creature)
         {
             me->AddAura(BLUE_SKYBEAM, me);
             me->SetReactState(REACT_PASSIVE);
@@ -1107,11 +1107,11 @@ public:
             {
                 if (chaseTimer <= diff)
                 {
-                    if (Unit* pTarget = me->SelectNearestTarget(20))
+                    if (Unit* target = me->SelectNearestTarget(20))
                     {
                         pause = true;
                         freezeTimer = 6000;
-                        me->GetMotionMaster()->MoveFollow(pTarget, 0, 0);
+                        me->GetMotionMaster()->MoveFollow(target, 0, 0);
                     }
                     chaseTimer = 1000;
                 }
@@ -1134,14 +1134,14 @@ class npc_freyas_ward : public CreatureScript
 public:
     npc_freyas_ward() : CreatureScript("npc_freyas_ward") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new  npc_freyas_wardAI(pCreature);
+        return new  npc_freyas_wardAI(creature);
     }
 
     struct npc_freyas_wardAI : public ScriptedAI
     {
-        npc_freyas_wardAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_freyas_wardAI(Creature* creature) : ScriptedAI(creature)
         {
             me->AddAura(GREEN_SKYBEAM, me);
             me->SetReactState(REACT_PASSIVE);
@@ -1171,18 +1171,18 @@ class npc_freya_ward_summon : public CreatureScript
 public:
     npc_freya_ward_summon() : CreatureScript("npc_freya_ward_summon") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_freya_ward_summonAI (pCreature);
+        return new npc_freya_ward_summonAI (creature);
     }
 
     struct npc_freya_ward_summonAI : public ScriptedAI
     {
-        npc_freya_ward_summonAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_freya_ward_summonAI(Creature* creature) : ScriptedAI(creature)
         {
             for (int32 i = 0; i < RAID_MODE(3, 5); ++i)
                 DoCast(me, SPELL_FREYA_SUMMONS, true);
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
             me->GetMotionMaster()->MovePoint(0, 259.56f, -17.45f, 409.65f);
             lashTimer = 5000 ;
         }
@@ -1218,7 +1218,7 @@ class mob_flameleviathan_loot : public CreatureScript
 
     struct mob_flameleviathan_lootAI : public ScriptedAI
     {
-        mob_flameleviathan_lootAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_flameleviathan_lootAI(Creature* creature) : ScriptedAI(creature)
         {
             pInstance = me->GetInstanceScript();
             bLeviathan = true;
@@ -1279,7 +1279,7 @@ class mob_flameleviathan_loot : public CreatureScript
             bLeviathan = false;
         }
 
-        void DamageTaken(Unit* pKiller, uint32 &damage)
+        void DamageTaken(Unit* killer, uint32 &damage)
         {
             if (bLeviathan)
                 damage = 0;            
@@ -1324,9 +1324,9 @@ class mob_flameleviathan_loot : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_flameleviathan_lootAI(pCreature);
+        return new mob_flameleviathan_lootAI(creature);
     };
 };
 
@@ -1339,20 +1339,20 @@ class npc_lorekeeper : public CreatureScript
 public:
     npc_lorekeeper() : CreatureScript("npc_lorekeeper") {}   
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
-        InstanceScript* instance = pCreature->GetInstanceScript();
+        InstanceScript* instance = creature->GetInstanceScript();
         switch(uiAction)
         {
         case GOSSIP_ACTION_INFO_DEF+1:
             if (pPlayer)
             {
-                pPlayer->PrepareGossipMenu(pCreature);
+                pPlayer->PrepareGossipMenu(creature);
                 instance->instance->LoadGrid(364,-16); //make sure leviathan is loaded
 
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_2,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
             }
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
@@ -1366,11 +1366,11 @@ public:
             {    
                 CAST_AI(boss_flame_leviathan::boss_flame_leviathanAI, (pLeviathan->AI()))->SetHardMode(true); //enable hard mode activating the 4 additional events spawning additional vehicles
 
-                // pCreature->SetVisible(false);
-                pCreature->AI()->DoAction(0); // spawn the vehicles
-                if (Creature* Delorah = pCreature->FindNearestCreature(NPC_DELORAH, 1000, true))
+                // creature->SetVisible(false);
+                creature->AI()->DoAction(0); // spawn the vehicles
+                if (Creature* Delorah = creature->FindNearestCreature(NPC_DELORAH, 1000, true))
                 {
-                    if (Creature* Branz = pCreature->FindNearestCreature(NPC_BRANZ_BRONZBEARD, 1000, true))
+                    if (Creature* Branz = creature->FindNearestCreature(NPC_BRANZ_BRONZBEARD, 1000, true))
                     {
                         Delorah->GetMotionMaster()->MovePoint(0, Branz->GetPositionX()-4, Branz->GetPositionY(), Branz->GetPositionZ());
                         //TODO DoScriptText(xxxx, Delorah, Branz); when reached at branz
@@ -1388,15 +1388,15 @@ public:
             if (Creature* pLeviathanLoot = instance->instance->GetCreature(instance->GetData64(NPC_LEVIATHAN_LOOT)))
                 CAST_AI(mob_flameleviathan_loot::mob_flameleviathan_lootAI, (pLeviathanLoot->AI()))->SetHardMode(false);
 
-            pCreature->AI()->DoAction(0); // spawn the vehicles
+            creature->AI()->DoAction(0); // spawn the vehicles
             break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        InstanceScript* instance = pCreature->GetInstanceScript();
+        InstanceScript* instance = creature->GetInstanceScript();
 
         if (Creature* pLeviathan = instance->instance->GetCreature(instance->GetData64(BOSS_LEVIATHAN)))
             if(pLeviathan->isInCombat())
@@ -1404,25 +1404,25 @@ public:
 
         if (instance && instance->GetData(BOSS_LEVIATHAN) !=DONE && pPlayer)
         {
-            pPlayer->PrepareGossipMenu(pCreature);
+            pPlayer->PrepareGossipMenu(creature);
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_3,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+3);
             if (pPlayer->isGameMaster())
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_1,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);            
-            pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
         }
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_lorekeeperAI (pCreature);
+        return new npc_lorekeeperAI (creature);
     }
 
     struct npc_lorekeeperAI : public ScriptedAI
     {
-        npc_lorekeeperAI(Creature* pCreature) : ScriptedAI(pCreature), summons(me)
+        npc_lorekeeperAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
-            instance = pCreature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -1540,9 +1540,9 @@ class mob_steelforged_defender : public CreatureScript
        }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_steelforged_defenderAI (pCreature);
+        return new mob_steelforged_defenderAI (creature);
     };
 };
 

@@ -136,9 +136,9 @@ class mob_loatheb_spore : public CreatureScript
 public:
     mob_loatheb_spore() : CreatureScript("mob_loatheb_spore") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_loatheb_sporeAI (pCreature);
+        return new mob_loatheb_sporeAI (creature);
     }
 
     struct mob_loatheb_sporeAI : public ScriptedAI

@@ -134,7 +134,7 @@ class boss_ignis : public CreatureScript
 
     struct boss_ignis_AI : public BossAI
     {
-        boss_ignis_AI(Creature *pCreature) : BossAI(pCreature, BOSS_IGNIS), vehicle(me->GetVehicleKit())
+        boss_ignis_AI(Creature *creature) : BossAI(creature, BOSS_IGNIS), vehicle(me->GetVehicleKit())
         {
             assert(vehicle);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
@@ -229,11 +229,11 @@ class boss_ignis : public CreatureScript
                         events.ScheduleEvent(EVENT_JET, urand(35000,40000));
                         break;
                     case EVENT_SLAG_POT:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                         {
                             DoScriptText(SAY_SLAG_POT, me);
-                            SlagPotGUID = pTarget->GetGUID();
-                            DoCast(pTarget, SPELL_GRAB);
+                            SlagPotGUID = target->GetGUID();
+                            DoCast(target, SPELL_GRAB);
                             events.DelayEvents(3000);
                             events.ScheduleEvent(EVENT_GRAB_POT, 500);
                         }
@@ -272,8 +272,8 @@ class boss_ignis : public CreatureScript
                         break;
                     case EVENT_SCORCH:
                         DoScriptText(RAND(SAY_SCORCH_1, SAY_SCORCH_2), me);
-                        if (Unit* pTarget = me->getVictim())
-                            me->SummonCreature(GROUND_SCORCH, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 45000);
+                        if (Unit* target = me->getVictim())
+                            me->SummonCreature(GROUND_SCORCH, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 45000);
                         DoCast(RAID_MODE(SPELL_SCORCH_10, SPELL_SCORCH_25));
                         events.ScheduleEvent(EVENT_SCORCH, 25000);
                         break;
@@ -282,19 +282,19 @@ class boss_ignis : public CreatureScript
                         {
                             ConstructVct::iterator itr = construct_list.begin();
                             std::advance(itr, urand(0, construct_list.size()-1));
-                            Creature* pTarget = Unit::GetCreature(*me, *itr);
-                            if (pTarget && pTarget->isAlive())
+                            Creature* target = Unit::GetCreature(*me, *itr);
+                            if (target && target->isAlive())
                             {
                                 DoScriptText(SAY_SUMMON, me);
                                 DoCast(me, SPELL_STRENGHT, true);
                                 DoCast(SPELL_ACTIVATE_CONSTRUCT);
-                                pTarget->setFaction(16);
-                                pTarget->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                                pTarget->SetReactState(REACT_AGGRESSIVE);
-                                pTarget->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED | UNIT_FLAG_DISABLE_MOVE);
-                                pTarget->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
-                                pTarget->AI()->AttackStart(me->getVictim());
-                                pTarget->AI()->DoZoneInCombat();
+                                target->setFaction(16);
+                                target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                target->SetReactState(REACT_AGGRESSIVE);
+                                target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED | UNIT_FLAG_DISABLE_MOVE);
+                                target->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
+                                target->AI()->AttackStart(me->getVictim());
+                                target->AI()->DoZoneInCombat();
                                 construct_list.erase(itr);
                             }
                         }
@@ -340,9 +340,9 @@ class boss_ignis : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_ignis_AI (pCreature);
+        return new boss_ignis_AI (creature);
     };
 };
 
@@ -424,9 +424,9 @@ class mob_iron_construct : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_iron_constructAI (pCreature);
+        return new mob_iron_constructAI (creature);
     };
 };
 
@@ -437,7 +437,7 @@ class mob_scorch_ground : public CreatureScript
 
     struct mob_scorch_groundAI : public ScriptedAI
     {
-        mob_scorch_groundAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_scorch_groundAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             // me->SetDisplayId(16925);
@@ -449,9 +449,9 @@ class mob_scorch_ground : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_scorch_groundAI(pCreature);
+        return new mob_scorch_groundAI(creature);
     };
 };
 

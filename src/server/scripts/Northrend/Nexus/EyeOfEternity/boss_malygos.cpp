@@ -271,16 +271,16 @@ class boss_malygos : public CreatureScript
     public:
         boss_malygos(): CreatureScript("boss_malygos") {}
      
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_malygosAI(pCreature);
+        return new boss_malygosAI(creature);
     };
 
     struct boss_malygosAI : public ScriptedAI
     {
-        boss_malygosAI(Creature* pCreature) : ScriptedAI(pCreature)
+        boss_malygosAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
             me->setActive(true);
             Reset();
             m_uiIs10Man = RAID_MODE(true, false);
@@ -438,7 +438,7 @@ class boss_malygos : public CreatureScript
                 uiDamage = 0;
             }
         }
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
             m_pInstance->SetData(TYPE_MALYGOS, DONE);
             m_pInstance->SetData(TYPE_OUTRO_CHECK, 0);
@@ -667,8 +667,8 @@ class boss_malygos : public CreatureScript
                 uint32 tmp = urand(1, 10);
                 if (Creature *pScion = me->SummonCreature(NPC_SCION_OF_ETERNITY, VortexLoc[tmp].x, VortexLoc[tmp].y, FLOOR_Z+10, 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        pScion->AI()->AttackStart(pTarget);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        pScion->AI()->AttackStart(target);
                 }
             }      
         }
@@ -1184,15 +1184,15 @@ class boss_malygos : public CreatureScript
                 //Static field
                 if (m_uiStaticFieldTimer <= uiDiff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        if (Creature *pField = me->SummonCreature(NPC_STATIC_FIELD, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 25000))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Creature *pField = me->SummonCreature(NPC_STATIC_FIELD, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 25000))
                         {
                             pField->SetMaxHealth(1000000);
                             pField->SetFlying(true);
 
                             pField->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                             pField->SetDisplayId(11686);
-                            pField->Attack(pTarget, false);
+                            pField->Attack(target, false);
                             pField->CastSpell(pField, SPELL_STATIC_FIELD, true);
                             pField->CastSpell(pField, 42716, true);
                         }
@@ -1218,7 +1218,7 @@ class boss_malygos : public CreatureScript
                         Creature *pTarget = (Creature*)Unit::GetUnit(*me, (*itr).first);
                         Player *pPlayer = (Player*)Unit::GetUnit(*me, (*itr).second);
 
-                        if (!pTarget || pTarget->GetEntry() != NPC_WYRMREST_SKYTALON)
+                        if (!pTarget || target->GetEntry() != NPC_WYRMREST_SKYTALON)
                             continue;
 
                         if (!pPlayer)
@@ -1226,7 +1226,7 @@ class boss_malygos : public CreatureScript
          
                         if (i == 0)
                         {
-                            DoCast(pTarget, /*m_uiIs10Man ?*/ SPELL_SURGE_OF_POWER /*: SPELL_SURGE_OF_POWER_H*/);
+                            DoCast(target, /*m_uiIs10Man ?*/ SPELL_SURGE_OF_POWER /*: SPELL_SURGE_OF_POWER_H*/);
                             DoScriptText(SAY_SURGE_OF_POWER, me);
                             me->MonsterWhisper("Malygos fixes his eyes on you!", pPlayer->GetGUID(), true);
                         }
@@ -1236,11 +1236,11 @@ class boss_malygos : public CreatureScript
                             if (Creature* pSurge = DoSpawnCreature(NPC_SURGE_OF_POWER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
                             {
                                 pSurge->SetFlying(true);
-                                pSurge->Attack(pTarget, true);
+                                pSurge->Attack(target, true);
                                 pSurge->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                                 pSurge->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 pSurge->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                pSurge->CastSpell(pTarget, SPELL_SURGE_OF_POWER_H, false);
+                                pSurge->CastSpell(target, SPELL_SURGE_OF_POWER_H, false);
                                 pSurge->GetMotionMaster()->MovePoint(1, pSurge->GetPositionX(), pSurge->GetPositionY(), pSurge->GetPositionZ() + 1);
                                 me->MonsterWhisper("Malygos fixes his eyes on you!", pPlayer->GetGUID(), true);
                             }
@@ -1346,16 +1346,16 @@ class mob_power_spark : public CreatureScript
     public:
         mob_power_spark(): CreatureScript("mob_power_spark") {}
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_power_sparkAI(pCreature);
+        return new mob_power_sparkAI(creature);
     };
 
     struct mob_power_sparkAI : public ScriptedAI
     {
-        mob_power_sparkAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_power_sparkAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
             Reset();
         }
      
@@ -1493,16 +1493,16 @@ class mob_scion_of_eternity : public CreatureScript
     public:
         mob_scion_of_eternity(): CreatureScript("mob_scion_of_eternity") {}
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_scion_of_eternityAI(pCreature);
+        return new mob_scion_of_eternityAI(creature);
     };
      
     struct mob_scion_of_eternityAI : public ScriptedAI
     {
-        mob_scion_of_eternityAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_scion_of_eternityAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
             Reset();
             m_uiIs10Man = RAID_MODE(true, false);
         }
@@ -1558,14 +1558,14 @@ class mob_scion_of_eternity : public CreatureScript
            
             if (m_uiArcaneBarrageTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    if (pTarget->GetVehicle())
+                    if (target->GetVehicle())
                         return;
 
                     int32 bpoints0 = RAID_MODE(int32(BP_BARRAGE0), int32(BP_BARRAGE0_H));
-                    me->CastCustomSpell(pTarget, m_uiIs10Man ? SPELL_ARCANE_SHOCK : SPELL_ARCANE_SHOCK_H, &bpoints0, 0, 0, false);
-                    DoCast(pTarget, SPELL_ARCANE_BARRAGE);  
+                    me->CastCustomSpell(target, m_uiIs10Man ? SPELL_ARCANE_SHOCK : SPELL_ARCANE_SHOCK_H, &bpoints0, 0, 0, false);
+                    DoCast(target, SPELL_ARCANE_BARRAGE);  
                 }
                 m_uiArcaneBarrageTimer = 3000 + rand()%7000;
                 DoNextMovement();
@@ -1591,16 +1591,16 @@ class npc_arcane_overload : public CreatureScript
     public:
         npc_arcane_overload(): CreatureScript("npc_arcane_overload") {}
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_arcane_overloadAI(pCreature);
+        return new npc_arcane_overloadAI(creature);
     };
 
     struct npc_arcane_overloadAI : public ScriptedAI
     {
-        npc_arcane_overloadAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_arcane_overloadAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
             Reset();
         }
        
@@ -1685,16 +1685,16 @@ class mob_nexus_lord : public CreatureScript
     public:
         mob_nexus_lord(): CreatureScript("mob_nexus_lord") {}
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_nexus_lordAI(pCreature);
+        return new mob_nexus_lordAI(creature);
     }
 
     struct mob_nexus_lordAI : public ScriptedAI
     {
-        mob_nexus_lordAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_nexus_lordAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
             Reset();
             m_uiIs10Man = RAID_MODE(true, false);
         }
@@ -1727,8 +1727,8 @@ class mob_nexus_lord : public CreatureScript
            
             if (m_uiArcaneShockTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, m_uiIs10Man ? SPELL_ARCANE_SHOCK : SPELL_ARCANE_SHOCK_H);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, m_uiIs10Man ? SPELL_ARCANE_SHOCK : SPELL_ARCANE_SHOCK_H);
                 m_uiArcaneShockTimer = 3000 + rand()%19000;
             }else m_uiArcaneShockTimer -= uiDiff;
            

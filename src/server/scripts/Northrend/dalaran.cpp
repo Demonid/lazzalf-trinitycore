@@ -185,28 +185,28 @@ class npc_archmage_vargoth : public CreatureScript
 public:
     npc_archmage_vargoth() : CreatureScript("npc_archmage_vargoth") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(creature->GetGUID());
 
-        if (pCreature->GetMapId() == 571 &&
+        if (creature->GetMapId() == 571 &&
             pPlayer->HasItemCount(SCHOOLS_OF_ARCANE_MAGIC, 1) &&
             !pPlayer->HasItemCount(KIRIN_TOR_FAMILIAR, 1) &&
             !pPlayer->HasSpell(KIRIN_TOR_FAMILIAR_SPELL))
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Thank you.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1); 
-            pPlayer->SEND_GOSSIP_MENU(PET_TEXT, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(PET_TEXT, creature->GetGUID());
         }
         else
         {
-            pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
         }
 
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
 

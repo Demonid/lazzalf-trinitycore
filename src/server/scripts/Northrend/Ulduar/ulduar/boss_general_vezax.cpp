@@ -109,7 +109,7 @@ class boss_general_vezax : public CreatureScript
 
     struct boss_general_vezaxAI : public BossAI
     {
-        boss_general_vezaxAI(Creature *pCreature) : BossAI(pCreature, BOSS_VEZAX)
+        boss_general_vezaxAI(Creature *creature) : BossAI(creature, BOSS_VEZAX)
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
@@ -135,9 +135,9 @@ class boss_general_vezax : public CreatureScript
                 DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
         
-        void SpellHitTarget(Unit* pTarget, const SpellEntry* pSpell)
+        void SpellHitTarget(Unit* target, const SpellEntry* pSpell)
         {
-            if ((pSpell->Id == SPELL_SHADOW_CRASH_HIT || pSpell->Id == SPELL_SHADOW_CRASH) && pTarget->GetTypeId() == TYPEID_PLAYER)
+            if ((pSpell->Id == SPELL_SHADOW_CRASH_HIT || pSpell->Id == SPELL_SHADOW_CRASH) && target->GetTypeId() == TYPEID_PLAYER)
                 Dodged = false;
         }
 
@@ -201,11 +201,11 @@ class boss_general_vezax : public CreatureScript
                 {
                     case EVENT_SHADOW_CRASH:
                         {
-                            Unit* pTarget = CheckPlayersInRange(1, 15.0f, 120.f);
-                            if (!pTarget)
-                                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                            if (pTarget && !pTarget->IsWithinDist(me, 15))
-                                DoCast(pTarget, SPELL_SHADOW_CRASH);
+                            Unit* target = CheckPlayersInRange(1, 15.0f, 120.f);
+                            if (!target)
+                                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                            if (target && !pTarget->IsWithinDist(me, 15))
+                                DoCast(target, SPELL_SHADOW_CRASH);
                             events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(6000, 10000));
                         }
                         break;
@@ -225,11 +225,11 @@ class boss_general_vezax : public CreatureScript
                                 However, if there are not at least 5 people outside of 15 yards 
                                 he will start casting it on players inside 15 yards melee and tank included.
                             */
-                            Unit* pTarget = CheckPlayersInRange(RAID_MODE(2,5), 15.0f, 120.f);
-                            if (!pTarget)
-                                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true); 
-                            if (pTarget)
-                                DoCast(pTarget, SPELL_MARK_OF_THE_FACELESS);
+                            Unit* target = CheckPlayersInRange(RAID_MODE(2,5), 15.0f, 120.f);
+                            if (!target)
+                                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true); 
+                            if (target)
+                                DoCast(target, SPELL_MARK_OF_THE_FACELESS);
                             events.ScheduleEvent(EVENT_MARK, urand(35000, 40000));
                         }
                         break;
@@ -333,9 +333,9 @@ class boss_general_vezax : public CreatureScript
         };
     };
      
-    CreatureAI* GetAI(Creature *pCreature) const
+    CreatureAI* GetAI(Creature *creature) const
     {
-        return new boss_general_vezaxAI(pCreature);
+        return new boss_general_vezaxAI(creature);
     };
 };
 
@@ -346,9 +346,9 @@ class mob_saronite_vapors : public CreatureScript
 
     struct mob_saronite_vaporsAI : public ScriptedAI
     {
-        mob_saronite_vaporsAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_saronite_vaporsAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->SetReactState(REACT_PASSIVE);
             me->GetMotionMaster()->MoveRandom(30.0f);
@@ -374,9 +374,9 @@ class mob_saronite_vapors : public CreatureScript
         }
     };
      
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_saronite_vaporsAI(pCreature);
+        return new mob_saronite_vaporsAI(creature);
     };
 };
 
@@ -387,9 +387,9 @@ class mob_saronite_animus : public CreatureScript
 
     struct mob_saronite_animusAI : public ScriptedAI
     {
-        mob_saronite_animusAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_saronite_animusAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
         }
@@ -429,9 +429,9 @@ class mob_saronite_animus : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_saronite_animusAI(pCreature);
+        return new mob_saronite_animusAI(creature);
     };
 };
     

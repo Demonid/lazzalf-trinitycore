@@ -494,8 +494,8 @@ public:
 
         if (pPlayer->GetAreaId() == STORMRAGE_BARROW_DENS_AREA)
         {
-            if (Creature* pCreature = pPlayer->FindNearestCreature(BOSS_OMEN, 100, true))
-                if (pCreature->isAlive())
+            if (Creature* creature = pPlayer->FindNearestCreature(BOSS_OMEN, 100, true))
+                if (creature->isAlive())
                     return false;
 
             pPlayer->SummonCreature(BOSS_OMEN, boss_position, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 180000);
