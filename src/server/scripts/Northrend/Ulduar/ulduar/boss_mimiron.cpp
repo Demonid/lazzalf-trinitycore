@@ -203,14 +203,14 @@ class boss_mimiron : public CreatureScript
 public:
     boss_mimiron() : CreatureScript("boss_mimiron") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_mimironAI(pCreature);
+        return new boss_mimironAI(creature);
     }
 
     struct boss_mimironAI : public BossAI
     {
-        boss_mimironAI(Creature* pCreature) : BossAI(pCreature, BOSS_MIMIRON)
+        boss_mimironAI(Creature* creature) : BossAI(creature, BOSS_MIMIRON)
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -246,12 +246,12 @@ public:
                 
                 for (uint8 data = DATA_VX_001; data <= DATA_AERIAL_UNIT; ++data)
                 {
-                    if (Creature* pCreature = me->GetCreature(*me, instance->GetData64(data)))
+                    if (Creature* creature = me->GetCreature(*me, instance->GetData64(data)))
                     {
-                        if (pCreature->isAlive())
+                        if (creature->isAlive())
                         {
-                            pCreature->ExitVehicle();
-                            pCreature->AI()->EnterEvadeMode();
+                            creature->ExitVehicle();
+                            creature->AI()->EnterEvadeMode();
                         }
                     }
                 }
@@ -317,8 +317,8 @@ public:
                 DoScriptText(SAY_BERSERK, me);
                 for (uint8 data = DATA_LEVIATHAN_MK_II; data <= DATA_AERIAL_UNIT; ++data)
                 {
-                    if (Creature* pCreature = me->GetCreature(*me, instance->GetData64(data)))
-                        pCreature->AI()->DoAction(DO_ENTER_ENRAGE);
+                    if (Creature* creature = me->GetCreature(*me, instance->GetData64(data)))
+                        creature->AI()->DoAction(DO_ENTER_ENRAGE);
                 }
                 Enraged = true;
             }
@@ -330,8 +330,8 @@ public:
                 {
                     for (uint8 i = 0; i < 3; ++i)
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            if (Creature* Flame = me->SummonCreature(NPC_FLAME, pTarget->GetPositionX() + irand(-6,6), pTarget->GetPositionY() + irand(-6,6), pTarget->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN))
-                                Flame->AI()->AttackStart(pTarget);
+                            if (Creature* Flame = me->SummonCreature(NPC_FLAME, target->GetPositionX() + irand(-6,6), target->GetPositionY() + irand(-6,6), target->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN))
+                                Flame->AI()->AttackStart(target);
                     FlameTimer = 30000;
                 }
                 else FlameTimer -= diff;
@@ -700,14 +700,14 @@ class boss_leviathan_mk : public CreatureScript
 public:
     boss_leviathan_mk() : CreatureScript("boss_leviathan_mk") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_leviathan_mkAI(pCreature);
+        return new boss_leviathan_mkAI(creature);
     }
 
     struct boss_leviathan_mkAI : public BossAI
     {
-        boss_leviathan_mkAI(Creature* pCreature) : BossAI(pCreature, BOSS_MIMIRON), vehicle(me->GetVehicleKit()), phase(PHASE_NULL)
+        boss_leviathan_mkAI(Creature* creature) : BossAI(creature, BOSS_MIMIRON), vehicle(me->GetVehicleKit()), phase(PHASE_NULL)
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -899,9 +899,9 @@ class boss_leviathan_mk_turret : public CreatureScript
 public:
     boss_leviathan_mk_turret() : CreatureScript("boss_leviathan_mk_turret") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_leviathan_mk_turretAI (pCreature);
+        return new boss_leviathan_mk_turretAI (creature);
     }
 
     struct boss_leviathan_mk_turretAI : public ScriptedAI
@@ -924,9 +924,9 @@ public:
 
             if (uiNapalmShell <= diff)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0))
-                    if (!me->IsWithinDist(pTarget, 12))
-                        DoCast(pTarget, SPELL_NAPALM_SHELL);
+                if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0))
+                    if (!me->IsWithinDist(target, 12))
+                        DoCast(target, SPELL_NAPALM_SHELL);
                 uiNapalmShell = urand(8000, 12000);
             }
             else uiNapalmShell -= diff;
@@ -940,14 +940,14 @@ class npc_proximity_mine : public CreatureScript
 public:
     npc_proximity_mine() : CreatureScript("npc_proximity_mine") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_proximity_mineAI (pCreature);
+        return new npc_proximity_mineAI (creature);
     }
 
     struct npc_proximity_mineAI : public Scripted_NoMovementAI
     {
-        npc_proximity_mineAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
+        npc_proximity_mineAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
            uiBoomTimer = 35000;
@@ -967,9 +967,9 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* pTarget, const SpellEntry* spell)
+        void SpellHitTarget(Unit* target, const SpellEntry* spell)
         {
-            if (pTarget->GetTypeId() != TYPEID_PLAYER)
+            if (target->GetTypeId() != TYPEID_PLAYER)
                 return;              
 
             if (spell->Id == SPELL_EXPLOSION)
@@ -1004,14 +1004,14 @@ class boss_vx_001 : public CreatureScript
 public:
     boss_vx_001() : CreatureScript("boss_vx_001") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_vx_001AI(pCreature);
+        return new boss_vx_001AI(creature);
     }
 
     struct boss_vx_001AI : public BossAI
     {
-        boss_vx_001AI(Creature* pCreature) : BossAI(pCreature, BOSS_MIMIRON), vehicle(me->GetVehicleKit()), phase(PHASE_NULL)
+        boss_vx_001AI(Creature* creature) : BossAI(creature, BOSS_MIMIRON), vehicle(me->GetVehicleKit()), phase(PHASE_NULL)
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -1148,7 +1148,7 @@ public:
                         case EVENT_RAPID_BURST:
                             me->GetMotionMaster()->Initialize();
                             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                                if (Creature *BurstTarget = me->SummonCreature(NPC_BURST_TARGET, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 3000))
+                                if (Creature *BurstTarget = me->SummonCreature(NPC_BURST_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 3000))
                                     DoCast(BurstTarget, SPELL_RAPID_BURST);
                             events.RescheduleEvent(EVENT_RAPID_BURST, 3000, 0, PHASE_VX001_SOLO);
                             break;
@@ -1166,11 +1166,11 @@ public:
                         case EVENT_ROCKET_STRIKE:
                             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 if (Creature *missile = CAST_CRE(me->GetVehicleKit()->GetPassenger(5)))
-                                    missile->CastSpell(pTarget, SPELL_ROCKET_STRIKE, true);
+                                    missile->CastSpell(target, SPELL_ROCKET_STRIKE, true);
                             if (phase == PHASE_VX001_ASSEMBLED)
                                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                     if (Creature *missile = CAST_CRE(me->GetVehicleKit()->GetPassenger(6)))
-                                        missile->CastSpell(pTarget, SPELL_ROCKET_STRIKE, true);
+                                        missile->CastSpell(target, SPELL_ROCKET_STRIKE, true);
                             events.RescheduleEvent(EVENT_ROCKET_STRIKE, urand(20000, 25000));
                             break;
                         case EVENT_HEAT_WAVE:
@@ -1179,7 +1179,7 @@ public:
                             break;
                         case EVENT_HAND_PULSE:
                             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                                DoCast(pTarget, SPELL_HAND_PULSE);
+                                DoCast(target, SPELL_HAND_PULSE);
                             events.RescheduleEvent(EVENT_HAND_PULSE, urand(10000, 12000));
                             break;
                         case EVENT_FROST_BOMB:
@@ -1215,25 +1215,25 @@ class npc_rocket_strike : public CreatureScript
 public:
     npc_rocket_strike() : CreatureScript("npc_rocket_strike") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_rocket_strikeAI (pCreature);
+        return new npc_rocket_strikeAI (creature);
     }
 
     struct npc_rocket_strikeAI : public ScriptedAI
     {
-        npc_rocket_strikeAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_rocket_strikeAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             me->ForcedDespawn(10000);
             DoCast(me, SPELL_ROCKET_STRIKE_AURA);
         }
 
-        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
+        void SpellHitTarget(Unit* target, const SpellEntry *spell)
         { 
             if (spell->Id == SPELL_ROCKET_STRIKE_DMG)
             {
-                if (pTarget->GetTypeId() != TYPEID_PLAYER)
+                if (target->GetTypeId() != TYPEID_PLAYER)
                     return;
 
                 if (InstanceScript* pInstance = me->GetInstanceScript())
@@ -1252,14 +1252,14 @@ class boss_aerial_unit : public CreatureScript
 public:
     boss_aerial_unit() : CreatureScript("boss_aerial_unit") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_aerial_unitAI(pCreature);
+        return new boss_aerial_unitAI(creature);
     }
 
     struct boss_aerial_unitAI : public BossAI
     {
-        boss_aerial_unitAI(Creature *pCreature) : BossAI(pCreature, BOSS_MIMIRON), vehicle(me->GetVehicleKit()), phase(PHASE_NULL)
+        boss_aerial_unitAI(Creature *creature) : BossAI(creature, BOSS_MIMIRON), vehicle(me->GetVehicleKit()), phase(PHASE_NULL)
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -1283,8 +1283,8 @@ public:
             phase = PHASE_NULL;
             events.SetPhase(PHASE_NULL);
             summons.DespawnAll();
-            while (Creature* pTarget = me->FindNearestCreature(NPC_EMERGENCY_BOT, 150.0f))
-                    pTarget->DespawnOrUnsummon();
+            while (Creature* target = me->FindNearestCreature(NPC_EMERGENCY_BOT, 150.0f))
+                    target->DespawnOrUnsummon();
             spawnedAdds = 0;
         }
 
@@ -1385,7 +1385,7 @@ public:
                                 if (me->getVictim()->IsWithinDist3d(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 35))
                                     DoCastVictim(SPELL_PLASMA_BALL);
                                 else if (Unit *pTarget = SelectTarget(SELECT_TARGET_NEAREST, 0))
-                                    DoCast(pTarget, SPELL_PLASMA_BALL);
+                                    DoCast(target, SPELL_PLASMA_BALL);
                             }
                             events.RescheduleEvent(EVENT_PLASMA_BALL, 2000);
                             break;
@@ -1488,14 +1488,14 @@ class npc_magnetic_core : public CreatureScript
 public:
     npc_magnetic_core() : CreatureScript("npc_magnetic_core") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_magnetic_coreAI (pCreature);
+        return new npc_magnetic_coreAI (creature);
     }
 
     struct npc_magnetic_coreAI : public Scripted_NoMovementAI
     {
-        npc_magnetic_coreAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
+        npc_magnetic_coreAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
             DoCast(SPELL_MAGNETIC_CORE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
@@ -1514,7 +1514,7 @@ class mob_boom_bot : public CreatureScript
 
     struct mob_boom_botAI : public ScriptedAI
     {
-        mob_boom_botAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_boom_botAI(Creature* creature) : ScriptedAI(creature)
         {
             pInstance = me->GetInstanceScript();
             if (MimironHardMode)
@@ -1523,9 +1523,9 @@ class mob_boom_bot : public CreatureScript
 
         InstanceScript* pInstance;
 
-        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
+        void SpellHitTarget(Unit* target, const SpellEntry *spell)
         {
-            if (pTarget->GetTypeId() != TYPEID_PLAYER)
+            if (target->GetTypeId() != TYPEID_PLAYER)
                 return;              
 
             if (spell->Id == SPELL_BOOM_BOT)
@@ -1539,9 +1539,9 @@ class mob_boom_bot : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_boom_botAI (pCreature);
+        return new mob_boom_botAI (creature);
     };
 };
 
@@ -1552,16 +1552,16 @@ class mob_junk_bot : public CreatureScript
 
     struct mob_junk_botAI : public ScriptedAI
     {
-        mob_junk_botAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_junk_botAI(Creature* creature) : ScriptedAI(creature)
         {
             if (MimironHardMode)
                 DoCast(me, SPELL_EMERGENCY_MODE);
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_junk_botAI (pCreature);
+        return new mob_junk_botAI (creature);
     };
 };
 
@@ -1570,16 +1570,16 @@ class npc_assault_bot : public CreatureScript
 public:
     npc_assault_bot() : CreatureScript("npc_assault_bot") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_assault_botAI (pCreature);
+        return new npc_assault_botAI (creature);
     }
 
     struct npc_assault_botAI : public ScriptedAI
     {
-        npc_assault_botAI(Creature *pCreature) : ScriptedAI(pCreature)
+        npc_assault_botAI(Creature *creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
@@ -1622,14 +1622,14 @@ class npc_emergency_bot : public CreatureScript
 public:
     npc_emergency_bot() : CreatureScript("npc_emergency_bot") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_emergency_botAI (pCreature);
+        return new npc_emergency_botAI (creature);
     }
 
     struct npc_emergency_botAI : public ScriptedAI
     {
-        npc_emergency_botAI(Creature *pCreature) : ScriptedAI(pCreature)
+        npc_emergency_botAI(Creature *creature) : ScriptedAI(creature)
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -1700,14 +1700,14 @@ class npc_mimiron_flame_trigger : public CreatureScript
 public:
     npc_mimiron_flame_trigger() : CreatureScript("npc_mimiron_flame_trigger") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_mimiron_flame_triggerAI (pCreature);
+        return new npc_mimiron_flame_triggerAI (creature);
     }
 
     struct npc_mimiron_flame_triggerAI : public ScriptedAI
     {
-        npc_mimiron_flame_triggerAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_mimiron_flame_triggerAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             DoCast(me, SPELL_FLAME, true);
@@ -1733,16 +1733,16 @@ class npc_mimiron_flame_spread : public CreatureScript
 public:
     npc_mimiron_flame_spread() : CreatureScript("npc_mimiron_flame_spread") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_mimiron_flame_spreadAI (pCreature);
+        return new npc_mimiron_flame_spreadAI (creature);
     }
 
     struct npc_mimiron_flame_spreadAI : public Scripted_NoMovementAI
     {
-        npc_mimiron_flame_spreadAI(Creature *pCreature) : Scripted_NoMovementAI(pCreature)
+        npc_mimiron_flame_spreadAI(Creature *creature) : Scripted_NoMovementAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
             me->SetReactState(REACT_PASSIVE);
             DoCast(me, SPELL_FLAME, true);
@@ -1764,14 +1764,14 @@ class npc_frost_bomb : public CreatureScript
 public:
     npc_frost_bomb() : CreatureScript("npc_frost_bomb") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_frost_bombAI (pCreature);
+        return new npc_frost_bombAI (creature);
     }
 
     struct npc_frost_bombAI : public Scripted_NoMovementAI
     {
-        npc_frost_bombAI(Creature *pCreature) : Scripted_NoMovementAI(pCreature)
+        npc_frost_bombAI(Creature *creature) : Scripted_NoMovementAI(creature)
         {
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);

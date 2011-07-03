@@ -141,24 +141,24 @@ public:
             float o = chr->GetOrientation();
             Map *map = chr->GetMap();
 
-            Creature* pCreature = new Creature;
-            if (!pCreature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, (uint32)teamval, x, y, z, o))
+            Creature* creature = new Creature;
+            if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, (uint32)teamval, x, y, z, o))
             {
-                delete pCreature;
+                delete creature;
                 return false;
             }
 
-            pCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
+            creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
 
-            uint32 db_guid = pCreature->GetDBTableGUIDLow();
+            uint32 db_guid = creature->GetDBTableGUIDLow();
 
             // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
-            pCreature->LoadFromDB(db_guid, map);
+            creature->LoadFromDB(db_guid, map);
 
             WorldDatabase.PQuery("INSERT INTO guildhouses_add (guid, type, id, add_type, comment) VALUES (%u, 0, %u, %u, '%s')", 
-                                   pCreature->GetDBTableGUIDLow(), guildhouseid, guildhouseaddid, pCreature->GetName());   
+                                   creature->GetDBTableGUIDLow(), guildhouseid, guildhouseaddid, creature->GetName());   
 
-            map->Add(pCreature);
+            map->Add(creature);
             sObjectMgr->AddCreatureToGrid(db_guid, sObjectMgr->GetCreatureData(db_guid));
             return true;
         }

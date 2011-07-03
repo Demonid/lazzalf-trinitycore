@@ -124,8 +124,8 @@ public:
                         if (m_fDist > 1.0f) // Further from 1 yard
                             dmg *= m_fDist;
                         
-                        Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                        me->CastCustomSpell(pTarget, SPELL_OPTIC_LINK, &dmg, 0, 0, false);
+                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                        me->CastCustomSpell(target, SPELL_OPTIC_LINK, &dmg, 0, 0, false);
                     }
             }
             uiOpticLinkTimer = 25000;

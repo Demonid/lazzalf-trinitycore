@@ -298,21 +298,21 @@ class boss_thaddius : public CreatureScript
             std::list<HostileReference*> ThreatList = me->getThreatManager().getThreatList();
             for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
             {
-                Unit* pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                             
-                if (!pTarget)
+                if (!target)
                     continue;
                                
-                if (me->IsWithinMeleeRange(pTarget))
+                if (me->IsWithinMeleeRange(target))
                     return true;
             }
             return false;
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_thaddiusAI (pCreature);
+        return new boss_thaddiusAI (creature);
     };
 };
 class mob_stalagg : public CreatureScript
@@ -420,9 +420,9 @@ class mob_stalagg : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_stalaggAI(pCreature);
+        return new mob_stalaggAI(creature);
     };
 };
 
@@ -499,9 +499,9 @@ class mob_feugen : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_feugenAI(pCreature);
+        return new mob_feugenAI(creature);
     };
 };
 

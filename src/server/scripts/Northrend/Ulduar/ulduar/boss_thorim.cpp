@@ -224,7 +224,7 @@ class boss_thorim : public CreatureScript
 
     struct boss_thorimAI : public BossAI
     {
-        boss_thorimAI(Creature* pCreature) : BossAI(pCreature, BOSS_THORIM)
+        boss_thorimAI(Creature* creature) : BossAI(creature, BOSS_THORIM)
             , phase(PHASE_NULL)
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
@@ -374,9 +374,9 @@ class boss_thorim : public CreatureScript
                     switch(eventId)
                     {
                         case EVENT_STORMHAMMER:
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
-                                if (pTarget->isAlive() && IN_ARENA(pTarget))
-                                    DoCast(pTarget, SPELL_STORMHAMMER);
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
+                                if (target->isAlive() && IN_ARENA(target))
+                                    DoCast(target, SPELL_STORMHAMMER);
                             events.ScheduleEvent(EVENT_STORMHAMMER, urand(15000, 20000), 0, PHASE_1);
                             break;
                         case EVENT_CHARGE_ORB:
@@ -406,9 +406,9 @@ class boss_thorim : public CreatureScript
                             events.ScheduleEvent(EVENT_UNBALANCING_STRIKE, 25000, 0, PHASE_2);
                             break;
                         case EVENT_CHAIN_LIGHTNING:
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                                if (pTarget->isAlive())
-                                    DoCast(pTarget, RAID_MODE(SPELL_CHAIN_LIGHTNING_10, SPELL_CHAIN_LIGHTNING_25));
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                if (target->isAlive())
+                                    DoCast(target, RAID_MODE(SPELL_CHAIN_LIGHTNING_10, SPELL_CHAIN_LIGHTNING_25));
                             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(15000, 20000), 0, PHASE_2);
                             break;
                         /*case EVENT_TRANSFER_ENERGY:
@@ -498,9 +498,9 @@ class boss_thorim : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_thorimAI(pCreature);
+        return new boss_thorimAI(creature);
     };
 };
 
@@ -512,9 +512,9 @@ class mob_pre_phase : public CreatureScript
 
     struct mob_pre_phaseAI : public ScriptedAI
     {
-        mob_pre_phaseAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_pre_phaseAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
             id = PreAdds(0);
             for (uint8 i = 0; i < 6; ++i)
                 if (me->GetEntry() == PRE_PHASE_ADD[i])
@@ -568,9 +568,9 @@ class mob_pre_phase : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_pre_phaseAI(pCreature);
+        return new mob_pre_phaseAI(creature);
     };
 };
 
@@ -582,9 +582,9 @@ class mob_arena_phase : public CreatureScript
 
     struct mob_arena_phaseAI : public ScriptedAI
     {
-        mob_arena_phaseAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_arena_phaseAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();        
+            pInstance = creature->GetInstanceScript();        
             id = ArenaAdds(0);
             for (uint8 i = 0; i < 6; ++i)
                 if (me->GetEntry() == ARENA_PHASE_ADD[i])
@@ -677,8 +677,8 @@ class mob_arena_phase : public CreatureScript
             if (ChargeTimer <= int32(uiDiff))
             {
                 if (id == DARK_RUNE_CHAMPION)
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
-                        DoCast(pTarget, SPELL_CHARGE);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
+                        DoCast(target, SPELL_CHARGE);
                 ChargeTimer = 12000;
             }
             else ChargeTimer -= uiDiff;
@@ -687,9 +687,9 @@ class mob_arena_phase : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_arena_phaseAI(pCreature);
+        return new mob_arena_phaseAI(creature);
     };
 };
 
@@ -701,9 +701,9 @@ class mob_runic_colossus : public CreatureScript
 
     struct mob_runic_colossusAI : public ScriptedAI
     {
-        mob_runic_colossusAI(Creature* pCreature) : ScriptedAI(pCreature), summons(me)
+        mob_runic_colossusAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
@@ -764,7 +764,7 @@ class mob_runic_colossus : public CreatureScript
             if (ChargeTimer <= int32(uiDiff))
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true))
-                    DoCast(pTarget, RAID_MODE(SPELL_CHARGE_10, SPELL_CHARGE_25));
+                    DoCast(target, RAID_MODE(SPELL_CHARGE_10, SPELL_CHARGE_25));
                 ChargeTimer = 20000;
             }
             else ChargeTimer -= uiDiff;
@@ -785,9 +785,9 @@ class mob_runic_colossus : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_runic_colossusAI(pCreature);
+        return new mob_runic_colossusAI(creature);
     };
 };
 
@@ -799,9 +799,9 @@ class mob_rune_giant : public CreatureScript
 
     struct mob_rune_giantAI : public ScriptedAI
     {
-        mob_rune_giantAI(Creature* pCreature) : ScriptedAI(pCreature), summons(me)
+        mob_rune_giantAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
@@ -852,8 +852,8 @@ class mob_rune_giant : public CreatureScript
             
             if (DetonationTimer <= int32(uiDiff))
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
-                    DoCast(pTarget, SPELL_RUNE_DETONATION);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
+                    DoCast(target, SPELL_RUNE_DETONATION);
                 DetonationTimer = urand(10000, 12000);
             }
             else DetonationTimer -= uiDiff;
@@ -874,9 +874,9 @@ class mob_rune_giant : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_rune_giantAI(pCreature);
+        return new mob_rune_giantAI(creature);
     };
 };
 
@@ -888,9 +888,9 @@ class thorim_phase_trigger : public CreatureScript
 
     struct thorim_phase_triggerAI : public Scripted_NoMovementAI
     {
-        thorim_phase_triggerAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
+        thorim_phase_triggerAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
@@ -913,9 +913,9 @@ class thorim_phase_trigger : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new thorim_phase_triggerAI(pCreature);
+        return new thorim_phase_triggerAI(creature);
     };
 };
 
@@ -927,10 +927,10 @@ class npc_sif : public CreatureScript
 
     struct npc_sifAI : public ScriptedAI
     {
-        npc_sifAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_sifAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
@@ -957,19 +957,19 @@ class npc_sif : public CreatureScript
 
             if (FrostTimer <= int32(uiDiff))
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
-                    DoCast(pTarget, SPELL_FROSTBOLT);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
+                    DoCast(target, SPELL_FROSTBOLT);
                 FrostTimer = 4000;
             }
             else FrostTimer -= uiDiff;
                 
             if (VolleyTimer <= int32(uiDiff))
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
                 {
                     DoResetThreat();
-                    me->AddThreat(pTarget, 5000000.0f);
-                    DoCast(pTarget, RAID_MODE(SPELL_FROSTBOLT_VOLLEY_10, SPELL_FROSTBOLT_VOLLEY_25), true);
+                    me->AddThreat(target, 5000000.0f);
+                    DoCast(target, RAID_MODE(SPELL_FROSTBOLT_VOLLEY_10, SPELL_FROSTBOLT_VOLLEY_25), true);
                 }
                 VolleyTimer = urand(15000, 20000);
             }
@@ -991,9 +991,9 @@ class npc_sif : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_sifAI(pCreature);
+        return new npc_sifAI(creature);
     };
 };
 void AddSC_boss_thorim()

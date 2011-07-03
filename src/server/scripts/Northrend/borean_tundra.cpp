@@ -2578,7 +2578,7 @@ public:
 
     struct npc_weakness_to_lightningAI : public ScriptedAI
     {
-        npc_weakness_to_lightningAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_weakness_to_lightningAI(Creature* creature) : ScriptedAI(creature)
         {
             hasAura = false;
         }

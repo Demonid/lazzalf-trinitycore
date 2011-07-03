@@ -151,7 +151,7 @@ class boss_xt002 : public CreatureScript
 
     struct boss_xt002_AI : public BossAI
     {
-        boss_xt002_AI(Creature *pCreature) : BossAI(pCreature, BOSS_XT002), vehicle(me->GetVehicleKit())
+        boss_xt002_AI(Creature *creature) : BossAI(creature, BOSS_XT002), vehicle(me->GetVehicleKit())
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip
@@ -314,10 +314,10 @@ class boss_xt002 : public CreatureScript
             {
                 if (uiSearingLightTimer <= diff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
-                        me->AddAura(RAID_MODE(SPELL_SEARING_LIGHT_10, SPELL_SEARING_LIGHT_25), pTarget);
-                        uiSearingLightTarget = pTarget->GetGUID();
+                        me->AddAura(RAID_MODE(SPELL_SEARING_LIGHT_10, SPELL_SEARING_LIGHT_25), target);
+                        uiSearingLightTarget = target->GetGUID();
                     }
                     uiSpawnLifeSparkTimer = TIMER_SPAWN_LIFE_SPARK;
                     if (hardMode)
@@ -327,10 +327,10 @@ class boss_xt002 : public CreatureScript
 
                 if (uiGravityBombTimer <= diff)
                 {
-                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
-                        me->AddAura(RAID_MODE(SPELL_GRAVITY_BOMB_10,SPELL_GRAVITY_BOMB_25), pTarget);
-                        uiGravityBombTarget = pTarget->GetGUID();
+                        me->AddAura(RAID_MODE(SPELL_GRAVITY_BOMB_10,SPELL_GRAVITY_BOMB_25), target);
+                        uiGravityBombTarget = target->GetGUID();
                     }
                     uiGravityBombTimer = TIMER_GRAVITY_BOMB;
                     if (hardMode)
@@ -505,9 +505,9 @@ class boss_xt002 : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_xt002_AI(pCreature);
+        return new boss_xt002_AI(creature);
     };
 };
 
@@ -524,9 +524,9 @@ class mob_xt002_heart : public CreatureScript
 
     struct mob_xt002_heartAI : public ScriptedAI
     {
-        mob_xt002_heartAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_xt002_heartAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_STUNNED);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
@@ -597,9 +597,9 @@ class mob_xt002_heart : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_xt002_heartAI(pCreature);
+        return new mob_xt002_heartAI(creature);
     };
 };
 
@@ -615,7 +615,7 @@ class mob_scrapbot : public CreatureScript
 
     struct mob_scrapbotAI : public ScriptedAI
     {
-        mob_scrapbotAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_scrapbotAI(Creature* creature) : ScriptedAI(creature)
         {
             m_pInstance = me->GetInstanceScript();
         }
@@ -662,9 +662,9 @@ class mob_scrapbot : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_scrapbotAI(pCreature);
+        return new mob_scrapbotAI(creature);
     };
 };
 
@@ -680,9 +680,9 @@ class mob_pummeller : public CreatureScript
 
     struct mob_pummellerAI : public ScriptedAI
     {
-        mob_pummellerAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_pummellerAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* m_pInstance;
@@ -734,9 +734,9 @@ class mob_pummeller : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_pummellerAI(pCreature);
+        return new mob_pummellerAI(creature);
     };
 };
 
@@ -752,9 +752,9 @@ class mob_boombot : public CreatureScript
 
     struct mob_boombotAI : public ScriptedAI
     {
-        mob_boombotAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_boombotAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* m_pInstance;
@@ -785,9 +785,9 @@ class mob_boombot : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_boombotAI(pCreature);
+        return new mob_boombotAI(creature);
     };
 };
 
@@ -803,9 +803,9 @@ class mob_void_zone : public CreatureScript
 
     struct mob_void_zoneAI : public ScriptedAI
     {
-        mob_void_zoneAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_void_zoneAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_PACIFIED);
         }
 
@@ -834,9 +834,9 @@ class mob_void_zone : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_void_zoneAI(pCreature);
+        return new mob_void_zoneAI(creature);
     };
 };
 
@@ -852,9 +852,9 @@ class mob_life_spark : public CreatureScript
 
     struct mob_life_sparkAI : public ScriptedAI
     {
-        mob_life_sparkAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_life_sparkAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* m_pInstance;
@@ -890,9 +890,9 @@ class mob_life_spark : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_life_sparkAI(pCreature);
+        return new mob_life_sparkAI(creature);
     };
 };
 

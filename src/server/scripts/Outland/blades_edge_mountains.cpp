@@ -688,9 +688,9 @@ class mob_blade_fiend : public CreatureScript
 public:
     mob_blade_fiend() : CreatureScript("mob_blade_fiend") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_blade_fiendAI (pCreature);
+        return new mob_blade_fiendAI (creature);
     }
 
     struct mob_blade_fiendAI : public ScriptedAI

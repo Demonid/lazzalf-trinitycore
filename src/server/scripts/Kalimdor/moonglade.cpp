@@ -591,14 +591,14 @@ class boss_omen : public CreatureScript
 public:
     boss_omen() : CreatureScript("boss_omen") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_omenAI (pCreature);
+        return new boss_omenAI (creature);
     }
 
     struct boss_omenAI : public ScriptedAI
     {
-        boss_omenAI(Creature *pCreature) : ScriptedAI(pCreature)
+        boss_omenAI(Creature *creature) : ScriptedAI(creature)
         {
             CleaveTimer = 10000;
             StarshardsTimer = 7000;
@@ -655,7 +655,7 @@ public:
 
             if (StarshardsTimer <= diff)
             {
-                //if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                //if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCastAOE(SPELL_STARSHARDS);
                 StarshardsTimer = 5000;
             }

@@ -191,8 +191,8 @@ class boss_koralon : public CreatureScript
                         me->MonsterTextEmote(EMOTE_METEOR_FISTS, 0, true);
                         events.ScheduleEvent(EVENT_METEOR_FISTS, 45000);
                     case EVENT_FLAME_CINDER_A:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(pTarget, RAID_MODE(SPELL_FLAME_CINDER_A,SPELL_FLAME_CINDER_A_H));
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            DoCast(target, RAID_MODE(SPELL_FLAME_CINDER_A,SPELL_FLAME_CINDER_A_H));
                         events.ScheduleEvent(EVENT_FLAME_CINDER_A, 6000);
                         return;
                 }
@@ -201,9 +201,9 @@ class boss_koralon : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_koralonAI (pCreature);
+        return new boss_koralonAI (creature);
     };
 };
 
@@ -264,9 +264,9 @@ class mob_flame_warder : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_flame_warderAI (pCreature);
+        return new mob_flame_warderAI (creature);
     };
 };
 

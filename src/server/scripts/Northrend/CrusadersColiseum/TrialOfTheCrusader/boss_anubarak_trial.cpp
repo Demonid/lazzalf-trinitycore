@@ -127,19 +127,19 @@ class boss_anubarak_trial : public CreatureScript
 public:
     boss_anubarak_trial() : CreatureScript("boss_anubarak_trial") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_anubarak_trialAI(pCreature);
+        return new boss_anubarak_trialAI(creature);
     };
 
     struct boss_anubarak_trialAI : public ScriptedAI
     {
-        boss_anubarak_trialAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
+        boss_anubarak_trialAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             //me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
         }
 
         SummonList Summons;
@@ -462,16 +462,16 @@ class mob_anubarak_spike : public CreatureScript
 public:
     mob_anubarak_spike() : CreatureScript("mob_anubarak_spike") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_anubarak_spikeAI(pCreature);
+        return new mob_anubarak_spikeAI(creature);
     };
 
     struct mob_anubarak_spikeAI : public ScriptedAI
     {
-        mob_anubarak_spikeAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_anubarak_spikeAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
             //if (m_pInstance)
             //    sLog->outBoss("Anub Spike Id: %u,  Created", m_pInstance->instance->GetInstanceId());
@@ -493,19 +493,19 @@ public:
             //if (m_pInstance)
             //    sLog->outBoss("Anub Spike Id: %u,  Reset", m_pInstance->instance->GetInstanceId());
 
-            if (Unit* pTarget = CheckPlayersInRange(1, 0.0f, 120.f))
-                if (pTarget && pTarget->isAlive())
+            if (Unit* target = CheckPlayersInRange(1, 0.0f, 120.f))
+                if (target && target->isAlive())
                 {
-                    m_uiTargetGUID = pTarget->GetGUID();
+                    m_uiTargetGUID = target->GetGUID();
                     //if (m_pInstance)
                     //    sLog->outBoss("Anub Spike Id: %u,  Enter combat, target GUID: %u", m_pInstance->instance->GetInstanceId(), m_uiTargetGUID);
-                    DoScriptText(EMOTE_SPIKE, me, pTarget);
-                    me->CombatStart(pTarget);
-                    DoCast(pTarget, SPELL_MARK);
+                    DoScriptText(EMOTE_SPIKE, me, target);
+                    me->CombatStart(target);
+                    DoCast(target, SPELL_MARK);
                     me->SetSpeed(MOVE_RUN, 0.5f);
                     m_uiSpeed = 0;
                     m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
-                    me->TauntApply(pTarget);
+                    me->TauntApply(target);
                 }
         }
 
@@ -571,19 +571,19 @@ public:
                 !me->GetAura(67856) && !me->GetAura(67857))
                 me->RemoveAurasWithMechanic(1 << MECHANIC_SNARE);
 
-            Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID);
+            Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID);
 
             if (me->getVictim() && !me->getVictim()->ToPlayer())
             {
                 me->Kill(me->getVictim());
-                if (pTarget)
-                    me->TauntApply(pTarget);
+                if (target)
+                    me->TauntApply(target);
             }
 
             if (!pTarget || !pTarget->isAlive() || !pTarget->HasAura(SPELL_MARK))
             {
-                if (Unit* pTarget = me->FindNearestCreature(NPC_FROST_SPHERE, 15.0f))
-                    pTarget->RemoveFromWorld();
+                if (Unit* target = me->FindNearestCreature(NPC_FROST_SPHERE, 15.0f))
+                    target->RemoveFromWorld();
                 if (Creature* pAnubarak = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ANUBARAK)))
                     pAnubarak->CastSpell(pAnubarak, SPELL_SPIKE_TELE, false);
                 me->DisappearAndDie();
@@ -626,16 +626,16 @@ class mob_swarm_scarab : public CreatureScript
 public:
     mob_swarm_scarab() : CreatureScript("mob_swarm_scarab") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_swarm_scarabAI(pCreature);
+        return new mob_swarm_scarabAI(creature);
     };
 
     struct mob_swarm_scarabAI : public ScriptedAI
     {
-        mob_swarm_scarabAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_swarm_scarabAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
             if (IsHeroic())
             {
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
@@ -670,9 +670,9 @@ public:
             }
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* killer)
         {
-            // DoCast(pKiller, RAID_MODE(SPELL_TRAITOR_KING_10, SPELL_TRAITOR_KING_25));
+            // DoCast(killer, RAID_MODE(SPELL_TRAITOR_KING_10, SPELL_TRAITOR_KING_25));
 
             if(m_pInstance->GetData(DATA_TRAITOR_KING) == ACHI_IS_NOT_STARTED)
                m_pInstance->SetData(DATA_TRAITOR_KING, ACHI_START);
@@ -703,16 +703,16 @@ class mob_nerubian_burrower : public CreatureScript
 public:
     mob_nerubian_burrower() : CreatureScript("mob_nerubian_burrower") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_nerubian_burrowerAI(pCreature);
+        return new mob_nerubian_burrowerAI(creature);
     };
 
     struct mob_nerubian_burrowerAI : public ScriptedAI
     {
-        mob_nerubian_burrowerAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_nerubian_burrowerAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
         }
 
         InstanceScript* m_pInstance;
@@ -744,7 +744,7 @@ public:
                         !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) &&
                         !me->HasAura(SPELL_SUBMERGE_EFFECT))
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(pTarget, SPELL_SHADOW_STRIKE);
+                            DoCast(target, SPELL_SHADOW_STRIKE);
                     break;
             }
         }
@@ -803,16 +803,16 @@ class mob_frost_sphere : public CreatureScript
 public:
     mob_frost_sphere() : CreatureScript("mob_frost_sphere") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_frost_sphereAI(pCreature);
+        return new mob_frost_sphereAI(creature);
     };
 
     struct mob_frost_sphereAI : public ScriptedAI
     {
-        mob_frost_sphereAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_frost_sphereAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            m_pInstance = (InstanceScript*)creature->GetInstanceScript();
         }
 
         bool   m_bFall;

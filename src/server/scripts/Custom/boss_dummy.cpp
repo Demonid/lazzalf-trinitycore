@@ -40,15 +40,15 @@ class boss_king_dummy : public CreatureScript
     typedef std::list<uint64> PlayerVct;
     PlayerVct player_vct;
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
@@ -65,25 +65,25 @@ class boss_king_dummy : public CreatureScript
                             player_vct.push_back(member->GetGUID());
                         //sObjectMgr->GetPlayer(GUID);
                     }
-                    UpdateStats(pCreature, grp->GetMembersCount());
-                    pCreature->setFaction(14);
-                    pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    UpdateStats(creature, grp->GetMembersCount());
+                    creature->setFaction(14);
+                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     return true;
                 }
             } 
-            pCreature->MonsterSay(MSG_NOT_ENOUGHT_PLAYER, LANG_UNIVERSAL, 0);
+            creature->MonsterSay(MSG_NOT_ENOUGHT_PLAYER, LANG_UNIVERSAL, 0);
         }
         return true;
     }
 
-    void UpdateStats(Creature* pCreature, uint32 player_number)
+    void UpdateStats(Creature* creature, uint32 player_number)
     {
-        pCreature->SetMaxHealth(player_number * 1000000);
+        creature->SetMaxHealth(player_number * 1000000);
     }
 
     struct boss_king_dummyAI : public BossAI
     {
-        boss_king_dummyAI(Creature *pCreature) : BossAI(pCreature, BOSS_KING_DUMMY)
+        boss_king_dummyAI(Creature *creature) : BossAI(creature, BOSS_KING_DUMMY)
         {
 
         }
@@ -166,9 +166,9 @@ class boss_king_dummy : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_king_dummyAI (pCreature);
+        return new boss_king_dummyAI (creature);
     };
 };
 
@@ -179,7 +179,7 @@ void AddSC_boss_king_dummy()
 
 // Scorch
 /*if (Unit *pTarget = me->getVictim())
-    me->SummonCreature(GROUND_SCORCH, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 45000);
+    me->SummonCreature(GROUND_SCORCH, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 45000);
 DoCast(RAID_MODE(SPELL_SCORCH_10, SPELL_SCORCH_25));
 events.ScheduleEvent(EVENT_SCORCH, 25000);
 

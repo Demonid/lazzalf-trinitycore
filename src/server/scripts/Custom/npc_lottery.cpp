@@ -50,7 +50,7 @@ class npc_lotto : public CreatureScript
 public:
     npc_lotto() : CreatureScript("npc_lotto") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         if (pPlayer && !pPlayer->isGameMaster())
         {
@@ -60,18 +60,18 @@ public:
                 Field *fields = result->Fetch();
                 if (fields[0].GetInt32() >= MAX_TICKET)
                 {
-                    pPlayer->SEND_GOSSIP_MENU(1200006, pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(1200006, creature->GetGUID());
                     return true;
                 }
-                pPlayer->PrepareGossipMenu(pCreature);
+                pPlayer->PrepareGossipMenu(creature);
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BUY_TICKET, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                pPlayer->SEND_GOSSIP_MENU(1200005, pCreature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(1200005, creature->GetGUID());
             }
         }
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         
@@ -89,7 +89,7 @@ public:
                     ExtraDatabase.PExecute("INSERT INTO lotto_tickets (id,name,guid) VALUES (%u,'%s',%u);", id+1, pPlayer->GetName(), pPlayer->GetGUIDLow());
                     char msg[500];
                     sprintf(msg, "Buona fortuna, $N. Il tuo biglietto e' il numero %i", id+1);
-                    pCreature->MonsterWhisper(msg, pPlayer->GetGUID());
+                    creature->MonsterWhisper(msg, pPlayer->GetGUID());
                 }
                 break;
         }
@@ -97,14 +97,14 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_lottoAI (pCreature);
+        return new npc_lottoAI (creature);
     }
 
     struct npc_lottoAI : public ScriptedAI
     {
-        npc_lottoAI(Creature* pCreature) : ScriptedAI(pCreature) 
+        npc_lottoAI(Creature* creature) : ScriptedAI(creature) 
         {
             SayTimer = 600*IN_MILLISECONDS;
         }
@@ -228,7 +228,7 @@ class npc_lotto2 : public CreatureScript
 public:
     npc_lotto2() : CreatureScript("npc_lotto2") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         if (pPlayer && !pPlayer->isGameMaster())
         {
@@ -238,18 +238,18 @@ public:
                 Field *fields = result->Fetch();
                 if (fields[0].GetInt32() >= MAX_TICKET)
                 {
-                    pPlayer->SEND_GOSSIP_MENU(1200006, pCreature->GetGUID());
+                    pPlayer->SEND_GOSSIP_MENU(1200006, creature->GetGUID());
                     return true;
                 }
-                pPlayer->PrepareGossipMenu(pCreature);
+                pPlayer->PrepareGossipMenu(creature);
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_BUY_TICKET, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                pPlayer->SEND_GOSSIP_MENU(1200005, pCreature->GetGUID());
+                pPlayer->SEND_GOSSIP_MENU(1200005, creature->GetGUID());
             }
         }
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         
@@ -267,7 +267,7 @@ public:
                     ExtraDatabase.PExecute("INSERT INTO lotto_tickets (id,name,guid) VALUES (%u,'%s',%u);", id+1, pPlayer->GetName(), pPlayer->GetGUIDLow());
                     char msg[500];
                     sprintf(msg, "Buona fortuna, $N. Il tuo biglietto e' il numero %i", id+1);
-                    pCreature->MonsterWhisper(msg, pPlayer->GetGUID());
+                    creature->MonsterWhisper(msg, pPlayer->GetGUID());
                 }
                 break;
         }
@@ -275,14 +275,14 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_lotto2AI (pCreature);
+        return new npc_lotto2AI (creature);
     }
 
     struct npc_lotto2AI : public ScriptedAI
     {
-        npc_lotto2AI(Creature* pCreature) : ScriptedAI(pCreature) 
+        npc_lotto2AI(Creature* creature) : ScriptedAI(creature) 
         {
             SayTimer = 300*IN_MILLISECONDS;
             InvisibleTimer = 0;

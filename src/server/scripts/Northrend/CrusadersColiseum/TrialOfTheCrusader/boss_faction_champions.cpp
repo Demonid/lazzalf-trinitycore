@@ -557,19 +557,19 @@ public:
                 {
                     case 0: case 5:
                         if (Unit *pTarget = urand(0, chance) ? friendly : myself)
-                            DoCast(pTarget, SPELL_LIFEBLOOM);
+                            DoCast(target, SPELL_LIFEBLOOM);
                         break;
                     case 1: case 6:
                         if (Unit *pTarget = urand(0, chance) ? friendly : myself)
-                            DoCast(pTarget, SPELL_NOURISH);
+                            DoCast(target, SPELL_NOURISH);
                         break;
                     case 2: case 7:
                         if (Unit *pTarget = urand(0, chance) ? friendly : myself)
-                            DoCast(pTarget, SPELL_REGROWTH);
+                            DoCast(target, SPELL_REGROWTH);
                         break;
                     case 3: case 8:
                         if (Unit *pTarget = urand(0, chance) ? friendly : myself)
-                            DoCast(pTarget, SPELL_REJUVENATION);
+                            DoCast(target, SPELL_REJUVENATION);
                         break;
                     case 4:
                         if (Creature* target = SelectRandomFriendlyMissingBuff(SPELL_THORNS))
@@ -668,18 +668,18 @@ public:
                 {
                     case 0: case 1:
                         if (Unit *pTarget = urand(0, chance) ? friendly : myself)
-                            DoCast(pTarget, SPELL_HEALING_WAVE);
+                            DoCast(target, SPELL_HEALING_WAVE);
                         break;
                     case 2: case 6:
                         if (Unit *pTarget = urand(0, chance) ? friendly : myself)
-                            DoCast(pTarget, SPELL_RIPTIDE);
+                            DoCast(target, SPELL_RIPTIDE);
                         break;
                     case 3:
                         DoCast(me, SPELL_EARTH_SHOCK);
                         break;
                     case 4:
                         if (Unit *pTarget = urand(0, 1) ? me : DoSelectLowestHpFriendly(40.0f))
-                            DoCast(pTarget, SPELL_SPIRIT_CLEANSE);
+                            DoCast(target, SPELL_SPIRIT_CLEANSE);
                         break;
                     case 5:
                         if (Unit* target = SelectRandomFriendlyMissingBuff(SPELL_EARTH_SHIELD))
@@ -799,15 +799,15 @@ public:
                 {
                     case 0: case 1:
                         if (Unit *pTarget = urand(0, chance) ? friendly : myself)
-                            DoCast(pTarget, SPELL_FLASH_OF_LIGHT);
+                            DoCast(target, SPELL_FLASH_OF_LIGHT);
                         break;
                     case 2: case 3:
                         if (Unit *pTarget = urand(0, chance) ? friendly : myself)
-                            DoCast(pTarget, SPELL_HOLY_LIGHT);
+                            DoCast(target, SPELL_HOLY_LIGHT);
                         break;
                     case 4:
                         if (Unit *pTarget = urand(0, 1) ? me : DoSelectLowestHpFriendly(40.0f))
-                            DoCast(pTarget, SPELL_CLEANSE);
+                            DoCast(target, SPELL_CLEANSE);
                         break;
                 }
                 m_uiCommonTimer = urand(5*IN_MILLISECONDS, 12*IN_MILLISECONDS);
@@ -883,15 +883,15 @@ public:
                 {
                     case 0: case 6:
                         if (Unit *pTarget = urand(0, chance) ? friendly : myself)
-                            DoCast(pTarget, SPELL_RENEW);
+                            DoCast(target, SPELL_RENEW);
                         break;
                     case 1: case 7:
                        if (Unit *pTarget = urand(0, chance) ? friendly : myself)
-                            DoCast(pTarget, SPELL_SHIELD);                        
+                            DoCast(target, SPELL_SHIELD);                        
                         break;
                     case 2: case 3:
                         if (Unit *pTarget = urand(0, chance) ? friendly : myself)
-                            DoCast(pTarget, SPELL_FLASH_HEAL);
+                            DoCast(target, SPELL_FLASH_HEAL);
                         break;
                     case 4:
                         if (Unit* target = urand(0, 1) ? SelectTarget(SELECT_TARGET_RANDOM, 0) : DoSelectLowestHpFriendly(40.0f))

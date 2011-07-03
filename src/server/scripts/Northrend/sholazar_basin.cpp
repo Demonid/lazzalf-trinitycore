@@ -679,20 +679,20 @@ public:
 
     struct npc_oracle_frezyAI : public ScriptedAI
     {
-        npc_oracle_frezyAI(Creature* pCreature) : ScriptedAI(pCreature) 
+        npc_oracle_frezyAI(Creature* creature) : ScriptedAI(creature) 
         { 
-            entry = pCreature->GetEntry();
+            entry = creature->GetEntry();
             me->setFaction(14);
         }
 
         uint32 entry;
 
-        void JustDied(Unit* /*pKiller*/)
+        void JustDied(Unit* /*killer*/)
         {
-            if (Unit* pTarget = me->FindNearestCreature(me->GetEntry() == NPC_ORACLE ? NPC_FREZYNE : NPC_ORACLE, 100.0f))
+            if (Unit* target = me->FindNearestCreature(me->GetEntry() == NPC_ORACLE ? NPC_FREZYNE : NPC_ORACLE, 100.0f))
             {            
-                pTarget->setFaction(35);
-                pTarget->CombatStop();
+                target->setFaction(35);
+                target->CombatStop();
             }
         }
     };

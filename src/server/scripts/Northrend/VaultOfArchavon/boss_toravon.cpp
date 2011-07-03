@@ -187,7 +187,7 @@ class boss_toravon : public CreatureScript
                         return;
                     case EVENT_FREEZING_GROUND:
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_FREEZING_GROUND);
+                            DoCast(target, SPELL_FREEZING_GROUND);
                         events.ScheduleEvent(EVENT_FREEZING_GROUND, 20000);
                         return;
                 }
@@ -196,9 +196,9 @@ class boss_toravon : public CreatureScript
         }
     };
     
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_toravonAI (pCreature);
+        return new boss_toravonAI (creature);
     };
 };
 
@@ -252,9 +252,9 @@ class mob_frost_warder : public CreatureScript
         }
     };
     
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_frost_warderAI (pCreature);
+        return new mob_frost_warderAI (creature);
     };
 };
 
@@ -300,17 +300,17 @@ class mob_frozen_orb : public CreatureScript
                 Unit* pToravon = me->GetMap()->GetCreature(pInstance->GetData64(DATA_TORAVON));
                 if (pToravon)
                 {
-                    Unit* pTarget = pToravon->SelectNearbyTarget(10);
-                    if (pTarget)
-                        me->AI()->AttackStart(pTarget);
+                    Unit* target = pToravon->SelectNearbyTarget(10);
+                    if (target)
+                        me->AI()->AttackStart(target);
                 }
             }
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_frozen_orbAI (pCreature);
+        return new mob_frozen_orbAI (creature);
     };
 };
 
@@ -335,9 +335,9 @@ class mob_frozen_orb_stalker : public CreatureScript
         void UpdateAI(const uint32 diff) {}
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_frozen_orb_stalkerAI (pCreature);
+        return new mob_frozen_orb_stalkerAI (creature);
     };
 };
 

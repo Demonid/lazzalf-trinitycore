@@ -85,8 +85,8 @@ public:
         if (!pPlayer)
             return true;
 
-        if (Creature* pCreature = pPlayer->FindNearestCreature(NPC_GROMTHAR, 100, true))
-            if (pCreature->isAlive())
+        if (Creature* creature = pPlayer->FindNearestCreature(NPC_GROMTHAR, 100, true))
+            if (creature->isAlive())
                 return false;
  
         pPlayer->SummonCreature(NPC_GROMTHAR, gromthar_position, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 180000);
@@ -104,9 +104,9 @@ class npc_torturer_lecraft : public CreatureScript
 public:
     npc_torturer_lecraft() : CreatureScript("npc_torturer_lecraft") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_torturer_lecraftAI(pCreature);
+        return new npc_torturer_lecraftAI(creature);
     }
 
     struct npc_torturer_lecraftAI : public ScriptedAI
@@ -180,9 +180,9 @@ class npc_dummy_raelorasz : public CreatureScript
 public:
     npc_dummy_raelorasz() : CreatureScript("npc_dummy_raelorasz") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_dummy_raeloraszAI(pCreature);
+        return new npc_dummy_raeloraszAI(creature);
     }
 
     struct npc_dummy_raeloraszAI : public ScriptedAI

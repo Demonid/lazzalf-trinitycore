@@ -91,9 +91,9 @@ class boss_auriaya : public CreatureScript
 
     struct boss_auriaya_AI : public BossAI
     {
-        boss_auriaya_AI(Creature *pCreature) : BossAI(pCreature, BOSS_AURIAYA)
+        boss_auriaya_AI(Creature *creature) : BossAI(creature, BOSS_AURIAYA)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip jump effect
         }
@@ -192,7 +192,7 @@ class boss_auriaya : public CreatureScript
                         break;
                     case EVENT_SUMMON:
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
-                            DoCast(pTarget, SPELL_SUMMON_SWARMING_GUARDIAN);
+                            DoCast(target, SPELL_SUMMON_SWARMING_GUARDIAN);
                         events.ScheduleEvent(EVENT_SUMMON, 35000);
                         break;
                     case EVENT_BERSERK:
@@ -220,9 +220,9 @@ class boss_auriaya : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_auriaya_AI (pCreature);
+        return new boss_auriaya_AI (creature);
     };
 };
 
@@ -233,9 +233,9 @@ class npc_feral_defender_trigger : public CreatureScript
 
     struct npc_feral_defender_triggerAI : public ScriptedAI
     {
-        npc_feral_defender_triggerAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_feral_defender_triggerAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_PACIFIED);
         }
 
@@ -267,9 +267,9 @@ class npc_feral_defender_trigger : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_feral_defender_triggerAI(pCreature);
+        return new npc_feral_defender_triggerAI(creature);
     };
 };
 
@@ -280,9 +280,9 @@ class npc_sanctum_sentry : public CreatureScript
 
     struct npc_sanctum_sentryAI : public ScriptedAI
     {
-        npc_sanctum_sentryAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_sanctum_sentryAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
@@ -303,8 +303,8 @@ class npc_sanctum_sentry : public CreatureScript
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                 {
-                    me->AddThreat(pTarget, 100.0f);
-                    me->AI()->AttackStart(pTarget);
+                    me->AddThreat(target, 100.0f);
+                    me->AI()->AttackStart(target);
                 }
                 else
                     return;
@@ -320,9 +320,9 @@ class npc_sanctum_sentry : public CreatureScript
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                 {
-                    me->AddThreat(pTarget, 100.0f);
-                    me->AI()->AttackStart(pTarget);
-                    DoCast(pTarget, SPELL_SAVAGE_POUNCE);
+                    me->AddThreat(target, 100.0f);
+                    me->AI()->AttackStart(target);
+                    DoCast(target, SPELL_SAVAGE_POUNCE);
                 }
                 PounceTimer = urand(20000, 30000);
             } else PounceTimer -= uiDiff;
@@ -363,9 +363,9 @@ class npc_sanctum_sentry : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_sanctum_sentryAI(pCreature);
+        return new npc_sanctum_sentryAI(creature);
     };
 };
 
@@ -376,9 +376,9 @@ class npc_feral_defender : public CreatureScript
 
     struct npc_feral_defenderAI : public ScriptedAI
     {
-        npc_feral_defenderAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_feral_defenderAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
         
         InstanceScript* pInstance;
@@ -403,8 +403,8 @@ class npc_feral_defender : public CreatureScript
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                 {
-                    me->AddThreat(pTarget, 100.0f);
-                    me->AI()->AttackStart(pTarget);
+                    me->AddThreat(target, 100.0f);
+                    me->AI()->AttackStart(target);
                 }
                 else
                     me->DespawnOrUnsummon();
@@ -417,9 +417,9 @@ class npc_feral_defender : public CreatureScript
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                 {
-                    me->AddThreat(pTarget, 100.0f);
-                    me->AI()->AttackStart(pTarget);
-                    DoCast(pTarget, SPELL_FERAL_POUNCE);
+                    me->AddThreat(target, 100.0f);
+                    me->AI()->AttackStart(target);
+                    DoCast(target, SPELL_FERAL_POUNCE);
                 }
                 PounceTimer = urand(15000, 20000);
             } 
@@ -429,9 +429,9 @@ class npc_feral_defender : public CreatureScript
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                 {
-                    me->AddThreat(pTarget, 100.0f);
-                    me->AI()->AttackStart(pTarget);
-                    DoCast(pTarget, SPELL_FERAL_RUSH);
+                    me->AddThreat(target, 100.0f);
+                    me->AI()->AttackStart(target);
+                    DoCast(target, SPELL_FERAL_RUSH);
                 }
                 RushTimer = urand(15000, 20000);
             } 
@@ -451,7 +451,7 @@ class npc_feral_defender : public CreatureScript
             DoMeleeAttackIfReady();
         }
         
-        void DamageTaken(Unit* pKiller, uint32 &damage)
+        void DamageTaken(Unit* killer, uint32 &damage)
         {
             if(damage >= me->GetHealth())
             {
@@ -479,9 +479,9 @@ class npc_feral_defender : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_feral_defenderAI(pCreature);
+        return new npc_feral_defenderAI(creature);
     };
 };
 
@@ -493,10 +493,10 @@ class npc_seeping_trigger : public CreatureScript
 
     struct npc_seeping_triggerAI : public ScriptedAI
     {
-        npc_seeping_triggerAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_seeping_triggerAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
         }
         
         InstanceScript* pInstance;
@@ -514,9 +514,9 @@ class npc_seeping_trigger : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_seeping_triggerAI(pCreature);
+        return new npc_seeping_triggerAI(creature);
     };
 };
 

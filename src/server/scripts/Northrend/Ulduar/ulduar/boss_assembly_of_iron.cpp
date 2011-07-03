@@ -335,16 +335,16 @@ class boss_steelbreaker : public CreatureScript
                     break;
                     case EVENT_STATIC_DISRUPTION:
                     {
-                        Unit* pTarget = NULL;
+                        Unit* target = NULL;
                         /* Static Disruption (1 dead) - 
                            Inflicts 3,500 (25-man: 7,000) Nature damage to enemies in 6 yards radius area. 
                            Also increases Nature damage taken by 75% for 20 seconds. 
                            Prefers ranged targets, but will choose a player in melee ranged if no ranged 
                            targets are available.
                         */
-                        if (!(pTarget = CheckPlayersInRange(1, 15.0f, 100.f)))
-                            pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true); 
-                        DoCast(pTarget, SPELL_STATIC_DISRUPTION);
+                        if (!(target = CheckPlayersInRange(1, 15.0f, 100.f)))
+                            target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true); 
+                        DoCast(target, SPELL_STATIC_DISRUPTION);
                         events.ScheduleEvent(EVENT_STATIC_DISRUPTION, 20000 + (rand()%20)*1000);
                     }
                     break;
@@ -419,9 +419,9 @@ class boss_steelbreaker : public CreatureScript
         };
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_steelbreakerAI (pCreature);
+        return new boss_steelbreakerAI (creature);
     };
 };
 
@@ -572,16 +572,16 @@ class boss_runemaster_molgeim : public CreatureScript
                     case EVENT_RUNE_OF_DEATH:
                     {
                         DoScriptText(SAY_MOLGEIM_RUNE_DEATH, me);
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_RUNE_OF_DEATH);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_RUNE_OF_DEATH);
                         events.ScheduleEvent(EVENT_RUNE_OF_DEATH, 30000);
                     }
                     break;
                     case EVENT_RUNE_OF_SUMMONING:
                     {
                         DoScriptText(SAY_MOLGEIM_SUMMON, me);
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_RUNE_OF_SUMMONING);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_RUNE_OF_SUMMONING);
                         events.ScheduleEvent(EVENT_RUNE_OF_SUMMONING, urand(40000, 50000));
                     }
                     break;
@@ -617,9 +617,9 @@ class boss_runemaster_molgeim : public CreatureScript
         }
     };
     
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_runemaster_molgeimAI (pCreature);
+        return new boss_runemaster_molgeimAI (creature);
     };
 };
 
@@ -733,10 +733,10 @@ class boss_stormcaller_brundir : public CreatureScript
                     Steelbreaker->AI()->DoAction(ACTION_STEELBREAKER);
         }
 
-        void SpellHitTarget(Unit* pTarget, const SpellEntry* spell)
+        void SpellHitTarget(Unit* target, const SpellEntry* spell)
         {
             if (spell->Id == SPELL_CHAIN_LIGHTNING || spell->Id == SPELL_LIGHTNING_WHIRL)
-                if (pTarget->GetTypeId() == TYPEID_PLAYER)
+                if (target->GetTypeId() == TYPEID_PLAYER)
                     pInstance->SetData(DATA_CANT_WHILE_STUNNED, ACHI_FAILED);
         }
         
@@ -763,8 +763,8 @@ class boss_stormcaller_brundir : public CreatureScript
                         DoCast(SPELL_BERSERK);
                     break;
                     case EVENT_CHAIN_LIGHTNING:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_CHAIN_LIGHTNING);
                         events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(4000, 6000));
                     break;
                     case EVENT_OVERLOAD:
@@ -793,8 +793,8 @@ class boss_stormcaller_brundir : public CreatureScript
                         events.ScheduleEvent(EVENT_LIGHTNING_TENDRILS, 90000);
                     break;
                     case EVENT_FLIGHT:
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            me->GetMotionMaster()->MovePoint(0, pTarget->GetPositionX(), pTarget->GetPositionY(), 440);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            me->GetMotionMaster()->MovePoint(0, target->GetPositionX(), target->GetPositionY(), 440);
                         events.ScheduleEvent(EVENT_FLIGHT, 6000);
                     break;
                     case EVENT_ENDFLIGHT:
@@ -874,9 +874,9 @@ class boss_stormcaller_brundir : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_stormcaller_brundirAI (pCreature);
+        return new boss_stormcaller_brundirAI (creature);
     };
 };
 
@@ -916,9 +916,9 @@ class mob_lightning_elemental : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_lightning_elementalAI (pCreature);
+        return new mob_lightning_elementalAI (creature);
     };
 };
 
@@ -960,9 +960,9 @@ class mob_rune_of_summoning : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_rune_of_summoningAI (pCreature);
+        return new mob_rune_of_summoningAI (creature);
     };
 };
 
@@ -990,9 +990,9 @@ class mob_rune_of_power : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_rune_of_powerAI (pCreature);
+        return new mob_rune_of_powerAI (creature);
     };
 };
 

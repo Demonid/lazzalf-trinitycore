@@ -164,14 +164,14 @@ class boss_razorscale : public CreatureScript
 
     struct boss_razorscaleAI : public BossAI
     {
-        boss_razorscaleAI(Creature *pCreature) : BossAI(pCreature, BOSS_RAZORSCALE)
+        boss_razorscaleAI(Creature *creature) : BossAI(creature, BOSS_RAZORSCALE)
             , phase(PHASE_NULL)
         {
             // Do not let Razorscale be affected by Battle Shout buff
             me->ApplySpellImmune(0, IMMUNITY_ID, RAID_MODE(SPELL_BATTLE_SHOUT_10, SPELL_BATTLE_SHOUT_25), true);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
             pMap = me->GetMap();
         }
 
@@ -318,12 +318,12 @@ class boss_razorscale : public CreatureScript
                             return;
                         case EVENT_FIREBALL:
                             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
-                                DoCast(pTarget, RAID_MODE(SPELL_FIREBALL_10, SPELL_FIREBALL_25));
+                                DoCast(target, RAID_MODE(SPELL_FIREBALL_10, SPELL_FIREBALL_25));
                             events.ScheduleEvent(EVENT_FIREBALL, 3000, 0, PHASE_PERMAGROUND);
                             return;
                         case EVENT_DEVOURING:
                             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
-                                DoCast(pTarget, SPELL_DEVOURING_FLAME);
+                                DoCast(target, SPELL_DEVOURING_FLAME);
                             events.ScheduleEvent(EVENT_DEVOURING, 10000, 0, PHASE_PERMAGROUND);
                             return;
                         case EVENT_BUFFET:
@@ -355,12 +355,12 @@ class boss_razorscale : public CreatureScript
                             return;
                         case EVENT_FIREBALL:
                             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
-                                DoCast(pTarget, RAID_MODE(SPELL_FIREBALL_10, SPELL_FIREBALL_25));
+                                DoCast(target, RAID_MODE(SPELL_FIREBALL_10, SPELL_FIREBALL_25));
                             events.ScheduleEvent(EVENT_FIREBALL, 3000, 0, PHASE_FLIGHT);
                             return;
                         case EVENT_DEVOURING:
                             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
-                                DoCast(pTarget, SPELL_DEVOURING_FLAME);
+                                DoCast(target, SPELL_DEVOURING_FLAME);
                             events.ScheduleEvent(EVENT_DEVOURING, 10000, 0, PHASE_FLIGHT);
                             return;
                         case EVENT_SUMMON:
@@ -420,9 +420,9 @@ class boss_razorscale : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_razorscaleAI (pCreature);
+        return new boss_razorscaleAI (creature);
     };
 };
 
@@ -436,9 +436,9 @@ class npc_expedition_commander_ulduar : public CreatureScript
 
     struct npc_expedition_commanderAI : public ScriptedAI
     {
-        npc_expedition_commanderAI(Creature* pCreature) : ScriptedAI(pCreature), summons(me)
+        npc_expedition_commanderAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
-            pInstance = pCreature->GetInstanceScript();
+            pInstance = creature->GetInstanceScript();
             greet = false;
         }
         
@@ -567,21 +567,21 @@ class npc_expedition_commander_ulduar : public CreatureScript
         }
     };
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
     {
         InstanceScript *data = pPlayer->GetInstanceScript();
-        InstanceScript *pInstance = pCreature->GetInstanceScript();
+        InstanceScript *pInstance = creature->GetInstanceScript();
         
         if (pInstance && pPlayer && data->GetBossState(BOSS_RAZORSCALE) == NOT_STARTED)
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_1,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF);
-            pPlayer->SEND_GOSSIP_MENU(13853, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(13853, creature->GetGUID());
         }else
-            pPlayer->SEND_GOSSIP_MENU(13910, pCreature->GetGUID());
+            pPlayer->SEND_GOSSIP_MENU(13910, creature->GetGUID());
         return true;
     };
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 uiSender, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
 
@@ -590,15 +590,15 @@ class npc_expedition_commander_ulduar : public CreatureScript
             case GOSSIP_ACTION_INFO_DEF:
                 if (pPlayer)
                     pPlayer->CLOSE_GOSSIP_MENU();
-                CAST_AI(npc_expedition_commanderAI, (pCreature->AI()))->uiPhase = 1;
+                CAST_AI(npc_expedition_commanderAI, (creature->AI()))->uiPhase = 1;
                 break;
         }
         return true;
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_expedition_commanderAI(pCreature);
+        return new npc_expedition_commanderAI(creature);
     };
 };
 
@@ -609,7 +609,7 @@ class mob_devouring_flame : public CreatureScript
 
     struct mob_devouring_flameAI : public ScriptedAI
     {
-        mob_devouring_flameAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_devouring_flameAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
         }
@@ -620,9 +620,9 @@ class mob_devouring_flame : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_devouring_flameAI(pCreature);
+        return new mob_devouring_flameAI(creature);
     };
 };
 
@@ -633,9 +633,9 @@ class mob_darkrune_watcher : public CreatureScript
 
     struct mob_darkrune_watcherAI : public ScriptedAI
     {
-        mob_darkrune_watcherAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_darkrune_watcherAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* m_pInstance;
@@ -669,9 +669,9 @@ class mob_darkrune_watcher : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_darkrune_watcherAI(pCreature);
+        return new mob_darkrune_watcherAI(creature);
     };
 };
 
@@ -682,9 +682,9 @@ class mob_darkrune_guardian : public CreatureScript
 
     struct mob_darkrune_guardianAI : public ScriptedAI
     {
-        mob_darkrune_guardianAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_darkrune_guardianAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* m_pInstance;
@@ -710,9 +710,9 @@ class mob_darkrune_guardian : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_darkrune_guardianAI(pCreature);
+        return new mob_darkrune_guardianAI(creature);
     };
 };
 
@@ -723,9 +723,9 @@ class mob_darkrune_sentinel : public CreatureScript
 
     struct mob_darkrune_sentinelAI : public ScriptedAI
     {
-        mob_darkrune_sentinelAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mob_darkrune_sentinelAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
         }
 
         InstanceScript* m_pInstance;
@@ -767,9 +767,9 @@ class mob_darkrune_sentinel : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mob_darkrune_sentinelAI(pCreature);
+        return new mob_darkrune_sentinelAI(creature);
     };
 };
 
@@ -780,9 +780,9 @@ class mole_machine_trigger : public CreatureScript
 
     struct mole_machine_triggerAI : public ScriptedAI
     {
-        mole_machine_triggerAI(Creature* pCreature) : ScriptedAI(pCreature)
+        mole_machine_triggerAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = pCreature->GetInstanceScript();
+            m_pInstance = creature->GetInstanceScript();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_PACIFIED);
             me->SetVisible(false);
         }
@@ -833,9 +833,9 @@ class mole_machine_trigger : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new mole_machine_triggerAI(pCreature);
+        return new mole_machine_triggerAI(creature);
     };
 };
 

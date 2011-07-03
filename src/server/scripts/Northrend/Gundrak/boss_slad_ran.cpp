@@ -113,11 +113,11 @@ public:
             if (pInstance)
                 pInstance->SetData(DATA_SLAD_RAN_EVENT, NOT_STARTED);
 
-            while (Unit* pTarget = me->FindNearestCreature(CREATURE_SNAKE, 100.0f))
-                pTarget->RemoveFromWorld();
+            while (Unit* target = me->FindNearestCreature(CREATURE_SNAKE, 100.0f))
+                target->RemoveFromWorld();
 
-            while (Unit* pTarget = me->FindNearestCreature(CREATURE_CONSTRICTORS, 100.0f))
-                pTarget->RemoveFromWorld();
+            while (Unit* target = me->FindNearestCreature(CREATURE_CONSTRICTORS, 100.0f))
+                target->RemoveFromWorld();
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -217,16 +217,16 @@ public:
             if (pInstance)
                 pInstance->SetData(DATA_SLAD_RAN_EVENT, DONE);
 
-            while (Unit* pTarget = me->FindNearestCreature(CREATURE_SNAKE, 100.0f))
+            while (Unit* target = me->FindNearestCreature(CREATURE_SNAKE, 100.0f))
             {
-                pTarget->CombatStop();
-                pTarget->RemoveFromWorld();
+                target->CombatStop();
+                target->RemoveFromWorld();
             }
 
-            while (Unit* pTarget = me->FindNearestCreature(CREATURE_CONSTRICTORS, 100.0f))
+            while (Unit* target = me->FindNearestCreature(CREATURE_CONSTRICTORS, 100.0f))
             {
-                pTarget->CombatStop();
-                pTarget->RemoveFromWorld();
+                target->CombatStop();
+                target->RemoveFromWorld();
             }
         }
 
@@ -265,14 +265,14 @@ public:
             uiGripOfSladRanTimer = 1*IN_MILLISECONDS;
         }
 
-        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
+        void SpellHitTarget(Unit* target, const SpellEntry *spell)
         {
             if (spell->Id == SPELL_GRIP_OF_SLAD_RAN)
             {
-                if (pTarget->GetTypeId() == TYPEID_PLAYER)
+                if (target->GetTypeId() == TYPEID_PLAYER)
                 {
                     if (Creature* pSladRan = me->FindNearestCreature(CREATURE_SLAD_RAN,60,true))
-                        CAST_AI(boss_slad_ran::boss_slad_ranAI,pSladRan->AI())->lWrappedPlayers.insert(pTarget->ToPlayer()->GetGUID());
+                        CAST_AI(boss_slad_ran::boss_slad_ranAI,pSladRan->AI())->lWrappedPlayers.insert(target->ToPlayer()->GetGUID());
                 }
             }
         }

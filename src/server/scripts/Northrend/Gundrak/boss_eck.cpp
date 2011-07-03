@@ -86,12 +86,12 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
+        void SpellHitTarget(Unit* target, const SpellEntry *spell)
         {
             if (spell->Id == SPELL_ECK_SPIT)
             {
-                if (pTarget->GetTypeId() == TYPEID_PLAYER && !pTarget->HasAura(SPELL_ECK_RESIDUE))
-                    pTarget->CastSpell(pTarget, SPELL_ECK_RESIDUE, true);
+                if (target->GetTypeId() == TYPEID_PLAYER && !pTarget->HasAura(SPELL_ECK_RESIDUE))
+                    target->CastSpell(target, SPELL_ECK_RESIDUE, true);
             }
         }
 
