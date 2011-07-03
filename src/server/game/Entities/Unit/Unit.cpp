@@ -953,12 +953,6 @@ void Unit::CastSpell(GameObject *go, uint32 spellId, bool triggered, Item *castI
         return;
     }
 
-    if (!(spellInfo->Targets & (TARGET_FLAG_OBJECT | TARGET_FLAG_OBJECT_CASTER)))
-    {
-        sLog->outError("CastSpell: spell id %i by caster: %s %u) is not gameobject spell", spellId, (GetTypeId() == TYPEID_PLAYER ? "player (GUID:" : "creature (Entry:"), (GetTypeId() == TYPEID_PLAYER ? GetGUIDLow() : GetEntry()));
-        return;
-    }
-
     if (castItem)
         sLog->outStaticDebug("WORLD: cast Item spellId - %i", spellInfo->Id);
 
@@ -3862,7 +3856,7 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit 
                 if (aura->IsSingleTarget())
                     aura->UnregisterSingleTarget();
 
-                if (newAura = Aura::TryRefreshStackOrCreate(aura->GetSpellProto(), effMask, stealer, NULL, &baseDamage[0], NULL, aura->GetCasterGUID()))
+                if (Aura* newAura = Aura::TryRefreshStackOrCreate(aura->GetSpellProto(), effMask, stealer, NULL, &baseDamage[0], NULL, aura->GetCasterGUID()))
                 {
                     // created aura must not be single target aura,, so stealer won't loose it on recast
                     if (newAura->IsSingleTarget())
@@ -5796,12 +5790,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     break;
                 }
                 */
+                // Essence of the Blood Queen
                 case 70871:
                 {
-                    target = this;
-                    triggered_spell_id = 70872;
                     basepoints0 = CalculatePctN(int32(damage), triggerAmount);
-                    break;
+                    CastCustomSpell(70872, SPELLVALUE_BASE_POINT0, basepoints0, this);
+                    return true;
                 }
                 // Meteor Fists
                 case 66725:
@@ -5810,7 +5804,20 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     triggered_spell_id = 66765;
                     break;
                 }
+                /*
+                case 65032: // Boom aura (321 Boombot)
+                {
+                    if (pVictim->GetEntry() != 33343)   // Scrapbot
+                        return false;
 
+                    InstanceScript* instance = GetInstanceScript();
+                    if (!instance)
+                        return false;
+
+                    instance->DoCastSpellOnPlayers(65037);  // Achievement criteria marker
+                    break;
+                }
+                */
             }
             break;
         }
@@ -17609,8 +17616,10 @@ bool Unit::SetPosition(float x, float y, float z, float orientation, bool telepo
 
 void Unit::SendThreatListUpdate()
 {
-    if (uint32 count = getThreatManager().getThreatList().size())
+    if (!getThreatManager().isThreatListEmpty())
     {
+        uint32 count = getThreatManager().getThreatList().size();
+
         //sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Send SMSG_THREAT_UPDATE Message");
         WorldPacket data(SMSG_THREAT_UPDATE, 8 + count * 8);
         data.append(GetPackGUID());
@@ -17627,8 +17636,10 @@ void Unit::SendThreatListUpdate()
 
 void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
 {
-    if (uint32 count = getThreatManager().getThreatList().size())
+    if (!getThreatManager().isThreatListEmpty())
     {
+        uint32 count = getThreatManager().getThreatList().size();
+
         sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Send SMSG_HIGHEST_THREAT_UPDATE Message");
         WorldPacket data(SMSG_HIGHEST_THREAT_UPDATE, 8 + 8 + count * 8);
         data.append(GetPackGUID());
