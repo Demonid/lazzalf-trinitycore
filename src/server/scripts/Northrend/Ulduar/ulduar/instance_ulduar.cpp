@@ -1148,7 +1148,7 @@ class instance_ulduar : public InstanceMapScript
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << "U U " << GetBossSaveData() << " " << uiAlgalonCountdown;
+            saveStream << "U U " << GetBossSaveData() << uiAlgalonCountdown;
 
             OUT_SAVE_INST_DATA_COMPLETE;
             return saveStream.str();
