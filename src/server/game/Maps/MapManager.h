@@ -151,7 +151,7 @@ class MapManager
         uint32 GetNextInstanceId() { return _nextInstanceId; };
         void SetNextInstanceId(uint32 nextInstanceId) { _nextInstanceId = nextInstanceId; };
 
-        MapUpdater * GetMapUpdater() { return &m_updater; }
+        // MapUpdater * GetMapUpdater() { return &m_updater; }
 
     private:
         // debugging code, should be deleted some day
