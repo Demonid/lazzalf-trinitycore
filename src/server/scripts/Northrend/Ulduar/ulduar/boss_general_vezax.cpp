@@ -204,7 +204,7 @@ class boss_general_vezax : public CreatureScript
                             Unit* target = CheckPlayersInRange(1, 15.0f, 120.f);
                             if (!target)
                                 target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                            if (target && !pTarget->IsWithinDist(me, 15))
+                            if (target && !target->IsWithinDist(me, 15))
                                 DoCast(target, SPELL_SHADOW_CRASH);
                             events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(6000, 10000));
                         }

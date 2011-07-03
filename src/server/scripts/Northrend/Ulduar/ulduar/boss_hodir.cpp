@@ -256,7 +256,7 @@ class boss_hodir : public CreatureScript
                 for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
                 {
                     Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                    if (!pTarget || target->GetTypeId() != TYPEID_PLAYER)
+                    if (!target || target->GetTypeId() != TYPEID_PLAYER)
                         continue;
 
                     Aura *AuraIntenseCold = target->GetAura(SPELL_BITING_COLD_TRIGGERED);
@@ -287,7 +287,7 @@ class boss_hodir : public CreatureScript
                         DoScriptText(SAY_FLASH_FREEZE, me);
                         me->MonsterTextEmote(EMOTE_FREEZE, 0, true);
                         for (int32 i = 0; i < RAID_MODE(2,3); ++i)
-                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 if (target->isAlive())
                                     target->CastSpell(target, SPELL_ICICLE_SNOWDRIFT, true);
                         DoCast(SPELL_FLASH_FREEZE);
@@ -357,7 +357,7 @@ class boss_hodir : public CreatureScript
             for (int32 i = 0; i < RAID_MODE(NORMAL_COUNT, RAID_COUNT); i++)
             {
                 if (pHelperGUID[i])
-                    if (Unit *pTarget = Unit::GetUnit(*me, pHelperGUID[i]))
+                    if (Unit *target = Unit::GetUnit(*me, pHelperGUID[i]))
                     {
                         if (target->HasAura(SPELL_BLOCK_OF_ICE_NPC))
                         {

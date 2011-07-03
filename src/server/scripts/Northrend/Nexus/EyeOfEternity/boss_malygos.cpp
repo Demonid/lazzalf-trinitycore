@@ -1215,10 +1215,10 @@ class boss_malygos : public CreatureScript
                         for(int j = 0; j < random; ++j)
                             ++itr;
                        
-                        Creature *pTarget = (Creature*)Unit::GetUnit(*me, (*itr).first);
+                        Creature *target = (Creature*)Unit::GetUnit(*me, (*itr).first);
                         Player *pPlayer = (Player*)Unit::GetUnit(*me, (*itr).second);
 
-                        if (!pTarget || target->GetEntry() != NPC_WYRMREST_SKYTALON)
+                        if (!target || target->GetEntry() != NPC_WYRMREST_SKYTALON)
                             continue;
 
                         if (!pPlayer)

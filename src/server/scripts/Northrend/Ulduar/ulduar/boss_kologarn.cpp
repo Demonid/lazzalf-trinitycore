@@ -102,7 +102,7 @@ enum Yells
 #define ACHIEVEMENT_WITH_OPEN_ARMS              RAID_MODE(2951, 2952)
 #define ACHIEV_DISARMED_START_EVENT             21687
 
-uint32 GripTargetGUID[3];
+uint32 GriptargetGUID[3];
 
 const Position RubbleLeft   = {1781.814f, -45.07f, 448.808f, 2.260f};
 const Position RubbleRight  = {1781.814f, -3.716f, 448.808f, 4.211f};
@@ -225,7 +225,7 @@ public:
             RubbleCount = 0;
             Gripped = false;
             for (int32 n = 0; n < RAID_MODE(1, 2); ++n)
-                GripTargetGUID[n] = NULL;
+                GriptargetGUID[n] = NULL;
             
             for (int32 n = 0; n < 2; ++n)
             {
@@ -296,8 +296,8 @@ public:
                             // Grip up to 3 players
                             for (int32 n = 0; n < RAID_MODE(1, 2); ++n)
                             {
-                                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 40, true))
-                                    GripTargetGUID[n] = target->GetGUID();
+                                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 1, 40, true))
+                                    GriptargetGUID[n] = target->GetGUID();
                             }
                             RightArm->ToCreature()->AI()->DoAction(ACTION_GRIP);
                         }
@@ -543,14 +543,14 @@ public:
                 case ACTION_GRIP:
                     for (uint8 n = 0; n < RAID_MODE(1, 2); ++n)
                     {
-                        if (Unit* GripTarget = Unit::GetUnit(*me, GripTargetGUID[n]))
+                        if (Unit* Gritarget = Unit::GetUnit(*me, GriptargetGUID[n]))
                         {
-                            if (GripTarget && GripTarget->isAlive())
+                            if (Gritarget && Gritarget->isAlive())
                             {
-                                GripTarget->_EnterVehicle(me->GetVehicleKit(), n);
+                                Gritarget->_EnterVehicle(me->GetVehicleKit(), n);
                                 me->AddAura(SPELL_STONE_GRIP, Gritarget);
                                 me->AddAura(SPELL_STONE_GRIP_STUN, Gritarget);
-                                GripTargetGUID[n] = NULL;
+                                GriptargetGUID[n] = NULL;
                             }
                         }
                     }  
@@ -572,13 +572,13 @@ public:
                 {
                     for (uint8 n = 0; n < RAID_MODE(1, 2); ++n)
                     {
-                        Unit* pGripTarget = me->GetVehicleKit()->GetPassenger(n);
-                        if (pGripTarget && pGripTarget->isAlive())
+                        Unit* pGritarget = me->GetVehicleKit()->GetPassenger(n);
+                        if (pGritarget && pGritarget->isAlive())
                         {
-                            pGripTarget->RemoveAurasDueToSpell(SPELL_STONE_GRIP);
-                            pGripTarget->RemoveAurasDueToSpell(SPELL_STONE_GRIP_STUN);
-                            pGripTarget->ExitVehicle();
-                            pGripTarget->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
+                            pGritarget->RemoveAurasDueToSpell(SPELL_STONE_GRIP);
+                            pGritarget->RemoveAurasDueToSpell(SPELL_STONE_GRIP_STUN);
+                            pGritarget->ExitVehicle();
+                            pGritarget->GetMotionMaster()->MoveJump(1767.80f, -18.38f, 448.808f, 10, 10);
                         }
                     }
                     Gripped = false;

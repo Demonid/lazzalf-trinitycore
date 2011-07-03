@@ -175,14 +175,14 @@ public:
                 for (uint8 i = 5; i < 10; i++)
                     vChampionJumpOrigin.push_back(FactionChampionLoc[i]);
 
-            std::vector<Position> vChampionJumpTarget;
+            std::vector<Position> vChampionJumtarget;
             for (uint8 i = 10; i < 20; i++)
-                vChampionJumpTarget.push_back(FactionChampionLoc[i]);
+                vChampionJumtarget.push_back(FactionChampionLoc[i]);
             std::vector<uint32> vChampionEntries = SelectChampions(playerTeam);
 
             for (uint8 i = 0; i < vChampionEntries.size(); ++i)
             {
-                uint8 pos = urand(0, vChampionJumpTarget.size()-1);
+                uint8 pos = urand(0, vChampionJumtarget.size()-1);
                 if (Creature* pTemp = me->SummonCreature(vChampionEntries[i], vChampionJumpOrigin[urand(0, vChampionJumpOrigin.size()-1)], TEMPSUMMON_MANUAL_DESPAWN))
                 {
                     Summons.Summon(pTemp);
@@ -190,18 +190,18 @@ public:
                     pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
                     if (playerTeam == ALLIANCE)
                     {
-                        pTemp->SetHomePosition(vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 0);
-                        pTemp->GetMotionMaster()->MoveJump(vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 20.0f, 20.0f);
+                        pTemp->SetHomePosition(vChampionJumtarget[pos].GetPositionX(), vChampionJumtarget[pos].GetPositionY(), vChampionJumtarget[pos].GetPositionZ(), 0);
+                        pTemp->GetMotionMaster()->MoveJump(vChampionJumtarget[pos].GetPositionX(), vChampionJumtarget[pos].GetPositionY(), vChampionJumtarget[pos].GetPositionZ(), 20.0f, 20.0f);
                         pTemp->SetOrientation(0);
                     }
                     else
                     {
-                        pTemp->SetHomePosition((ToCCommonLoc[1].GetPositionX()*2)-vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 3);
-                        pTemp->GetMotionMaster()->MoveJump((ToCCommonLoc[1].GetPositionX()*2)-vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 20.0f, 20.0f);
+                        pTemp->SetHomePosition((ToCCommonLoc[1].GetPositionX()*2)-vChampionJumtarget[pos].GetPositionX(), vChampionJumtarget[pos].GetPositionY(), vChampionJumtarget[pos].GetPositionZ(), 3);
+                        pTemp->GetMotionMaster()->MoveJump((ToCCommonLoc[1].GetPositionX()*2)-vChampionJumtarget[pos].GetPositionX(), vChampionJumtarget[pos].GetPositionY(), vChampionJumtarget[pos].GetPositionZ(), 20.0f, 20.0f);
                         pTemp->SetOrientation(3);
                     }
                 }
-                vChampionJumpTarget.erase(vChampionJumpTarget.begin()+pos);
+                vChampionJumtarget.erase(vChampionJumtarget.begin()+pos);
             }
         }
 
@@ -556,19 +556,19 @@ public:
                 switch (urand(0, 8))
                 {
                     case 0: case 5:
-                        if (Unit *pTarget = urand(0, chance) ? friendly : myself)
+                        if (Unit *target = urand(0, chance) ? friendly : myself)
                             DoCast(target, SPELL_LIFEBLOOM);
                         break;
                     case 1: case 6:
-                        if (Unit *pTarget = urand(0, chance) ? friendly : myself)
+                        if (Unit *target = urand(0, chance) ? friendly : myself)
                             DoCast(target, SPELL_NOURISH);
                         break;
                     case 2: case 7:
-                        if (Unit *pTarget = urand(0, chance) ? friendly : myself)
+                        if (Unit *target = urand(0, chance) ? friendly : myself)
                             DoCast(target, SPELL_REGROWTH);
                         break;
                     case 3: case 8:
-                        if (Unit *pTarget = urand(0, chance) ? friendly : myself)
+                        if (Unit *target = urand(0, chance) ? friendly : myself)
                             DoCast(target, SPELL_REJUVENATION);
                         break;
                     case 4:
@@ -667,18 +667,18 @@ public:
                 switch (urand(0, 6))
                 {
                     case 0: case 1:
-                        if (Unit *pTarget = urand(0, chance) ? friendly : myself)
+                        if (Unit *target = urand(0, chance) ? friendly : myself)
                             DoCast(target, SPELL_HEALING_WAVE);
                         break;
                     case 2: case 6:
-                        if (Unit *pTarget = urand(0, chance) ? friendly : myself)
+                        if (Unit *target = urand(0, chance) ? friendly : myself)
                             DoCast(target, SPELL_RIPTIDE);
                         break;
                     case 3:
                         DoCast(me, SPELL_EARTH_SHOCK);
                         break;
                     case 4:
-                        if (Unit *pTarget = urand(0, 1) ? me : DoSelectLowestHpFriendly(40.0f))
+                        if (Unit *target = urand(0, 1) ? me : DoSelectLowestHpFriendly(40.0f))
                             DoCast(target, SPELL_SPIRIT_CLEANSE);
                         break;
                     case 5:
@@ -798,15 +798,15 @@ public:
                 switch (urand(0, 4))
                 {
                     case 0: case 1:
-                        if (Unit *pTarget = urand(0, chance) ? friendly : myself)
+                        if (Unit *target = urand(0, chance) ? friendly : myself)
                             DoCast(target, SPELL_FLASH_OF_LIGHT);
                         break;
                     case 2: case 3:
-                        if (Unit *pTarget = urand(0, chance) ? friendly : myself)
+                        if (Unit *target = urand(0, chance) ? friendly : myself)
                             DoCast(target, SPELL_HOLY_LIGHT);
                         break;
                     case 4:
-                        if (Unit *pTarget = urand(0, 1) ? me : DoSelectLowestHpFriendly(40.0f))
+                        if (Unit *target = urand(0, 1) ? me : DoSelectLowestHpFriendly(40.0f))
                             DoCast(target, SPELL_CLEANSE);
                         break;
                 }
@@ -882,15 +882,15 @@ public:
                 switch (urand(0, 7))
                 {
                     case 0: case 6:
-                        if (Unit *pTarget = urand(0, chance) ? friendly : myself)
+                        if (Unit *target = urand(0, chance) ? friendly : myself)
                             DoCast(target, SPELL_RENEW);
                         break;
                     case 1: case 7:
-                       if (Unit *pTarget = urand(0, chance) ? friendly : myself)
+                       if (Unit *target = urand(0, chance) ? friendly : myself)
                             DoCast(target, SPELL_SHIELD);                        
                         break;
                     case 2: case 3:
-                        if (Unit *pTarget = urand(0, chance) ? friendly : myself)
+                        if (Unit *target = urand(0, chance) ? friendly : myself)
                             DoCast(target, SPELL_FLASH_HEAL);
                         break;
                     case 4:

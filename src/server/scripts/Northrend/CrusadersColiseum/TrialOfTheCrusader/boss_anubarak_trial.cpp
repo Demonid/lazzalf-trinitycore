@@ -580,7 +580,7 @@ public:
                     me->TauntApply(target);
             }
 
-            if (!pTarget || !pTarget->isAlive() || !pTarget->HasAura(SPELL_MARK))
+            if (!target || !target->isAlive() || !target->HasAura(SPELL_MARK))
             {
                 if (Unit* target = me->FindNearestCreature(NPC_FROST_SPHERE, 15.0f))
                     target->RemoveFromWorld();
@@ -743,7 +743,7 @@ public:
                         !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE) &&
                         !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) &&
                         !me->HasAura(SPELL_SUBMERGE_EFFECT))
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             DoCast(target, SPELL_SHADOW_STRIKE);
                     break;
             }
