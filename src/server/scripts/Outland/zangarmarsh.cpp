@@ -438,6 +438,23 @@ enum AhunePhases
 
 enum AhuneSpells
 {
+    SPELL_SUMMON_ICE_SPEAR_BUNNY = 46359,  // Summona il Bunny
+    SPELL_SUMMON_ICE_SPEAR_GOBJECT = 46369, // Effetto grafico della spina, è un gobject con due posizioni (spina chiusa e spina aperta)
+    SPELL_SUMMON_ICE_SPEAR_KNOWBACK_DELAYER = 46878, // Attiva la spina alla fine dell'effetto
+    SPELL_ICE_SPEAR_VISUAL = 75498, // Effetto grafico attorno alla spina
+    SPELL_ICE_SPEAR_KNOWBAK = 46360, // Knowback della spina + trigger danno
+    SPELL_ICE_SPEAR = 46588, // Danno triggerato della spina
+    SPELL_ICE_SPEAR_TARGET_PICKER = 46372, // ???
+    SPELL_ICE_SPEAR_COTROL_AURA = 46371, // ???
+
+    SPELL_RESURFACES = 46402,
+    SPELL_SELF_STUN = 46416, // Stun quando sparisce
+
+    SPELL_BEAM_ATTACK_1 = 46336,
+    SPELL_BEAM_ATTACK_2 = 46363, // Raggio Rosso
+
+    SPELL_FROZENCORE_GETS_HIT = 46810,
+
     SPELL_AHUNE_SHIELD = 45954,
     SPELL_COLD_SLAP = 46145,
 };
@@ -557,7 +574,59 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+};
 
+class npc_ahune_spine : public CreatureScript
+{
+public:
+    npc_ahune_spine() : CreatureScript("npc_ahune_spine") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_ahune_spineAI (creature);
+    }
+
+    struct npc_ahune_spineAI : public ScriptedAI
+    {
+        npc_ahune_spineAI(Creature* c) : ScriptedAI(c)
+        {
+            me->SetReactState(REACT_PASSIVE);
+        }
+
+        uint32 activateSpineTime;
+        uint32 despawnTimer;
+
+        GameObject* goSpike;
+
+        void Reset()
+        {
+            me->CastSpell(me, SPELL_ICE_SPEAR_VISUAL, false);
+            goSpike = me->SummonGameObject(188077, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, 0, 0, 0, 5000);
+            activateSpineTime = 2 * IN_MILLISECONDS;
+            despawnTimer = 5 * IN_MILLISECONDS;
+        }
+
+        void UpdateAI(uint32 const diff)
+        {
+            if (activateSpineTime <= diff)
+            {
+                if (goSpike)
+                    goSpike->setActive(true);
+                me->CastSpell(me, SPELL_ICE_SPEAR_KNOWBAK, false);                
+            }
+            else
+                activateSpineTime -= diff;
+
+            if (despawnTimer <= diff)
+            {
+                //if (goSpike)
+                //    goSpike->RemoveFromWorld();
+                me->DespawnOrUnsummon();
+            }
+            else
+                despawnTimer -= diff;
+        }
+    };
 };
 
 /*######
