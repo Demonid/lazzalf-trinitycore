@@ -601,7 +601,7 @@ public:
         void Reset()
         {
             me->CastSpell(me, SPELL_ICE_SPEAR_VISUAL, false);
-            goSpike = me->SummonGameObject(188077, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, 0, 0, 0, 5000);
+            goSpike = me->SummonGameObject(188077, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, 0, 0, 0, 0, 5000);
             activateSpineTime = 2 * IN_MILLISECONDS;
             despawnTimer = 5 * IN_MILLISECONDS;
         }
