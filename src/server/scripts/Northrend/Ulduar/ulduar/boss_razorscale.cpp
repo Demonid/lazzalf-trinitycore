@@ -721,15 +721,15 @@ class mob_darkrune_guardian : public CreatureScript
 
             DoMeleeAttackIfReady();
         }
+
+        private:
+            bool killedByBreath;
     };
 
     CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_darkrune_guardianAI(creature);
-    };
-
-    private:
-        bool killedByBreath;
+    };    
 };
 
 class mob_darkrune_sentinel : public CreatureScript
