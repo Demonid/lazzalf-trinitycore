@@ -1802,7 +1802,7 @@ class Unit : public WorldObject
         {
             ShapeshiftForm form = GetShapeshiftForm();
             return form != FORM_NONE && form != FORM_BATTLESTANCE && form != FORM_BERSERKERSTANCE && form != FORM_DEFENSIVESTANCE &&
-                form != FORM_SHADOW && form != FORM_STEALTH;
+                form != FORM_SHADOW && form != FORM_STEALTH && form != FORM_UNDEAD;
         }
 
         float m_modMeleeHitChance;
@@ -2062,7 +2062,6 @@ class Unit : public WorldObject
 
         bool m_ControlledByPlayer;
 
-        bool CheckPlayerCondition(Player* pPlayer);
         bool HandleSpellClick(Unit* clicker, int8 seatId = -1);
         void EnterVehicle(Unit *base, int8 seatId = -1);
         void ExitVehicle(Position const* exitPosition = NULL);
