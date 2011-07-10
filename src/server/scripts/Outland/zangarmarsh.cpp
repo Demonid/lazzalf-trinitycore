@@ -421,6 +421,214 @@ public:
     }
 };
 
+enum AhuneSummons
+{
+    NPC_FROZEN_CORE = 25865,
+    NPC_AHUNITE_HAILSTONE = 25755,
+    NPC_AHUNITE_COLDWAVE = 25756,
+    NPC_AHUNITE_FROSTWIND = 25757,
+};
+
+enum AhunePhases
+{
+    AHUNE_PHASE_1 = 1,
+    AHUNE_PHASE_2,
+    AHUNE_PHASE_3,
+};
+
+enum AhuneSpells
+{
+    SPELL_SUMMON_ICE_SPEAR_BUNNY = 46359,  // Summona il Bunny
+    SPELL_SUMMON_ICE_SPEAR_GOBJECT = 46369, // Effetto grafico della spina, è un gobject con due posizioni (spina chiusa e spina aperta)
+    SPELL_SUMMON_ICE_SPEAR_KNOWBACK_DELAYER = 46878, // Attiva la spina alla fine dell'effetto
+    SPELL_ICE_SPEAR_VISUAL = 75498, // Effetto grafico attorno alla spina
+    SPELL_ICE_SPEAR_KNOWBAK = 46360, // Knowback della spina + trigger danno
+    SPELL_ICE_SPEAR = 46588, // Danno triggerato della spina
+    SPELL_ICE_SPEAR_TARGET_PICKER = 46372, // ???
+    SPELL_ICE_SPEAR_COTROL_AURA = 46371, // ???
+
+    SPELL_RESURFACES = 46402,
+    SPELL_SELF_STUN = 46416, // Stun quando sparisce
+
+    SPELL_BEAM_ATTACK_1 = 46336,
+    SPELL_BEAM_ATTACK_2 = 46363, // Raggio Rosso
+
+    SPELL_FROZENCORE_GETS_HIT = 46810,
+
+    SPELL_AHUNE_SHIELD = 45954,
+    SPELL_COLD_SLAP = 46145,
+};
+
+// TODO: da prendere nell'ista
+const Position SummonsPositions[3] =
+{
+    {0.0f, 0.0f, 0.0f, 0.0f},  // Boss
+    {0.0f, 0.0f, 0.0f, 0.0f},
+    {0.0f, 0.0f, 0.0f, 0.0f},
+};
+
+#define GO_ICE_CHEST 187892
+
+class boss_ahune : public CreatureScript
+{
+public:
+    boss_ahune() : CreatureScript("boss_ahune") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_ahuneAI (creature);
+    }
+
+    struct boss_ahuneAI : public ScriptedAI
+    {
+        boss_ahuneAI(Creature* c) : ScriptedAI(c)
+        {
+            me->SummonCreature(NPC_FROZEN_CORE, SummonsPositions[0], TEMPSUMMON_CORPSE_DESPAWN);
+            // Deve castarsi ahune's shield
+        }
+
+        uint8 phase;
+        uint32 coldSlapTimer;
+        uint32 iceSpearTimer;
+        uint32 summonAddsTimer;
+        uint32 addsPhaseTimer;
+        uint32 corePhaseTimer;
+
+        void Reset()
+        {
+            //me->DisappearAndDie(); // se si wippa deve sparire
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            // Summon/attivazione della cassa
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            me->SummonCreature(NPC_AHUNITE_HAILSTONE, SummonsPositions[0], TEMPSUMMON_CORPSE_DESPAWN);
+            summonAddsTimer = 10 * IN_MILLISECONDS;
+            iceSpearTimer = 7 * IN_MILLISECONDS;
+            coldSlapTimer = 13 * IN_MILLISECONDS;
+            addsPhaseTimer = MINUTE * IN_MILLISECONDS;
+            phase = AHUNE_PHASE_1;
+        }
+
+        void UpdateAI(uint32 const diff)
+        {
+            // Check if we have a current target
+            if (!UpdateVictim())
+                return;
+
+            // Ice Spear viene castato in tutte le fasi
+            if (iceSpearTimer <= diff)
+            {
+                // Casta ice spear
+                iceSpearTimer = 7 * IN_MILLISECONDS;
+            }
+            else
+                iceSpearTimer -= diff;
+
+            if (phase == AHUNE_PHASE_1 || phase == AHUNE_PHASE_3)
+            {
+                if (summonAddsTimer <= diff)
+                {
+                    for (uint8 i = 0; i < 2; ++i)
+                        me->SummonCreature(NPC_AHUNITE_COLDWAVE, SummonsPositions[urand(0,2)], TEMPSUMMON_CORPSE_DESPAWN);
+
+                    if (phase == AHUNE_PHASE_3)
+                        me->SummonCreature(NPC_AHUNITE_FROSTWIND, SummonsPositions[urand(0,2)], TEMPSUMMON_CORPSE_DESPAWN);
+
+                    summonAddsTimer = 5 * IN_MILLISECONDS;
+                }
+                else
+                    summonAddsTimer -= diff;
+
+                if (coldSlapTimer <= diff)
+                {
+                    // casta cold slap
+                    coldSlapTimer = 7 * IN_MILLISECONDS;
+                }
+                else
+                    coldSlapTimer -= diff;
+
+                if (addsPhaseTimer <= diff)
+                {
+                    phase = AHUNE_PHASE_2;                    
+                    corePhaseTimer = 30 * IN_MILLISECONDS;
+                }
+                else
+                    addsPhaseTimer -= diff;
+            }
+            else if (phase == AHUNE_PHASE_2)
+            {
+                if (corePhaseTimer <= diff)
+                {
+                    phase = AHUNE_PHASE_3; 
+                    addsPhaseTimer = MINUTE * IN_MILLISECONDS;
+                }
+                else
+                    corePhaseTimer -= diff;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+};
+
+class npc_ahune_spine : public CreatureScript
+{
+public:
+    npc_ahune_spine() : CreatureScript("npc_ahune_spine") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_ahune_spineAI (creature);
+    }
+
+    struct npc_ahune_spineAI : public ScriptedAI
+    {
+        npc_ahune_spineAI(Creature* c) : ScriptedAI(c)
+        {
+            me->SetReactState(REACT_PASSIVE);
+        }
+
+        uint32 activateSpineTime;
+        uint32 despawnTimer;
+
+        GameObject* goSpike;
+
+        void Reset()
+        {
+            me->CastSpell(me, SPELL_ICE_SPEAR_VISUAL, false);
+            goSpike = me->SummonGameObject(188077, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, 0, 0, 0, 0, 5000);
+            activateSpineTime = 2 * IN_MILLISECONDS;
+            despawnTimer = 5 * IN_MILLISECONDS;
+        }
+
+        void UpdateAI(uint32 const diff)
+        {
+            if (activateSpineTime <= diff)
+            {
+                if (goSpike)
+                    goSpike->setActive(true);
+                me->CastSpell(me, SPELL_ICE_SPEAR_KNOWBAK, false);                
+            }
+            else
+                activateSpineTime -= diff;
+
+            if (despawnTimer <= diff)
+            {
+                //if (goSpike)
+                //    goSpike->RemoveFromWorld();
+                me->DespawnOrUnsummon();
+            }
+            else
+                despawnTimer -= diff;
+        }
+    };
+};
+
 /*######
 ## AddSC
 ######*/
@@ -433,4 +641,5 @@ void AddSC_zangarmarsh()
     new npc_mortog_steamhead();
     new npc_kayra_longmane();
     new npc_timothy_daniels();
+    new boss_ahune();
 }
