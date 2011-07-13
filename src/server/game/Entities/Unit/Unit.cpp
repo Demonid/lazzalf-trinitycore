@@ -6973,7 +6973,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Judgement of Light
                 case 20185:
                 {                    
-                    if (pVictim)
+                    if (victim)
                     {
                         // 2% of base hp
                         basepoints0 = int32(victim->CountPctFromMaxHealth(2));
@@ -7226,7 +7226,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 }
                 case 199997: // Divine Storm Helper (SERVERSIDE)
                 {
-                    if (pVictim == this)
+                    if (victim == this)
                         return false;
 
                     triggeredByAura->SetAmount(triggeredByAura->GetAmount() + damage);
@@ -8311,7 +8311,7 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                     int32 bp0 = (damage/9) * SpellMgr::CalculateSpellEffectAmount(dummySpell, 0)/100;;
 
                     // Holy Mending
-                    CastCustomSpell(pVictim, 64891, &bp0, NULL, NULL, true);
+                    CastCustomSpell(victim, 64891, &bp0, NULL, NULL, true);
                     return true;
                 }
                 break;
@@ -9111,12 +9111,12 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             return true;
         case 71761: // Deep Freeze Immunity State
         {
-            if (!pVictim->ToCreature())
+            if (!victim->ToCreature())
                 return false;
 
-            if (pVictim->ToCreature()->GetCreatureInfo() && 
-                pVictim->ToCreature()->GetCreatureInfo()->MechanicImmuneMask & (1 << MECHANIC_STUN))
-                target = pVictim;
+            if (victim->ToCreature()->GetCreatureInfo() && 
+                victim->ToCreature()->GetCreatureInfo()->MechanicImmuneMask & (1 << MECHANIC_STUN))
+                target = victim;
             else
                 return false;
             break;
@@ -10791,7 +10791,7 @@ uint32 Unit::SpellDamageBonus(Unit* victim, SpellEntry const* spellProto, uint32
             case 6427: // Dirty Deeds
             case 6428:
             {
-                if (pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
+                if (victim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
                 {
                     AuraEffect* eff0 = (*i)->GetBase()->GetEffect(0);
                     if (!eff0 || (*i)->GetEffIndex() != 1)
