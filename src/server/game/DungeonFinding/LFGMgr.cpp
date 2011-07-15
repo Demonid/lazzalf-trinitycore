@@ -1597,7 +1597,7 @@ void LFGMgr::UpdateBoot(Player* plr, bool accept)
         }
     }
 
-    if (agreeNum == pBoot->votedNeeded ||                  // Vote passed
+    if (agreeNum >= pBoot->votedNeeded ||                  // Vote passed
         votesNum == pBoot->votes.size() ||                 // All voted but not passed
         (pBoot->votes.size() - votesNum + agreeNum) < pBoot->votedNeeded) // Vote didnt passed
     {
@@ -1616,7 +1616,7 @@ void LFGMgr::UpdateBoot(Player* plr, bool accept)
 
         uint64 gguid = grp->GetGUID();
         SetState(gguid, LFG_STATE_DUNGEON);
-        if (agreeNum == pBoot->votedNeeded)                // Vote passed - Kick player
+        if (agreeNum >= pBoot->votedNeeded)                // Vote passed - Kick player
         {
             Player::RemoveFromGroup(grp, pBoot->victim);
             if (Player* victim = sObjectMgr->GetPlayer(pBoot->victim))
@@ -1757,7 +1757,7 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
     if (gDungeonId != dungeonId)
     {
         sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::RewardDungeonDoneFor: [" UI64FMTD "] Finished dungeon %u but group queued for %u. Ignoring", guid, dungeonId, gDungeonId);
-        return;
+        // return; Lazzalf
     }
 
     if (GetState(guid) == LFG_STATE_FINISHED_DUNGEON)
@@ -1774,9 +1774,9 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
     ClearState(guid);
     SetState(guid, LFG_STATE_FINISHED_DUNGEON);
 
-    // Give rewards only if its a random dungeon
+    // Give rewards only if its a random dungeon or world event
     LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(rDungeonId);
-    if (!dungeon || dungeon->type != LFG_TYPE_RANDOM)
+    if (!dungeon || (dungeon->type != LFG_TYPE_RANDOM && dungeon->grouptype != 11))
     {
         sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::RewardDungeonDoneFor: [" UI64FMTD "] dungeon %u is not random", guid, rDungeonId);
         return;
