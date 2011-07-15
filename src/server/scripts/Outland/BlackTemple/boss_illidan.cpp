@@ -475,6 +475,8 @@ public:
             SpellEntry *TempSpell = GET_SPELL(SPELL_SHADOWFIEND_PASSIVE);
             if (TempSpell)
                 TempSpell->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
+
+			AkamaGUID = 0;
         }
 
         InstanceScript* pInstance;
@@ -1839,9 +1841,12 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
                 Akama->Respawn();
             else
             {
-                CAST_AI(npc_akama_illidan::npc_akama_illidanAI, Akama->AI())->EnterEvadeMode();
-                Akama->GetMotionMaster()->MoveTargetedHome();
-                CAST_AI(npc_akama_illidan::npc_akama_illidanAI, Akama->AI())->Reset();
+				if (CAST_AI(npc_akama_illidan::npc_akama_illidanAI, Akama->AI()))
+				{
+					CAST_AI(npc_akama_illidan::npc_akama_illidanAI, Akama->AI())->EnterEvadeMode();
+					Akama->GetMotionMaster()->MoveTargetedHome();
+					CAST_AI(npc_akama_illidan::npc_akama_illidanAI, Akama->AI())->Reset();
+				}
             }
         }
         AkamaGUID = 0;
