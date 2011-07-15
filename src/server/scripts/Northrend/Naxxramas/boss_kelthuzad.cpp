@@ -128,7 +128,8 @@ enum Creatures
     NPC_WASTE                                              = 16427, // Soldiers of the Frozen Wastes
     NPC_ABOMINATION                                        = 16428, // Unstoppable Abominations
     NPC_WEAVER                                             = 16429, // Soul Weavers
-    NPC_ICECROWN                                           = 16441 // Guardians of Icecrown
+    NPC_ICECROWN                                           = 16441, // Guardians of Icecrown
+    KEL_THUZAD                                             = 15990
 };
 
 const Position Pos[12] =
@@ -243,6 +244,9 @@ const Position PosWeavers[MAX_WEAVERS] =
     {3704.71f, -5175.96f, 143.597f, 3.36549f},
 };
 
+#define ACHIEVEMENT_GET_ENOUGH RAID_MODE(2184,2185)
+#define MIN_ABOMIN_COUNT 18
+
 // predicate function to select not charmed target
 struct NotCharmedTargetSelector : public std::unary_function<Unit*, bool>
 {
@@ -280,6 +284,8 @@ public:
         uint64 KTTriggerGUID;
 
         SummonList spawns; // adds spawn by the trigger. kept in separated list (i.e. not in summons)
+
+        uint32 AbominationsCount;
 
         void Reset()
         {
@@ -323,14 +329,22 @@ public:
             Phase = 0;
             nAbomination = 0;
             nWeaver = 0;
+            
+            AbominationsCount = 0;
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* victim)
         {
+            if (instance)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    instance->SetData(DATA_IMMORTAL_FROSTWYRM, CRITERIA_NOT_MEETED);
+            }
+
             DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustDied(Unit* /*killer*/)
         {
             _JustDied();
             DoScriptText(SAY_DEATH, me);
@@ -342,6 +356,14 @@ public:
                     player->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
             }
             chained.clear();
+
+            if (instance)
+            {
+                if (AbominationsCount >= MIN_ABOMIN_COUNT)
+                    instance->DoCompleteAchievement(ACHIEVEMENT_GET_ENOUGH);
+            }
+
+            me->SummonCreature(CREATURE_TELEPORTER, TeleporterPositions[4]);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -636,12 +658,54 @@ public:
                 DoMeleeAttackIfReady();
             }
         }
-    };
+
+        void UpdateAbominationCounter()
+        {
+            AbominationsCount++;
+        }
+    };	
 
     CreatureAI* GetAI(Creature* creature) const
     {
         return new boss_kelthuzadAI (creature);
     }
+
+};
+
+class mob_unstoppable_abomination : public CreatureScript
+{
+public:
+    mob_unstoppable_abomination() : CreatureScript("mob_unstoppable_abomination") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_unstoppable_abominationAI (creature);
+    }
+
+    struct mob_unstoppable_abominationAI : public ScriptedAI
+    {
+        mob_unstoppable_abominationAI(Creature* c) : ScriptedAI(c) 
+        {
+            pInstance = c->GetInstanceScript();
+        }
+
+        InstanceScript* pInstance;
+
+        void KilledUnit(Unit* victim)
+        {
+            if (pInstance)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    pInstance->SetData(DATA_IMMORTAL_FROSTWYRM, CRITERIA_NOT_MEETED);
+            }
+         }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (Creature* pKel = me->FindNearestCreature(KEL_THUZAD,100,true))
+                CAST_AI(boss_kelthuzad::boss_kelthuzadAI,pKel->AI())->UpdateAbominationCounter();
+        }
+    };
 
 };
 
@@ -712,5 +776,6 @@ public:
 void AddSC_boss_kelthuzad()
 {
     new boss_kelthuzad();
+    new mob_unstoppable_abomination();
     new at_kelthuzad_center();
 }

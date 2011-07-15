@@ -98,6 +98,26 @@ void BattlegroundEY::Update(uint32 diff)
             m_TowerCapCheckTimer = BG_EY_FPOINTS_TICK_TIME;
         }
     }
+
+    if (GetStatus() == STATUS_WAIT_JOIN)
+    {
+        m_CheatersCheckTimer -= diff;
+
+        if(m_CheatersCheckTimer <= 0)
+        {
+            for(BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+            {
+                Player * plr = sObjectMgr->GetPlayer(itr->first);
+                if (!plr || !plr->IsInWorld())
+                    continue;
+                if (plr->GetTeam() == HORDE && plr->GetDistance2d(1807.73f, 1539.41f) > 30.0f)
+                    plr->TeleportTo(566, 1807.73f, 1539.41f, 1267.63f, plr->GetOrientation(), 0);
+                if (plr->GetTeam() == ALLIANCE && plr->GetDistance2d(2523.68f, 1596.59f) > 30.0f)
+                    plr->TeleportTo(566, 2523.68f, 1596.59f, 1269.35f, plr->GetOrientation(), 0);
+            }
+            m_CheatersCheckTimer = 3000;
+        }
+    }
 }
 
 void BattlegroundEY::StartingEventCloseDoors()
@@ -108,6 +128,8 @@ void BattlegroundEY::StartingEventCloseDoors()
     for (uint32 i = BG_EY_OBJECT_A_BANNER_FEL_REAVER_CENTER; i < BG_EY_OBJECT_MAX; ++i)
         SpawnBGObject(i, RESPAWN_ONE_DAY);
 }
+
+#define NPC_FEL_REAVER_TRIGGER      4455461
 
 void BattlegroundEY::StartingEventOpenDoors()
 {
@@ -122,6 +144,9 @@ void BattlegroundEY::StartingEventOpenDoors()
         uint8 buff = urand(0, 2);
         SpawnBGObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REAVER + buff + i * 3, RESPAWN_IMMEDIATELY);
     }
+
+    if (AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(TR_FEL_REAVER_POINT))
+        AddCreature(NPC_FEL_REAVER_TRIGGER, EY_TRIGGER_FEL_REAVER_FLAG, 0, atEntry->x, atEntry->y, atEntry->z, 0.0f);
 }
 
 void BattlegroundEY::AddPoints(uint32 Team, uint32 Points)
@@ -528,6 +553,7 @@ void BattlegroundEY::Reset()
     m_DroppedFlagGUID = 0;
     m_PointAddingTimer = 0;
     m_TowerCapCheckTimer = 0;
+    m_CheatersCheckTimer = 0;
     bool isBGWeekend = sBattlegroundMgr->IsBGWeekend(GetTypeID());
     m_HonorTics = (isBGWeekend) ? BG_EY_EYWeekendHonorTicks : BG_EY_NotEYWeekendHonorTicks;
 
