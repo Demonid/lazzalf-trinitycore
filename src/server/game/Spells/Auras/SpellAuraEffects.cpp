@@ -5295,21 +5295,21 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 // Sentry Totem (Serverside)
                 case 6494:
                 {
-                    if (Player * caster = caster->ToPlayer())
+                    if (Player * pCaster = caster->ToPlayer())
                     {
-                        caster->StopCastingBindSight();
+                        pCaster->StopCastingBindSight();
                         if (apply)
                         {
-                            uint64 guid = caster->m_SummonSlot[4];
+                            uint64 guid = pCaster->m_SummonSlot[4];
                             if (guid)
                             {
-                                Creature * totem = caster->GetMap()->GetCreature(guid);
+                                Creature * totem = pCaster->GetMap()->GetCreature(guid);
                                 if (totem && totem->isTotem())
-                                    caster->CastSpell(totem, 6496, true);
+                                    pCaster->CastSpell(totem, 6496, true);
                             }
                         }
                         else
-                            caster->RemoveAurasDueToSpell(6495);
+                            pCaster->RemoveAurasDueToSpell(6495);
                     }
                     break;
                 }
