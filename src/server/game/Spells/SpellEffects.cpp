@@ -1713,11 +1713,14 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
             case 73058: // Blood Nova
                 m_caster->CastSpell(unitTarget, damage, true);   // additional spell cast
                 break;
-            case 51888: // Summon Eye of Acherus - a hack for GO cast
-                unitTarget->CastSpell(unitTarget, spellInfo->Id, true, NULL, NULL, m_originalCasterGUID);
-                return;
-
         }
+    }
+
+    // temphack
+    if (m_spellInfo->Id == 51888)
+    {
+        unitTarget->CastSpell(unitTarget, spellInfo->Id, true, NULL, NULL, m_originalCasterGUID);
+        return;
     }
     
     unitTarget->CastSpell(m_caster, spellInfo, true);
@@ -5808,7 +5811,7 @@ void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
     unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
-void Spell::EffectActivateObject(SpellEffIndex effIndex)
+void Spell::EffectActivateObject(SpellEffIndex /*effIndex*/)
 {
     if (!gameObjTarget)
         return;

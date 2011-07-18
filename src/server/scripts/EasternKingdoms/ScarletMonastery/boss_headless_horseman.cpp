@@ -598,7 +598,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* done_by, uint32 &damage)
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage)
         {
             if (damage >= me->GetHealth() && withhead)
             {
