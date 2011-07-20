@@ -1593,7 +1593,7 @@ void Group::SetDungeonDifficulty(Difficulty difficulty)
     for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player* player = itr->getSource();
-        if (!player->GetSession() || player->getLevel() < LEVELREQUIREMENT_HEROIC)
+        if (!player->GetSession())
             continue;
 
         player->SetDungeonDifficulty(difficulty);
@@ -1614,7 +1614,7 @@ void Group::SetRaidDifficulty(Difficulty difficulty)
     for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player* player = itr->getSource();
-        if (!player->GetSession() || player->getLevel() < LEVELREQUIREMENT_HEROIC)
+        if (!player->GetSession())
             continue;
 
         player->SetRaidDifficulty(difficulty);
