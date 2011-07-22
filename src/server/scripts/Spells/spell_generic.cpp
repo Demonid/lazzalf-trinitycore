@@ -1652,6 +1652,92 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
         }
 };
 
+// 54016 Forcecast Set Oracle Honored
+class spell_set_oracle_faction_honored : public SpellScriptLoader
+{
+    public:
+        spell_set_oracle_faction_honored() : SpellScriptLoader("spell_set_oracle_faction_honored") {}
+
+        class spell_set_oracle_faction_honored_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_set_oracle_faction_honored_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* target = GetHitUnit();
+                if (!target)
+                    return;
+
+                Player* pPlayer = target->ToPlayer();
+                if (!pPlayer)
+                    return;
+
+                FactionEntry const *factionEntry = sFactionStore.LookupEntry(GetEffectValue());
+
+                if (!factionEntry)
+                    return;
+
+                if (factionEntry->reputationListID < 0)
+                    return;
+
+                pPlayer->GetReputationMgr().SetReputation(factionEntry, 9001);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_set_oracle_faction_honored_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_set_oracle_faction_honored_SpellScript();
+        }
+};
+
+// 53487 Set Wolvar Faction Honored
+class spell_set_wolvar_faction_honored : public SpellScriptLoader
+{
+    public:
+        spell_set_wolvar_faction_honored() : SpellScriptLoader("spell_set_wolvar_faction_honored") {}
+
+        class spell_set_wolvar_faction_honored_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_set_wolvar_faction_honored_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* target = GetHitUnit();
+                if (!target)
+                    return;
+
+                Player* pPlayer = target->ToPlayer();
+                if (!pPlayer)
+                    return;
+
+                FactionEntry const *factionEntry = sFactionStore.LookupEntry(GetEffectValue());
+
+                if (!factionEntry)
+                    return;
+
+                if (factionEntry->reputationListID < 0)
+                    return;
+
+                pPlayer->GetReputationMgr().SetReputation(factionEntry, 9001);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_set_wolvar_faction_honored_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_set_wolvar_faction_honored_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -1689,4 +1775,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_allow_cast_from_item_only();
     new spell_gen_launch();
     new spell_gen_vehicle_scaling();
+    new spell_set_oracle_faction_honored();
+    new spell_set_wolvar_faction_honored();
 }
