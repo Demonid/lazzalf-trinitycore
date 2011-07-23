@@ -623,7 +623,7 @@ class OutdoorPvPWG : public OutdoorPvP
         void OnCreatureRemove(Creature *creature);
         void OnGameObjectRemove(GameObject *go);
 
-        void ProcessEvent(GameObject *obj, uint32 eventId, Player* = NULL);
+        void ProcessEvent(WorldObject* obj, uint32 eventId, Player* = NULL);
 
         void HandlePlayerEnterZone(Player *plr, uint32 zone);
         void HandlePlayerLeaveZone(Player *plr, uint32 zone);
