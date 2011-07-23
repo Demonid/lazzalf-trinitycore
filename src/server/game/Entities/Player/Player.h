@@ -1710,11 +1710,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetLastPotionId() { return m_lastPotionId; } 
         void UpdatePotionCooldown(Spell* spell = NULL);
 
-        // global cooldown
-        void AddGlobalCooldown(SpellEntry const *spellInfo, Spell* spell);
-        bool HasGlobalCooldown(SpellEntry const *spellInfo) const;
-        void RemoveGlobalCooldown(SpellEntry const *spellInfo);
-
         void setResurrectRequestData(uint64 guid, uint32 mapId, float X, float Y, float Z, uint32 health, uint32 mana)
         {
             m_resurrectGUID = guid;
@@ -2790,7 +2785,6 @@ class Player : public Unit, public GridObject<Player>
         ReputationMgr  m_reputationMgr;
 
         SpellCooldowns m_spellCooldowns;
-        std::map<uint32, uint32> m_globalCooldowns; // whole start recovery category stored in one
 
         uint32 m_ChampioningFaction;
 
