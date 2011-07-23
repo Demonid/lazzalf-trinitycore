@@ -11562,16 +11562,21 @@ uint32 Unit::SpellCriticalDamageBonus(SpellEntry const* spellProto, uint32 damag
         case SPELL_DAMAGE_CLASS_RANGED:
             // TODO: write here full calculation for melee/ranged spells
             crit_bonus += damage;
+
+            // all these spells should have only 50% bonus damage on crit like a magic spells
+            // there is no generic rule
+            if (spellProto->Id == 55078 || spellProto->Id == 61840 ||
+                (spellProto->SpellFamilyName == SPELLFAMILY_HUNTER && spellProto->SpellFamilyFlags[0] & 0x4000))
+            {
+                crit_bonus += damage / 2;
+                break;
+            }
+
             break;
         default:
             crit_bonus += damage / 2;                       // for spells is 50%
             break;
     }
-
-    // all these spells should have only 50% bonus damage on crit like a magic spells
-    if (spellProto->Id == 55078 || spellProto->Id == 61840 ||
-       (spellProto->SpellFamilyName == SPELLFAMILY_HUNTER && spellProto->SpellFamilyFlags[0] & 0x4000))
-        crit_bonus /= 2;
         
     crit_mod += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, GetSpellSchoolMask(spellProto));
 
