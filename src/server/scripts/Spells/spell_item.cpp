@@ -864,7 +864,7 @@ public:
 
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(SPELL_RETURN_TEMPERED_QUELDELAR))
+            if (!sSpellMgr->GetSpellInfo(SPELL_RETURN_TEMPERED_QUELDELAR))
                 return false;
             
             return true;

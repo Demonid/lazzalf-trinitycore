@@ -43,11 +43,11 @@ public:
         PrepareSpellScript(spell_gen_trick_treat_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(SPELL_TRICK_TREAT))
+            if (!sSpellMgr->GetSpellInfo(SPELL_TRICK_TREAT))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_UPSET_TUMMY))
+            if (!sSpellMgr->GetSpellInfo(SPELL_UPSET_TUMMY))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_TRICKY_TREAT))
+            if (!sSpellMgr->GetSpellInfo(SPELL_TRICKY_TREAT))
                 return false;
             return true;
         }
@@ -118,9 +118,9 @@ public:
         PrepareAuraScript(spell_ram_neutral_AuraScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(SPELL_RAM_FATIGUE))
+            if (!sSpellMgr->GetSpellInfo(SPELL_RAM_FATIGUE))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_RAM_NEUTRAL))
+            if (!sSpellMgr->GetSpellInfo(SPELL_RAM_NEUTRAL))
                 return false;
             return true;
         }
@@ -174,9 +174,9 @@ public:
         PrepareAuraScript(spell_ram_trot_AuraScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(SPELL_RAM_FATIGUE))
+            if (!sSpellMgr->GetSpellInfo(SPELL_RAM_FATIGUE))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_RAM_TROT))
+            if (!sSpellMgr->GetSpellInfo(SPELL_RAM_TROT))
                 return false;
             return true;
         }
@@ -230,9 +230,9 @@ public:
         PrepareAuraScript(spell_ram_canter_AuraScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(SPELL_RAM_FATIGUE))
+            if (!sSpellMgr->GetSpellInfo(SPELL_RAM_FATIGUE))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_RAM_CANTER))
+            if (!sSpellMgr->GetSpellInfo(SPELL_RAM_CANTER))
                 return false;
             return true;
         }
@@ -283,9 +283,9 @@ public:
         PrepareAuraScript(spell_ram_gallop_AuraScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(SPELL_RAM_FATIGUE))
+            if (!sSpellMgr->GetSpellInfo(SPELL_RAM_FATIGUE))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_RAM_GALLOP))
+            if (!sSpellMgr->GetSpellInfo(SPELL_RAM_GALLOP))
                 return false;
             return true;
         }

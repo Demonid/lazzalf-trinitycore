@@ -965,7 +965,7 @@ void Battleground::RewardSpellCast(Player *plr, uint32 spell_id)
     if (plr->HasAura(SPELL_AURA_PLAYER_INACTIVE))
         return;
 
-    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spell_id);
+    SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(spell_id);
     if (!spellInfo)
     {
         sLog->outError("Battleground reward casting spell %u not exist.",spell_id);
