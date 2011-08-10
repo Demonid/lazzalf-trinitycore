@@ -315,7 +315,7 @@ class boss_gothik : public CreatureScript
             return false;
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellEntry* spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
             uint32 spellId = 0;
             switch(spell->Id)

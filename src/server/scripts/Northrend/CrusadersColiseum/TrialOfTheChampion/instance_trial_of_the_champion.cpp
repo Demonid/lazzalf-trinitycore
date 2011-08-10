@@ -556,11 +556,11 @@ class instance_trial_of_the_champion : public InstanceMapScript
             std::ostringstream saveStream;
 
             saveStream << "T C" << m_auiEncounter[0]
-                << " " << m_auiEncounter[1]
-                << " " << m_auiEncounter[2]
-                << " " << m_auiEncounter[3]
-                << " " << uiGrandChampionsDeaths
-                << " " << uiMovementDone;
+                << ' ' << m_auiEncounter[1]
+                << ' ' << m_auiEncounter[2]
+                << ' ' << m_auiEncounter[3]
+                << ' ' << uiGrandChampionsDeaths
+                << ' ' << uiMovementDone;
 
             str_data = saveStream.str();
 
