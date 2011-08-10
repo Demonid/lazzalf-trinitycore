@@ -1056,6 +1056,8 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
         if (!player || (auraSpell > 0 && !player->HasAura(auraSpell)) || (auraSpell < 0 && player->HasAura(-auraSpell)))
             return false;
 
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORTHREND_WINTERGRASP);
+
     // Extra conditions -- leaving the possibility add extra conditions...
     switch (spellId)
     {
@@ -1071,6 +1073,32 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
                 return false;
             break;
         }
+        case 48388:  //Call Wintergarde Gryphon
+        {
+            if (!player)
+               return false;
+               
+            AreaTableEntry const* pArea = GetAreaEntryByAreaID(player->GetAreaId());
+            if (!(pArea && pArea->flags & AREA_FLAG_NO_FLY_ZONE))
+                return false;
+
+            break;
+        }        
+        case 58730: // No fly Zone - Wintergrasp
+            if ((pvpWG && (pvpWG->isWarTime() == false)) || !player || !player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY)
+               || player->HasAura(45472) || player->HasAura(44795))
+                return false;
+            break;
+        case SPELL_ESSENCE_OF_WINTERGRASP_WINNER:   // Essence of Wintergrasp - Wintergrasp
+        case SPELL_ESSENCE_OF_WINTERGRASP_WORLD:    // Essence of Wintergrasp - Northrend
+        {
+            if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+            {
+                if (!player || player->GetTeamId() != sWorld->getWorldState(WS_WINTERGRASP_CONTROLING_TEAMID) || sWorld->getWorldState(WS_WINTERGRASP_ISWAR))
+                    return false;
+            }
+            break;
+        } 
         case 68719: // Oil Refinery - Isle of Conquest.
         case 68720: // Quarry - Isle of Conquest.
         {
@@ -2815,6 +2843,21 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                 break;
+            case 24131: 
+            case 24134: 
+            case 24135: // Wyvern Sting (rank 1-3)
+                // something wrong and it applied as positive buff
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
+                break;            
+            case 50294: // Druid - Starfall AOE rank
+            case 53188:
+            case 53189:
+            case 53190:
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_EXCLUDE_SELF;
+                break;
+            case 66210: // Curse of the Nether
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_EXCLUDE_SELF;
+                break;
         }
 
         switch (spellInfo->SpellFamilyName)
@@ -2889,6 +2932,10 @@ void SpellMgr::LoadDbcDataCorrections()
         case 42835: // Spout
             spellInfo->Effect[0] = 0; // remove damage effect, only anim is needed
             break;
+        case 62311: 
+        case 64596:
+            spellInfo->rangeIndex = 13;
+            break;
         case 30657: // Quake
             spellInfo->EffectTriggerSpell[0] = 30571;
             break;
@@ -2935,7 +2982,6 @@ void SpellMgr::LoadDbcDataCorrections()
         case 45524: // Chains of Ice
             // this will fix self-damage caused by Glyph of Chains of Ice
             spellInfo->EffectImplicitTargetA[2] = TARGET_UNIT_TARGET_ENEMY;
-            ++count;
             break; 
         case 8494: // Mana Shield (rank 2)
             // because of bug in dbc
@@ -2958,12 +3004,6 @@ void SpellMgr::LoadDbcDataCorrections()
             // was 46, but effect is aura effect
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_NEARBY_ENTRY;
             spellInfo->EffectImplicitTargetB[0] = TARGET_DST_NEARBY_ENTRY;
-        case 24131: case 24134: case 24135: // Wyvern Sting (rank 1-3)
-            // something wrong and it applied as positive buff
-            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
-            ++count;
-            break;
-            break;
         case 59725: // Improved Spell Reflection - aoe aura
             // Target entry seems to be wrong for this spell :/
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_PARTY_CASTER;
@@ -2971,7 +3011,6 @@ void SpellMgr::LoadDbcDataCorrections()
         case 63944:                             // Renewed Hope hack
             spellInfo->EffectApplyAuraName[0] = 87;
             spellInfo->EffectMiscValue[0] = 127;
-            ++count;
             break;
             break;
         case 44978: case 45001: case 45002: // Wild Magic
@@ -3007,7 +3046,6 @@ void SpellMgr::LoadDbcDataCorrections()
         case 62714:     // Shadow Nova
         case 65209:     // Shadow Nova
              spellInfo->Effect[0] = 0;
-             ++count;
              break;
         case 41376: // Spite
         case 39992: // Needle Spine
@@ -3433,35 +3471,24 @@ void SpellMgr::LoadDbcDataCorrections()
         case 72787: // Empowered Flare (Blood Prince Council)
             spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
             break;
-        case 50294: // Druid - Starfall AOE rank
-        case 53188:
-        case 53189:
-        case 53190:
-            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_EXCLUDE_SELF;
-            ++count;
-            break;
         case 65783: // Ogre Pinata
             spellInfo->EffectBasePoints[0] = 1;
-            ++count;
             break;
         case 26272: // PX-238 Winter Wondervolt
         case 26157:
         case 26273:
         case 26274:
             spellInfo->DurationIndex = 30;
-            ++count;
             break;
         case 53480: // Roar of Sacrifice Split damage
             spellInfo->Effect[1] = SPELL_EFFECT_APPLY_AURA;
             spellInfo->EffectApplyAuraName[1] = SPELL_AURA_SPLIT_DAMAGE_PCT;
             spellInfo->EffectMiscValue[1] = 127;
-            ++count;
             break;
         case 17118: // Subtlety 1
         case 17119: // Subtlety 2
         case 17120: // Subtlety 3
             spellInfo->EffectSpellClassMask[1] = flag96(0x00240152, 0x0C2C1014, 0x00001000);
-            ++count;
             break;
         case 71266: // Swarming Shadows
         case 72890: // Swarming Shadows
@@ -3482,7 +3509,6 @@ void SpellMgr::LoadDbcDataCorrections()
             break;
         case 23126: // World Enlarger
             spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_SPELL_ATTACK;
-            ++count;
             break;
         case 72706: // Achievement Check (Valithria Dreamwalker)
         case 71357: // Order Whelp
@@ -3499,20 +3525,13 @@ void SpellMgr::LoadDbcDataCorrections()
             break;
         case 70890: // Scourge Strike Triggered
             spellInfo->AttributesEx2 |= SPELL_ATTR2_TRIGGERED_CAN_TRIGGER_PROC;
-            ++count;
             break;
         case 49206: // Summon Gargoyle
             spellInfo->DurationIndex = 587;
-            ++count;
             break;
         case 61875: // Spring Fling
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_SUMMONER;
-            ++count;
-            break;
-        case 66210: // Curse of the Nether
-            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_EXCLUDE_SELF;
-            ++count;
-            break;
+            break;        
         default:
             break;
         }
@@ -3524,11 +3543,6 @@ void SpellMgr::LoadDbcDataCorrections()
                 // Starfall Target Selection
                 if (spellInfo->SpellFamilyFlags[2] & 0x100)
                     spellInfo->MaxAffectedTargets = 2;
-                // Rake
-                else if (spellInfo->SpellFamilyFlags[0] & 0x1000)
-                    mSpellCustomAttr[i] |= SPELL_ATTR0_CU_IGNORE_ARMOR;
-                else
-                    break;
                 break;
             case SPELLFAMILY_PALADIN:
                 // Seals of the Pure should affect Seal of Righteousness

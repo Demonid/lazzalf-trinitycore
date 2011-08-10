@@ -8507,9 +8507,9 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
                                 if (Item* Weapon = GetWeaponForAttack(attType == BASE_ATTACK ? OFF_ATTACK : BASE_ATTACK, true))
                                     if (SpellItemEnchantmentEntry const *Poison = sSpellItemEnchantmentStore.LookupEntry(Weapon->GetEnchantmentId(EnchantmentSlot(TEMP_ENCHANTMENT_SLOT)))) 
                                     {
-                                        SpellEntry const* poisonEntry = sSpellStore.LookupEntry(Poison->spellid[s]);
-                                        if(poisonEntry && poisonEntry->Dispel == DISPEL_POISON)
-                                            CastSpell(target, poisonEntry, true, Weapon);
+                                        SpellInfo const* poisonInfo = sSpellMgr->GetSpellInfo(Poison->spellid[s]);
+                                        if (poisonInfo && poisonInfo->Dispel == DISPEL_POISON)
+                                            CastSpell(target, poisonInfo, true, Weapon);
                                     }
                     }
                 }

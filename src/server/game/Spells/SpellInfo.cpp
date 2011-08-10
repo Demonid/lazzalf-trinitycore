@@ -1272,6 +1272,7 @@ AuraStateType SpellInfo::GetAuraState() const
 
     switch (Id)
     {
+        case 50241: // Evasive Charges
         case 71465: // Divine Surge
             return AURA_STATE_UNKNOWN22;
         default:
@@ -1681,14 +1682,26 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
             switch (Id)
             {
                 case 34700: // Allergic Reaction
-                case 61716: // Rabbit Costume
-                case 61734: // Noblegarden Bunny
+                case 34709: // Shadow Sight
+                //case 61716: // Rabbit Costume
+                //case 61734: // Noblegarden Bunny
                 case 61987: // Avenging Wrath Marker
                 case 61988: // Divine Shield exclude aura
-                case 62532: // Conservator's Grip
+                case 61248: // Power of Tenebron
+                case 61251: // Power of Vesperon
+                case 58105: // Power of Shadron
+                case 63322: // Saronite Vapors
+                case 66118: // Leeching Swarm
+                case 67630: // Leeching Swarm
+                case 68646: // Leeching Swarm
+                case 68647: // Leeching Swarm
+                // case 62532: // Conservator's Grip
                     return false;
                 case 30877: // Tag Murloc
-                case 62344: // Fists of Stone
+                case 12042: // Arcane Power
+                case 61734: // Noblegarden Bunny
+                case 61716: // Rabbit Costume
+                //case 62344: // Fists of Stone
                     return true;
                 default:
                     break;
@@ -1701,6 +1714,11 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
             // Ignite
             if (SpellIconID == 45)
                 return true;
+            break;
+        case SPELLFAMILY_WARRIOR:
+            // Shockwave
+            if (Id == 46968)
+                return false;
             break;
         case SPELLFAMILY_PRIEST:
             switch (Id)
@@ -1719,8 +1737,16 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                 return true;
             break;
         case SPELLFAMILY_SHAMAN:
-            if (Id == 30708)
-                return false;
+            switch (Id)
+            {                
+                case 51466: // Elemental Oath Rank 1
+                case 51470: // Elemental Oath Rank 2
+                    return true;
+                case 30708:
+                    return false;
+                default:
+                    break;
+            }
             break;
         default:
             break;

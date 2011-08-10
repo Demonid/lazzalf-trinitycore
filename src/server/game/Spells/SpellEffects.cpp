@@ -485,7 +485,7 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                         if (!radius)
                             return;
                         float distance = m_caster->GetDistance2d(unitTarget);
-                        damage = (distance > radius) ? 0 : int32(SpellMgr::CalculateSpellEffectAmount(m_spellInfo, 0) * distance);
+                        damage = (distance > radius) ? 0 : int32(m_spellInfo->Effects[EFFECT_0].CalcValue() * distance);
                         break;
                     }*/
                     // Lightning Nova
@@ -1197,8 +1197,8 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
                     if (m_UniqueTargetInfo.size())
                     {
-                        SpellEntry const * spellInfo = sSpellStore.LookupEntry(53385);
-                        int32 heal = SpellMgr::CalculateSpellEffectAmount(spellInfo, EFFECT_1) * damage / m_UniqueTargetInfo.size() / 100;
+                        SpellInfo const * spellInfo = sSpellMgr->GetSpellInfo(53385);
+                        int32 heal = spellInfo->Effects[EFFECT_1].CalcValue() * damage / m_UniqueTargetInfo.size() / 100;
                         m_caster->CastCustomSpell(unitTarget, 54172, &heal, NULL, NULL, true);
                     }
                     return;

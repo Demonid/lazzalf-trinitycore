@@ -1891,7 +1891,7 @@ bool OutdoorPvPWG::Update(uint32 diff)
                         Creature* sh = NULL;
                         for (std::vector<uint64>::const_iterator itr2 = (itr->second).begin(); itr2 != (itr->second).end(); ++itr2)
                         {
-                            Player *plr = sObjectMgr->GetPlayer(*itr2);
+                            Player *plr = ObjectAccessor::FindPlayer(*itr2);
                             if (!plr)
                                 continue;
                             if (!sh && plr->IsInWorld())
@@ -1923,7 +1923,7 @@ bool OutdoorPvPWG::Update(uint32 diff)
             {
                 for (std::vector<uint64>::const_iterator itr = m_ResurrectQueue.begin(); itr != m_ResurrectQueue.end(); ++itr)
                 {
-                    Player *plr = sObjectMgr->GetPlayer(*itr);
+                    Player *plr = ObjectAccessor::FindPlayer(*itr);
                     if (!plr)
                         continue;
                     plr->ResurrectPlayer(1.0f);
@@ -2419,7 +2419,7 @@ void OutdoorPvPWG::AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid
 {
     m_ReviveQueue[npc_guid].push_back(player_guid);
 
-    Player *plr = sObjectMgr->GetPlayer(player_guid);
+    Player *plr = ObjectAccessor::FindPlayer(player_guid);
     if (!plr)
         return;
 
@@ -2436,7 +2436,7 @@ void OutdoorPvPWG::RemovePlayerFromResurrectQueue(uint64 player_guid)
             {
                 (itr->second).erase(itr2);
 
-                Player *plr = sObjectMgr->GetPlayer(player_guid);
+                Player *plr = ObjectAccessor::FindPlayer(player_guid);
                 if (!plr)
                     return;
 
@@ -2460,7 +2460,7 @@ void OutdoorPvPWG::RemovePlayerFromResurrectQueue(uint64 player_guid)
         WorldSafeLocsEntry const *ClosestGrave = NULL;
         for (std::vector<uint64>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
         {
-            Player* plr = sObjectMgr->GetPlayer(*itr);
+            Player* plr = ObjectAccessor::FindPlayer(*itr);
             if (!plr)
                 continue;
 
@@ -2485,7 +2485,7 @@ void OutdoorPvPWG::RelocateAllianceDeadPlayers(Creature *cr)
         WorldSafeLocsEntry const *ClosestGrave = NULL;
         for (std::vector<uint64>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
         {
-            Player* plr = sObjectMgr->GetPlayer(*itr);
+            Player* plr = ObjectAccessor::FindPlayer(*itr);
 			if (!plr)
                 continue;
 
@@ -2513,7 +2513,7 @@ void OutdoorPvPWG::RelocateHordeDeadPlayers(Creature *cr)
         WorldSafeLocsEntry const *ClosestGrave = NULL;
         for (std::vector<uint64>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
         {
-            Player* plr = sObjectMgr->GetPlayer(*itr);
+            Player* plr = ObjectAccessor::FindPlayer(*itr);
 			if (!plr)
                 continue;
 

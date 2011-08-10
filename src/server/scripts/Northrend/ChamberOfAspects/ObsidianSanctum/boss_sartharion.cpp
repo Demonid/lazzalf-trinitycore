@@ -749,7 +749,7 @@ class mob_fire_cyclone : public CreatureScript
                 cast = true;
         }
 
-        void SpellHitTarget(Unit* target, const SpellEntry *spell)
+        void SpellHitTarget(Unit* target, const SpellInfo *spell)
         {
             if (target->GetTypeId() != TYPEID_PLAYER)
                 return; 

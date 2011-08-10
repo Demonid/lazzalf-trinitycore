@@ -27,6 +27,7 @@ EndScriptData */
 #include "CombatAI.h"
 #include "PassiveAI.h"
 #include "ObjectMgr.h"
+#include "Vehicle.h"
 #include "ulduar.h"
 
 
@@ -892,7 +893,7 @@ class npc_pool_of_tar : public CreatureScript
                 damage = 0;
             }
 
-            void SpellHit(Unit* /*caster*/, SpellEntry const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (spell->SchoolMask & SPELL_SCHOOL_MASK_FIRE && !me->HasAura(SPELL_BLAZE))
                     me->CastSpell(me, SPELL_BLAZE, true);

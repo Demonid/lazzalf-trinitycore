@@ -26,7 +26,6 @@ struct VehicleEntry;
 struct Position;
 class Unit;
 
-    VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE   = 0x00100000,           // Can't select passenger?
 class Vehicle
 {
     public:

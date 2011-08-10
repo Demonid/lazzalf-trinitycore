@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "Vehicle.h"
 #include "ulduar.h"
 
 enum Yells
@@ -382,7 +383,7 @@ class mob_iron_construct : public CreatureScript
             }
         }
 
-        /*void SpellHit(Unit* caster, const SpellEntry *spell)
+        /*void SpellHit(Unit* caster, const SpellInfo *spell)
         {
             if (spell->Id == SPELL_ACTIVATE_CONSTRUCT && me->HasReactState(REACT_PASSIVE))
             {
@@ -463,7 +464,7 @@ class spell_ignis_slag_pot : public SpellScriptLoader
         class spell_ignis_slag_pot_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_ignis_slag_pot_AuraScript)
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SLAG_POT_DAMAGE))
                     return false;

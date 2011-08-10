@@ -182,13 +182,13 @@ void AuraApplication::HandleEffect(uint8 effIndex, bool apply)
 
     if (!GetBase()->HasEffect(effIndex))
     {
-        sLog->outError("AuraApplication::HandleEffect: tried to %s nonexisting aura effect - id: %u effIndex: %u", (apply ? "APPLY" : "UNNAPLY"), GetBase()->GetSpellProto()->Id, effIndex);
+        sLog->outError("AuraApplication::HandleEffect: tried to %s nonexisting aura effect - id: %u effIndex: %u", (apply ? "APPLY" : "UNNAPLY"), GetBase()->GetSpellInfo()->Id, effIndex);
         return;
     }
 
     if (!GetTarget())
     {
-        sLog->outError("AuraApplication::HandleEffect: target is NULL at %s - id: %u effIndex: %u", (apply ? "APPLY" : "UNNAPLY"), GetBase()->GetSpellProto()->Id, effIndex);
+        sLog->outError("AuraApplication::HandleEffect: target is NULL at %s - id: %u effIndex: %u", (apply ? "APPLY" : "UNNAPLY"), GetBase()->GetSpellInfo()->Id, effIndex);
         return;
     }
     else if (!GetTarget()->isAlive())
@@ -385,12 +385,12 @@ void Aura::_InitEffects(uint8 effMask, Unit* caster, int32 *baseAmount)
             m_effects[i] = NULL;
     }
     
-    if (caster && caster->GetTypeId() == TYPEID_PLAYER && m_spellProto->SpellFamilyName == SPELLFAMILY_POTION && caster->HasAura(53042))
+    if (caster && caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->SpellFamilyName == SPELLFAMILY_POTION && caster->HasAura(53042))
     {
-        if (sSpellMgr->IsSpellMemberOfSpellGroup(m_spellProto->Id,SPELL_GROUP_ELIXIR_BATTLE) ||
-           sSpellMgr->IsSpellMemberOfSpellGroup(m_spellProto->Id,SPELL_GROUP_ELIXIR_GUARDIAN))
+        if (sSpellMgr->IsSpellMemberOfSpellGroup(m_spellInfo->Id,SPELL_GROUP_ELIXIR_BATTLE) ||
+           sSpellMgr->IsSpellMemberOfSpellGroup(m_spellInfo->Id,SPELL_GROUP_ELIXIR_GUARDIAN))
         {
-            if (caster->HasSpell(m_spellProto->EffectTriggerSpell[0]))
+            if (caster->HasSpell(m_spellInfo->Effects[0].TriggerSpell))
             {
                 for (uint8 i=0 ; i<MAX_SPELL_EFFECTS; ++i)
                 {
@@ -537,9 +537,9 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
                 uint8 effReapply = 0;
                 for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
                     if (existing->second & (1 << effIndex))
-                        if ((GetSpellProto()->Effect[effIndex] != SPELL_EFFECT_APPLY_AURA) &&
-                            (GetSpellProto()->EffectMechanic[effIndex]) &&
-                            (!appIter->second->GetTarget()->IsImmunedToSpellEffect(GetSpellProto(), effIndex)))
+                        if ((GetSpellInfo()->Effects[effIndex].Effect != SPELL_EFFECT_APPLY_AURA) &&
+                            (GetSpellInfo()->Effects[effIndex].Mechanic) &&
+                            (!appIter->second->GetTarget()->IsImmunedToSpellEffect(GetSpellInfo(), effIndex)))
                             effReapply |= (1 << effIndex);
                 if (effReapply)
                     targetsToReapply[appIter->second->GetTarget()] = std::make_pair<AuraApplication *, uint8>(appIter->second, effReapply);
@@ -586,8 +586,8 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
         {
             for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
                 if (itr->second & (1 << effIndex))
-                    if ((GetSpellProto()->EffectMechanic[effIndex]) &&
-                        (itr->first->IsImmunedToSpellEffect(GetSpellProto(), effIndex)))
+                    if ((GetSpellInfo()->Effects[effIndex].Mechanic) &&
+                        (itr->first->IsImmunedToSpellEffect(GetSpellInfo(), effIndex)))
                         itr->second &= ~(1 << effIndex);
 
             if (!itr->second)
@@ -1211,10 +1211,10 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                 }
                 // Cat Form, Bear Form, Dire Bear Form - exploit fix
-                else if (GetSpellProto()->SpellFamilyFlags[0] & 0xC0000000)
+                else if (GetSpellInfo()->SpellFamilyFlags[0] & 0xC0000000)
                     target->RemoveAurasDueToSpell(64904); // Hymn of Hope
                 // Faerie Fire (Feral)
-                else if (GetSpellProto()->Id == 16857)
+                else if (GetSpellInfo()->Id == 16857)
                 {
                     // Causes damage and threat in bear form or dire bear form only
                     if (caster->GetShapeshiftForm() != FORM_CAT)
@@ -1294,7 +1294,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             GetEffect(0)->SetAmount(auraEff->GetAmount());
                 }
                 // Rapid Killing
-                else if (GetSpellProto()->SpellFamilyFlags[1] & 0x01000000)
+                else if (GetSpellInfo()->SpellFamilyFlags[1] & 0x01000000)
                 {
                     // Rapid Recuperation
                     // FIXME: this is completely wrong way to fixing this talent
@@ -1428,7 +1428,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 if (!caster)
                     break;
                 //Glyph of Totem of Wrath
-                if (GetSpellProto()->SpellFamilyFlags[0] & 0x4000000 && GetSpellProto()->Attributes & 0x00000140)
+                if (GetSpellInfo()->SpellFamilyFlags[0] & 0x4000000 && GetSpellInfo()->Attributes & 0x00000140)
                 {
                     if (target->HasAura(63280))
                         target->CastSpell(target,63283,true);
@@ -1846,7 +1846,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                     break;
             }
-            if (GetSpellSpecific(GetSpellProto()) == SPELL_SPECIFIC_AURA)
+            if (GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_AURA)
             {
                 if (GetCasterGUID() == target->GetGUID())
                 {
@@ -1988,7 +1988,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 }
             }
             // Health Funnel
-            else if (GetSpellProto()->SpellFamilyFlags[0] & 0x01000000 && target != caster)
+            else if (GetSpellInfo()->SpellFamilyFlags[0] & 0x01000000 && target != caster)
             {
                 // Improved Health Funnel
                 AuraEffect * aurEff = caster->GetAuraEffectOfRankedSpell(18703, 0);
@@ -2006,7 +2006,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             break;
     }
 
-    if (IsPassiveSpell(GetSpellProto()) && !GetCastItemGUID())
+    if (GetSpellInfo()->IsPassive() && !GetCastItemGUID())
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             if (m_effects[i] && m_effects[i]->GetAuraType() == SPELL_AURA_MECHANIC_DURATION_MOD)
@@ -2099,6 +2099,10 @@ bool Aura::CanStackWith(Aura const* existingAura) const
     {
         if (m_spellInfo->AttributesEx3 & SPELL_ATTR3_STACK_FOR_DIFF_CASTERS)
             return true;
+
+        // Yogg-Saron's Sanity should not stack
+        if (m_spellInfo->Id == existingSpellInfo->Id && m_spellInfo->Id == 63050)
+            return false;
 
         // check same periodic auras
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)

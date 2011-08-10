@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "Vehicle.h"
 #include "ulduar.h"
 
 enum Yells
@@ -1229,7 +1230,7 @@ public:
             DoCast(me, SPELL_ROCKET_STRIKE_AURA);
         }
 
-        void SpellHitTarget(Unit* target, const SpellEntry *spell)
+        void SpellHitTarget(Unit* target, const SpellInfo *spell)
         { 
             if (spell->Id == SPELL_ROCKET_STRIKE_DMG)
             {
@@ -1523,7 +1524,7 @@ class mob_boom_bot : public CreatureScript
 
         InstanceScript* pInstance;
 
-        void SpellHitTarget(Unit* target, const SpellEntry *spell)
+        void SpellHitTarget(Unit* target, const SpellInfo *spell)
         {
             if (target->GetTypeId() != TYPEID_PLAYER)
                 return;              

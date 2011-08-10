@@ -5013,7 +5013,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                             {   
                                 // backfire damage
                                 int32 damage = aurEff->GetAmount() * 8;
-                                int32 dispelDamage = caster->SpellDamageBonus(caster, m_spellProto, damage, SPELL_DIRECT_DAMAGE);
+                                int32 dispelDamage = caster->SpellDamageBonus(caster, m_spellInfo, damage, SPELL_DIRECT_DAMAGE);
                                 target->CastCustomSpell(target, 64085, &dispelDamage, NULL, NULL, true, NULL, NULL,GetCasterGUID());
                             }
                             else 
@@ -5022,7 +5022,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                                 // backfire damage
                                 if (caster)
                                 {
-                                    int32 returnmana = (GetSpellProto()->ManaCostPercentage * caster->GetCreateMana() / 100);
+                                    int32 returnmana = (GetSpellInfo()->ManaCostPercentage * caster->GetCreateMana() / 100);
                                     if (AuraEffect* aureff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_PRIEST, 178, 1))
                                         caster->CastCustomSpell(caster, 64103, &returnmana, NULL, NULL, true, NULL, this, GetCasterGUID());
                                 }
@@ -5771,7 +5771,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                             count++;
                         }
                         if (count > 0 && caster->isAlive()) // prevent healing after death
-                            caster->HealBySpell(caster, GetSpellProto(), bp * 20);
+                            caster->HealBySpell(caster, GetSpellInfo(), bp * 20);
                     }
                     break;
                 case 63802: // Brain Link
@@ -6401,7 +6401,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             damage = damageReductedArmor;
         }
         
-        if (GetSpellProto()->Id == 50344) // Dream Funnel
+        if (GetSpellInfo()->Id == 50344) // Dream Funnel
             damage = uint32(target->GetMaxHealth()*0.05f);
 
         // Curse of Agony damage-per-tick calculation
@@ -6474,12 +6474,12 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         
     if (damage > 0) //HackFix Avoidance
     {
-        if (IsAreaEffectTarget[GetSpellProto()->EffectImplicitTargetA[m_effIndex]] || IsAreaEffectTarget[GetSpellProto()->EffectImplicitTargetB[m_effIndex]] || GetSpellProto()->Effect[m_effIndex] == SPELL_EFFECT_PERSISTENT_AREA_AURA)
+        if (GetSpellInfo()->Effects[m_effIndex].TargetA.IsArea() || GetSpellInfo()->Effects[m_effIndex].TargetB.IsArea() || GetSpellInfo()->Effects[m_effIndex].Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA)
         {
             resist += damage;
-            damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, GetSpellProto()->SchoolMask));
+            damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, GetSpellInfo()->SchoolMask));
             if (GetCaster()->GetTypeId() == TYPEID_UNIT)
-                damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, GetSpellProto()->SchoolMask));
+                damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, GetSpellInfo()->SchoolMask));
             resist -= damage;
         }
     }
@@ -6494,7 +6494,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, BASE_ATTACK, GetSpellInfo());
     
     // Hack for Consecration to enter in combat and PvP mode
-    if (GetSpellProto()->Effect[GetEffIndex()] == SPELL_EFFECT_PERSISTENT_AREA_AURA && caster->isAlive())
+    if (GetSpellInfo()->Effects[GetEffIndex()].Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA && caster->isAlive())
         caster->CombatStart(target);
 
     caster->DealDamage(target, damage, &cleanDamage, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), true);
