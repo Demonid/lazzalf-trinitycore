@@ -105,7 +105,7 @@ void BattlegroundEY::PostUpdateImpl(uint32 diff)
         {
             for(BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
             {
-                Player * plr = sObjectMgr->GetPlayer(itr->first);
+                Player * plr = ObjectAccessor::FindPlayer(itr->first);
                 if (!plr || !plr->IsInWorld())
                     continue;
                 if (plr->GetTeam() == HORDE && plr->GetDistance2d(1807.73f, 1539.41f) > 30.0f)

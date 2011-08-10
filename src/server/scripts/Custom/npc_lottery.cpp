@@ -151,7 +151,7 @@ public:
 
                         // Send reward by mail
                         Item* item = NULL;
-                        Player *pPlayer = sObjectMgr->GetPlayerByLowGUID(guid);
+                        Player *pPlayer = ObjectAccessor::FindPlayer(guid);
                         SQLTransaction trans = CharacterDatabase.BeginTransaction();
                         if (position != 4)
                         {

@@ -63,7 +63,7 @@ class boss_king_dummy : public CreatureScript
                         Player* member = itr->getSource();
                         if (member)
                             player_vct.push_back(member->GetGUID());
-                        //sObjectMgr->GetPlayer(GUID);
+                        //ObjectAccessor::FindPlayer(GUID);
                     }
                     UpdateStats(creature, grp->GetMembersCount());
                     creature->setFaction(14);

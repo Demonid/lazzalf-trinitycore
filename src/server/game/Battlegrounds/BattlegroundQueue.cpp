@@ -83,7 +83,7 @@ bool BattlegroundQueue::TeamsAreAllowedToFight(uint32 TeamId1, uint32 TeamId2)
                     {
                         if (itr->Guid)
                         {
-                            Player *plr = sObjectMgr->GetPlayer(itr->Guid);
+                            Player *plr = ObjectAccessor::FindPlayer(itr->Guid);
                             if (plr)
                             {
                                 //check if player is really in the group joining the arena match
@@ -126,7 +126,7 @@ bool BattlegroundQueue::TeamsAreAllowedToFight(uint32 TeamId1, uint32 TeamId2)
                     {
                         if (itr->Guid)
                         {
-                            Player *plr = sObjectMgr->GetPlayer(itr->Guid);
+                            Player *plr = ObjectAccessor::FindPlayer(itr->Guid);
                             if (plr)
                             {
                                 //check if player is really in the group joining the arena match

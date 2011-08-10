@@ -82,7 +82,7 @@ bool ChatHandler::HandleJailCommand(const char *args)
         return true;
     }
 
-    Player *chr = sObjectMgr->GetPlayer(GUID);
+    Player *chr = ObjectAccessor::FindPlayer(GUID);
     if (!chr)
     {
 	    uint32 jail_guid = GUID_LOPART(GUID);
@@ -243,8 +243,7 @@ bool ChatHandler::HandleUnJailCommand(const char *args)
     if (charname == NULL) return false;
     else cname = charname;
 
-    uint64 GUID = sObjectMgr->GetPlayerGUIDByName(cname.c_str());
-    Player *chr = sObjectMgr->GetPlayer(GUID);
+    Player *chr = sObjectAccessor->FindPlayerByName(cname.c_str());
 
     if (chr)
     {
@@ -276,7 +275,7 @@ bool ChatHandler::HandleUnJailCommand(const char *args)
     }
     else
     {
-        QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `jail` WHERE `guid`='%u' LIMIT 1", GUID_LOPART(GUID));
+        QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `jail` WHERE `guid`='%u' LIMIT 1", chr->GetGUIDLow());
 
         if (!result)
         {
