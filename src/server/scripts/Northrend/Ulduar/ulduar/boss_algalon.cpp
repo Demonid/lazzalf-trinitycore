@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Vehicle.h"
 #include "ulduar.h"
 
 enum Spells
@@ -142,10 +143,9 @@ public:
             firstTime = true;
 
             // spell gets triggered from caster, should be triggered from destination?
-            SpellEntry* tempSpell;
-            tempSpell = GET_SPELL(RAID_MODE(62311, 64596));
-            if (tempSpell)
-                tempSpell->rangeIndex = 13;
+            //SpellInfo* tempSpell = sSpellMgr->GetSpellInfo(RAID_MODE(62311, 64596));
+            //if (tempSpell)
+            //    tempSpell->rangeIndex = 13;
         }
 
         uint8 starCount;
@@ -809,11 +809,11 @@ class spell_remove_player_from_phase : public SpellScriptLoader
         {
             PrepareAuraScript(spell_remove_player_from_phaseScript);
 
-            bool Validate(SpellEntry const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_BLACK_HOLE_PHASE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_BLACK_HOLE_PHASE))
                     return false;
-                if (!sSpellStore.LookupEntry(SPELL_PHASE_PUNCH_PHASE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_PHASE_PUNCH_PHASE))
                     return false;
                 return true;
             }

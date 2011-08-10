@@ -1012,8 +1012,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                                 case 49636:
                                 case 49638:
                                 {
-                                    if (const SpellEntry *proto = sSpellStore.LookupEntry(itr->first))
-                                        AddPctN(impurityMod, SpellMgr::CalculateSpellEffectAmount(proto, 0));
+                                    if (const SpellInfo *spellInfo = sSpellMgr->GetSpellInfo(itr->first))
+                                        AddPctN(impurityMod, spellInfo->Effects[EFFECT_0].CalcValue());
                                 }
                                 break;
                             }

@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
+#include "Vehicle.h"
 #include "ulduar.h"
 
 enum Spells

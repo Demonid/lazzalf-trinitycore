@@ -260,7 +260,7 @@ class npc_porting : public CreatureScript
                                     {
                                         if (SkillSpells[j].spell)
                                         {
-                                            SpellEntry const* spellInfo = sSpellStore.LookupEntry(SkillSpells[j].spell);
+                                            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SkillSpells[j].spell);
                                             if (spellInfo && SpellMgr::IsSpellValid(spellInfo, pPlayer))
                                                 if (!pPlayer->HasSpell(SkillSpells[j].spell))
                                                     pPlayer->learnSpell(SkillSpells[j].spell, false);

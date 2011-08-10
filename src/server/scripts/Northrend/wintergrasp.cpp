@@ -2,6 +2,7 @@
 #include "../OutdoorPvP/OutdoorPvPWG.h"
 #include "OutdoorPvPMgr.h"
 #include "World.h"
+#include "Vehicle.h"
 
 /*******************************************************
  * npc_demolisher_engineerer
@@ -689,7 +690,7 @@ public:
     bool OnGossipHello(Player *pPlayer, GameObject * pGO)
     {
         if (GameObject* trigger = pGO->FindNearestGameObject(190375, 500)) // Wintergrasp Fortress Gate
-            if (Vehicle * veh = pPlayer->GetVehicle())
+            if (Vehicle* veh = pPlayer->GetVehicle())
             {
                 Position triggerPos;
                 trigger->GetPosition(&triggerPos);

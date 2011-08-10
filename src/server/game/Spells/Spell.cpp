@@ -1396,7 +1396,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
     if (m_spellInfo->Speed && (unit->IsImmunedToDamage(m_spellInfo) || unit->IsImmunedToSpell(m_spellInfo)))
         return SPELL_MISS_IMMUNE;
     // Deterrence Hack for delayed spells
-    if (m_spellInfo->speed && unit->HasAura(19263))
+    if (m_spellInfo->Speed && unit->HasAura(19263))
         return SPELL_MISS_DEFLECT;
         
     PrepareScriptHitHandlers();
@@ -1426,7 +1426,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
         if (m_caster->IsHostileTo(unit))
         {
             // spell misses if target has Invisibility or Vanish and isn't visible for caster
-            if (m_spellInfo->speed > 0.0f && unit == m_targets.GetUnitTarget()
+            if (m_spellInfo->Speed > 0.0f && unit == m_targets.GetUnitTarget()
                 && ((unit->HasInvisibilityAura() || m_caster->HasInvisibilityAura())
                 || unit->HasAuraTypeWithFamilyFlags(SPELL_AURA_MOD_STEALTH, SPELLFAMILY_ROGUE, SPELLFAMILYFLAG_ROGUE_VANISH))
                 && !m_caster->canSeeOrDetect(unit))
@@ -1500,12 +1500,12 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
 
         // Chance resist debuff
         bool auraResist = false;
-        if (!IsPositiveSpell(m_spellInfo->Id))
+        if (!m_spellInfo->IsPositive())
         {
             bool bNegativeAura = false;
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
-                if (m_spellInfo->EffectApplyAuraName[i] != 0)
+                if (m_spellInfo->Effects[i].ApplyAuraName != 0)
                 {
                     bNegativeAura = true;
                     break;
@@ -1515,7 +1515,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
             bool bDirectDamage = false;
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
-                if (m_spellInfo->Effect[i] == SPELL_EFFECT_SCHOOL_DAMAGE || m_spellInfo->Effect[i] == SPELL_EFFECT_HEALTH_LEECH)
+                if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_SCHOOL_DAMAGE || m_spellInfo->Effects[i].Effect == SPELL_EFFECT_HEALTH_LEECH)
                 {
                     bDirectDamage = true;
                     break;
@@ -5146,9 +5146,9 @@ SpellCastResult Spell::CheckCast(bool strict)
         return castResult;
         
     // Dispel check - only if the first effect is dispel
-    if (!m_IsTriggeredSpell && (m_spellInfo->Effect[EFFECT_0] == SPELL_EFFECT_DISPEL))
+    /*if (_triggeredCastFlags & TRIGGERED_NONE && (m_spellInfo->Effects[EFFECT_0].Effect == SPELL_EFFECT_DISPEL))
         if (Unit const * target = m_targets.GetUnitTarget())
-            if (!GetSpellRadius(m_spellInfo, EFFECT_0, target->IsFriendlyTo(m_caster)))
+            if (!m_spellInfo->GetSpellRadius(m_spellInfo, EFFECT_0, target->IsFriendlyTo(m_caster)))
             {
                 bool check = true;
                 uint32 dispelMask = GetDispelMask(DispelType(m_spellInfo->EffectMiscValue[EFFECT_0]));
@@ -5156,7 +5156,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 for (uint8 effIndex = EFFECT_1; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
                 {
                     if (m_spellInfo->Effect[effIndex] == SPELL_EFFECT_DISPEL)
-                        dispelMask |= GetDispelMask(DispelType(m_spellInfo->EffectMiscValue[effIndex]));
+                        dispelMask |= GetDispelMask(DispelType(m_spellInfo->Effects[effIndex].MiscValue));
                     // If there is any other effect don't check
                     else if (m_spellInfo->Effect[effIndex])
                     {
@@ -5177,7 +5177,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                         if (!aurApp)
                             continue;
 
-                        if ((1 << aura->GetSpellProto()->Dispel) & dispelMask)
+                        if ((1 << aura->GetSpellInfo()->Dispel) & dispelMask)
                         {
                             // Can only dispel positive auras on enemies and negative on allies
                             if (aurApp->IsPositive() != target->IsFriendlyTo(m_caster))
@@ -5191,7 +5191,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (failed)
                         return SPELL_FAILED_NOTHING_TO_DISPEL;
                 }
-            }
+            }*/
 
     for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
     {
@@ -5472,10 +5472,10 @@ SpellCastResult Spell::CheckCast(bool strict)
                 SummonPropertiesEntry const *SummonProperties = sSummonPropertiesStore.LookupEntry(m_spellInfo->Effects[i].MiscValueB);
                 if (!SummonProperties)
                     break;
-                switch(SummonProperties->Category)
+                switch (SummonProperties->Category)
                 {
                     case SUMMON_CATEGORY_PET:
-                        m_caster->RemoveAllMinionsByEntry(m_spellInfo->EffectMiscValue[i]);
+                        m_caster->RemoveAllMinionsByEntry(m_spellInfo->Effects[i].MiscValue);
                         break;
                         //if (m_caster->GetPetGUID())
                         //    return SPELL_FAILED_ALREADY_HAVE_SUMMON;
@@ -5788,7 +5788,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                     // Wintergrasp
                     if ((m_originalCaster->GetZoneId() == NORTHREND_WINTERGRASP && pvpWG && pvpWG->isWarTime()))
-                        return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
+                        return (_triggeredCastFlags & TRIGGERED_DISALLOW_PROC_EVENTS) ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
                             
                     if (AreaTableEntry const* pArea = GetAreaEntryByAreaID(m_originalCaster->GetAreaId()))
                     	if (pArea->flags & AREA_FLAG_NO_FLY_ZONE)
