@@ -765,7 +765,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 std::ostringstream saveStream;
 
                 for (uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
-                    saveStream << EncounterStatus[i] << " ";
+                    saveStream << EncounterStatus[i] << ' ';
 
                 saveStream << TrialCounter << " ";
                 saveStream << GetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE);

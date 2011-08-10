@@ -79,8 +79,8 @@ enum eSpells
 
 enum eModels
 {
-     MODEL_SKELETON = 29846,
-     MODEL_GHOST    = 21300
+    MODEL_SKELETON = 29846,
+    MODEL_GHOST    = 21300
 };
 
 enum ePhases
@@ -497,7 +497,7 @@ class npc_risen_ghoul : public CreatureScript
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                 {
                     if (target && target->isAlive())
-                    DoCast(target, (DUNGEON_MODE(SPELL_LEAP,SPELL_LEAP_H)));
+                        DoCast(target, (DUNGEON_MODE(SPELL_LEAP,SPELL_LEAP_H)));
                 }
                 uiAttackTimer = 3500;
             } else uiAttackTimer -= uiDiff;

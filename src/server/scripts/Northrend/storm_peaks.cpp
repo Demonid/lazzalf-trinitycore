@@ -17,6 +17,7 @@
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
+#include "Vehicle.h"
 
 /*######
 ## npc_agnetta_tyrsdottar
@@ -638,7 +639,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* hitter, const SpellEntry* spell)
+        void SpellHit(Unit* hitter, const SpellInfo* spell)
         {
             if (!hitter || !spell)
                 return;
