@@ -5144,21 +5144,21 @@ SpellCastResult Spell::CheckCast(bool strict)
     castResult = CallScriptCheckCastHandlers();
     if (castResult != SPELL_CAST_OK)
         return castResult;
-        
+
     // Dispel check - only if the first effect is dispel
-    /*if (_triggeredCastFlags & TRIGGERED_NONE && (m_spellInfo->Effects[EFFECT_0].Effect == SPELL_EFFECT_DISPEL))
-        if (Unit const * target = m_targets.GetUnitTarget())
-            if (!m_spellInfo->GetSpellRadius(m_spellInfo, EFFECT_0, target->IsFriendlyTo(m_caster)))
+    if (!(_triggeredCastFlags & TRIGGERED_FULL_MASK) && (m_spellInfo->Effects[EFFECT_0].Effect == SPELL_EFFECT_DISPEL))
+        if (Unit const * target = m_targets.GetUnitTarget())            
+            if (!m_spellInfo->Effects[EFFECT_0].CalcRadius(m_caster))
             {
                 bool check = true;
-                uint32 dispelMask = GetDispelMask(DispelType(m_spellInfo->EffectMiscValue[EFFECT_0]));
+                uint32 dispelMask = SpellInfo::GetDispelMask(DispelType(m_spellInfo->Effects[EFFECT_0].MiscValue));
 
                 for (uint8 effIndex = EFFECT_1; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
                 {
-                    if (m_spellInfo->Effect[effIndex] == SPELL_EFFECT_DISPEL)
-                        dispelMask |= GetDispelMask(DispelType(m_spellInfo->Effects[effIndex].MiscValue));
+                    if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_DISPEL)
+                        dispelMask |= SpellInfo::GetDispelMask(DispelType(m_spellInfo->Effects[effIndex].MiscValue));
                     // If there is any other effect don't check
-                    else if (m_spellInfo->Effect[effIndex])
+                    else if (m_spellInfo->Effects[effIndex].Effect)
                     {
                         check = false;
                         break;
@@ -5191,7 +5191,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (failed)
                         return SPELL_FAILED_NOTHING_TO_DISPEL;
                 }
-            }*/
+            }
 
     for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
     {
