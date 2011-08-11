@@ -1809,7 +1809,10 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->DamagedDisplayId)
                     modelId = modelData->DamagedDisplayId;
-            SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
+
+            //Temporary hack for Fortress towers when it cannot be damaged after been half damaged
+            if (m_goInfo->entry != 190378 && m_goInfo->entry != 190377 && m_goInfo->entry != 190373 && m_goInfo->entry != 190221)
+                SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
 
             if (setHealth)
             {
