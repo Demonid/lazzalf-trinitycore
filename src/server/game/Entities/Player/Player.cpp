@@ -831,6 +831,8 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
 
     m_lastFallTime = 0;
     m_lastFallZ = 0;
+    
+    m_grantableLevels = 0;
 
     m_ControlledByPlayer = true;
     m_isWorldObject = true;
@@ -3068,7 +3070,7 @@ void Player::GiveLevel(uint8 level)
     if (GetSession()->GetRecruiterId())
         if (level < sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
             if (level % 2 == 0) {
-                m_grantableLevels++;
+                ++m_grantableLevels;
 
                 if (!HasByteFlag(PLAYER_FIELD_BYTES, 1, 0x01))
                     SetByteFlag(PLAYER_FIELD_BYTES, 1, 0x01);
@@ -7263,20 +7265,26 @@ void Player::SetArenaPoints(uint32 value)
         AddKnownCurrency(ITEM_ARENA_POINTS_ID);
 }
 
-void Player::ModifyHonorPoints(int32 value)
+void Player::ModifyHonorPoints(int32 value, SQLTransaction* trans /*=NULL*/)
 {
     int32 newValue = int32(GetHonorPoints()) + value;
     if (newValue < 0)
         newValue = 0;
     SetHonorPoints(uint32(newValue));
+
+    if (trans && !trans->null())
+        (*trans)->PAppend("UPDATE characters SET totalHonorPoints=%u WHERE guid=%u", newValue, GetGUIDLow());
 }
 
-void Player::ModifyArenaPoints(int32 value)
+void Player::ModifyArenaPoints(int32 value, SQLTransaction* trans /*=NULL*/)
 {
     int32 newValue = int32(GetArenaPoints()) + value;
     if (newValue < 0)
         newValue = 0;
     SetArenaPoints(uint32(newValue));
+
+    if (trans && !trans->null())
+        (*trans)->PAppend("UPDATE characters SET arenaPoints=%u WHERE guid=%u", newValue, GetGUIDLow());
 }
 
 uint32 Player::GetGuildIdFromDB(uint64 guid)
@@ -24549,8 +24557,11 @@ void Player::RefundItem(Item *item)
 
     uint32 moneyRefund = item->GetPaidMoney();  // item-> will be invalidated in DestroyItem
 
+    // Save all relevant data to DB to prevent desynchronisation exploits
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
     // Delete any references to the refund data
-    item->SetNotRefundable(this);
+    item->SetNotRefundable(this, true, &trans);
 
     // Destroy item
     DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
@@ -24572,16 +24583,19 @@ void Player::RefundItem(Item *item)
 
     // Grant back money
     if (moneyRefund)
-        ModifyMoney(moneyRefund);
+        ModifyMoney(moneyRefund); // Saved in SaveInventoryAndGoldToDB
 
     // Grant back Honor points
     if (uint32 honorRefund = iece->reqhonorpoints)
-        ModifyHonorPoints(honorRefund);
+        ModifyHonorPoints(honorRefund, &trans);
 
     // Grant back Arena points
     if (uint32 arenaRefund = iece->reqarenapoints)
-        ModifyArenaPoints(arenaRefund);
+        ModifyArenaPoints(arenaRefund, &trans);
 
+    SaveInventoryAndGoldToDB(trans);
+
+    CharacterDatabase.CommitTransaction(trans);
 }
 
 void Player::SetRandomWinner(bool isWinner)
