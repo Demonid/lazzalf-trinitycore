@@ -405,7 +405,7 @@ class instance_ulduar : public InstanceMapScript
                     uiAlgalonAccessGUID = go->GetGUID();
                     if (uiAlgalonCountdown < 62)
                     {
-                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         go->SetGoState(GO_STATE_ACTIVE);
                     }
                     break;
@@ -1057,7 +1057,7 @@ class instance_ulduar : public InstanceMapScript
                     break;
                 case BOSS_THORIM:
                     if (state == IN_PROGRESS)
-                        pThorimLever->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        pThorimLever->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     CheckKeepersState();
                     break;
                 case BOSS_MIMIRON:

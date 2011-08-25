@@ -167,9 +167,6 @@ public:
         void Initialize()
         {
             AbominationCount = 0;
-            case DATA_ABOMINATION_KILLED:
-                    AbominationCount = value;
-                    break;
 
             GothikGateGUID = 0;
             HorsemenChestGUID = 0;
