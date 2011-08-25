@@ -161,9 +161,16 @@ public:
         uint32 razuStatus;
         uint32 nothStatus;
         uint32 sapphiStatus;
+        
+        uint32 AbominationCount;
 
         void Initialize()
         {
+            AbominationCount = 0;
+            case DATA_ABOMINATION_KILLED:
+                    AbominationCount = value;
+                    break;
+
             GothikGateGUID = 0;
             HorsemenChestGUID = 0;
             SapphironGUID = 0;
@@ -337,6 +344,9 @@ public:
                 case DATA_IMMORTAL_SAPPHI:
                     sapphiStatus = value;
                     break;
+                case DATA_ABOMINATION_KILLED:
+                    AbominationCount = value;
+                    break;
             }
         }
 
@@ -364,6 +374,8 @@ public:
                     return nothStatus;
                 case DATA_IMMORTAL_SAPPHI:
                     return sapphiStatus;
+                case DATA_ABOMINATION_KILLED:
+                    return AbominationCount;
                 default:
                     return 0;
             }
