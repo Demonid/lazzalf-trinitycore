@@ -40,49 +40,47 @@ float ThreatCalcHelper::calcThreat(Unit* hatedUnit, Unit* /*hatingUnit*/, float 
             return 0.0f;
 
         if (Player* modOwner = hatedUnit->GetSpellModOwner())
-            modOwner->ApplySpellMod(threatSpell->Id, SPELLMOD_THREAT, threat);        
+            modOwner->ApplySpellMod(threatSpell->Id, SPELLMOD_THREAT, threat);
+
+        switch (threatSpell->Id) //HackFix
+        {
+             case 779: //Swipe (bear) ranks
+             case 769:
+             case 780:
+             case 9754:
+             case 9908:
+             case 26997:
+             case 48561:
+             case 48562:
+             case 57755: // Heroic Thrown
+                threat *= 1.5f;
+                break;
+             case 60141: // Rip
+                threat *= 0.5f;
+                break;
+             case 6343: // ThunderClap
+             case 8198:
+             case 8204:
+             case 8205:
+             case 11580:
+             case 11581:
+             case 25264:
+             case 47501:
+             case 47502:
+                threat *= 1.85f;
+                break;
+             case 11433: // Death And Decay Ranks
+             case 31258:
+             case 34642:
+             case 39347:
+                threat *= 1.9f;
+                break;
+            default:
+                break;
+        }
     }
 
-    float fThreat = hatedUnit->ApplyTotalThreatModifier(threat, schoolMask);
-
-    switch (threatSpell->Id) //HackFix
-    {
-         case 779: //Swipe (bear) ranks
-         case 769:
-         case 780:
-         case 9754:
-         case 9908:
-         case 26997:
-         case 48561:
-         case 48562:
-         case 57755: // Heroic Thrown
-            fThreat *= 1.5f;
-            break;
-         case 60141: // Rip
-            fThreat *= 0.5f;
-            break;
-         case 6343: // ThunderClap
-         case 8198:
-         case 8204:
-         case 8205:
-         case 11580:
-         case 11581:
-         case 25264:
-         case 47501:
-         case 47502:
-            fThreat *= 1.85f;
-            break;
-         case 11433: // Death And Decay Ranks
-         case 31258:
-         case 34642:
-         case 39347:
-            fThreat *= 1.9f;
-            break;
-        default:
-            break;
-    }
-
-    return fThreat;
+    return hatedUnit->ApplyTotalThreatModifier(threat, schoolMask);
 }
 
 bool ThreatCalcHelper::isValidProcess(Unit* hatedUnit, Unit* hatingUnit, SpellInfo const* /*threatSpell*/)
