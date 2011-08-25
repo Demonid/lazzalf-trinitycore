@@ -487,6 +487,11 @@ int32 SpellScript::GetTrueDamage()
     return m_spell->m_true_damage;
 }
 
+SpellValue const* SpellScript::GetSpellValue()
+{
+    return m_spell->m_spellValue;
+}
+
 bool AuraScript::_Validate(SpellInfo const* entry)
 {
     for (std::list<CheckAreaTargetHandler>::iterator itr = DoCheckAreaTarget.begin(); itr != DoCheckAreaTarget.end();  ++itr)
