@@ -1877,6 +1877,9 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, SpellNo
         m_caster->GetMap()->VisitWorld(pos->m_positionX, pos->m_positionY, radius, notifier);
     else
         m_caster->GetMap()->VisitAll(pos->m_positionX, pos->m_positionY, radius, notifier);
+
+    if (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_EXCLUDE_SELF)
+        TagUnitMap.remove(m_caster);
 }
 
 void Spell::SearchGOAreaTarget(std::list<GameObject*> &TagGOMap, float radius, SpellNotifyPushType type, SpellTargets TargetType, uint32 entry)
