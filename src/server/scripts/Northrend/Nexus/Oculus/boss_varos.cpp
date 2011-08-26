@@ -1,19 +1,19 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+* Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "ScriptPCH.h"
 #include "oculus.h"
@@ -21,25 +21,27 @@
 
 enum Says
 {
-    SAY_AGGRO           = 0,
-    SAY_AZURE           = 1,
-    SAY_AZURE_EMOTE     = 2,
-    SAY_DEATH           = 3
+    SAY_AGGRO = 0,
+    SAY_AZURE = 1,
+    SAY_AZURE_EMOTE = 2,
+    SAY_DEATH = 3
 };
 
 enum Spells
 {
-    SPELL_ENERGIZE_CORES_VISUAL                   = 62136,
-    SPELL_ENERGIZE_CORES                          = 50785, //Damage 5938 to 6562, effec2 Triggers 54069, effect3 Triggers 56251
-    SPELL_CALL_AZURE_RING_CAPTAIN                 = 51002, //Effect    Send Event (12229)
-    /*SPELL_CALL_AZURE_RING_CAPTAIN_2               = 51006, //Effect    Send Event (10665)
-    SPELL_CALL_AZURE_RING_CAPTAIN_3               = 51007, //Effect    Send Event (18454)
-    SPELL_CALL_AZURE_RING_CAPTAIN_4               = 51008, //Effect    Send Event (18455)*/
-    SPELL_CALL_AMPLIFY_MAGIC                      = 51054,
+    SPELL_ENERGIZE_CORES_VISUAL = 62136,
+    SPELL_ENERGIZE_CORES = 50785, //Damage 5938 to 6562, effec2 Triggers 54069, effect3 Triggers 56251
+    SPELL_ENERGIZE_CORES_H = 59372,
+    SPELL_CALL_AZURE_RING_CAPTAIN = 51002, //Effect Send Event (12229)
+    /*SPELL_CALL_AZURE_RING_CAPTAIN_2 = 51006, //Effect Send Event (10665)
+    SPELL_CALL_AZURE_RING_CAPTAIN_3 = 51007, //Effect Send Event (18454)
+    SPELL_CALL_AZURE_RING_CAPTAIN_4 = 51008, //Effect Send Event (18455)*/
+    SPELL_CALL_AMPLIFY_MAGIC = 51054,
+    SPELL_CALL_AMPLIFY_MAGIC_H = 59371,
 
-    SPELL_ICE_BEAM                                = 49549,
-    SPELL_ARCANE_BEAM_PERIODIC                    = 51019,
-    SPELL_SUMMON_ARCANE_BEAM                      = 51017
+    SPELL_ARCANE_BEAM_PERIODIC = 51019,
+    SPELL_SUMMON_ARCANE_BEAM = 51017,
+    SPELL_ARCANE_BEAM_VISUAL = 51024
 };
 
 enum Events
@@ -109,7 +111,10 @@ public:
                 switch (eventId)
                 {
                     case EVENT_ENERGIZE_CORES:
-                        DoCast(me, SPELL_ENERGIZE_CORES);
+                        if(me->GetMap()->IsHeroic())
+                            DoCast(me, SPELL_ENERGIZE_CORES_H);
+                        else 
+                            DoCast(me, SPELL_ENERGIZE_CORES);
                         events.CancelEvent(EVENT_ENERGIZE_CORES);
                         break;
                     case EVENT_ENERGIZE_CORES_VISUAL:
@@ -125,14 +130,16 @@ public:
                         events.ScheduleEvent(EVENT_ENERGIZE_CORES, 4000);
                         break;
                     case EVENT_CALL_AZURE:
-                        // not sure how blizz handles this, i cant see any pattern between the differnt spells
                         DoCast(me, SPELL_CALL_AZURE_RING_CAPTAIN);
                         Talk(SAY_AZURE);
                         Talk(SAY_AZURE_EMOTE);
                         events.ScheduleEvent(EVENT_CALL_AZURE, urand(20, 25) * IN_MILLISECONDS);
                         break;
                     case EVENT_AMPLIFY_MAGIC:
-                        DoCast(me->getVictim(), SPELL_CALL_AMPLIFY_MAGIC);
+                        if(me->GetMap()->IsHeroic())
+                            DoCast(me->getVictim(), SPELL_CALL_AMPLIFY_MAGIC_H);
+                        else
+                            DoCast(me->getVictim(), SPELL_CALL_AMPLIFY_MAGIC);
                         events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(17, 20) * IN_MILLISECONDS);
                         break;
                 }
@@ -143,9 +150,14 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            _JustDied();
-
             Talk(SAY_DEATH);
+            _JustDied(); 
+        }
+
+        void DamageTaken(Unit* pAttacker, uint32& )
+        {
+            if(pAttacker->IsVehicle())
+                pAttacker->DealDamage(pAttacker, pAttacker->GetHealth());
         }
     private:
         bool firstCoreEnergize;
@@ -173,15 +185,6 @@ class npc_azure_ring_captain : public CreatureScript
                 me->SetReactState(REACT_AGGRESSIVE);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell)
-            {
-                if (spell->Id == SPELL_ICE_BEAM)
-                {
-                    target->CastSpell(target, SPELL_SUMMON_ARCANE_BEAM, true);
-                    me->DespawnOrUnsummon();
-                }
-            }
-
             void UpdateAI(const uint32 /*diff*/)
             {
                 if (!UpdateVictim())
@@ -199,7 +202,10 @@ class npc_azure_ring_captain : public CreatureScript
                 me->GetMotionMaster()->MoveIdle();
 
                 if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
-                    DoCast(target, SPELL_ICE_BEAM);
+                {
+                    Creature* pSummoned = target->SummonCreature(28239, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000);
+                    DoCast(pSummoned, SPELL_ARCANE_BEAM_VISUAL);
+                }
             }
 
             void DoAction(const int32 action)
@@ -222,7 +228,7 @@ class npc_azure_ring_captain : public CreatureScript
                         }
                         break;
                 }
-           }
+            }
 
         private:
             uint64 targetGUID;
@@ -380,6 +386,32 @@ class spell_varos_energize_core_area_entry : public SpellScriptLoader
         }
 };
 
+class npc_arcane_beam : public CreatureScript
+{
+    public:
+        npc_arcane_beam() : CreatureScript("npc_arcane_beam") { }
+
+        struct npc_arcane_beamAI : public ScriptedAI
+        {
+            npc_arcane_beamAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                Unit* target;
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+                me->AddAura(51019, me);
+                me->SetDisplayId(11686);
+                if(target = me->SelectNearestTarget(30))
+                    me->AddThreat(target, (float)50000);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_arcane_beamAI (creature);
+        }
+};
+
 void AddSC_boss_varos()
 {
     new boss_varos();
@@ -387,4 +419,5 @@ void AddSC_boss_varos()
     new spell_varos_centrifuge_shield();
     new spell_varos_energize_core_area_enemy();
     new spell_varos_energize_core_area_entry();
+    new npc_arcane_beam();
 }

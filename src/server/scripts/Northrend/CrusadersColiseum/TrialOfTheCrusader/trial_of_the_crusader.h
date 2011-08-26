@@ -5,7 +5,7 @@
 #ifndef DEF_CRUSADER_H
 #define DEF_CRUSADER_H
 
-enum
+enum ToC_Data
 {
     TYPE_BEASTS                 = 0,
     TYPE_JARAXXUS               = 1,
@@ -27,6 +27,7 @@ enum
     DATA_SNOBOLD_COUNT                   = 301,
     DATA_MISTRESS_OF_PAIN_COUNT          = 302,
     DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE = 303,
+    DATA_TRAITOR_KING                    = 304,
 
     INCREASE                    = 501,
     DECREASE                    = 502,
@@ -35,6 +36,8 @@ enum
     SPELL_JARAXXUS_CHAINS       = 67924,
 
     DESPAWN_TIME                = 300000,
+
+    TOC_RAID_MAP = 649
 };
 
 const Position ToCCommonLoc[]=
@@ -236,6 +239,11 @@ enum eGameObject
     GO_MAIN_GATE_DOOR           = 195647,
     GO_EAST_PORTCULLIS          = 195648,
     GO_WEB_DOOR                 = 195485,
+
+    GO_TWIN_CHEST_10            = 320011,
+    GO_TWIN_CHEST_25            = 320012,
+    GO_TWIN_CHEST_10_H          = 320013,
+    GO_TWIN_CHEST_25_H          = 320014,
 };
 
 enum eAchievementData
@@ -270,7 +278,20 @@ enum eAchievementData
     SPELL_TRAITOR_KING_25                   = 68515,
 
     // Timed events
-    EVENT_START_TWINS_FIGHT                 = 21853
+    EVENT_START_TWINS_FIGHT                 = 21853,
+};
+
+enum AchievementControl
+{
+    ACHI_IS_NOT_STARTED = 1,
+    ACHI_START,
+    ACHI_IS_IN_PROGRESS,
+    ACHI_COMPLETED,
+    ACHI_FAILED,
+    ACHI_RESET,
+    ACHI_INCREASE,
+    CRITERIA_MEETED,
+    CRITERIA_NOT_MEETED,
 };
 
 #endif
