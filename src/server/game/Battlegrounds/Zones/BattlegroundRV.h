@@ -117,6 +117,10 @@ class BattlegroundRV : public Battleground
         void HandleKillPlayer(Player* player, Player* killer);
         bool HandlePlayerUnderMap(Player* plr);
 
+        bool pillarsopened;
+        bool fencesopened;
+        bool pillarshelpfunction;
+
     private:
         uint32 Timer;
         uint32 State;
@@ -129,5 +133,10 @@ class BattlegroundRV : public Battleground
 
         uint32 getState() { return State; };
         void setState(uint32 state) { State = state; };
+
+        uint32 fencestimer;
+        uint32 pillartimer;
+        uint32 teleporttimer;
+
 };
 #endif
