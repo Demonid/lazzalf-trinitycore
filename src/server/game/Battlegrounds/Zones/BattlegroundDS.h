@@ -77,6 +77,7 @@ class BattlegroundDS : public Battleground
         virtual void FillInitialWorldStates(WorldPacket &d);
         void HandleKillPlayer(Player* player, Player* killer);
         bool HandlePlayerUnderMap(Player* plr);
+        bool isWaterFallActive() { return m_waterfallActive; };
     private:
         uint32 m_waterTimer;
         bool m_waterfallActive;
@@ -84,8 +85,7 @@ class BattlegroundDS : public Battleground
         uint32 m_knockback;
         void KnockBackPlayer(Unit *pPlayer, float angle, float horizontalSpeed, float verticalSpeed);
         virtual void PostUpdateImpl(uint32 diff);
-    protected:
-        bool isWaterFallActive() { return m_waterfallActive; };
+    protected:        
         void setWaterFallActive(bool active) { m_waterfallActive = active; };
         void setWaterFallTimer(uint32 timer) { m_waterTimer = timer; };
         uint32 getWaterFallTimer() { return m_waterTimer; };
