@@ -100,6 +100,8 @@ void BattlegroundRV::PostUpdateImpl(uint32 diff)
                 case BG_RV_STATE_OPEN_PILARS:
                     for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
                         DoorOpen(i);
+                    pillarshelpfunction = false;
+                    pillartimer = 2000;
                     setTimer(BG_RV_PILAR_TO_FIRE_TIMER);
                     setState(BG_RV_STATE_OPEN_FIRE);
                     break;
@@ -113,6 +115,8 @@ void BattlegroundRV::PostUpdateImpl(uint32 diff)
                 case BG_RV_STATE_CLOSE_PILARS:
                     for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
                         DoorOpen(i);
+                    pillarshelpfunction = true;
+                    pillartimer = 2000;
                     setTimer(BG_RV_PILAR_TO_FIRE_TIMER);
                     setState(BG_RV_STATE_CLOSE_FIRE);
                     break;
