@@ -666,10 +666,24 @@ class spell_cosmic_smash : public SpellScriptLoader
                 unitList = sharedUnitList;
             }
 
+            void HandleForceCast(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+
+                uint32 triggered_spell_id = GetSpellInfo()->Effects[effIndex].TriggerSpell;
+
+                if (caster && target)
+                    target->CastSpell(target, triggered_spell_id, true, NULL, NULL, caster->GetGUID());
+            }
+
             void Register()
             {
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_cosmic_smash_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_cosmic_smash_SpellScript::FilterTargetsSubsequent, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffect += SpellEffectFn(spell_cosmic_smash_SpellScript::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
             }
 
             std::list<Unit*> sharedUnitList;
