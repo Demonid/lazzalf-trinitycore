@@ -185,7 +185,8 @@ enum eGameObjects
     GO_ALGALON_BRIDGE           = 194253,
     GO_ALGALON_B_VISUAL         = 194716,
     GO_ALGALON_B_DOOR           = 194910,
-    GO_GIFT_OF_THE_OBSERVER     = 194821
+    GO_GIFT_OF_THE_OBSERVER_10  = 194821,
+    GO_GIFT_OF_THE_OBSERVER_25  = 194822
 };
 
 enum AchievementControl
