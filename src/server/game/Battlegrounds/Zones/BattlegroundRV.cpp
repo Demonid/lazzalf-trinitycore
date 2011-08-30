@@ -69,7 +69,7 @@ void BattlegroundRV::PostUpdateImpl(uint32 diff)
 
     if (teleporttimer < diff)      
     {
-        for(BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)   
+        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)   
         {
             Player * plr = ObjectAccessor::FindPlayer(itr->first);     
             if (plr && plr->GetPositionZ() < 27)  
@@ -77,7 +77,7 @@ void BattlegroundRV::PostUpdateImpl(uint32 diff)
             if (plr && plr->GetPositionZ() < 27)  
                 plr->TeleportTo(618, plr->GetPositionX(), plr->GetPositionY(), 28.2f, plr->GetOrientation());     
         }
-        teleporttimer = 10;
+        teleporttimer = 0;
     }     
     else
         teleporttimer -= diff;
@@ -134,7 +134,7 @@ void BattlegroundRV::StartingEventOpenDoors()
 {
     fencestimer = 20000;
     pillartimer = 2000;
-    teleporttimer = 20000;
+    teleporttimer = 60000;
     pillarsopened = false;
 
     // Buff respawn
