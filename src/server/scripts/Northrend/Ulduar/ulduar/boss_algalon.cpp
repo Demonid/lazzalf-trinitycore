@@ -530,10 +530,13 @@ public:
         void AttackStart(Unit* /*target*/) { }
         void MoveInLineOfSight(Unit* /*who*/) { }
 
-        void JustDied(Unit* /*killer*/)
+        void DamageTaken(Unit* /*attacker*/, uint32 &damage)
         {
-            DoCast(me, SPELL_BLACK_HOLE_CREDIT, true);
-            DoCast(me, RAID_MODE(SPELL_BLACK_HOLE_EXPLOSION_10, SPELL_BLACK_HOLE_EXPLOSION_25), true);
+            if (damage >= me->GetHealth())
+            {
+                DoCast(me, SPELL_BLACK_HOLE_CREDIT, true);
+                DoCast(me, RAID_MODE<uint32>(SPELL_BLACK_HOLE_EXPLOSION_10, SPELL_BLACK_HOLE_EXPLOSION_25), true);
+            }
         }
 
         void UpdateAI(uint32 const diff)
