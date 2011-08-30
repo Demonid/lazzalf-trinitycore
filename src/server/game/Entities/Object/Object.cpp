@@ -1582,7 +1582,7 @@ bool Position::HasInArc(float arc, const Position *obj) const
 
 bool WorldObject::IsInBetween(const WorldObject *obj1, const WorldObject *obj2, float size) const
 {
-   if (GetMapId() != 618 && GetMapId() != 617)
+   if (/*GetMapId() != 618 &&*/ GetMapId() != 617)
    {   
        // Trinity standard
        if (GetPositionX() > std::max(obj1->GetPositionX(), obj2->GetPositionX())
