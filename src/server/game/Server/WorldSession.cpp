@@ -150,6 +150,12 @@ char const *WorldSession::GetPlayerName() const
     return GetPlayer() ? GetPlayer()->GetName() : "<none>";
 }
 
+/// Get player guid if available. Use for logging purposes only
+uint32 WorldSession::GetGuidLow() const
+{
+    return GetPlayer() ? GetPlayer()->GetGUIDLow() : 0;
+}
+
 /// Send a packet to the client
 void WorldSession::SendPacket(WorldPacket const *packet)
 {
@@ -331,10 +337,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         delete packet;
     }
 
-    ProcessQueryCallbacks();
-
     if (m_Socket && !m_Socket->IsClosed() && m_Warden)
         m_Warden->Update();
+
+    ProcessQueryCallbacks();    
 
     //check if we are safe to proceed with logout
     //logout procedure should happen only in World::UpdateSessions() method!!!
@@ -344,6 +350,9 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         ///- If necessary, log the player out
         if (ShouldLogOut(currTime) && !m_playerLoading)
             LogoutPlayer(true);
+
+        if (m_Socket && GetPlayer() && m_Warden)
+            m_Warden->Update();
 
         ///- Cleanup socket pointer if need
         if (m_Socket && m_Socket->IsClosed())
@@ -1099,11 +1108,15 @@ void WorldSession::ProcessQueryCallbacks()
 
 void WorldSession::InitWarden(BigNumber *K, std::string os)
 {
-    if (os == "niW")                                        // Windows
+    if (os == "Win")                                        // Windows
+    {
         m_Warden = (WardenBase*)new WardenWin();
-    else                                                    // MacOS
-        m_Warden = NULL; //(WardenBase*)new WardenMac();
-
-    if (m_Warden)
         m_Warden->Init(this, K);
+    }
+    else if (os == "OSX")                                   // MacOS
+    {
+        m_Warden = NULL; 
+        // m_Warden = (WardenBase*)new WardenMac();
+        // m_Warden->Init(this, K);
+    }        
 }

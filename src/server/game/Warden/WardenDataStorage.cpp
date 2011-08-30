@@ -20,35 +20,71 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Log.h"
-#include "Database/DatabaseEnv.h"
+#include "Opcodes.h"
+#include "ByteBuffer.h"
+#include <openssl/md5.h>
+#include "World.h"
+#include "Player.h"
 #include "Util.h"
 #include "WardenDataStorage.h"
 #include "WardenWin.h"
 
-CWardenDataStorage::CWardenDataStorage()
+WardenCheckMgr::WardenCheckMgr()
 {
     InternalDataID = 1;
 }
 
-CWardenDataStorage::~CWardenDataStorage()
+WardenCheckMgr::~WardenCheckMgr()
 {
-    std::map<uint32, WardenData*>::iterator itr1 = _data_map.begin();
-    for (; itr1 != _data_map.end(); ++itr1)
-        delete itr1->second;
+    //std::map<uint32, WardenCheck*>::iterator itr1 = CheckStore.begin();
+    //for (; itr1 != CheckStore.end(); ++itr1)
+    //    delete itr1->second;
+    for (uint32 i = 0; i < CheckStore.size(); ++i)
+        delete CheckStore[i];
 
-    std::map<uint32, WardenDataResult*>::iterator itr2 = _result_map.begin();
-    for (; itr2 != _result_map.end(); ++itr2)
+    std::map<uint32, WardenCheckResult*>::iterator itr2 = CheckResultStore.begin();
+    for (; itr2 != CheckResultStore.end(); ++itr2)
         delete itr2->second;
 }
 
-void CWardenDataStorage::Init()
+void WardenCheckMgr::LoadWardenChecks()
 {
-    LoadWardenDataResult();
+    LoadWardenCheckResult();
 }
 
-void CWardenDataStorage::LoadWardenDataResult()
+void WardenCheckMgr::LoadWardenCheckResult()
 {
-    QueryResult result = WorldDatabase.Query("SELECT `check`, `data`, `result`, `address`, `length`, `str` FROM warden_data_result");
+    // Check if Warden is enabled by config before loading anything
+    if (!sWorld->getBoolConfig(CONFIG_BOOL_WARDEN_ENABLED))
+    {
+        sLog->outString(">> Warden disabled, loading checks skipped.");
+        sLog->outString();
+        return;
+    }
+
+    // For reload case
+    for (uint32 i = 0; i < CheckStore.size(); ++i)
+        delete CheckStore[i];
+    CheckStore.clear();
+
+    for (CheckResultContainer::iterator itr = CheckResultStore.begin(); itr != CheckResultStore.end(); ++itr)
+        delete itr->second;
+    CheckResultStore.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT COUNT(*) FROM warden_data_result");
+
+    if (!result)
+    {
+        sLog->outString(">> Loaded 0 Warden checks. DB table `warden_checks` is empty!");
+        sLog->outString();
+        return;
+    }
+
+    Field* fields = result->Fetch();
+
+    CheckStore.resize(fields[0].GetUInt32() + 1);
+
+    result = WorldDatabase.Query("SELECT `check`, `data`, `result`, `address`, `length`, `str` FROM warden_data_result");
 
     uint32 count = 0;
 
@@ -68,7 +104,7 @@ void CWardenDataStorage::LoadWardenDataResult()
         uint8 type = fields[0].GetUInt8();
 
         uint32 id = GenerateInternalDataID();
-        WardenData *wd = new WardenData();
+        WardenCheck *wd = new WardenCheck();
         wd->Type = type;
 
         if (type == PAGE_CHECK_A || type == PAGE_CHECK_B || type == DRIVER_CHECK)
@@ -99,12 +135,12 @@ void CWardenDataStorage::LoadWardenDataResult()
         if (type == MEM_CHECK || type == MPQ_CHECK || type == LUA_STR_CHECK || type == DRIVER_CHECK || type == MODULE_CHECK)
             wd->str = fields[5].GetString();
 
-        _data_map[id] = wd;
+        CheckStore[id] = wd;
 
         if (type == MPQ_CHECK || type == MEM_CHECK)
         {
             std::string result = fields[2].GetString();
-            WardenDataResult *wr = new WardenDataResult();
+            WardenCheckResult *wr = new WardenCheckResult();
             wr->res.SetHexStr(result.c_str());
             int len = result.size() / 2;
             if (wr->res.GetNumBytes() < len)
@@ -116,7 +152,7 @@ void CWardenDataStorage::LoadWardenDataResult()
                 wr->res.SetBinary((uint8*)temp, len);
                 delete [] temp;
             }
-            _result_map[id] = wr;
+            CheckResultStore[id] = wr;
         }
     } while (result->NextRow());
 
@@ -124,18 +160,18 @@ void CWardenDataStorage::LoadWardenDataResult()
     sLog->outString(">> Loaded %u warden data and results", count);
 }
 
-WardenData *CWardenDataStorage::GetWardenDataById(uint32 Id)
+WardenCheck *WardenCheckMgr::GetWardenDataById(uint32 Id)
 {
-    std::map<uint32, WardenData*>::const_iterator itr = _data_map.find(Id);
-    if (itr != _data_map.end())
-        return itr->second;
+    if (Id < CheckStore.size())
+        return CheckStore[Id];
+
     return NULL;
 }
 
-WardenDataResult *CWardenDataStorage::GetWardenResultById(uint32 Id)
+WardenCheckResult *WardenCheckMgr::GetWardenResultById(uint32 Id)
 {
-    std::map<uint32, WardenDataResult*>::const_iterator itr = _result_map.find(Id);
-    if (itr != _result_map.end())
+    CheckResultContainer::const_iterator itr = CheckResultStore.find(Id);
+    if (itr != CheckResultStore.end())
         return itr->second;
     return NULL;
 }

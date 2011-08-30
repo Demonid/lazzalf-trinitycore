@@ -35,8 +35,6 @@
 #include "WardenDataStorage.h"
 #include "AntiCheat.h"
 
-CWardenDataStorage WardenDataStorage;
-
 WardenWin::WardenWin()
 {
 }
@@ -200,15 +198,15 @@ void WardenWin::RequestData()
     sLog->outStaticDebug("Request data");
 
     if (MemCheck.empty())
-        MemCheck.assign(WardenDataStorage.MemCheckIds.begin(), WardenDataStorage.MemCheckIds.end());
+        MemCheck.assign(sWardenCheckMgr->MemCheckIds.begin(), sWardenCheckMgr->MemCheckIds.end());
 
     ServerTicks = getMSTime();
 
-    uint32 maxid = WardenDataStorage.InternalDataID;
+    uint32 maxid = sWardenCheckMgr->InternalDataID;
 
     uint32 id;
     uint8 type;
-    WardenData *wd = NULL;
+    WardenCheck *wd = NULL;
 
     SendDataId.clear();
 
@@ -227,7 +225,7 @@ void WardenWin::RequestData()
     for (int i = 0; i < 5; ++i)                             // for now include 5 random checks
     {
         id = irand(1, maxid - 1);
-        wd = WardenDataStorage.GetWardenDataById(id);
+        wd = sWardenCheckMgr->GetWardenDataById(id);
         if (!wd)
             continue;
         SendDataId.push_back(id);
@@ -253,7 +251,7 @@ void WardenWin::RequestData()
 
     for (std::vector<uint32>::iterator itr = SendDataId.begin(); itr != SendDataId.end(); ++itr)
     {
-        wd = WardenDataStorage.GetWardenDataById(*itr);
+        wd = sWardenCheckMgr->GetWardenDataById(*itr);
 
         if (!wd)
             continue;
@@ -376,14 +374,14 @@ void WardenWin::HandleData(ByteBuffer &buff)
         sLog->outStaticDebug("Ticks diff %u", ourTicks - newClientTicks);
     }
 
-    WardenDataResult *rs;
-    WardenData *rd;
+    WardenCheckResult *rs;
+    WardenCheck *rd;
     uint8 type;
 
     for (std::vector<uint32>::iterator itr = SendDataId.begin(); itr != SendDataId.end(); ++itr)
     {
-        rd = WardenDataStorage.GetWardenDataById(*itr);
-        rs = WardenDataStorage.GetWardenResultById(*itr);
+        rd = sWardenCheckMgr->GetWardenDataById(*itr);
+        rs = sWardenCheckMgr->GetWardenResultById(*itr);
 
         type = rd->Type;
         switch (type)
