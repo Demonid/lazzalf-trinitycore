@@ -276,7 +276,7 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* target, const SpellEntry* spell)
+        void SpellHitTarget(Unit* target, SpellEntry const* spell)
         {
             if (spell->Id == SPELL_PHASE_PUNCH)
             {
@@ -413,7 +413,8 @@ public:
                     switch (step)
                     {
                         case 1:
-                            me->SummonGameObject(GO_GIFT_OF_THE_OBSERVER, 1634.258667f, -295.101166f, 417.321381f, 0, 0, 0, 0, 0, 0);
+                            me->SummonGameObject(RAID_MODE(GO_GIFT_OF_THE_OBSERVER_10, GO_GIFT_OF_THE_OBSERVER_25), 1634.258667f, -295.101166f,
+                                    417.321381f, 0, 0, 0, 0, 0, 0);
                             _JustDied();
                             DoScriptText(SAY_DEATH_1, me);
                             JumpToNextStep(40000);
