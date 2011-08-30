@@ -37,6 +37,10 @@ BattlegroundRV::BattlegroundRV()
     m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_ARENA_THIRTY_SECONDS;
     m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
     m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_HAS_BEGUN;
+
+    fencesopened = false;
+    pillarsopened = false;
+    pillarshelpfunction = true;
 }
 
 BattlegroundRV::~BattlegroundRV()
@@ -46,40 +50,77 @@ BattlegroundRV::~BattlegroundRV()
 
 void BattlegroundRV::PostUpdateImpl(uint32 diff)
 {
+    if (!fencesopened)
+    {
+        if (fencestimer < diff)
+            fencesopened = true;
+        else
+            fencestimer -= diff;
+    }
+    if (pillartimer < diff)
+    {
+        if (!pillarshelpfunction)
+            pillarsopened = true;
+        else
+            pillarsopened = false;
+    }
+    else
+        pillartimer -= diff;
+
+    if (teleporttimer < diff)      
+    {
+        for(BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)   
+        {
+            Player * plr = ObjectAccessor::FindPlayer(itr->first);     
+            if (plr && plr->GetPositionZ() < 27)  
+                plr->TeleportTo(618, plr->GetPositionX(), plr->GetPositionY(), 28.2f, plr->GetOrientation());     
+            if (plr && plr->GetPositionZ() < 27)  
+                plr->TeleportTo(618, plr->GetPositionX(), plr->GetPositionY(), 28.2f, plr->GetOrientation());     
+        }
+        teleporttimer = 10;
+    }     
+    else
+        teleporttimer -= diff;
+
     if (getTimer() < diff)
     {
-        switch (getState())
-        {
-            case BG_RV_STATE_OPEN_FENCES:
-                setTimer(BG_RV_PILAR_TO_FIRE_TIMER);
-                setState(BG_RV_STATE_CLOSE_FIRE);
-                break;
-            case BG_RV_STATE_CLOSE_FIRE:
-                for (uint8 i = BG_RV_OBJECT_FIRE_1; i <= BG_RV_OBJECT_FIREDOOR_2; ++i)
-                    DoorClose(i);
-                setTimer(BG_RV_FIRE_TO_PILAR_TIMER);
-                setState(BG_RV_STATE_OPEN_PILARS);
-                break;
-            case BG_RV_STATE_OPEN_PILARS:
-                for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
-                    DoorOpen(i);
-                setTimer(BG_RV_PILAR_TO_FIRE_TIMER);
-                setState(BG_RV_STATE_OPEN_FIRE);
-                break;
-            case BG_RV_STATE_OPEN_FIRE:
-                // FIXME: after 3.2.0 it's only decorative and should be opened only one time at battle start
-                for (uint8 i = BG_RV_OBJECT_FIRE_1; i <= BG_RV_OBJECT_FIREDOOR_2; ++i)
-                    DoorOpen(i);
-                setTimer(BG_RV_FIRE_TO_PILAR_TIMER);
-                setState(BG_RV_STATE_CLOSE_PILARS);
-                break;
-            case BG_RV_STATE_CLOSE_PILARS:
-                for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
-                    DoorOpen(i);
-                setTimer(BG_RV_PILAR_TO_FIRE_TIMER);
-                setState(BG_RV_STATE_CLOSE_FIRE);
-                break;
-        }
+        if (GetBgMap(false))
+            switch (getState())
+            {
+                case BG_RV_STATE_OPEN_FENCES:
+                    setTimer(BG_RV_PILAR_TO_FIRE_TIMER);
+                    setState(BG_RV_STATE_CLOSE_FIRE);
+                    break;
+                case BG_RV_STATE_CLOSE_FIRE:
+                    for (uint8 i = BG_RV_OBJECT_FIRE_1; i <= BG_RV_OBJECT_FIREDOOR_2; ++i)
+                        DoorClose(i);
+                    setTimer(BG_RV_FIRE_TO_PILAR_TIMER);
+                    setState(BG_RV_STATE_OPEN_PILARS);
+                    break;
+                case BG_RV_STATE_OPEN_PILARS:
+                    for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
+                        DoorOpen(i);
+                    pillarshelpfunction = false;
+                    pillartimer = 2000;
+                    setTimer(BG_RV_PILAR_TO_FIRE_TIMER);
+                    setState(BG_RV_STATE_OPEN_FIRE);
+                    break;
+                case BG_RV_STATE_OPEN_FIRE:
+                    // FIXME: after 3.2.0 it's only decorative and should be opened only one time at battle start
+                    for (uint8 i = BG_RV_OBJECT_FIRE_1; i <= BG_RV_OBJECT_FIREDOOR_2; ++i)
+                        DoorOpen(i);
+                    setTimer(BG_RV_FIRE_TO_PILAR_TIMER);
+                    setState(BG_RV_STATE_CLOSE_PILARS);
+                    break;
+                case BG_RV_STATE_CLOSE_PILARS:
+                    for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
+                        DoorOpen(i);
+                    pillarshelpfunction = true;
+                    pillartimer = 2000;
+                    setTimer(BG_RV_PILAR_TO_FIRE_TIMER);
+                    setState(BG_RV_STATE_CLOSE_FIRE);
+                    break;
+            }
     }
     else
         setTimer(getTimer() - diff);
@@ -91,6 +132,11 @@ void BattlegroundRV::StartingEventCloseDoors()
 
 void BattlegroundRV::StartingEventOpenDoors()
 {
+    fencestimer = 20000;
+    pillartimer = 2000;
+    teleporttimer = 20000;
+    pillarsopened = false;
+
     // Buff respawn
     SpawnBGObject(BG_RV_OBJECT_BUFF_1, 90);
     SpawnBGObject(BG_RV_OBJECT_BUFF_2, 90);
@@ -164,8 +210,8 @@ void BattlegroundRV::HandleAreaTrigger(Player *Source, uint32 Trigger)
         case 5474:
             break;
         default:
-            sLog->outError("WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
-            Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
+            //sLog->outError("WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
+            //Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
             break;
     }
 }
@@ -185,6 +231,10 @@ void BattlegroundRV::Reset()
 
 bool BattlegroundRV::SetupBattleground()
 {
+    fencesopened = false;
+    pillarsopened = false;
+    pillarshelpfunction = true;
+
     // elevators
     if (!AddObject(BG_RV_OBJECT_ELEVATOR_1, BG_RV_OBJECT_TYPE_ELEVATOR_1, 763.536377f, -294.535767f, 0.505383f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_RV_OBJECT_ELEVATOR_2, BG_RV_OBJECT_TYPE_ELEVATOR_2, 763.506348f, -273.873352f, 0.505383f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
@@ -206,7 +256,13 @@ bool BattlegroundRV::SetupBattleground()
         || !AddObject(BG_RV_OBJECT_PILAR_1, BG_RV_OBJECT_TYPE_PILAR_1, 763.632385f, -306.162384f, 25.909504f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_RV_OBJECT_PILAR_2, BG_RV_OBJECT_TYPE_PILAR_2, 723.644287f, -284.493256f, 24.648525f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_RV_OBJECT_PILAR_3, BG_RV_OBJECT_TYPE_PILAR_3, 763.611145f, -261.856750f, 25.909504f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_RV_OBJECT_PILAR_4, BG_RV_OBJECT_TYPE_PILAR_4, 802.211609f, -284.493256f, 24.648525f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
+        || !AddObject(BG_RV_OBJECT_PILAR_4, BG_RV_OBJECT_TYPE_PILAR_4, 802.211609f, -284.493256f, 24.648525f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY))
+        {
+            sLog->outErrorDb("BatteGroundRV: Failed to spawn some object!");
+            return false;
+        }
+        
+        //|| !AddObject(BG_RV_OBJECT_PILAR_4, BG_RV_OBJECT_TYPE_PILAR_4, 802.211609f, -284.493256f, 24.648525f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
 /*
     // Pilars Collision - Fixme: Use the collision pilars - should make u break LoS
         || !AddObject(BG_RV_OBJECT_PILAR_COLLISION_1, BG_RV_OBJECT_TYPE_PILAR_COLLISION_1, 763.632385f, -306.162384f, 30.639660f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
@@ -214,10 +270,10 @@ bool BattlegroundRV::SetupBattleground()
         || !AddObject(BG_RV_OBJECT_PILAR_COLLISION_3, BG_RV_OBJECT_TYPE_PILAR_COLLISION_3, 763.611145f, -261.856750f, 30.639660f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_RV_OBJECT_PILAR_COLLISION_4, BG_RV_OBJECT_TYPE_PILAR_COLLISION_4, 802.211609f, -284.493256f, 32.382710f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
 */
-)
+/*)
     {
         sLog->outErrorDb("BatteGroundRV: Failed to spawn some object!");
         return false;
-    }
+    }*/
     return true;
 }
