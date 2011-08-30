@@ -2932,8 +2932,8 @@ void SpellMgr::LoadDbcDataCorrections()
             case 42835: // Spout
                 spellInfo->Effect[0] = 0; // remove damage effect, only anim is needed
                 break;
-            case 62311: 
-            case 64596:
+            case 62311: // Algalon - Cosmic Smash
+            case 64596: // Algalon - Cosmic Smash
                 spellInfo->rangeIndex = 13;
                 break;
             case 30657: // Quake
