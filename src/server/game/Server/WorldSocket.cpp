@@ -1004,7 +1004,10 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     m_Session->LoadGlobalAccountData();
     m_Session->LoadTutorialsData();
     m_Session->ReadAddonsInfo(recvPacket);
-    m_Session->InitWarden(&K, os);
+
+    // Initialize Warden system only if it is enabled by config
+    if (sWorld->getBoolConfig(CONFIG_BOOL_WARDEN_ENABLED))
+        m_Session->InitWarden(&K, os);
 
     // Sleep this Network thread for
     uint32 sleepTime = sWorld->getIntConfig(CONFIG_SESSION_ADD_DELAY);

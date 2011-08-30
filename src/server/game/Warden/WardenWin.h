@@ -23,6 +23,7 @@
 #include <map>
 #include "BigNumber.h"
 #include "ByteBuffer.h"
+#include "WardenBase.h"
 
 enum WardenCheckType
 {
@@ -80,7 +81,6 @@ struct WardenInitModuleRequest
 #endif
 
 class WorldSession;
-class WardenBase;
 
 class WardenWin : WardenBase
 {

@@ -29,7 +29,8 @@
 #include "DatabaseEnv.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "WardenBase.h"
+#include "Cryptography/BigNumber.h"
+// #include "WardenBase.h"
 #include "Timer.h"
 
 struct ItemTemplate;
@@ -48,6 +49,7 @@ class WorldPacket;
 class WorldSocket;
 class LoginQueryHolder;
 class SpellCastTargets;
+class WardenBase;
 struct AreaTableEntry;
 struct LfgJoinResultData;
 struct LfgLockStatus;
@@ -248,6 +250,7 @@ class WorldSession
         uint32 GetAccountId() const { return _accountId; }
         Player* GetPlayer() const { return _player; }
         char const* GetPlayerName() const;
+        uint32 GetGuidLow() const;
         void SetSecurity(AccountTypes security) { _security = security; }
         std::string const& GetRemoteAddress() { return m_Address; }
         void SetPlayer(Player *plr);

@@ -23,9 +23,9 @@
 #include <map>
 #include "BigNumber.h"
 #include "ByteBuffer.h"
+#include "WardenBase.h"
 
 class WorldSession;
-class WardenBase;
 
 class WardenMac : WardenBase
 {

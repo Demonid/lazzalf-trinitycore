@@ -574,9 +574,12 @@ void World::LoadConfigSettings(bool reload)
     }
     
     // Warden
-    m_bool_configs[CONFIG_BOOL_WARDEN_KICK] = sConfig->GetBoolDefault("Warden.Kick", false);
-    m_int_configs[CONFIG_INT_WARDEN_BANDAY]         = sConfig->GetIntDefault("Warden.BanDay", 0);
-
+    m_bool_configs[CONFIG_BOOL_WARDEN_ENABLED]         = sConfig->GetBoolDefault("Warden.Enable", true);
+    m_bool_configs[CONFIG_BOOL_WARDEN_KICK]            = sConfig->GetBoolDefault("Warden.Kick", false);    
+    m_int_configs[CONFIG_INT_WARDEN_BANDAY]            = sConfig->GetIntDefault("Warden.BanDay", 0);
+    m_int_configs[CONFIG_WARDEN_CLIENT_CHECK_PERIOD]   = sConfig->GetIntDefault("Warden.ClientCheckPeriod", 30);
+    m_int_configs[CONFIG_WARDEN_CLIENT_RESPONSE_DELAY] = sConfig->GetIntDefault("Warden.ClientResponseDelay", 90);
+    
     // movement anticheat
     m_bool_configs[CONFIG_AC_ENABLE]                       = sConfig->GetBoolDefault("Anticheat.Movement.Enable", true);
     m_bool_configs[CONFIG_AC_ENABLE_DBLOG]                 = sConfig->GetBoolDefault("Anticheat.EnableDBLog", true);        
@@ -1939,7 +1942,7 @@ void World::SetInitialWorldSettings()
     m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
 
     sLog->outString("Loading Warden Data..." );
-    WardenDataStorage.Init();
+    sWardenCheckMgr->LoadWardenChecks();
 
     // Delete all characters which have been deleted X days before
     Player::DeleteOldCharacters();

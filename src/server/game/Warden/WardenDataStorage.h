@@ -22,7 +22,7 @@
 #include <map>
 #include "BigNumber.h"
 
-struct WardenData
+struct WardenCheck
 {
     uint8 Type;
     BigNumber i;
@@ -31,32 +31,39 @@ struct WardenData
     std::string str;                                        // LUA, MPQ, DRIVER
 };
 
-struct WardenDataResult
+struct WardenCheckResult
 {
     BigNumber res;                                          // MEM_CHECK
 };
 
-class CWardenDataStorage
+class WardenCheckMgr
 {
-    public:
-        CWardenDataStorage();
-        ~CWardenDataStorage();
+        friend class ACE_Singleton<WardenCheckMgr, ACE_Null_Mutex>;
+
+    public:        
+        WardenCheckMgr();
+        ~WardenCheckMgr();
         uint32 InternalDataID;
         std::vector<uint32> MemCheckIds;
 
     private:
-        std::map<uint32, WardenData*> _data_map;
-        std::map<uint32, WardenDataResult*> _result_map;
+        // We have a linear key without any gaps, so we use vector for fast access
+        typedef std::vector<WardenCheck*> CheckContainer;
+        typedef std::map<uint32, WardenCheckResult*> CheckResultContainer;
+
+        CheckContainer CheckStore;
+        CheckResultContainer CheckResultStore;
 
     public:
         inline uint32 GenerateInternalDataID() { return InternalDataID++; }
-        WardenData *GetWardenDataById(uint32 Id);
-        WardenDataResult *GetWardenResultById(uint32 Id);
-        void Init();
+        WardenCheck *GetWardenDataById(uint32 Id);
+        WardenCheckResult *GetWardenResultById(uint32 Id);
+        void LoadWardenChecks();
 
     protected:
-        void LoadWardenDataResult();
+        void LoadWardenCheckResult();
 };
 
-extern CWardenDataStorage WardenDataStorage;
+#define sWardenCheckMgr ACE_Singleton<WardenCheckMgr, ACE_Null_Mutex>::instance()
+
 #endif

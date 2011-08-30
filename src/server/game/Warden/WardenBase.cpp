@@ -133,12 +133,22 @@ void WardenBase::Update()
         m_WardenTimer = ticks;
 
         if (m_WardenDataSent)
-        {
+        { 
+            uint32 maxClientResponseDelay = sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_RESPONSE_DELAY);
             // 3 minutes after send packet
-            if ((m_WardenKickTimer > 180 * IN_MILLISECONDS) && sWorld->getBoolConfig(CONFIG_BOOL_WARDEN_KICK))
+            if (maxClientResponseDelay > 0)
+            {
+                if ((m_WardenKickTimer > maxClientResponseDelay * IN_MILLISECONDS))
+                {
+                    sLog->outWarden("WARDEN: Player %s (guid: %u, account: %u) exceeded Warden module response delay (Latency: %u, IP: %s)",
+                                    Client->GetPlayerName(), Client->GetGuidLow(), Client->GetAccountId(), Client->GetLatency(),
+                                    Client->GetRemoteAddress().c_str());
+
                     Client->KickPlayer();
-            else
-                m_WardenKickTimer += diff;
+                }
+                else
+                    m_WardenKickTimer += diff;
+            }
         }
         else if (m_WardenCheckTimer > 0)
         {
@@ -146,7 +156,8 @@ void WardenBase::Update()
             {
                 RequestData();
                 // 25-35 second
-                m_WardenCheckTimer = irand(25, 35) * IN_MILLISECONDS;
+                uint32 period = sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_CHECK_PERIOD);
+                m_WardenCheckTimer = irand(period - 5, period + 5) * IN_MILLISECONDS;
             }
             else
                 m_WardenCheckTimer -= diff;

@@ -2645,16 +2645,32 @@ ArenaMod.TimeToReset = 24
 #     WardenLogFile = "warden.log"
 #        Warden log file
 #
+#     Warden.Enable = 1
+#        Enable 1 or Disable 0 Warden
+#
 #     Warden.Kick = 1
 #        Enable 1 or Disable 0 kick player if no answer\timeout\failed cheacks
 #
 #     Warden.BanDay = 3
 #        Number od days for ban player's account if cheack failed
 #        0 - Disable ban
+#
+#    Warden.ClientCheckPeriod
+#        Description: Time (in seconds) +/- 5 seconds between sending check requests to the client.
+#                     A low number increases traffic and load on client and server side.
+#        Default:     30 - (25-35 seconds)
+#
+#    Warden.ClientResponseDelay
+#        Description: Time (in seconds) before client is getting disconnecting for not responding.
+#        Default:     90 - (90 Seconds)
+#                      0 - (Disabled, client won't be kicked)
 
 WardenLogFile = "warden.log"
+Warden.Enable = 1
 Warden.Kick = 1
 Warden.BanDay = 3
+Warden.ClientCheckPeriod = 30
+Warden.ClientResponseDelay = 90
 
 #
 ###################################################################################################
