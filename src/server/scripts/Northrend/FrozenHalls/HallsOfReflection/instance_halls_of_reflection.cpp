@@ -31,6 +31,14 @@ EndScriptData */
 #include "halls_of_reflection.h"
 #include "World.h"
 
+enum PhaseControl
+{
+    HORDE_CONTROL_PHASE_SHIFT_1    = 55773,
+    HORDE_CONTROL_PHASE_SHIFT_2    = 60028,
+    ALLIANCE_CONTROL_PHASE_SHIFT_1 = 55774,
+    ALLIANCE_CONTROL_PHASE_SHIFT_2 = 60027,
+};
+
 class instance_halls_of_reflection : public InstanceMapScript
 {
 public:
@@ -95,16 +103,18 @@ public:
 
         void OpenDoor(uint64 guid)
         {
-            if(!guid) return;
-            GameObject* go = instance->GetGameObject(guid);
-            if(go) go->SetGoState(GO_STATE_ACTIVE);
+            if (!guid) 
+                return;
+            if (GameObject* go = instance->GetGameObject(guid))
+                go->SetGoState(GO_STATE_ACTIVE);
         }
 
         void CloseDoor(uint64 guid)
         {
-            if(!guid) return;
-            GameObject* go = instance->GetGameObject(guid);
-            if(go) go->SetGoState(GO_STATE_READY);
+            if (!guid) 
+                return;
+            if (GameObject* go = instance->GetGameObject(guid)) 
+                go->SetGoState(GO_STATE_READY);
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -117,32 +127,30 @@ public:
             switch(creature->GetEntry())
             {
                 case NPC_FALRIC: 
-                       m_uiFalricGUID = creature->GetGUID(); 
-                       break;
+                    m_uiFalricGUID = creature->GetGUID(); 
+                    break;
                 case NPC_MARWYN: 
-                       m_uiMarwynGUID = creature->GetGUID();  
-                       break;
+                    m_uiMarwynGUID = creature->GetGUID();  
+                    break;
                 case BOSS_LICH_KING: 
-                       m_uiLichKingGUID = creature->GetGUID();
-                       break;
+                    m_uiLichKingGUID = creature->GetGUID();
+                    break;
                 case NPC_FROST_GENERAL:
-                       m_uiFrostGeneralGUID = creature->GetGUID();
-                       break;
+                    m_uiFrostGeneralGUID = creature->GetGUID();
+                    break;
+                //case NPC_JAINA:
+                //    if (m_uiTeamInInstance == HORDE)
+                //        creature->UpdateEntry(NPC_SYLVANA, HORDE);
+                //    break;
+                default:
+                    break;
             }
         }
 
         void OnPlayerEnter(Player *pPlayer)
-        {
-
-        enum PhaseControl
-        {
-            HORDE_CONTROL_PHASE_SHIFT_1    = 55773,
-            HORDE_CONTROL_PHASE_SHIFT_2    = 60028,
-            ALLIANCE_CONTROL_PHASE_SHIFT_1 = 55774,
-            ALLIANCE_CONTROL_PHASE_SHIFT_2 = 60027,
-        };
-        
-         if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP)) return;
+        { 
+            if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP)) 
+                return;
 
             switch (pPlayer->GetTeam())
             {
@@ -157,35 +165,46 @@ public:
                       pPlayer->CastSpell(pPlayer, ALLIANCE_CONTROL_PHASE_SHIFT_2, false);
                       break;
             };
-
         };
 
         void OnGameObjectCreate(GameObject* go)
         {
             switch(go->GetEntry())
             {
-                case GO_IMPENETRABLE_DOOR: m_uiMainGateGUID = go->GetGUID(); break;
-                case GO_FROSTMOURNE: m_uiFrostmourneGUID = go->GetGUID(); break;
-                case GO_ICECROWN_DOOR:     m_uiExitGateGUID = go->GetGUID(); break;
-                case GO_ICECROWN_DOOR_2:   m_uiDoor2GUID = go->GetGUID(); break;
-                case GO_ICECROWN_DOOR_3:   m_uiDoor3GUID = go->GetGUID(); break;
-                case GO_PORTAL:            m_uiPortalGUID = go->GetGUID(); break;
+                case GO_IMPENETRABLE_DOOR: 
+                    m_uiMainGateGUID = go->GetGUID(); 
+                    break;
+                case GO_FROSTMOURNE: 
+                    m_uiFrostmourneGUID = go->GetGUID(); 
+                    break;
+                case GO_ICECROWN_DOOR:     
+                    m_uiExitGateGUID = go->GetGUID(); 
+                    break;
+                case GO_ICECROWN_DOOR_2:   
+                    m_uiDoor2GUID = go->GetGUID(); 
+                    break;
+                case GO_ICECROWN_DOOR_3:   
+                    m_uiDoor3GUID = go->GetGUID(); 
+                    break;
+                case GO_PORTAL:            
+                    m_uiPortalGUID = go->GetGUID(); 
+                    break;
                 case GO_CAPTAIN_CHEST_1:
-                                      if (Difficulty == RAID_DIFFICULTY_10MAN_NORMAL)
-                                      m_uiCaptainsChestHordeGUID = go->GetGUID(); 
-                                      break;
+                    if (Difficulty == RAID_DIFFICULTY_10MAN_NORMAL)
+                        m_uiCaptainsChestHordeGUID = go->GetGUID(); 
+                    break;
                 case GO_CAPTAIN_CHEST_3:
-                                      if (Difficulty == RAID_DIFFICULTY_25MAN_NORMAL)
-                                      m_uiCaptainsChestHordeGUID = go->GetGUID(); 
-                                      break;
+                    if (Difficulty == RAID_DIFFICULTY_25MAN_NORMAL)
+                        m_uiCaptainsChestHordeGUID = go->GetGUID(); 
+                    break;
                 case GO_CAPTAIN_CHEST_2:
-                                      if (Difficulty == RAID_DIFFICULTY_10MAN_NORMAL)
-                                      m_uiCaptainsChestAllianceGUID = go->GetGUID(); 
-                                      break;
+                    if (Difficulty == RAID_DIFFICULTY_10MAN_NORMAL)
+                        m_uiCaptainsChestAllianceGUID = go->GetGUID(); 
+                    break;
                 case GO_CAPTAIN_CHEST_4:
-                                      if (Difficulty == RAID_DIFFICULTY_25MAN_NORMAL)
-                                      m_uiCaptainsChestAllianceGUID = go->GetGUID(); 
-                                      break;
+                    if (Difficulty == RAID_DIFFICULTY_25MAN_NORMAL)
+                        m_uiCaptainsChestAllianceGUID = go->GetGUID(); 
+                    break;
                 case GO_ICE_WALL_1:
                     m_uiIceWall1GUID = go->GetGUID();
                     go->SetGoState(GO_STATE_READY);
@@ -213,59 +232,81 @@ public:
         {
             switch(uiType)
             {
-                case TYPE_PHASE:                m_auiEncounter[uiType] = uiData; break;
-                case TYPE_EVENT:                m_auiEncounter[uiType] = uiData;
-                                                uiData = NOT_STARTED;
+                case TYPE_PHASE:                
+                    m_auiEncounter[uiType] = uiData; 
                     break;
-                case TYPE_FALRIC:               m_auiEncounter[uiType] = uiData;
-                    if(uiData == SPECIAL)
-                                                    CloseDoor(m_uiExitGateGUID);
+                case TYPE_EVENT:                
+                    m_auiEncounter[uiType] = uiData;
+                    uiData = NOT_STARTED;
                     break;
-                case TYPE_MARWYN:               m_auiEncounter[uiType] = uiData;
-                    if(uiData == DONE)
+                case TYPE_FALRIC:               
+                    m_auiEncounter[uiType] = uiData;
+                    if (uiData == SPECIAL)                                                    
+                        CloseDoor(m_uiExitGateGUID);
+                    break;
+                case TYPE_MARWYN:               
+                    m_auiEncounter[uiType] = uiData;
+                    if (uiData == DONE)
                     {
-                                                   OpenDoor(m_uiMainGateGUID);
-                                                   OpenDoor(m_uiExitGateGUID);
+                       OpenDoor(m_uiMainGateGUID);
+                       OpenDoor(m_uiExitGateGUID);
                     }
                     break;
-                case TYPE_FROST_GENERAL:        m_auiEncounter[uiType] = uiData; 
-                                                if(uiData == DONE)
-                                                   OpenDoor(m_uiDoor2GUID);
+                case TYPE_FROST_GENERAL:        
+                    m_auiEncounter[uiType] = uiData; 
+                    if (uiData == DONE)
+                        OpenDoor(m_uiDoor2GUID);
                     break;
-                case TYPE_LICH_KING:            m_auiEncounter[uiType] = uiData;
-                                                if(uiData == IN_PROGRESS)
-                                                   OpenDoor(m_uiDoor3GUID);
-                                                if(uiData == DONE)
-                                                {
-                                                if (m_auiLider == 1)
-                                                {
-                                                if (GameObject* pChest = instance->GetGameObject(m_uiCaptainsChestAllianceGUID))
-                                                    if (pChest && !pChest->isSpawned()) {
-                                                        pChest->SetRespawnTime(DAY);
-                                                    };
-                                                } else
-                                                if (GameObject* pChest = instance->GetGameObject(m_uiCaptainsChestHordeGUID))
-                                                    if (pChest && !pChest->isSpawned()) {
-                                                        pChest->SetRespawnTime(DAY);
-                                                    };
-                                                if (GameObject* pPortal = instance->GetGameObject(m_uiPortalGUID))
-                                                    if (pPortal && !pPortal->isSpawned()) {
-                                                        pPortal->SetRespawnTime(DAY);
-                                                    };
-                                                }
+                case TYPE_LICH_KING:            
+                    m_auiEncounter[uiType] = uiData;
+                    if (uiData == IN_PROGRESS)
+                       OpenDoor(m_uiDoor3GUID);
+                    if (uiData == DONE)
+                    {
+                        if (m_auiLider == 1) //Alliance
+                        {
+                            if (GameObject* pChest = instance->GetGameObject(m_uiCaptainsChestAllianceGUID))
+                                if (pChest && !pChest->isSpawned())
+                                    pChest->SetRespawnTime(DAY);
+                        } 
+                        else if (GameObject* pChest = instance->GetGameObject(m_uiCaptainsChestHordeGUID))
+                        {                        
+                            if (pChest && !pChest->isSpawned())
+                                pChest->SetRespawnTime(DAY);
+                        }
+
+                        if (GameObject* pPortal = instance->GetGameObject(m_uiPortalGUID))
+                            if (pPortal && !pPortal->isSpawned())
+                                pPortal->SetRespawnTime(DAY);
+                    }
                     break;
-                case TYPE_ICE_WALL_01:          m_auiEncounter[uiType] = uiData; break;
-                case TYPE_ICE_WALL_02:          m_auiEncounter[uiType] = uiData; break;
-                case TYPE_ICE_WALL_03:          m_auiEncounter[uiType] = uiData; break;
-                case TYPE_ICE_WALL_04:          m_auiEncounter[uiType] = uiData; break;
-                case TYPE_HALLS:                m_auiEncounter[uiType] = uiData; break;
-                case DATA_LIDER:                m_auiLider = uiData;
-                                                uiData = NOT_STARTED;
+                case TYPE_ICE_WALL_01:          
+                    m_auiEncounter[uiType] = uiData; 
                     break;
-                case DATA_SUMMONS:              if (uiData == 3) m_uiSummons = 0;
-                                                else if (uiData == 1) ++m_uiSummons;
-                                                else if (uiData == 0) --m_uiSummons;
-                                                uiData = NOT_STARTED;
+                case TYPE_ICE_WALL_02:          
+                    m_auiEncounter[uiType] = uiData; 
+                    break;
+                case TYPE_ICE_WALL_03:          
+                    m_auiEncounter[uiType] = uiData; 
+                    break;
+                case TYPE_ICE_WALL_04:          
+                    m_auiEncounter[uiType] = uiData; 
+                    break;
+                case TYPE_HALLS:                
+                    m_auiEncounter[uiType] = uiData; 
+                    break;
+                case DATA_LIDER:                
+                    m_auiLider = uiData;
+                    uiData = NOT_STARTED;
+                    break;
+                case DATA_SUMMONS:              
+                    if (uiData == 3) 
+                        m_uiSummons = 0;
+                    else if (uiData == 1) 
+                        ++m_uiSummons;
+                    else if (uiData == 0) 
+                        --m_uiSummons;
+                    uiData = NOT_STARTED;
                     break;
             }
 

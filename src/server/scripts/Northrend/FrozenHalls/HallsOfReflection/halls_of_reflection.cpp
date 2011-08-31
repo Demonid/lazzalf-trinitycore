@@ -179,10 +179,10 @@ public:
         switch(pCreature->GetEntry())
         {
             case NPC_JAINA:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Леди Джайна, мы готовы к следующей миссии!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Lady Jaina, we are ready for the next mission!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
                 break;
             case NPC_SYLVANA:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Леди Сильвана, мы готовы к следующей миссии!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Lady Sylvanas, we are ready for the next mission!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
                 break;
         }
 
@@ -708,7 +708,7 @@ public:
         if (pCreature->isQuestGiver())
            pPlayer->PrepareQuestMenu( pCreature->GetGUID());
 
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Побежали!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Run!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
         pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
 
@@ -763,7 +763,6 @@ public:
             }
             if (m_pInstance->GetData(TYPE_LICH_KING) == DONE)
                 me->SetVisible(false);
-
         }
 
         void AttackStart(Unit* who)
@@ -808,7 +807,7 @@ public:
                     CastTimer = 1000;
                     HoldTimer = 30000;
                     SetEscortPaused(true);
-                    if (Creature *pWallTarget = me->SummonCreature(NPC_ICE_WALL,me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation(),TEMPSUMMON_MANUAL_DESPAWN,720000))
+                    if (Creature *pWallTarget = me->SummonCreature(NPC_ICE_WALL, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(),TEMPSUMMON_MANUAL_DESPAWN,720000))
                     {
                         m_uipWallTargetGUID = pWallTarget->GetGUID();
                         pWallTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -1060,7 +1059,7 @@ public:
                     break;
                 case 7:
                     if (pLichKing && !pLichKing->HasAura(SPELL_ICE_PRISON))
-                        pLichKing->CastSpell(pLichKing,me->GetEntry() == NPC_JAINA_OUTRO ? SPELL_ICE_PRISON : SPELL_DARK_ARROW,true);
+                        pLichKing->CastSpell(pLichKing, me->GetEntry() == NPC_JAINA_OUTRO ? SPELL_ICE_PRISON : SPELL_DARK_ARROW, true);
 
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                     me->AttackStop();
@@ -1102,7 +1101,7 @@ public:
                 case 11:
                     if (GameObject* pCave = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_CAVE)))
                         pCave->SetGoState(GO_STATE_READY);
-                    me->CastSpell(me, SPELL_SHIELD_DISRUPTION,false);
+                    me->CastSpell(me, SPELL_SHIELD_DISRUPTION, false);
                     me->GetMotionMaster()->MovePoint(0, 5258.911328f,1652.112f,784.295166f);
                     JumpNextStep(10000);
                     break;
