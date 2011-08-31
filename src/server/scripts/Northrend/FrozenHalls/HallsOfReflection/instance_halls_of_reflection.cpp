@@ -149,20 +149,22 @@ public:
 
         void OnPlayerEnter(Player *pPlayer)
         { 
-            if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP)) 
-                return;
+            //if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP)) 
+            //    return;
 
             switch (pPlayer->GetTeam())
             {
                 case ALLIANCE:
                       if (pPlayer && pPlayer->IsInWorld() && pPlayer->HasAura(HORDE_CONTROL_PHASE_SHIFT_1))
                           pPlayer->RemoveAurasDueToSpell(HORDE_CONTROL_PHASE_SHIFT_1);
-                      pPlayer->CastSpell(pPlayer, HORDE_CONTROL_PHASE_SHIFT_2, false);
+                      //pPlayer->CastSpell(pPlayer, HORDE_CONTROL_PHASE_SHIFT_2, false);
+                      pPlayer->CastSpell(pPlayer, HORDE_CONTROL_PHASE_SHIFT_2);
                       break;
                 case HORDE:
                       if (pPlayer && pPlayer->IsInWorld() && pPlayer->HasAura(ALLIANCE_CONTROL_PHASE_SHIFT_1)) 
                           pPlayer->RemoveAurasDueToSpell(ALLIANCE_CONTROL_PHASE_SHIFT_1);
-                      pPlayer->CastSpell(pPlayer, ALLIANCE_CONTROL_PHASE_SHIFT_2, false);
+                      //pPlayer->CastSpell(pPlayer, ALLIANCE_CONTROL_PHASE_SHIFT_2, false);
+                      pPlayer->CastSpell(pPlayer, HORDE_CONTROL_PHASE_SHIFT_2);
                       break;
             };
         };
