@@ -1929,6 +1929,9 @@ void Spell::EffectJump(SpellEffIndex effIndex)
     if (m_caster->isInFlight())
         return;
 
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(1500); //AntiCheat Sleep
+
     float x, y, z;
     if (m_targets.GetUnitTarget())
         m_targets.GetUnitTarget()->GetContactPoint(m_caster, x, y, z, CONTACT_DISTANCE);
@@ -1949,6 +1952,9 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
 {
     if (m_caster->isInFlight())
         return;
+
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(1500); //AntiCheat Sleep
 
     // Init dest coordinates
     float x, y, z;
@@ -6265,7 +6271,7 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
         return;
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(5000); //AntiCheat Sleep
+        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(3000); //AntiCheat Sleep
 
     //float x, y, z;
     //target->GetContactPoint(m_caster, x, y, z);
@@ -6287,7 +6293,7 @@ void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
     if (m_targets.HasDst())
     {
         if (m_caster->GetTypeId() == TYPEID_PLAYER)
-            m_caster->ToPlayer()->GetAntiCheat()->SetSleep(5000); //AntiCheat Sleep
+            m_caster->ToPlayer()->GetAntiCheat()->SetSleep(3000); //AntiCheat Sleep
 
         float x, y, z;
         m_targets.GetDst()->GetPosition(x, y, z);
@@ -6353,7 +6359,7 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
 void Spell::EffectLeapBack(SpellEffIndex effIndex)
 {
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(5000); //AntiCheat Sleep
+        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(4000); //AntiCheat Sleep
 
     float speedxy = float(m_spellInfo->Effects[effIndex].MiscValue)/10;
     float speedz = float(damage/10);

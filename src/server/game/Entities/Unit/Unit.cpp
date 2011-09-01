@@ -12855,7 +12855,7 @@ void Unit::SetVisible(bool x)
 void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 {
     if (GetTypeId() == TYPEID_PLAYER)
-        this->ToPlayer()->GetAntiCheat()->SetSleep(5000); //AntiCheat Sleep
+        this->ToPlayer()->GetAntiCheat()->SetSleep(3000); //AntiCheat Sleep
 
     int32 main_speed_mod  = 0;
     float stack_bonus     = 1.0f;
@@ -16993,7 +16993,7 @@ void Unit::UpdateObjectVisibility(bool forced)
 void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
 {
     if (GetTypeId() == TYPEID_PLAYER)
-        this->ToPlayer()->GetAntiCheat()->SetSleep(5000); //AntiCheat Sleep
+        this->ToPlayer()->GetAntiCheat()->SetSleep(4000); //AntiCheat Sleep
 
     Player* player = NULL;
     if (GetTypeId() == TYPEID_PLAYER)
