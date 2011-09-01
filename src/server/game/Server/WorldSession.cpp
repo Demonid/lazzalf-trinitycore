@@ -1108,15 +1108,15 @@ void WorldSession::ProcessQueryCallbacks()
 
 void WorldSession::InitWarden(BigNumber *K, std::string os)
 {
-    if (os == "Win")                                        // Windows
+    if (os == "Win" || os == "niW")                                        // Windows
     {
         m_Warden = (WardenBase*)new WardenWin();
         m_Warden->Init(this, K);
     }
-    else if (os == "OSX")                                   // MacOS
+    else if (os == "OSX" || os == "XSO")                                   // MacOS
     {
         m_Warden = NULL; 
         // m_Warden = (WardenBase*)new WardenMac();
         // m_Warden->Init(this, K);
-    }        
+    }   
 }
