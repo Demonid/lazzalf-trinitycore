@@ -145,6 +145,16 @@ public:
     {
         mob_loatheb_sporeAI(Creature* c) : ScriptedAI(c) {}
 
+        void DamageTaken(Unit* /*attacker*/, uint32 &damage)
+        {
+            if (damage >= me->GetHealth())
+                DoCastAOE(SPELL_FUNGAL_CREEP, true);
+
+            if (Creature* pLoatheb = me->FindNearestCreature(NPC_LOATHEB, 60, true))
+                CAST_AI(boss_loatheb::boss_loathebAI,pLoatheb->AI())->KilledSpore = true;
+        }
+
+        /*
         void JustDied(Unit* killer)
         {
             DoCast(killer, SPELL_FUNGAL_CREEP, true);
@@ -152,6 +162,7 @@ public:
             if (Creature* pLoatheb = me->FindNearestCreature(NPC_LOATHEB, 60, true))
                 CAST_AI(boss_loatheb::boss_loathebAI,pLoatheb->AI())->KilledSpore = true;
         }
+        */
     };
 
 };
