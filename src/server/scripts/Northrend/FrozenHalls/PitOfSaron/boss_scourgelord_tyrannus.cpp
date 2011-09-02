@@ -499,7 +499,7 @@ class spell_tyrannus_icy_blast : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ICY_BLAST_AREA))
+                if (!sSpellMgr->GetSpellInfo(SPELL_ICY_BLAST_AURA))
                     return false;
                 return true;
             }
@@ -509,7 +509,7 @@ class spell_tyrannus_icy_blast : public SpellScriptLoader
                 PreventHitDefaultEffect(effIndex);
                 if (Position const* pos = GetTargetDest())
                     if (TempSummon* summon = GetCaster()->SummonCreature(NPC_ICY_BLAST, *pos, TEMPSUMMON_TIMED_DESPAWN, 40000))
-                        summon->CastSpell(summon, SPELL_ICY_BLAST_AREA, true);
+                        summon->CastSpell(summon, SPELL_ICY_BLAST_AURA, true);
             }
 
             void Register()
