@@ -126,6 +126,7 @@ class BattlegroundRV : public Battleground
         uint32 State;
 
         virtual void PostUpdateImpl(uint32 diff);
+        bool SpawnPilars();
 
     protected:
         uint32 getTimer() { return Timer; };
@@ -136,7 +137,6 @@ class BattlegroundRV : public Battleground
 
         uint32 fencestimer;
         uint32 pillartimer;
-        uint32 teleporttimer;
 
 };
 #endif
