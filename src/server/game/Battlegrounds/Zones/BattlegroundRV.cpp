@@ -52,35 +52,32 @@ void BattlegroundRV::PostUpdateImpl(uint32 diff)
 {
     if (!fencesopened)
     {
-        if (fencestimer < diff)
-            fencesopened = true;
-        else
-            fencestimer -= diff;
-    }
-    if (pillartimer < diff)
-    {
-        if (!pillarshelpfunction)
-            pillarsopened = true;
-        else
-            pillarsopened = false;
-    }
-    else
-        pillartimer -= diff;
-
-    if (teleporttimer < diff)      
-    {
-        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)   
+        if (fencestimer < diff) 
         {
-            Player * plr = ObjectAccessor::FindPlayer(itr->first);     
-            if (plr && plr->GetPositionZ() < 27)  
-                plr->TeleportTo(618, plr->GetPositionX(), plr->GetPositionY(), 28.2f, plr->GetOrientation());     
-            if (plr && plr->GetPositionZ() < 27)  
-                plr->TeleportTo(618, plr->GetPositionX(), plr->GetPositionY(), 28.2f, plr->GetOrientation());     
+            fencesopened = true;
+            // Handle eventual players ignored by the elevators
+            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)  
+            {
+                Player * plr = ObjectAccessor::FindPlayer(itr->first);    
+                if (plr && plr->GetPositionZ() < 27)  
+                    plr->TeleportTo(618, plr->GetPositionX(), plr->GetPositionY(), 28.2f, plr->GetOrientation());    
+            }
         }
-        teleporttimer = 0;
-    }     
-    else
-        teleporttimer -= diff;
+         else
+             fencestimer -= diff;
+    } 
+    else 
+    {
+        if (pillartimer < diff)
+        {
+            if (!pillarshelpfunction)
+                pillarsopened = true;
+            else
+                pillarsopened = false;
+        }
+        else
+            pillartimer -= diff;
+    }
 
     if (getTimer() < diff)
     {
@@ -132,14 +129,16 @@ void BattlegroundRV::StartingEventCloseDoors()
 
 void BattlegroundRV::StartingEventOpenDoors()
 {
+    SpawnPilars();
+
     fencestimer = 20000;
     pillartimer = 2000;
-    teleporttimer = 60000;
     pillarsopened = false;
+    fencesopened = false;
 
     // Buff respawn
-    SpawnBGObject(BG_RV_OBJECT_BUFF_1, 90);
-    SpawnBGObject(BG_RV_OBJECT_BUFF_2, 90);
+    SpawnBGObject(BG_RV_OBJECT_BUFF_1, 60);
+    SpawnBGObject(BG_RV_OBJECT_BUFF_2, 60);
     // Elevators
     DoorOpen(BG_RV_OBJECT_ELEVATOR_1);
     DoorOpen(BG_RV_OBJECT_ELEVATOR_2);
@@ -229,6 +228,20 @@ void BattlegroundRV::Reset()
     Battleground::Reset();
 }
 
+bool BattlegroundRV::SpawnPilars()
+{
+    // Pilars needs to be added later otherwise they won't appear for everyone
+    if (!AddObject(BG_RV_OBJECT_PILAR_1, BG_RV_OBJECT_TYPE_PILAR_1, 763.632385f, -306.162384f, 25.909504f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
+     || !AddObject(BG_RV_OBJECT_PILAR_2, BG_RV_OBJECT_TYPE_PILAR_2, 723.644287f, -284.493256f, 24.648525f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
+     || !AddObject(BG_RV_OBJECT_PILAR_3, BG_RV_OBJECT_TYPE_PILAR_3, 763.611145f, -261.856750f, 25.909504f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
+     || !AddObject(BG_RV_OBJECT_PILAR_4, BG_RV_OBJECT_TYPE_PILAR_4, 802.211609f, -284.493256f, 24.648525f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY))
+    {
+        sLog->outErrorDb("BatteGroundRV: Failed to spawn some object!");
+        return false;
+    }
+    return true;
+}
+
 bool BattlegroundRV::SetupBattleground()
 {
     fencesopened = false;
@@ -253,10 +266,10 @@ bool BattlegroundRV::SetupBattleground()
         || !AddObject(BG_RV_OBJECT_PULLEY_1, BG_RV_OBJECT_TYPE_PULLEY_1, 700.722290f, -283.990662f, 39.517582f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_RV_OBJECT_PULLEY_2, BG_RV_OBJECT_TYPE_PULLEY_2, 826.303833f, -283.996429f, 39.517582f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
     // Pilars
-        || !AddObject(BG_RV_OBJECT_PILAR_1, BG_RV_OBJECT_TYPE_PILAR_1, 763.632385f, -306.162384f, 25.909504f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
+        /*|| !AddObject(BG_RV_OBJECT_PILAR_1, BG_RV_OBJECT_TYPE_PILAR_1, 763.632385f, -306.162384f, 25.909504f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_RV_OBJECT_PILAR_2, BG_RV_OBJECT_TYPE_PILAR_2, 723.644287f, -284.493256f, 24.648525f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_RV_OBJECT_PILAR_3, BG_RV_OBJECT_TYPE_PILAR_3, 763.611145f, -261.856750f, 25.909504f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_RV_OBJECT_PILAR_4, BG_RV_OBJECT_TYPE_PILAR_4, 802.211609f, -284.493256f, 24.648525f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY))
+        || !AddObject(BG_RV_OBJECT_PILAR_4, BG_RV_OBJECT_TYPE_PILAR_4, 802.211609f, -284.493256f, 24.648525f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)*/)
         {
             sLog->outErrorDb("BatteGroundRV: Failed to spawn some object!");
             return false;
