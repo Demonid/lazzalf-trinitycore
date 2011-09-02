@@ -488,6 +488,42 @@ class spell_tyrannus_mark_of_rimefang : public SpellScriptLoader
         }
 };
 
+class spell_tyrannus_icy_blast : public SpellScriptLoader
+{
+    public:
+        spell_tyrannus_icy_blast() : SpellScriptLoader("spell_tyrannus_icy_blast") { }
+
+        class spell_tyrannus_icy_blast_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_tyrannus_icy_blast_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ICY_BLAST_AREA))
+                    return false;
+                return true;
+            }
+
+            void HandleTriggerMissile(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                if (Position const* pos = GetTargetDest())
+                    if (TempSummon* summon = GetCaster()->SummonCreature(NPC_ICY_BLAST, *pos, TEMPSUMMON_TIMED_DESPAWN, 40000))
+                        summon->CastSpell(summon, SPELL_ICY_BLAST_AREA, true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_tyrannus_icy_blast_SpellScript::HandleTriggerMissile, EFFECT_1, SPELL_EFFECT_TRIGGER_MISSILE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_tyrannus_icy_blast_SpellScript();
+        }
+};
+
 class at_tyrannus_event_starter : public AreaTriggerScript
 {
     public:
@@ -516,5 +552,6 @@ void AddSC_boss_tyrannus()
     new boss_rimefang();
     new spell_tyrannus_overlord_brand();
     new spell_tyrannus_mark_of_rimefang();
+    new spell_tyrannus_icy_blast();
     new at_tyrannus_event_starter();
 }
