@@ -57,6 +57,7 @@ enum Spells
     SPELL_HOARFROST                 = 69246,
 
     SPELL_ICY_BLAST                 = 69232,
+    SPELL_ICY_BLAST_PROC            = 69233,
     SPELL_ICY_BLAST_AURA            = 69238,
 
     SPELL_EJECT_ALL_PASSENGERS      = 50630,
