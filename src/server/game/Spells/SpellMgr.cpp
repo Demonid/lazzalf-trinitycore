@@ -2953,6 +2953,12 @@ void SpellMgr::LoadDbcDataCorrections()
             case 15332: // Shadow Weaving (Rank 3)
                 spellInfo->EffectImplicitTargetA[EFFECT_0] = TARGET_UNIT_CASTER;
                 break;
+            case 69232: // Icy Blast
+                spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_TARGET_ENEMY;
+                spellInfo->EffectImplicitTargetA[1] = TARGET_DEST_TARGET_ENEMY;
+                spellInfo->EffectImplicitTargetB[0] = 0;
+                spellInfo->EffectImplicitTargetB[1] = 0;
+                break;
             case 30541: // Blaze (needs conditions entry)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->EffectImplicitTargetB[0] = 0;
