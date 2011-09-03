@@ -117,9 +117,9 @@ class boss_emalon : public CreatureScript
 
         void JustDied(Unit* Killer)
         {
-            /*
             if (pInstance)
             {
+                /*
                 if (Creature* Archavon = Unit::GetCreature(*me, pInstance->GetData64(DATA_ARCHAVON)))
                     if (Archavon->isAlive())
                         WatchersCount++;
@@ -131,8 +131,11 @@ class boss_emalon : public CreatureScript
                 if (WatchersCount == 2)
                     pInstance->SetData(DATA_EWF, ACHI_START);                
 
-                pInstance->SetData(DATA_EWF, ACHI_INCREASE);
-            }*/
+                pInstance->SetData(DATA_EWF, ACHI_INCREASE);*/
+
+                pInstance->SetData(DATA_EMALON_EVENT, DONE);
+                pInstance->SaveToDB();
+            }
 
             _JustDied();
         }

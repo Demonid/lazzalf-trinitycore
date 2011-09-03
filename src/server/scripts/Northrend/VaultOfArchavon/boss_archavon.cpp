@@ -112,7 +112,6 @@ class boss_archavon : public CreatureScript
 
                 pInstance->SetData(DATA_EWF, ACHI_INCREASE);*/
                 pInstance->SetData(DATA_ARCHAVON_EVENT, DONE);
-                pInstance->SaveToDB();
             }
         }
 

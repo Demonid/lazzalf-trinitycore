@@ -129,7 +129,6 @@ class boss_koralon : public CreatureScript
 
                 pInstance->SetData(DATA_EWF, ACHI_INCREASE);*/
                 pInstance->SetData(DATA_KORALON_EVENT, DONE);
-                pInstance->SaveToDB();
             }
         }
 
