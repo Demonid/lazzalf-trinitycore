@@ -34,7 +34,7 @@ enum Data
     DATA_EMALON_EVENT,
     DATA_KORALON_EVENT,
     DATA_TORAVON_EVENT,
-    DATA_EWF,
+    // DATA_EWF,
 };
 
 enum Data64
@@ -56,6 +56,17 @@ enum AchievementControl
     ACHI_FAILED,
     ACHI_RESET,
     ACHI_INCREASE,
+};
+
+enum AchievementCriteriaIds
+{
+    CRITERIA_EARTH_WIND_FIRE_10 = 12018,
+    CRITERIA_EARTH_WIND_FIRE_25 = 12019,
+};
+
+enum AchievementSpells
+{
+    SPELL_EARTH_WIND_FIRE_ACHIEVEMENT_CHECK = 68308,
 };
 
 #endif
