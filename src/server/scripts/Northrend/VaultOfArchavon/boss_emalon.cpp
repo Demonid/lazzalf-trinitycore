@@ -78,7 +78,7 @@ class boss_emalon : public CreatureScript
 
         uint32 checktimer;
         InstanceScript* pInstance;
-        uint8 WatchersCount;
+        //uint8 WatchersCount;
 
         void Reset()
         {
@@ -87,7 +87,7 @@ class boss_emalon : public CreatureScript
             CheckForVoA();
 
             checktimer = 10000;
-            WatchersCount = 0;
+            //WatchersCount = 0;
 
             for (uint8 i = 0; i < MAX_TEMPEST_MINIONS; ++i)
                 me->SummonCreature(MOB_TEMPEST_MINION, TempestMinions[i], TEMPSUMMON_CORPSE_DESPAWN, 0);
@@ -117,6 +117,7 @@ class boss_emalon : public CreatureScript
 
         void JustDied(Unit* Killer)
         {
+            /*
             if (pInstance)
             {
                 if (Creature* Archavon = Unit::GetCreature(*me, pInstance->GetData64(DATA_ARCHAVON)))
@@ -131,7 +132,7 @@ class boss_emalon : public CreatureScript
                     pInstance->SetData(DATA_EWF, ACHI_START);                
 
                 pInstance->SetData(DATA_EWF, ACHI_INCREASE);
-            }
+            }*/
 
             _JustDied();
         }

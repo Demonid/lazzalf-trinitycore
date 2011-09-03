@@ -57,10 +57,14 @@ public:
         uint64 uiToravon;
 
         // Earth Wind & Fire
-        bool ewfStartCount;
-        uint32 watchersCount;
-        uint32 timer;
-        uint32 achievementEWF;
+        //bool ewfStartCount;
+        //uint32 watchersCount;
+        //uint32 timer;
+        //uint32 achievementEWF;
+
+        time_t ArchavonDeath;
+        time_t EmalonDeath;
+        time_t KoralonDeath;
 
         void Initialize()
         {
@@ -69,13 +73,17 @@ public:
             uiKoralon = 0;
             uiToravon = 0;
 
+            ArchavonDeath = 0;
+            EmalonDeath = 0;
+            KoralonDeath = 0;
+
             for (uint8 i = 0; i < ENCOUNTERS; i++)
                 uiEncounters[i] = NOT_STARTED;
 
-            ewfStartCount = false;
-            watchersCount = 0;
-            timer = 0;
-            achievementEWF = 0;
+            //ewfStartCount = false;
+            //watchersCount = 0;
+            //timer = 0;
+            //achievementEWF = 0;
         }
 
         bool IsEncounterInProgress() const
@@ -141,10 +149,19 @@ public:
         {
             switch(type)
             {
-                case DATA_ARCHAVON_EVENT:   uiEncounters[0] = data; break;
-                case DATA_EMALON_EVENT:     uiEncounters[1] = data; break;
-                case DATA_KORALON_EVENT:    uiEncounters[2] = data; break;
-                case DATA_TORAVON_EVENT:    uiEncounters[3] = data; break;
+                case DATA_ARCHAVON_EVENT:   
+                    uiEncounters[0] = data; 
+                    break;
+                case DATA_EMALON_EVENT:     
+                    uiEncounters[1] = data; 
+                    break;
+                case DATA_KORALON_EVENT:    
+                    uiEncounters[2] = data; 
+                    break;
+                case DATA_TORAVON_EVENT:    
+                    uiEncounters[3] = data; 
+                    break;
+                /*
                 case DATA_EWF:
                     if (data == ACHI_START)
                         timer = EWF_MAX_TIMER;
@@ -153,12 +170,65 @@ public:
                     else if (data == ACHI_INCREASE)
                         watchersCount++;
                     break;
+                */
             }
 
             if (data == DONE)
                 SaveToDB();
         }
 
+        bool SetBossState(uint32 type, EncounterState state)
+        {
+            if (!InstanceScript::SetBossState(type, state))
+                return false;
+
+            if (state != DONE)
+               return true;
+
+            switch (type)
+            {
+                case DATA_ARCHAVON:
+                    ArchavonDeath = time(NULL);
+                    break;
+                case DATA_EMALON:
+                    EmalonDeath = time(NULL);
+                    break;
+                case DATA_KORALON:
+                    KoralonDeath = time(NULL);
+                    break;
+                default:
+                    return true;
+            }
+
+            // on every death of Archavon, Emalon and Koralon check our achievement
+            DoCastSpellOnPlayers(SPELL_EARTH_WIND_FIRE_ACHIEVEMENT_CHECK);
+
+            return true;
+        }
+
+        bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/)
+        {
+            switch (criteria_id)
+            {
+                case CRITERIA_EARTH_WIND_FIRE_10:
+                case CRITERIA_EARTH_WIND_FIRE_25:
+                    if (ArchavonDeath && EmalonDeath && KoralonDeath)
+                    {
+                        // instance difficulty check is already done in db (achievement_criteria_data)
+                        // int() for Visual Studio, compile errors with abs(time_t)
+                        return (abs(int(ArchavonDeath-EmalonDeath)) < MINUTE && \
+                            abs(int(EmalonDeath-KoralonDeath)) < MINUTE && \
+                            abs(int(KoralonDeath-ArchavonDeath)) < MINUTE);
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            return false;
+        }
+
+        /*
         void Update(uint32 diff)
         {
             // Achievement Earth, Wind & Fire control
@@ -182,7 +252,7 @@ public:
                     SetData(DATA_EWF, ACHI_FAILED);
                 else timer -= diff;
             }
-        }
+        }*/
 
         std::string GetSaveData()
         {
