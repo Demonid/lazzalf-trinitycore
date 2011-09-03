@@ -87,6 +87,8 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:          // only hardcoded list
         case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA:
+        case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
+        case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
         case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
         case ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL:
         case ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL:
@@ -263,7 +265,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPED_ITEM:
             if (equipped_item.item_quality >= MAX_ITEM_QUALITY)
             {
-                sLog->outErrorDb("Table `achievement_criteria_requirement` (Entry: %u Type: %u) for requirement ACHIEVEMENT_CRITERIA_REQUIRE_S_EQUIPED_ITEM (%u) has unknown quality state in value1 (%u), ignored.",
+                sLog->outErrorDb("Table `achievement_criteria_data` (Entry: %u Type: %u) for requirement ACHIEVEMENT_CRITERIA_REQUIRE_S_EQUIPED_ITEM (%u) has unknown quality state in value1 (%u), ignored.",
                     criteria->ID, criteria->requiredType, dataType, equipped_item.item_quality);
                 return false;
             }
@@ -271,8 +273,16 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID:
             if (!sMapStore.LookupEntry(map_id.mapId))
             {
-                sLog->outErrorDb("Table `achievement_criteria_requirement` (Entry: %u Type: %u) for requirement ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID (%u) has unknown map id in value1 (%u), ignored.",
+                sLog->outErrorDb("Table `achievement_criteria_data` (Entry: %u Type: %u) for requirement ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID (%u) has unknown map id in value1 (%u), ignored.",
                     criteria->ID, criteria->requiredType, dataType, map_id.mapId);
+                return false;
+            }
+            return true;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_ARENA_TYPE:
+            if (arena_type.arenaType != ARENA_TEAM_2v2 && arena_type.arenaType != ARENA_TEAM_3v3 && arena_type.arenaType != ARENA_TEAM_5v5)
+            {
+                sLog->outErrorDb("Table `achievement_criteria_data` (Entry: %u Type: %u) for requirement ACHIEVEMENT_CRITERIA_DATA_TYPE_ARENA_TYPE (%u) has unknown arena type in value1 (%u), ignored.",
+                    criteria->ID, criteria->requiredType, dataType, arena_type.arenaType);
                 return false;
             }
             return true;
@@ -381,6 +391,10 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID:
             return source->GetMapId() == map_id.mapId;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_ARENA_TYPE:
+            if (!miscvalue1)            
+                return false;
+            return miscvalue1 == arena_type.arenaType;
         default:
             break;
     }
@@ -1165,6 +1179,38 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
 
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
+            case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
+                {
+                    // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
+                    // miscValue1 = increment
+                    // miscValue2 = arena type
+                    if (!miscValue1 || !miscValue2)
+                        continue;
+                    if (GetPlayer()->GetMapId() != achievementCriteria->win_arena.mapID)
+                        continue;
+                    // arena type requirements couldn't be found in the dbc
+                    AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
+                    if (!data || !data->Meets(GetPlayer(), unit, miscValue2))
+                        continue;
+                    SetCriteriaProgress(achievementCriteria, miscValue1, PROGRESS_ACCUMULATE);
+                    break;
+                }
+            case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
+                {
+                    // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
+                    // miscValue1 = increment
+                    // miscValue2 = arena type
+                    if (!miscValue1 || !miscValue2)
+                        continue;
+                    if (GetPlayer()->GetMapId() != achievementCriteria->play_arena.mapID)
+                        continue;
+                    // arena type requirements couldn't be found in the dbc
+                    AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
+                    if (!data || !data->Meets(GetPlayer(), unit, miscValue2))
+                        continue;
+                    SetCriteriaProgress(achievementCriteria, miscValue1, PROGRESS_ACCUMULATE);
+                    break;
+                }
             case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:
                 // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
                 if (!miscValue1)
@@ -1572,8 +1618,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 break;
             // FIXME: not triggered in code as result, need to implement
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
-            case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
-            case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
             case ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK:
             case ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE:
             case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
@@ -2016,7 +2060,7 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
         return;
 
     SendAchievementEarned(achievement);
-    CompletedAchievementData& ca =  m_completedAchievements[achievement->ID];
+    CompletedAchievementData& ca = m_completedAchievements[achievement->ID];
     ca.date = time(NULL);
     ca.changed = true;
 
@@ -2024,6 +2068,11 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
     // TODO: where do set this instead?
     if (!(achievement->flags & ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
         sAchievementMgr->SetRealmCompleted(achievement);
+    else
+    {
+        sWorld->m_AchievDelay = 10000;
+        sWorld->m_AchievId = achievement->ID;
+    }
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT);
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS, achievement->points);
