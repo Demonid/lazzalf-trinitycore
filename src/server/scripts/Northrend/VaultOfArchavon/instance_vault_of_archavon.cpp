@@ -125,10 +125,14 @@ public:
         {
             switch(type)
             {
-                case DATA_ARCHAVON_EVENT:   return uiEncounters[0];
-                case DATA_EMALON_EVENT:     return uiEncounters[1];
-                case DATA_KORALON_EVENT:    return uiEncounters[2];
-                case DATA_TORAVON_EVENT:    return uiEncounters[3];
+                case DATA_ARCHAVON_EVENT:   
+                    return uiEncounters[0];
+                case DATA_EMALON_EVENT:     
+                    return uiEncounters[1];
+                case DATA_KORALON_EVENT:    
+                    return uiEncounters[2];
+                case DATA_TORAVON_EVENT:    
+                    return uiEncounters[3];
             }
             return 0;
         }
@@ -174,9 +178,30 @@ public:
             }
 
             if (data == DONE)
+            {
                 SaveToDB();
+
+                switch (type)
+                {
+                    case DATA_ARCHAVON_EVENT:
+                        ArchavonDeath = time(NULL);
+                        break;
+                    case DATA_EMALON_EVENT:
+                        EmalonDeath = time(NULL);
+                        break;
+                    case DATA_KORALON_EVENT:
+                        KoralonDeath = time(NULL);
+                        break;
+                    default:
+                        return;
+                }
+
+                // on every death of Archavon, Emalon and Koralon check our achievement
+                DoCastSpellOnPlayers(SPELL_EARTH_WIND_FIRE_ACHIEVEMENT_CHECK);                
+            }
         }
 
+        /*
         bool SetBossState(uint32 type, EncounterState state)
         {
             if (!InstanceScript::SetBossState(type, state))
@@ -204,7 +229,7 @@ public:
             DoCastSpellOnPlayers(SPELL_EARTH_WIND_FIRE_ACHIEVEMENT_CHECK);
 
             return true;
-        }
+        }*/
 
         bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/)
         {
