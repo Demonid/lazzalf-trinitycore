@@ -1166,12 +1166,14 @@ public:
                             break;
                         case EVENT_ROCKET_STRIKE:
                             if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                                if (Creature *missile = CAST_CRE(me->GetVehicleKit()->GetPassenger(5)))
-                                    missile->CastSpell(target, SPELL_ROCKET_STRIKE, true);
+                                me->CastSpell(target, SPELL_ROCKET_STRIKE, true);
+                                //if (Creature *missile = CAST_CRE(me->GetVehicleKit()->GetPassenger(5)))
+                                //    missile->CastSpell(target, SPELL_ROCKET_STRIKE, true);
                             if (phase == PHASE_VX001_ASSEMBLED)
                                 if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                                    if (Creature *missile = CAST_CRE(me->GetVehicleKit()->GetPassenger(6)))
-                                        missile->CastSpell(target, SPELL_ROCKET_STRIKE, true);
+                                    me->CastSpell(target, SPELL_ROCKET_STRIKE, true);
+                                    //if (Creature *missile = CAST_CRE(me->GetVehicleKit()->GetPassenger(6)))
+                                    //    missile->CastSpell(target, SPELL_ROCKET_STRIKE, true);
                             events.RescheduleEvent(EVENT_ROCKET_STRIKE, urand(20000, 25000));
                             break;
                         case EVENT_HEAT_WAVE:
