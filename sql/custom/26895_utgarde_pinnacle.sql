@@ -1,4 +1,4 @@
-+-- >>> SVALA SORROWGRAVE
+-- >>> SVALA SORROWGRAVE
 
 -- Scourge Hulk, necessary for The Incredible Hulk achievement
 UPDATE `creature_template` SET `AIName` = '', `ScriptName` = 'npc_scourge_hulk' WHERE `entry` = 26555;
@@ -12,10 +12,11 @@ INSERT INTO `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entr
 
 DELETE FROM `script_texts` WHERE npc_entry IN (24266);
 INSERT INTO `script_texts` (`npc_entry`, `entry`, `content_default`, `content_loc6`, `content_loc7`, `sound`, `type`, `comment`) VALUES
-('24266','-1575038','Your sacrifice is a testament to your obedience. Indeed you are worthy of this charge. Arise, and forever be known as Svala Sorrowgrave!','Tu sacrificio corrobora tu obediencia. No cabe duda de que vales para este ala Tumbapena.','','14732','1',NULL),
-('24266','-1575039','Your first test awaits you. Destroy our uninvited guests.','','14733','1',NULL);
+('24266','-1575038','Your sacrifice is a testament to your obedience. Indeed you are worthy of this charge. Arise, and forever be known as Svala Sorrowgrave!','','','14732','1',NULL),
+('24266','-1575039','Your first test awaits you. Destroy our uninvited guests.','','','14733','1',NULL);
 
 -- Ritual teleports
+DELETE FROM `spell_target_position` WHERE id IN (48267,48276);
 insert into `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) values('48267','575','296.632','-346.075','90.547','4.60767');
 insert into `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) values('48276','575','296.632','-346.075','113.547','4.60767');
 
