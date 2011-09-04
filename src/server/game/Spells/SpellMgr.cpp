@@ -2990,6 +2990,10 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetB[0] = 0;
                 spellInfo->EffectImplicitTargetB[1] = 0;
                 break;
+            case 68987: // Pursuit
+                spellInfo->EffectImplicitTargetB[0] = 0;
+                spellInfo->EffectImplicitTargetB[1] = 0;
+                break:
             case 30541: // Blaze (needs conditions entry)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->EffectImplicitTargetB[0] = 0;
