@@ -350,7 +350,7 @@ struct boss_twin_baseAI : public ScriptedAI
         return Unit::GetCreature((*me), m_pInstance->GetData64(m_uiSisterNpcId));
     }
 
-    void EnterCombat(Unit* /*who*/)
+    void EnterCombat(Unit* who)
     {
         me->SetInCombatWithZone();
         if (m_pInstance)
