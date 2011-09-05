@@ -18,91 +18,107 @@
 #include "ScriptPCH.h"
 #include "culling_of_stratholme.h"
 
-enum Spells
+enum corruptorData
 {
-    SPELL_CORRUPTING_BLIGHT                     = 60588,
-    SPELL_VOID_STRIKE                           = 60590
+    SPELL_VOID_STIKE        = 60590,
+    SPELL_CORRUPTING_BLIGHT = 60588,
+    SPELL_CHANNEL_VISUAL    = 31387,
+
+    SAY_CORRUPTOR_AGGRO     = -1595045,
+    SAY_CORRUPTOR_DEAD      = -1595046,
+    SAY_CORRUPTOR_DESPAWN   = -1595047,
+
+    NPC_TIME_RIFT           = 28409,
 };
 
-enum Yells
-{
-    SAY_AGGRO                                   = -1595045,
-    SAY_FAIL                                    = -1595046,
-    SAY_DEATH                                   = -1595047
-};
-
-#define ACHIEVEMENT_CULLING_OF_TIME 1817
 class boss_infinite_corruptor : public CreatureScript
 {
 public:
     boss_infinite_corruptor() : CreatureScript("boss_infinite_corruptor") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_infinite_corruptorAI(creature);
-    }
-
     struct boss_infinite_corruptorAI : public ScriptedAI
     {
-        boss_infinite_corruptorAI(Creature* c) : ScriptedAI(c)
+        boss_infinite_corruptorAI(Creature *creature) : ScriptedAI(creature)
         {
-            pInstance = c->GetInstanceScript();
+            instance = me->GetInstanceScript();
+            timeRift = NULL;
+            Reset();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
+        uint32 uiStrikeTimer;
+        uint32 uiBlightTimer;
+        Creature* timeRift;
 
-        uint32 uiCorruptingBlight;
-        uint32 uiVoidStrike;
+        void JustReachedHome()
+        {
+            // Data for visual
+            if (timeRift)
+                timeRift->DisappearAndDie();
+            timeRift = me->SummonCreature(NPC_TIME_RIFT, me->GetPositionX() - 10.0f, me->GetPositionY(), me->GetPositionZ());
+
+            // Visual Channeling
+            if(timeRift)
+                me->CastSpell(timeRift, SPELL_CHANNEL_VISUAL, true);
+        }
 
         void Reset()
         {
-            if (pInstance)
-                pInstance->SetData(DATA_INFINITE_EVENT, NOT_STARTED);
+            JustReachedHome();
 
-            uiCorruptingBlight = 7000;
-            uiVoidStrike = 5000;
+            // Starting Timers
+            uiStrikeTimer = urand(1000,3000);
+            uiBlightTimer = urand(5000,8000);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_INFINITE_EVENT, IN_PROGRESS);
+            me->Yell(SAY_CORRUPTOR_AGGRO, LANG_UNIVERSAL, 0);
         }
 
-        void UpdateAI(const uint32 diff)
+        void JustDied(Unit* pKiller)
         {
-            //Return since we have no target
-            if (!UpdateVictim())
+            me->Yell(SAY_CORRUPTOR_DEAD, LANG_UNIVERSAL, 0);
+            if (instance)
+                instance->SetData(DATA_INFINITE_EVENT, DONE);
+        }
+
+        void DoAction(const int32 id)
+        {
+            if(id == 0) // Called from InstanceScript
+            {
+                me->YellToZone(SAY_CORRUPTOR_DESPAWN, LANG_UNIVERSAL, 0);
+                me->DespawnOrUnsummon(1000);
+            }
+        }
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if(!UpdateVictim())
                 return;
 
-            if (uiCorruptingBlight <= diff)
+            if(uiStrikeTimer < uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM,0))
-                    DoCast(target, SPELL_CORRUPTING_BLIGHT);
-                uiCorruptingBlight = 17000;
-            } else uiCorruptingBlight -= diff;
+                if(Unit *target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                   DoCast(target, SPELL_VOID_STIKE);
+                uiStrikeTimer = urand(3000, 8000);
+            }
+            else uiStrikeTimer -= uiDiff;
 
-            if (uiVoidStrike <= diff)
+            if(uiBlightTimer < uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_VOID_STRIKE);
-                uiVoidStrike = 5000;
-            } else uiVoidStrike -= diff;
+                if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM))
+                   DoCast(target, SPELL_CORRUPTING_BLIGHT);
+                uiBlightTimer = urand(6000, 9000);
+            }
+            else uiBlightTimer -= uiDiff;
 
             DoMeleeAttackIfReady();
         }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            if (pInstance)
-            {
-                pInstance->SetData(DATA_INFINITE_EVENT, DONE);
-
-                if (IsHeroic())
-                    pInstance->DoCompleteAchievement(ACHIEVEMENT_CULLING_OF_TIME);
-            }
-        }
     };
-
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_infinite_corruptorAI(creature);
+    }
 };
 
 void AddSC_boss_infinite_corruptor()
