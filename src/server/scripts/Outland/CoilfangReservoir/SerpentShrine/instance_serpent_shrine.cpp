@@ -33,6 +33,7 @@ EndScriptData */
 #define TRASHMOB_COILFANG_SHATTERER 21301  //6*3
 
 #define MIN_KILLS 30
+#define ACHIEVEMENT_LURKER_ABOVE 144
 
 //NOTE: there are 6 platforms
 //there should be 3 shatterers and 2 priestess on all platforms, total of 30 elites, else it won't work!
@@ -121,6 +122,10 @@ class instance_serpent_shrine : public InstanceMapScript
 
             void Update(uint32 diff)
             {
+                    // "Hackfix" per dare l'achievement "The Lurker Above"
+                    Map::PlayerList const &players = instance->GetPlayers();
+                        if (players.getSize() == 1)
+                            DoCompleteAchievement(ACHIEVEMENT_LURKER_ABOVE);
                 //Water checks
                 if (WaterCheckTimer <= diff)
                 {

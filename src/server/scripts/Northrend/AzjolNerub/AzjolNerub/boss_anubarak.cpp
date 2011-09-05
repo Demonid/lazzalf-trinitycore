@@ -166,6 +166,11 @@ public:
             {
                 pInstance->SetData(DATA_ANUBARAK_EVENT, IN_PROGRESS);
                 pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+
+                Map::PlayerList const &players = pInstance->instance->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    if (itr->getSource() && !itr->getSource()->isGameMaster())
+                        itr->getSource()->TeleportTo(me->GetMapId(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f);
             }
         }
 

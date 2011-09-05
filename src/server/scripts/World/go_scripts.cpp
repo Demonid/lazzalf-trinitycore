@@ -1186,6 +1186,18 @@ public:
     }
 };
 
+class go_love_picnic : public GameObjectScript
+{
+public:
+    go_love_picnic() : GameObjectScript("go_love_picnic") { }
+
+    bool OnGossipHello(Player* pPlayer, GameObject *pGo)
+    {
+        pPlayer->CastSpell(pPlayer, 45123, false);
+        return true;
+    }
+};
+
 void AddSC_go_scripts()
 {
     new go_cat_figurine;
@@ -1224,4 +1236,5 @@ void AddSC_go_scripts()
     new go_amberpine_outhouse;
     new go_hive_pod;
     new go_massive_seaforium_charge;
+    new go_love_picnic();
 }
