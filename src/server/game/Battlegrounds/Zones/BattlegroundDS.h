@@ -49,6 +49,8 @@ enum BattlegroundDSData
     BG_DS_WATERFALL_TIMER_MIN                    = 35000,
     BG_DS_WATERFALL_TIMER_MAX                    = 60000,
     BG_DS_WATERFALL_DURATION                     = 30000,
+    BG_DS_KNOCKBACK_TIMER                        = 10000,
+    BG_DS_WATERFALL_KNOCKBACK_TIMER              =  5000,
 };
 
 class BattlegroundDSScore : public BattlegroundScore
@@ -81,10 +83,15 @@ class BattlegroundDS : public Battleground
     private:
         uint32 m_waterTimer;
         bool m_waterfallActive;
-        bool m_knockbackCheck;
+        int m_knockbackCheck;
         uint32 m_knockback;
+        uint32 waterfallKnockback;
+
         void KnockBackPlayer(Unit *pPlayer, float angle, float horizontalSpeed, float verticalSpeed);
         virtual void PostUpdateImpl(uint32 diff);
+
+        bool SpawnWater();
+        void CheckWaterfallForKnockback();
     protected:        
         void setWaterFallActive(bool active) { m_waterfallActive = active; };
         void setWaterFallTimer(uint32 timer) { m_waterTimer = timer; };
