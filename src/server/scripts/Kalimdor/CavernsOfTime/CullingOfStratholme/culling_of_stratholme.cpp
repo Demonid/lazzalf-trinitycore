@@ -1322,8 +1322,8 @@ class npc_crate_helper : public CreatureScript
         }
 };
 
-#define GOSSIP_ITEM_CHROMIE_0 "Necesito algo para desvelar las intenciones de la plaga."
-#define GOSSIP_ITEM_CHROMIE_1 "Llevame hasta la entrada de Stratholme."
+#define GOSSIP_ITEM_CHROMIE_0 "I need something to reveal the cause of the pest."
+#define GOSSIP_ITEM_CHROMIE_1 "Take me to the entrance of Stratholme."
 
 class npc_chromie : public CreatureScript
 {
