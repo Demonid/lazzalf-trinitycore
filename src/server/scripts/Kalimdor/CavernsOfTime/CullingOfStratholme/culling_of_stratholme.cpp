@@ -244,7 +244,7 @@ public:
                 pAI->uiStep = 1;
                 break;
             case GOSSIP_ACTION_INFO_DEF+1:
-                if(pAI->respawned)
+                if (pAI->respawned)
                 {
                     pAI->Start(true, true, 0, 0, false, false);
                     pAI->SetNextWaypoint(9, false);
@@ -254,7 +254,7 @@ public:
                 pAI->uiStep = 24;
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                if(pAI->respawned)
+                if (pAI->respawned)
                 {
                     pAI->Start(true, true, 0, 0, false, false);
                     pAI->SetNextWaypoint(21, false);
@@ -268,7 +268,7 @@ public:
                 pAI->SetHoldState(false);
                 break;
             case GOSSIP_ACTION_INFO_DEF+4:
-                if(pAI->respawned)
+                if (pAI->respawned)
                 {
                     pAI->Start(true, true, 0, 0, false, false);
                     pAI->respawned = false;
@@ -305,8 +305,8 @@ public:
             {
                 case 0: //This one is a workaround since the very beggining of the script is wrong.
                 {
-                    if(creature->GetInstanceScript()->GetData(DATA_CRATE_COUNT) < 5)
-                        return false;
+                    if (creature->GetInstanceScript()->GetData(DATA_CRATE_COUNT) < 5)
+                        return true;
 
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
                     // If player already completed the instance can jump the Jaina/Uther intro
@@ -337,7 +337,7 @@ public:
                     player->SEND_GOSSIP_MENU(GOSSIP_MENU_ARTHAS_5, creature->GetGUID());
                     break;
                 default:
-                    return false;
+                    return true;
             }
         }
         return true;
@@ -444,7 +444,7 @@ public:
                 if (Creature* pTemp = me->SummonCreature((uint32)RiftAndSpawnsLocations[i][0], RiftAndSpawnsLocations[timeRiftID][1], RiftAndSpawnsLocations[timeRiftID][2], RiftAndSpawnsLocations[timeRiftID][3], RiftAndSpawnsLocations[timeRiftID][4], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000))
                 {
                     guidVector[i-timeRiftID-1] = pTemp->GetGUID();
-                    if(timeRiftID != 0) // Avoid unnatackable ones at the inn
+                    if (timeRiftID != 0) // Avoid unnatackable ones at the inn
                     {
                         pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_PASSIVE);
                         pTemp->SetReactState(REACT_PASSIVE);
@@ -900,7 +900,7 @@ public:
                             {
                                 pInstance->SetData(DATA_ARTHAS_EVENT, IN_PROGRESS);
 
-                                if(IsHeroic())
+                                if (IsHeroic())
                                     pInstance->SetData(DATA_INFINITE_EVENT, IN_PROGRESS);
                             }
 
@@ -1267,7 +1267,7 @@ public:
 
         void SendCrierWarning(uint8 waveNumber)
         {
-            if(Creature* crier = me->GetCreature(*me, pInstance->GetData64(DATA_CRIER)))
+            if (Creature* crier = me->GetCreature(*me, pInstance->GetData64(DATA_CRIER)))
             {
                 int32 textId;
                 switch(waveNumber)
@@ -1277,7 +1277,7 @@ public:
                     case 2: case 5: textId = -1595050; break; // Council
                     case 3: case 6: textId = -1595051; break; // King Square Fountain
                 }
-                if(textId < 0)
+                if (textId < 0)
                     crier->YellToZone(textId, LANG_UNIVERSAL, 0);
             }
         }
@@ -1351,14 +1351,14 @@ public:
     {
         InstanceScript* instance = player->GetInstanceScript();
 
-        if(instance)
+        if (instance)
         {
             if (creature->isQuestGiver())
                 player->PrepareQuestMenu(creature->GetGUID());
 
             if (instance->GetData(DATA_CRATE_COUNT) < 5)
             {
-                if(!player->HasItemCount(ITEM_ARCANE_DISRUPTOR, 1))
+                if (!player->HasItemCount(ITEM_ARCANE_DISRUPTOR, 1))
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_CHROMIE_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
                 player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
             } else
@@ -1393,7 +1393,7 @@ class npc_cos_zombie : public CreatureScript
 
             void JustDied(Unit* /*who*/)
             {
-                if(instance)
+                if (instance)
                     instance->SetData(DATA_ZOMBIEFEST, SPECIAL);
             }
 
