@@ -64,11 +64,6 @@ enum CombatPhases
     OUTRO
 };
 
-#define NPC_CHROMIE 30997
-
-const Position ChromiePosition =
-{ 2282.774f, 1476.924f, 127.807f, 5.906f };
-
 class boss_mal_ganis : public CreatureScript
 {
 public:
@@ -209,7 +204,7 @@ public:
                                 uiOutroTimer = 8000;
                                 break;
                             case 2:
-                                me->SetTarget(pInstance ? pInstance->GetData64(DATA_ARTHAS) : 0);
+                                me->SetUInt64Value(UNIT_FIELD_TARGET, pInstance ? pInstance->GetData64(DATA_ARTHAS) : 0);
                                 me->HandleEmoteCommand(29);
                                 DoScriptText(SAY_ESCAPE_SPEECH_2, me);
                                 ++uiOutroStep;
@@ -227,7 +222,6 @@ public:
                                 break;
                             case 5:
                                 me->SetVisible(false);
-                                me->SummonCreature(NPC_CHROMIE, ChromiePosition);
                                 me->Kill(me);
                                 break;
 
