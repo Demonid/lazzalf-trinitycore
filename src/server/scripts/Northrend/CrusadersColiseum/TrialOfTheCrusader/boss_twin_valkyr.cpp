@@ -67,6 +67,69 @@ enum BossSpells
 {
     SPELL_CONTROLLER_PERIODIC    = 66149, // Future Development
 
+    // LIGHT
+    LIGHT_TWIN_SPIKE_10N        = 66075,
+    LIGHT_TWIN_SPIKE_10H        = 67313,
+    LIGHT_TWIN_SPIKE_25N        = 67312,
+    LIGHT_TWIN_SPIKE_25H        = 67314,
+
+    SURGE_OF_LIGHT_10N          = 65766,
+    SURGE_OF_LIGHT_10H          = 67271,
+    SURGE_OF_LIGHT_25N          = 67270,
+    SURGE_OF_LIGHT_25H          = 67272,
+
+    LIGHT_SHIELD_10N            = 65858,
+    LIGHT_SHIELD_10H            = 67260,
+    LIGHT_SHIELD_25N            = 67259,
+    LIGHT_SHIELD_25H            = 67261,
+
+    LIGHT_TWINS_PACT_10N        = 65876,
+    LIGHT_TWINS_PACT_10H        = 67307,
+    LIGHT_TWINS_PACT_25N        = 67306,
+    LIGHT_TWINS_PACT_25H        = 67308,
+
+    LIGHT_VORTEX_10N            = 66046,
+    LIGHT_VORTEX_10H            = 67207,
+    LIGHT_VORTEX_25N            = 67206,
+    LIGHT_VORTEX_25H            = 67208,
+
+    TOUCH_OF_LIGHT_10           = 67297, //only heroic
+    TOUCH_OF_LIGHT_25           = 67298,
+
+    DARK_TWIN_SPIKE_10N         = 66069,
+    DARK_TWIN_SPIKE_10H         = 67310,
+    DARK_TWIN_SPIKE_25N         = 67309,
+    DARK_TWIN_SPIKE_25H         = 67311,
+
+    SURGE_OF_DARKNESS_10N       = 65768,
+    SURGE_OF_DARKNESS_10H       = 67263,
+    SURGE_OF_DARKNESS_25N       = 67262,
+    SURGE_OF_DARKNESS_25H       = 67264,
+
+    // DARK
+    DARK_SHIELD_10N             = 65874,
+    DARK_SHIELD_10H             = 67257,
+    DARK_SHIELD_25N             = 67256,
+    DARK_SHIELD_25H             = 67258,
+
+    DARK_TWINS_PACT_10N         = 65875,
+    DARK_TWINS_PACT_10H         = 67304,
+    DARK_TWINS_PACT_25N         = 67303,
+    DARK_TWINS_PACT_25H         = 67305,
+
+    DARK_VORTEX_10N             = 66058,
+    DARK_VORTEX_10H             = 67183,
+    DARK_VORTEX_25N             = 67182,
+    DARK_VORTEX_25H             = 67184,
+
+    TOUCH_OF_DARKNESS_10        = 67282, //only heroic
+    TOUCH_OF_DARKNESS_25        = 67283,
+
+    POWER_OF_TWINS_10N          = 65879,
+    POWER_OF_TWINS_10H          = 67245,
+    POWER_OF_TWINS_25N          = 67244,
+    POWER_OF_TWINS_25H          = 67246,
+
     SPELL_LIGHT_TWIN_SPIKE      = 66075,
     SPELL_LIGHT_SURGE           = 65766,
     SPELL_LIGHT_SHIELD          = 65858,
@@ -109,6 +172,9 @@ enum BossSpells
 #define SPELL_EMPOWERED_DARK_HELPER RAID_MODE<uint32>(65724,67213,67214,67215)
 #define SPELL_EMPOWERED_LIGHT_HELPER RAID_MODE<uint32>(65748, 67216, 67217, 67218)
 
+#define ACHIEVEMENT_SALT_AND_PEPPER RAID_MODE(3799, 3815, 3799, 3815)
+#define SALT_AND_PEPPER_MAX_TIMER 3 * MINUTE * IN_MILLISECONDS
+
 enum Actions
 {
     ACTION_VORTEX,
@@ -123,6 +189,8 @@ struct boss_twin_baseAI : public ScriptedAI
 {
     boss_twin_baseAI(Creature* creature) : ScriptedAI(creature), Summons(me)
     {
+        me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+        me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
         m_pInstance = (InstanceScript*)creature->GetInstanceScript();
     }
 
@@ -211,7 +279,7 @@ struct boss_twin_baseAI : public ScriptedAI
         {
             DoScriptText(urand(0, 1) ? SAY_KILL1 : SAY_KILL2, me);
             if (m_pInstance)
-                m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
+                m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, CRITERIA_NOT_MEETED);
         }
     }
 
@@ -282,7 +350,7 @@ struct boss_twin_baseAI : public ScriptedAI
         return Unit::GetCreature((*me), m_pInstance->GetData64(m_uiSisterNpcId));
     }
 
-    void EnterCombat(Unit* /*who*/)
+    void EnterCombat(Unit* who)
     {
         me->SetInCombatWithZone();
         if (m_pInstance)
@@ -432,6 +500,8 @@ public:
     {
         boss_fjolaAI(Creature* creature) : boss_twin_baseAI(creature) {}
 
+        uint32 saltAndPepperTimer;
+
         void Reset() {
             boss_twin_baseAI::Reset();
             SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
@@ -447,33 +517,63 @@ public:
             m_uiMyEssenceSpellId = SPELL_LIGHT_ESSENCE_HELPER;
             m_uiOtherEssenceSpellId = SPELL_DARK_ESSENCE_HELPER;
             m_uiEmpoweredWeaknessSpellId = SPELL_EMPOWERED_DARK_HELPER;
-            m_uiSurgeSpellId = SPELL_LIGHT_SURGE;
-            m_uiVortexSpellId = SPELL_LIGHT_VORTEX;
-            m_uiShieldSpellId = SPELL_LIGHT_SHIELD;
-            m_uiTwinPactSpellId = SPELL_LIGHT_TWIN_PACT;
-            m_uiTouchSpellId = SPELL_LIGHT_TOUCH;
-            m_uiSpikeSpellId = SPELL_LIGHT_TWIN_SPIKE;
+            m_uiSurgeSpellId = RAID_MODE(SURGE_OF_LIGHT_10N, SURGE_OF_LIGHT_25N, SURGE_OF_LIGHT_10H, SURGE_OF_LIGHT_25H);
+            m_uiVortexSpellId = RAID_MODE(LIGHT_VORTEX_10N, LIGHT_VORTEX_25N, LIGHT_VORTEX_10H, LIGHT_VORTEX_25H);
+            m_uiShieldSpellId = RAID_MODE(LIGHT_SHIELD_10N, LIGHT_SHIELD_25N, LIGHT_SHIELD_10H, LIGHT_SHIELD_25H);
+            m_uiTwinPactSpellId = RAID_MODE(LIGHT_TWINS_PACT_10N, LIGHT_TWINS_PACT_25N, LIGHT_TWINS_PACT_10H, LIGHT_TWINS_PACT_25H);
+            m_uiTouchSpellId = RAID_MODE(TOUCH_OF_LIGHT_10, TOUCH_OF_LIGHT_25, TOUCH_OF_LIGHT_10, TOUCH_OF_LIGHT_25);
+            m_uiSpikeSpellId = RAID_MODE(LIGHT_TWIN_SPIKE_10N, LIGHT_TWIN_SPIKE_25N, LIGHT_TWIN_SPIKE_10H, LIGHT_TWIN_SPIKE_25H);
 
             HomeLocation = ToCCommonLoc[8];
             EssenceLocation[0] = TwinValkyrsLoc[2];
             EssenceLocation[1] = TwinValkyrsLoc[3];
 
+            saltAndPepperTimer = 0;
+
+            /*
             if (m_pInstance)
             {
                 m_pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
             }
+            */
+        }
+
+        void JustDied(Unit* killer)
+        {
+            if (saltAndPepperTimer <= SALT_AND_PEPPER_MAX_TIMER)
+                m_pInstance->DoCompleteAchievement(ACHIEVEMENT_SALT_AND_PEPPER);
+
+            Map::PlayerList const &players = m_pInstance->instance->GetPlayers();
+            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            {
+                Player* player = itr->getSource();
+                if (!player)
+                    continue;
+                player->KilledMonsterCredit(34496, 0);
+            }
+            
+            boss_twin_baseAI::JustDied(killer);
         }
 
         void EnterCombat(Unit* who)
         {
+            saltAndPepperTimer = 0;
             boss_twin_baseAI::EnterCombat(who);
+
+            /*
             if (m_pInstance)
             {
                 m_pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
             }
+            */
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            saltAndPepperTimer += uiDiff;
+            boss_twin_baseAI::UpdateAI(uiDiff);
         }
     };
-
 };
 
 /*######
@@ -508,20 +608,35 @@ public:
             m_uiMyEmphatySpellId = SPELL_TWIN_EMPATHY_2;
             m_uiMyEssenceSpellId = SPELL_DARK_ESSENCE_HELPER;
             m_uiOtherEssenceSpellId = SPELL_LIGHT_ESSENCE_HELPER;
-            m_uiEmpoweredWeaknessSpellId = SPELL_EMPOWERED_LIGHT_HELPER;
-            m_uiSurgeSpellId = SPELL_DARK_SURGE;
-            m_uiVortexSpellId = SPELL_DARK_VORTEX;
-            m_uiShieldSpellId = SPELL_DARK_SHIELD;
-            m_uiTwinPactSpellId = SPELL_DARK_TWIN_PACT;
-            m_uiTouchSpellId = SPELL_DARK_TOUCH;
-            m_uiSpikeSpellId = SPELL_DARK_TWIN_SPIKE;
+            m_uiEmpoweredWeaknessSpellId = SPELL_EMPOWERED_LIGHT_HELPER;;
+            m_uiSurgeSpellId = RAID_MODE(SURGE_OF_DARKNESS_10N, SURGE_OF_DARKNESS_25N, SURGE_OF_DARKNESS_10H, SURGE_OF_DARKNESS_25H);
+            m_uiVortexSpellId = RAID_MODE(DARK_VORTEX_10N, DARK_VORTEX_25N, DARK_VORTEX_10H, DARK_VORTEX_25H);
+            m_uiShieldSpellId = RAID_MODE(DARK_SHIELD_10N, DARK_SHIELD_25N, DARK_SHIELD_10H, DARK_SHIELD_25H);
+            m_uiTwinPactSpellId = RAID_MODE(DARK_TWINS_PACT_10N, DARK_TWINS_PACT_25N, DARK_TWINS_PACT_10H, DARK_TWINS_PACT_25H);
+            m_uiTouchSpellId = RAID_MODE(TOUCH_OF_DARKNESS_10, TOUCH_OF_DARKNESS_25, TOUCH_OF_DARKNESS_10, TOUCH_OF_DARKNESS_25);
+            m_uiSpikeSpellId = RAID_MODE(DARK_TWIN_SPIKE_10N, DARK_TWIN_SPIKE_25N, DARK_TWIN_SPIKE_10H, DARK_TWIN_SPIKE_25H);
 
             HomeLocation = ToCCommonLoc[9];
             EssenceLocation[0] = TwinValkyrsLoc[0];
             EssenceLocation[1] = TwinValkyrsLoc[1];
         }
-    };
 
+        void JustDied(Unit* killer)
+        {
+            if (m_pInstance)
+            {
+                Map::PlayerList const &players = m_pInstance->instance->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                {
+                    Player* player = itr->getSource();
+                    if (!player)
+                        continue;
+                    player->KilledMonsterCredit(34497, 0);
+                }
+            }
+            boss_twin_baseAI::JustDied(killer);
+        }   
+    };    
 };
 
 #define ESSENCE_REMOVE 0
