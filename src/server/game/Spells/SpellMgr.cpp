@@ -3389,6 +3389,34 @@ void SpellMgr::LoadDbcDataCorrections()
             case 61719: // Easter Lay Noblegarden Egg Aura - Interrupt flags copied from aura which this aura is linked with
                 spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
                 break;
+            // workaround for spells which are currently casted on not_selectable targets
+            case 46598: // Ride Vehicle Hardcoded
+            case 56430: // Arcane Bomb
+            case 61421: // Ride Vehicle
+            case 62309: // Ride Vehicle (Scales w/ Gear)
+            case 65031: // Ride Vehicle (Scales w/ Gear)
+            case 65266: // Gear Scaling
+            case 63382: // Mimiron - Rapid Burst
+            case 64570: // Mimiron - Flame Suppressant
+            case 65192: // Mimiron - Flame Suppressant
+            case 64626: // Mimiron - Explosion
+            case 65333: // Mimiron - Explosion
+            case 64619: // Mimiron - Water Spray
+            case 62466: // Thorim - Lightning Charge
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_UNTARGETABLE;
+                break;
+            case 27915: // Gothik - Anchor to Skulls
+            case 27931: // Gothik - Anchor to Skulls
+            case 27937: // Gothik - Anchor to Skulls
+                spellInfo->rangeIndex = 13;
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_UNTARGETABLE;
+                break;
+            case 17364: // Stormstrike
+            case 30207: // Shadow Grasp
+            case 30531: // Soul Transfer
+            case 55849: // Power Spark
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
             // ULDUAR SPELLS
             //
             case 62400: // Missile Barrage
