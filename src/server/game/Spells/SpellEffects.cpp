@@ -1048,6 +1048,18 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
                     return;
                 }
+                // Shadowmeld
+                case 58984:
+                {
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+                    m_caster->InterruptSpell(CURRENT_AUTOREPEAT_SPELL); // break Auto Shot and autohit
+                    m_caster->InterruptSpell(CURRENT_CHANNELED_SPELL);  // break channeled spells
+                    m_caster->AttackStop();
+                    ((Player*)m_caster)->SendAttackSwingCancelAttack();
+                    m_caster->CombatStop();
+                    return;
+                }
                 // Demon Broiled Surprise
                 case 43723:
                 {
