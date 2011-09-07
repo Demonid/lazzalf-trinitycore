@@ -9139,18 +9139,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             // one failed proc will remove the entire aura
             CastSpell((Unit*)NULL, trigger_spell_id, true, NULL, triggeredByAura);
             return true;
-        case 71761: // Deep Freeze Immunity State
-        {
-            if (!victim->ToCreature())
-                return false;
-
-            if (victim->ToCreature()->GetCreatureInfo() && 
-                victim->ToCreature()->GetCreatureInfo()->MechanicImmuneMask & (1 << MECHANIC_STUN))
-                target = victim;
-            else
-                return false;
-            break;
-        }
         case 15337: // Improved Spirit Tap (Rank 1)
         case 15338: // Improved Spirit Tap (Rank 2)
         {
