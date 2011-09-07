@@ -1005,6 +1005,7 @@ void WorldSession::ProcessQueryCallbacks()
     QueryResult result;
 
     //! HandleNameQueryOpcode
+    /*
     while (!_nameQueryCallbacks.is_empty())
     {
         QueryResultFuture lResult;
@@ -1019,6 +1020,7 @@ void WorldSession::ProcessQueryCallbacks()
             lResult.cancel();
         }
     }
+    */
 
     //! HandleCharEnumOpcode
     if (_charEnumCallback.ready())
