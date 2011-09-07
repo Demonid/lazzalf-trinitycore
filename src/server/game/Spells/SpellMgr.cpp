@@ -3389,6 +3389,10 @@ void SpellMgr::LoadDbcDataCorrections()
             case 61719: // Easter Lay Noblegarden Egg Aura - Interrupt flags copied from aura which this aura is linked with
                 spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
                 break;
+            case 51678: //WintergraspSiegeEngine Ram set damage radius to 5 yards
+                spellInfo->EffectRadiusIndex[0] = 52;
+                spellInfo->EffectRadiusIndex[1] = 52;
+                break;
             // workaround for spells which are currently casted on not_selectable targets
             case 46598: // Ride Vehicle Hardcoded
             case 56430: // Arcane Bomb
