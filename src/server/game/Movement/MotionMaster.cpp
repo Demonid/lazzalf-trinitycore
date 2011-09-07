@@ -596,7 +596,10 @@ MovementGeneratorType MotionMaster::GetCurrentMovementGeneratorType() const
    if (empty())
        return IDLE_MOTION_TYPE;
 
-   return top()->GetMovementGeneratorType();
+   if (top())
+       return top()->GetMovementGeneratorType();
+   else
+       return NULL_MOTION_TYPE;
 }
 
 MovementGeneratorType MotionMaster::GetMotionSlotType(int slot) const
