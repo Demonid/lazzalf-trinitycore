@@ -270,7 +270,7 @@ public:
 
             DespawnCreatures(34362, 100);
 
-            DespawnCreatures(NPC_FLAMES, 100.0f);
+            DespawnCreatures(NPC_FLAME, 100.0f);
             DespawnCreatures(NPC_PROXIMITY_MINE, 100.0f);
             DespawnCreatures(NPC_ROCKET, 100.0f);
             DespawnCreatures(NPC_JUNK_BOT, 100.0f);
