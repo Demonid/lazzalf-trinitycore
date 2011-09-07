@@ -85,13 +85,15 @@ enum eSpells
     SPELL_BERSERK                               = 47008,
     
     // Hard Mode
+    SPELL_SELF_DESTRUCTION                      = 64610,
+    SPELL_SELF_DESTRUCTION_VISUAL               = 64613,
     SPELL_EMERGENCY_MODE                        = 64582,
-    SPELL_FLAME_SUPPRESSANT_1                   = 64570,
-    SPELL_FLAME_SUPPRESSANT_2                   = 65192,
+    SPELL_FLAME_SUPPRESSANT                     = 64570,
+    SPELL_FLAME_SUPPRESSANT_VX001               = 65192,
     SPELL_FLAME                                 = 64561,
     SPELL_FROST_BOMB                            = 64624,
     SPELL_WATER_SPRAY                           = 64619,
-    SPELL_SIREN                                 = 64616
+    SPELL_DEAFENING_SIREN                       = 64616
 };
 
 enum eEvents
@@ -165,7 +167,8 @@ enum Npcs
     NPC_EMERGENCY_BOT                           = 34147,
     NPC_FLAME                                   = 34363,
     NPC_FLAME_SPREAD                            = 34121,
-    NPC_FROST_BOMB                              = 34149
+    NPC_FROST_BOMB                              = 34149,
+    NPC_PROXIMITY_MINE                          = 34362,
 };
 
 bool MimironHardMode;
@@ -264,8 +267,16 @@ public:
             MimironHardMode = false;
             checkBotAlive = true;
             Enraged = false;
+
             DespawnCreatures(34362, 100);
-            DespawnCreatures(NPC_ROCKET, 100);
+
+            DespawnCreatures(NPC_FLAMES, 100.0f);
+            DespawnCreatures(NPC_PROXIMITY_MINE, 100.0f);
+            DespawnCreatures(NPC_ROCKET, 100.0f);
+            DespawnCreatures(NPC_JUNK_BOT, 100.0f);
+            DespawnCreatures(NPC_ASSAULT_BOT, 100.0f);
+            DespawnCreatures(NPC_BOOM_BOT, 100.0f);
+            DespawnCreatures(NPC_EMERGENCY_BOT, 100.0f);
         }
         
         void JustDied(Unit* /*killer*/)
@@ -296,7 +307,7 @@ public:
             phase = PHASE_INTRO;
             FlameTimer = 30000;
             if (MimironHardMode)
-                EnrageTimer = 8*60*1000; // Enrage in 8 min
+                EnrageTimer = 10*60*1000; // Enrage in 10 min
             else
                 EnrageTimer = 15*60*1000; // Enrage in 15 min
             JumpToNextStep(100);
@@ -870,7 +881,7 @@ public:
                             events.RescheduleEvent(EVENT_SHOCK_BLAST, 35000);
                             break;
                         case EVENT_FLAME_SUPPRESSANT:
-                            DoCastAOE(SPELL_FLAME_SUPPRESSANT_1);
+                            DoCastAOE(SPELL_FLAME_SUPPRESSANT);
                             for (int8 n = 0; n < 2; n++)
                             {
                                 uint32 npc;
@@ -1055,7 +1066,7 @@ public:
             {
                 DoCast(me, SPELL_EMERGENCY_MODE);
                 events.ScheduleEvent(EVENT_FROST_BOMB, 15000);
-                events.ScheduleEvent(EVENT_FLAME_SUPPRESSANT_2, 10000);
+                events.ScheduleEvent(EVENT_FLAME_SUPPRESSANT_2, 3000, PHASE_VX001_SOLO);
             }
                 
             events.ScheduleEvent(EVENT_RAPID_BURST, 500, 0, PHASE_VX001_SOLO);
@@ -1190,7 +1201,7 @@ public:
                             events.RescheduleEvent(EVENT_FROST_BOMB, 45000);
                             break;
                         case EVENT_FLAME_SUPPRESSANT_2:
-                            DoCastAOE(SPELL_FLAME_SUPPRESSANT_2);
+                            DoCastAOE(SPELL_FLAME_SUPPRESSANT_VX001);
                             for (int8 n = 0; n < 2; n++)
                             {
                                 uint32 npc;
@@ -1204,7 +1215,7 @@ public:
                                     for(std::list<Creature*>::iterator iter = m_pCreatures.begin(); iter != m_pCreatures.end(); ++iter)
                                         (*iter)->ForcedDespawn(1000);
                             }
-                            events.RescheduleEvent(EVENT_FLAME_SUPPRESSANT_2, 10000);
+                            events.RescheduleEvent(EVENT_FLAME_SUPPRESSANT_2, 3000, PHASE_VX001_SOLO);
                             break;
                     }
                 }
@@ -1639,6 +1650,9 @@ public:
             me->SetReactState(REACT_PASSIVE);
             me->GetMotionMaster()->MoveRandom(15);
             uiSprayTimer = 5000;
+
+            if (Is25ManRaid())
+                DoCast(me, SPELL_DEAFENING_SIREN, true);
         }
 
         uint32 uiSprayTimer;
@@ -1788,7 +1802,7 @@ public:
         {
             if (uiFrostTimer <= diff)
             {
-                DoCastAOE(SPELL_FLAME_SUPPRESSANT_2);
+                DoCastAOE(SPELL_FLAME_SUPPRESSANT_VX001);
                 for (int8 n = 0; n < 2; n++)
                 {
                     uint32 npc;
