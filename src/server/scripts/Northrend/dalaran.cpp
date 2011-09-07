@@ -41,6 +41,14 @@ enum NPCs // All outdoor guards are within 35.0f of these NPCs
     NPC_SWEETBERRY_H = 29715,
 };
 
+enum Disguises
+{
+    SILVER_COVENANT_DISGUISE_F = 70971,
+    SILVER_COVENANT_DISGUISE_M = 70972,
+    SUNREAVER_DISGUISE_F = 70973,
+    SUNREAVER_DISGUISE_M = 70974,    
+};
+
 class npc_mageguard_dalaran : public CreatureScript
 {
 public:
@@ -72,6 +80,13 @@ public:
             Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
 
             if (!player || player->isGameMaster() || player->IsBeingTeleported())
+                return;
+
+            // Check for disguise (needed for quests An Audience With The Arcanist / A Meeting With The Magister)
+            if (player->HasAura(SILVER_COVENANT_DISGUISE_F) || 
+                player->HasAura(SILVER_COVENANT_DISGUISE_M) || 
+                player->HasAura(SUNREAVER_DISGUISE_F) || 
+                player->HasAura(SUNREAVER_DISGUISE_M))
                 return;
 
             switch (me->GetEntry())
@@ -158,8 +173,58 @@ public:
     }
 };
 
+// Archmage Vargoth
+
+#define PET_TEXT 14194
+#define SCHOOLS_OF_ARCANE_MAGIC 43824
+#define KIRIN_TOR_FAMILIAR 44738
+#define KIRIN_TOR_FAMILIAR_SPELL 61472
+
+class npc_archmage_vargoth : public CreatureScript
+{
+public:
+    npc_archmage_vargoth() : CreatureScript("npc_archmage_vargoth") { }
+
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    {
+        if (creature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(creature->GetGUID());
+
+        if (creature->GetMapId() == 571 &&
+            pPlayer->HasItemCount(SCHOOLS_OF_ARCANE_MAGIC, 1) &&
+            !pPlayer->HasItemCount(KIRIN_TOR_FAMILIAR, 1) &&
+            !pPlayer->HasSpell(KIRIN_TOR_FAMILIAR_SPELL))
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Thank you.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1); 
+            pPlayer->SEND_GOSSIP_MENU(PET_TEXT, creature->GetGUID());
+        }
+        else
+        {
+            pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+        }
+
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        pPlayer->PlayerTalkClass->ClearMenus();
+
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_INFO_DEF+1:
+                pPlayer->AddItem(KIRIN_TOR_FAMILIAR, 1);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+        }
+
+        return true;
+    }
+};
+
 void AddSC_dalaran()
 {
     new npc_mageguard_dalaran;
     new npc_hira_snowdawn;
+    new npc_archmage_vargoth();
 }
