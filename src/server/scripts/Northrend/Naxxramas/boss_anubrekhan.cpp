@@ -91,6 +91,10 @@ public:
 
         void KilledUnit(Unit* victim)
         {
+            if (instance)
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    instance->SetData(DATA_IMMORTAL_ARACHNID, CRITERIA_NOT_MEETED);
+            
             //Force the player to spawn corpse scarabs via spell, TODO: Check percent chance for scarabs, 20% at the moment
             if (!(rand()%5))
                 if (victim->GetTypeId() == TYPEID_PLAYER)
@@ -109,7 +113,7 @@ public:
         }
         void EnterCombat(Unit* /*who*/)
         {
-            _EnterCombat();
+            _EnterCombat();            
             DoScriptText(SAY_AGGRO, me);
             events.ScheduleEvent(EVENT_IMPALE, 10000 + rand()%10000);
             events.ScheduleEvent(EVENT_LOCUST, 90000);
@@ -117,6 +121,9 @@ public:
 
             if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
                 events.ScheduleEvent(EVENT_SPAWN_GUARDIAN_NORMAL, urand(15000, 20000));
+
+            if (instance)
+                instance->SetData(DATA_IMMORTAL_ARACHNID, instance->GetData(DATA_IMMORTAL_ANUB));
         }
 
         void MoveInLineOfSight(Unit* who)
