@@ -2960,7 +2960,7 @@ void SpellMgr::LoadDbcDataCorrections()
 
         switch (spellInfo->Id)
         {
-            case 48278:
+            case 48278: // Paralyze
                 spellInfo->Targets = 1;
                 spellInfo->StackAmount = 3;
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
@@ -2993,10 +2993,6 @@ void SpellMgr::LoadDbcDataCorrections()
             case 69232: // Icy Blast
                 spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_TARGET_ENEMY;
                 spellInfo->EffectImplicitTargetA[1] = TARGET_DEST_TARGET_ENEMY;
-                spellInfo->EffectImplicitTargetB[0] = 0;
-                spellInfo->EffectImplicitTargetB[1] = 0;
-                break;
-            case 68987: // Pursuit
                 spellInfo->EffectImplicitTargetB[0] = 0;
                 spellInfo->EffectImplicitTargetB[1] = 0;
                 break;
@@ -3035,6 +3031,9 @@ void SpellMgr::LoadDbcDataCorrections()
             case 50785: // Energize Cores
             case 59372: // Energize Cores
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
+            case 36652: // Tuber Whistle
+                spellInfo->EffectImplicitTargetB[0] = 0;
                 break;
             case 3286:  // Bind
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
