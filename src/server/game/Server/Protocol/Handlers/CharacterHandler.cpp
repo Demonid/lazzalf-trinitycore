@@ -44,6 +44,9 @@
 #include "Battleground.h"
 #include "AccountMgr.h"
 
+#include "../../scripts/OutdoorPvP/OutdoorPvPWG.h"
+#include "OutdoorPvPMgr.h"
+
 class LoginQueryHolder : public SQLQueryHolder
 {
     private:
@@ -930,6 +933,24 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     sObjectAccessor->AddObject(pCurrChar);
     //sLog->outDebug("Player %s added to Map.", pCurrChar->GetName());
 
+    if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+    {
+        if (OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197))
+        {
+            if (pvpWG->isWarTime())
+            {
+                // "Battle in progress"
+                pCurrChar->SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL)));
+            } 
+            else            
+            {
+                // Time to next battle
+                pvpWG->SendInitWorldStatesTo(pCurrChar);
+                pCurrChar->SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL) + pvpWG->GetTimer()));
+            }
+        }
+    }
+
     pCurrChar->SendInitialPacketsAfterAddToMap();
 
     CharacterDatabase.PExecute("UPDATE characters SET online = 1 WHERE guid = '%u'", pCurrChar->GetGUIDLow());
@@ -1426,6 +1447,8 @@ void WorldSession::HandleCharCustomize(WorldPacket& recv_data)
     data << uint8(hairColor);
     data << uint8(facialHair);
     SendPacket(&data);
+
+    sWorld->ReloadSingleCharacterNameData(GUID_LOPART(guid));
 }
 
 void WorldSession::HandleEquipmentSetSave(WorldPacket &recv_data)
@@ -1779,7 +1802,10 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
         if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD))
         {
             // Reset guild
-            trans->PAppend("DELETE FROM `guild_member` WHERE `guid`= '%u'", lowGuid);
+            // trans->PAppend("DELETE FROM `guild_member` WHERE `guid`= '%u'", lowGuid);
+            if (uint32 glId = Player::GetGuildIdFromDB(GUID_LOPART(guid)))
+                if (Guild* targetGuild = sGuildMgr->GetGuildById(glId))
+                    targetGuild->DeleteMember(GUID_LOPART(guid), false, true);
         }
 
         if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND))

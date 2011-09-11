@@ -95,6 +95,7 @@ public:
         uint32 CheckFrostResistTimer;
         Map* pMap;
 
+        /*
         void InitializeAI()
         {
             float x, y, z;
@@ -106,6 +107,7 @@ public:
 
             ScriptedAI::InitializeAI();
         }
+        */
 
         void Reset()
         {
@@ -130,6 +132,9 @@ public:
             EnterPhaseGround();
 
             CheckPlayersFrostResist();
+
+            if (instance)
+                instance->SetData(DATA_IMMORTAL_FROSTWYRM, instance->GetData(DATA_IMMORTAL_SAPPHI));
         }
 
         void SpellHitTarget(Unit* target, const SpellInfo *spell)
@@ -141,6 +146,18 @@ public:
                 {
                     if (GameObject* iceblock = me->SummonGameObject(GO_ICEBLOCK, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, 0, 0, 0, 0, 25000))
                         itr->second = iceblock->GetGUID();
+                }
+            }
+        }
+
+        void KilledUnit(Unit* victim)
+        {
+            if (instance)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                {
+                    instance->SetData(DATA_IMMORTAL_FROSTWYRM, CRITERIA_NOT_MEETED);
+                    instance->SetData(DATA_IMMORTAL_SAPPHI, CRITERIA_NOT_MEETED);
                 }
             }
         }
@@ -375,7 +392,7 @@ public:
                 {
                     if (GameObject* pGo = GameObject::GetGameObject(*me, itr->second))
                     {
-                        if (pGo->IsInBetween(me, target, 2.0f)
+                        if (pGo->IsInBetween(me, target, 4.0f)
                             && me->GetExactDist2d(target->GetPositionX(), target->GetPositionY()) - me->GetExactDist2d(pGo->GetPositionX(), pGo->GetPositionY()) < 5.0f)
                         {
                             target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
