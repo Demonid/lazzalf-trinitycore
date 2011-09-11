@@ -132,6 +132,10 @@ class Log
         void outRemote( const char * str, ... )                 ATTR_PRINTF(2, 3);
         void outChat( const char * str, ... )                   ATTR_PRINTF(2, 3);
         void outArena( const char * str, ... )                  ATTR_PRINTF(2, 3);
+        void outWarden( const char * str, ... )                 ATTR_PRINTF(2, 3);
+        void outCheat(const char * str, ...)                    ATTR_PRINTF(2, 3);
+        void outMail(const char * str, ...)                     ATTR_PRINTF(2, 3);
+        void outBoss(const char * str, ...)                     ATTR_PRINTF(2, 3);
         void outSQLDriver( const char* str, ... )               ATTR_PRINTF(2, 3);
         void outCharDump( const char * str, uint32 account_id, uint32 guid, const char * name );
 
@@ -163,6 +167,10 @@ class Log
         FILE* dberLogfile;
         FILE* chatLogfile;
         FILE* arenaLogFile;
+        FILE* wardenLogFile;
+        FILE* cheatLogFile;
+        FILE* mailLogFile;
+        FILE* bossLogFile;
         FILE* sqlLogFile;
         FILE* sqlDevLogFile;
 
