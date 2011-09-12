@@ -801,11 +801,11 @@ class npc_buffnpc : public CreatureScript
                 player->ADD_GOSSIP_ITEM( 5, "Buff me Arcane Intelect"                       , GOSSIP_SENDER_MAIN, 1210);
                 player->ADD_GOSSIP_ITEM( 5, "Buff me Mark of the Wild"                      , GOSSIP_SENDER_MAIN, 1215);
                 player->ADD_GOSSIP_ITEM( 5, "Buff me Thorns"                                , GOSSIP_SENDER_MAIN, 1220);
-                player->ADD_GOSSIP_ITEM( 5, "Buff me Greater Blessing of Sanctuary"         , GOSSIP_SENDER_MAIN, 1225);
-                player->ADD_GOSSIP_ITEM( 5, "Buff me Greater Blessing of Might"             , GOSSIP_SENDER_MAIN, 1230);
+                player->ADD_GOSSIP_ITEM( 5, "Buff me Blessing of Sanctuary"                 , GOSSIP_SENDER_MAIN, 1225);
+                player->ADD_GOSSIP_ITEM( 5, "Buff me Blessing of Might"                     , GOSSIP_SENDER_MAIN, 1230);
                 //player->ADD_GOSSIP_ITEM( 5, "Buff me Greater Blessing of Light"             , GOSSIP_SENDER_MAIN, 1235);
-                player->ADD_GOSSIP_ITEM( 5, "Buff me Greater Blessing of Wisdom"            , GOSSIP_SENDER_MAIN, 1240);
-                player->ADD_GOSSIP_ITEM( 5, "Buff me Greater Blessing of Kings"             , GOSSIP_SENDER_MAIN, 1245);
+                player->ADD_GOSSIP_ITEM( 5, "Buff me Blessing of Wisdom"                    , GOSSIP_SENDER_MAIN, 1240);
+                player->ADD_GOSSIP_ITEM( 5, "Buff me Blessing of Kings"                     , GOSSIP_SENDER_MAIN, 1245);
                 player->ADD_GOSSIP_ITEM( 5, "Buff me Divine Spirit"                         , GOSSIP_SENDER_MAIN, 1250);
                 player->ADD_GOSSIP_ITEM( 5, "Buff me Shadow Protection"                     , GOSSIP_SENDER_MAIN, 1251);
                 player->ADD_GOSSIP_ITEM( 5, "Buff me Power Word: Fortitude"                 , GOSSIP_SENDER_MAIN, 1252);
@@ -824,11 +824,11 @@ class npc_buffnpc : public CreatureScript
                 player->ADD_GOSSIP_ITEM( 5, "Buff me Arcane Intelect"                       , GOSSIP_SENDER_MAIN, 1210);
                 player->ADD_GOSSIP_ITEM( 5, "Buff me Mark of the Wild"                      , GOSSIP_SENDER_MAIN, 1215);
                 player->ADD_GOSSIP_ITEM( 5, "Buff me Thorns"                                , GOSSIP_SENDER_MAIN, 1220);
-                player->ADD_GOSSIP_ITEM( 5, "Buff me Greater Blessing of Sanctuary"         , GOSSIP_SENDER_MAIN, 1225);
-                player->ADD_GOSSIP_ITEM( 5, "Buff me Greater Blessing of Might"             , GOSSIP_SENDER_MAIN, 1230);
+                player->ADD_GOSSIP_ITEM( 5, "Buff me Blessing of Sanctuary"                 , GOSSIP_SENDER_MAIN, 1225);
+                player->ADD_GOSSIP_ITEM( 5, "Buff me Blessing of Might"                     , GOSSIP_SENDER_MAIN, 1230);
                 //player->ADD_GOSSIP_ITEM( 5, "Buff me Greater Blessing of Light"             , GOSSIP_SENDER_MAIN, 1235);
-                player->ADD_GOSSIP_ITEM( 5, "Buff me Greater Blessing of Wisdom"            , GOSSIP_SENDER_MAIN, 1240);
-                player->ADD_GOSSIP_ITEM( 5, "Buff me Greater Blessing of Kings"             , GOSSIP_SENDER_MAIN, 1245);
+                player->ADD_GOSSIP_ITEM( 5, "Buff me Blessing of Wisdom"                    , GOSSIP_SENDER_MAIN, 1240);
+                player->ADD_GOSSIP_ITEM( 5, "Buff me Blessing of Kings"                     , GOSSIP_SENDER_MAIN, 1245);
                 player->ADD_GOSSIP_ITEM( 5, "Buff me Divine Spirit"                         , GOSSIP_SENDER_MAIN, 1250);
                 player->ADD_GOSSIP_ITEM( 5, "Buff me Shadow Protection"                     , GOSSIP_SENDER_MAIN, 1251);
                 player->ADD_GOSSIP_ITEM( 5, "Buff me Power Word: Fortitude"                 , GOSSIP_SENDER_MAIN, 1252);
@@ -896,25 +896,25 @@ class npc_buffnpc : public CreatureScript
                 player->CLOSE_GOSSIP_MENU();
                 _Creature->CastSpell(player,26992,false);
                 break;
-            case 1225: // Buff me Greater Blessing of Sanctuary
+            case 1225: // Buff me Blessing of Sanctuary
                 player->CLOSE_GOSSIP_MENU();
-                _Creature->CastSpell(player,25899,false);
+                _Creature->CastSpell(player,20911,false);
                 break;
-            case 1230: // Buff me Greater Blessing of Might
+            case 1230: // Buff me Blessing of Might
                 player->CLOSE_GOSSIP_MENU();
-                _Creature->CastSpell(player,48934,false);
+                _Creature->CastSpell(player,48932,false);
                 break;
             case 1235: // Buff me Greater Blessing of Light
                 player->CLOSE_GOSSIP_MENU();
                 _Creature->CastSpell(player,27145,false);
                 break;
-            case 1240: // Buff me Greater Blessing of Wisdom
+            case 1240: // Buff me Blessing of Wisdom
                 player->CLOSE_GOSSIP_MENU();
-                _Creature->CastSpell(player,48938,false);
+                _Creature->CastSpell(player,48936,false);
                 break;
-            case 1245: // Buff me Greater Blessing of Kings
+            case 1245: // Buff me Blessing of Kings
                 player->CLOSE_GOSSIP_MENU();
-                _Creature->CastSpell(player,25898,false);
+                _Creature->CastSpell(player,20217,false);
                 break;
             case 1250: // Buff me Divine Spirit
                 player->CLOSE_GOSSIP_MENU();

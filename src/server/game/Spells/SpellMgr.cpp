@@ -3072,7 +3072,7 @@ void SpellMgr::LoadDbcDataCorrections()
                 // Target entry seems to be wrong for this spell :/
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER_AREA_PARTY;
                 spellInfo->EffectRadiusIndex[0] = 45;
-            case 63944:                             // Renewed Hope hack
+            case 63944: // Renewed Hope hack
                 spellInfo->EffectApplyAuraName[0] = 87;
                 spellInfo->EffectMiscValue[0] = 127;
                 break;
