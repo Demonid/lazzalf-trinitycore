@@ -255,9 +255,9 @@ public:
 
         void DoAction(const int32 /*action*/)
         {
-            if(Creature* target = me->SummonCreature(CREATURE_RITUAL_TARGET, SvalaPos))
+            if (Creature* target = me->SummonCreature(CREATURE_RITUAL_TARGET, SvalaPos))
             {
-                if(Player* player = me->GetPlayer(*me, pInstance->GetData64(DATA_SACRIFICED_PLAYER)))
+                if (Player* player = me->GetPlayer(*me, pInstance->GetData64(DATA_SACRIFICED_PLAYER)))
                     target->setFaction(player->ToUnit()->getFaction());
 
                 me->SetUInt64Value(UNIT_FIELD_TARGET, target->GetGUID());
@@ -344,7 +344,7 @@ public:
 
         void JustSummoned(Creature* summon)
         {
-            if(summon->GetEntry() != CREATURE_RITUAL_CHANNELER)
+            if (summon->GetEntry() != CREATURE_RITUAL_CHANNELER)
                 return;
 
             summons.Summon(summon);
@@ -375,7 +375,7 @@ public:
                     {
                         for (uint8 i = 0; i < 2; ++i)
                         {
-                            if(Creature* flame = me->SummonCreature(CREATURE_FLAME_BRAZIER, FlameCallPos[i], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
+                            if (Creature* flame = me->SummonCreature(CREATURE_FLAME_BRAZIER, FlameCallPos[i], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
                             {
                                 flame->SetFlying(true);
                                 flame->CastSpell(target, IsHeroic() ? H_SPELL_FLAME_VOLLEY : SPELL_FLAME_VOLLEY, true);
@@ -410,7 +410,7 @@ public:
                                 for (uint8 i = 0; i < 3; ++i)
                                     me->SummonCreature(CREATURE_RITUAL_CHANNELER, RitualChannelerPos[i], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000);
                             }
-                            if(Creature* sword = me->SummonCreature(CREATURE_RITUAL_SWORD, 296.632f, -346.075f, 113.85f))
+                            if (Creature* sword = me->SummonCreature(CREATURE_RITUAL_SWORD, 296.632f, -346.075f, 113.85f))
                                 uiSword = sword->GetGUID();
 
                             bSacrificed = true;
@@ -422,14 +422,14 @@ public:
             }
             else  //SACRIFICING
             {
-                if(summons.empty() || !me->GetCreature(*me, uiSword)) // Sacrfing finished
+                if (summons.empty() || !me->GetCreature(*me, uiSword)) // Sacrfing finished
                 {
                     summons.DespawnAll();
 
-                    if(Creature* sword = me->GetCreature(*me, uiSword))
+                    if (Creature* sword = me->GetCreature(*me, uiSword))
                         sword->DespawnOrUnsummon();
 
-                    if(Player* player = me->GetPlayer(*me, pInstance->GetData64(DATA_SACRIFICED_PLAYER)))
+                    if (Player* player = me->GetPlayer(*me, pInstance->GetData64(DATA_SACRIFICED_PLAYER)))
                     {
                         player->RemoveAurasDueToSpell(SPELL_PARALYZE);
                         player->RemoveAurasDueToSpell(SPELL_RITUAL_PREPARATION);
@@ -494,14 +494,14 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if(!UpdateVictim())
+            if (!UpdateVictim())
                 return;
 
-            if(uiBlowTimer < uiDiff)
+            if (uiBlowTimer < uiDiff)
             {
-                if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    if(!target->HasAura(SPELL_PARALYZE))
+                    if (!target->HasAura(SPELL_PARALYZE))
                     {
                         DoCast(target, SPELL_MIGHTY_BLOW);
                         uiBlowTimer = urand(12000, 17000);
@@ -513,9 +513,9 @@ public:
             else
                 uiBlowTimer -= uiDiff;
 
-            if(uiInfectionTimer < uiDiff)
+            if (uiInfectionTimer < uiDiff)
             {
-                if(Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                    DoCast(target, SPELL_VOLATILE_INFECTION);
                 uiInfectionTimer = urand(13000, 17000);
             }
@@ -557,17 +557,17 @@ public:
 
         void KilledUnit(Unit* victim)
         {
-            if(!IsHeroic())
+            if (!IsHeroic())
                 return;
 
-            if(Creature* hulk = victim->ToCreature())
-                if(hulk->GetEntry() == CREATURE_SCOURGE_HULK)
+            if (Creature* hulk = victim->ToCreature())
+                if (hulk->GetEntry() == CREATURE_SCOURGE_HULK)
                     instance->DoCompleteAchievement(ACHIEV_INCREDIBLE_HULK);
         }
 
         void MovementInform(uint32 type, uint32 id)
         {
-            if(Player* player = me->GetPlayer(*me, instance->GetData64(DATA_SACRIFICED_PLAYER)))
+            if (Player* player = me->GetPlayer(*me, instance->GetData64(DATA_SACRIFICED_PLAYER)))
             {
                 me->CastSpell(player, SPELL_RITUAL_STRIKE, true);
                 player->RemoveAurasDueToSpell(SPELL_PARALYZE);

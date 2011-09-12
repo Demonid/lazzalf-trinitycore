@@ -214,6 +214,7 @@ class achievement_consumption_junction : public AchievementCriteriaScript
             return false;
         }
 };
+
 class spell_trollgore_consume : public SpellScriptLoader
 {
     public:
@@ -288,6 +289,6 @@ class spell_trollgore_consume : public SpellScriptLoader
 void AddSC_boss_trollgore()
 {
     new boss_trollgore();
-	new spell_trollgore_consume();
+    new spell_trollgore_consume();
     new achievement_consumption_junction();
 }
