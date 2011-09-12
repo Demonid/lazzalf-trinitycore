@@ -62,6 +62,9 @@ public:
             // Do not let Gluth be affected by zombies' debuff
             me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_INFECTED_WOUND, true);
 
+            me->ApplySpellImmune(0, IMMUNITY_ID, 28374, true);
+            me->ApplySpellImmune(0, IMMUNITY_ID, 54426, true);
+
             pMap = NULL;
             if(me)
                 pMap = me->GetMap();        
