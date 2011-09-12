@@ -252,6 +252,7 @@ struct boss_twin_baseAI : public ScriptedAI
         if (m_pInstance)
         {
             m_pInstance->SetData(TYPE_VALKIRIES, FAIL);
+            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetMaxHealth());
         }
         me->DespawnOrUnsummon();
     }
@@ -332,6 +333,7 @@ struct boss_twin_baseAI : public ScriptedAI
         DoScriptText(SAY_DEATH, me);
         if (m_pInstance)
         {
+            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, 0);
             if (Creature* pSister = GetSister())
             {
                 if (!pSister->isAlive())
@@ -339,7 +341,11 @@ struct boss_twin_baseAI : public ScriptedAI
                     m_pInstance->SetData(TYPE_VALKIRIES, DONE);
                     Summons.DespawnAll();
                 }
-                else m_pInstance->SetData(TYPE_VALKIRIES, SPECIAL);
+                else 
+                {
+                    m_pInstance->SetData(TYPE_VALKIRIES, SPECIAL);
+                    me->Kill(pSister);
+                }
             }
         }
         Summons.DespawnAll();
@@ -351,6 +357,37 @@ struct boss_twin_baseAI : public ScriptedAI
         return Unit::GetCreature((*me), m_pInstance->GetData64(m_uiSisterNpcId));
     }
 
+    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+    {
+        if (!me || !me->isAlive())
+            return;
+
+        if (pDoneBy->GetGUID() == me->GetGUID())
+            return;
+
+        if (pDoneBy->GetTypeId() == TYPEID_PLAYER)
+        {
+            if (pDoneBy->HasAura(m_uiOtherEssenceSpellId))
+                uiDamage += uiDamage/2;
+            if (pDoneBy->HasAura(m_uiEmpoweredWeaknessSpellId))
+                uiDamage += uiDamage;
+            else
+                if (pDoneBy->HasAura(m_uiMyEssenceSpellId))
+                    uiDamage /= 2;
+        }
+
+        if (m_pInstance)
+            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetHealth() >= uiDamage ? me->GetHealth() - uiDamage : 0);
+    }
+
+    void SpellHit(Unit* caster, const SpellInfo* spell)
+    {
+        if (caster->ToCreature() == me)
+            if (spell->Effects[0].Effect == 136) //Effect Heal
+                if (m_pInstance)
+                    m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetHealth() + me->CountPctFromMaxHealth(spell->Effects[EFFECT_0].CalcValue()));
+    }
+
     void EnterCombat(Unit* who)
     {
         me->SetInCombatWithZone();
@@ -360,6 +397,7 @@ struct boss_twin_baseAI : public ScriptedAI
                 me->AddAura(m_uiMyEmphatySpellId, pSister);
 
             m_pInstance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
+            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetMaxHealth());
         }
         if (me->isAlive())
         {
@@ -395,6 +433,11 @@ struct boss_twin_baseAI : public ScriptedAI
     {
         if (!m_pInstance || !UpdateVictim())
             return;
+
+        if (m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED) != 0)
+            me->SetHealth(m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED));
+        else
+            me->SetHealth(1);
 
         switch (m_uiStage)
         {
