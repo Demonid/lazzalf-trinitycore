@@ -1370,7 +1370,7 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
          if (plr->GetBattleground())
          {
             // Hack rules for Orgrimmar Arena
-            if (GetMapId() == 618 && ((BattlegroundRV*)plr->GetBattleground())->fencesopened)
+            if (GetMapId() == 618 && (BattlegroundRV*)plr->GetBattleground() && ((BattlegroundRV*)plr->GetBattleground())->fencesopened)
             {
                 const float bochki[4][2]=
                     {{BG_RV_OBJECT_PILAR_1, 3.08f},
@@ -1379,23 +1379,25 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
                     {BG_RV_OBJECT_PILAR_4, 6.80f}};
                 for (uint8 i=0; i<4; ++i)
                 {
-                    BattlegroundRV* bg =((BattlegroundRV*)plr->GetBattleground());
-                    // by default first(0) pilar is opened
-                    if((i+1) % 2 == uint8(bg->pillarsopened))
-                        continue;
-                    GameObject* bochka = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[bochki[i][0]]);
-                    if (bochka->IsInBetween(this, obj,bochki[i][1]))
-                        return false;
+                    if (BattlegroundRV* bg =((BattlegroundRV*)plr->GetBattleground()))
+                    {
+                        // by default first(0) pilar is opened
+                        if((i+1) % 2 == uint8(bg->pillarsopened))
+                            continue;
+                        if (GameObject* bochka = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[bochki[i][0]]))
+                            if (bochka->IsInBetween(this, obj,bochki[i][1]))
+                                return false;
+                    }
                 }
                 return true;
             }            
             // Hack rules for Dalaran Arena
-            else if(GetMapId() == 617 && ((BattlegroundDS*)plr->GetBattleground())->isWaterFallActive())
+            else if (GetMapId() == 617 && (BattlegroundDS*)plr->GetBattleground() && ((BattlegroundDS*)plr->GetBattleground())->isWaterFallActive())
             {
-                BattlegroundDS* bg =((BattlegroundDS*)plr->GetBattleground());
-                GameObject* fontan = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[BG_DS_OBJECT_WATER_1]);
-                if (fontan->IsInBetween(this, obj, 5))
-                    return false;
+                if (BattlegroundDS* bg = ((BattlegroundDS*)plr->GetBattleground()))
+                    if (GameObject* fontan = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[BG_DS_OBJECT_WATER_1]))
+                        if (fontan->IsInBetween(this, obj, 5))
+                            return false;
             }
         }
     }
