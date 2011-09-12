@@ -1394,12 +1394,12 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
             }            
             // Hack rules for Dalaran Arena
             else if (GetMapId() == 617 && (BattlegroundDS*)plr->GetBattleground() && ((BattlegroundDS*)plr->GetBattleground())->isWaterFallActive())
-            {
-                if (bg->GetBgMap())
+            {                
                     if (BattlegroundDS* bg = ((BattlegroundDS*)plr->GetBattleground()))
-                        if (GameObject* fontan = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[BG_DS_OBJECT_WATER_1]))
-                            if (fontan->IsInBetween(this, obj, 5))
-                                return false;
+                        if (bg->GetBgMap())
+                            if (GameObject* fontan = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[BG_DS_OBJECT_WATER_1]))
+                                if (fontan->IsInBetween(this, obj, 5))
+                                    return false;
             }
         }
     }
