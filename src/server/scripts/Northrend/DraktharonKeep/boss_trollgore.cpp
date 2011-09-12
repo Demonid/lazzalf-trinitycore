@@ -214,9 +214,80 @@ class achievement_consumption_junction : public AchievementCriteriaScript
             return false;
         }
 };
+class spell_trollgore_consume : public SpellScriptLoader
+{
+    public:
+        spell_trollgore_consume() : SpellScriptLoader("spell_trollgore_consume") { }
+
+        class spell_trollgore_consume_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_trollgore_consume_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {               
+                if (!sSpellMgr->GetSpellInfo(SPELL_CONSUME))
+                    return false;                
+                if (!sSpellMgr->GetSpellInfo(H_SPELL_CONSUME))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_CONSUME_AURA))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(H_SPELL_CONSUME_AURA))
+                    return false;                
+                return true;
+            }
+
+            bool Load()
+            {
+                _targetCount = 0;
+                return true;
+            }
+
+            void CountTargets(std::list<Unit*>& unitList)
+            {
+                _targetCount = unitList.size();
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                switch(GetSpellInfo()->Id)
+                {
+                    case SPELL_CONSUME:
+                        for (uint8 i = 0; i < _targetCount; i++)
+                            caster->CastSpell(caster, SPELL_CONSUME_AURA);
+                        break;
+                    case H_SPELL_CONSUME:
+                        for (uint8 i = 0; i < _targetCount; i++)
+                            caster->CastSpell(caster, H_SPELL_CONSUME_AURA);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_trollgore_consume_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_trollgore_consume_SpellScript::CountTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+
+            uint32 _targetCount;
+        };
+
+        SpellScript* GetSpellScript() const
+        { 
+			return new spell_trollgore_consume_SpellScript();
+        }
+};
 
 void AddSC_boss_trollgore()
 {
     new boss_trollgore();
+	new spell_trollgore_consume();
     new achievement_consumption_junction();
 }
