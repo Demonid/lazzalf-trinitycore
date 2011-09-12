@@ -1739,12 +1739,12 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                            target->CastSpell(target, 61394, true);               
                 // Wyvern Sting
                 // If implemented through spell_linked_spell it can't proc from breaking by damage
-                if (removeMode != AURA_REMOVE_BY_DEATH &&
+                /*if (removeMode != AURA_REMOVE_BY_DEATH &&
                     GetSpellInfo()->SpellFamilyFlags[1] & 0x1000 && caster)
                 {
                     uint32 spell = sSpellMgr->GetSpellWithRank(24131, sSpellMgr->GetSpellRank(GetId()));
                     caster->CastSpell(target, spell, true);
-                }
+                }*/
                 break;
         }
     }
