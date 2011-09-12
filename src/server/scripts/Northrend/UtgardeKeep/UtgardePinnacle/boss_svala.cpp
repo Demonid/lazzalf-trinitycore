@@ -333,6 +333,15 @@ public:
                 pInstance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, IN_PROGRESS);
         }
 
+        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+        {
+            if (Phase == SACRIFICING)
+                if (uiDamage >= me->GetHealth())
+                {
+                    uiDamage = 0;
+                }
+        }
+
         void JustSummoned(Creature* summon)
         {
             if(summon->GetEntry() != CREATURE_RITUAL_CHANNELER)
