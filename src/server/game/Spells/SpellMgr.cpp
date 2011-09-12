@@ -2960,6 +2960,10 @@ void SpellMgr::LoadDbcDataCorrections()
 
         switch (spellInfo->Id)
         {
+            case 28374:// Decimate 10
+            case 54426:// Decimate 25
+                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
             case 28089:// Polarity Shift 10
             case 39096:// Polarity Shift 25
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_SRC_AREA_ENEMY;
