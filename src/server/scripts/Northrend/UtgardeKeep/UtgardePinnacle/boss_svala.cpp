@@ -22,7 +22,7 @@ enum Spells
 {
     SPELL_CALL_FLAMES                             = 48258,
     SPELL_FLAME_VOLLEY                            = 37109,
-    H_SPELL_FLAME_VOLLEY                          = 23512,
+    H_SPELL_FLAME_VOLLEY                          = 37109, // TODO Find Heroic spell
     SPELL_RITUAL_OF_THE_SWORD                     = 48276, //Effect #1 Teleport,  Effect #2 Dummy
     SPELL_RITUAL_PREPARATION                      = 48267,
     SPELL_RITUAL_STRIKE                           = 48277,
