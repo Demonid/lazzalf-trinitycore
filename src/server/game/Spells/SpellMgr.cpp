@@ -2960,6 +2960,10 @@ void SpellMgr::LoadDbcDataCorrections()
 
         switch (spellInfo->Id)
         {
+            case 28089:// Polarity Shift 10
+            case 39096:// Polarity Shift 25
+                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
             case 42723: // Dark Smash
             case 59709: // Dark Smash H
                 spellInfo->AttributesEx2 &= !SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
