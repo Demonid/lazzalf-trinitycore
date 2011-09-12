@@ -1384,9 +1384,10 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
                         // by default first(0) pilar is opened
                         if((i+1) % 2 == uint8(bg->pillarsopened))
                             continue;
-                        if (GameObject* bochka = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[bochki[i][0]]))
-                            if (bochka->IsInBetween(this, obj,bochki[i][1]))
-                                return false;
+                        if (bg->GetBgMap())
+                            if (GameObject* bochka = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[bochki[i][0]]))
+                                if (bochka->IsInBetween(this, obj, bochki[i][1]))
+                                    return false;
                     }
                 }
                 return true;
@@ -1394,10 +1395,11 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
             // Hack rules for Dalaran Arena
             else if (GetMapId() == 617 && (BattlegroundDS*)plr->GetBattleground() && ((BattlegroundDS*)plr->GetBattleground())->isWaterFallActive())
             {
-                if (BattlegroundDS* bg = ((BattlegroundDS*)plr->GetBattleground()))
-                    if (GameObject* fontan = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[BG_DS_OBJECT_WATER_1]))
-                        if (fontan->IsInBetween(this, obj, 5))
-                            return false;
+                if (bg->GetBgMap())
+                    if (BattlegroundDS* bg = ((BattlegroundDS*)plr->GetBattleground()))
+                        if (GameObject* fontan = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[BG_DS_OBJECT_WATER_1]))
+                            if (fontan->IsInBetween(this, obj, 5))
+                                return false;
             }
         }
     }
