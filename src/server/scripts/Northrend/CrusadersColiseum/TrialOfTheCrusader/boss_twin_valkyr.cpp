@@ -399,11 +399,13 @@ struct boss_twin_baseAI : public ScriptedAI
             m_pInstance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
             m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetMaxHealth());
         }
+        /*
         if (me->isAlive())
         {
             me->SummonCreature(m_uiEssenceNpcId, EssenceLocation[0].GetPositionX(), EssenceLocation[0].GetPositionY(), EssenceLocation[0].GetPositionZ());
             me->SummonCreature(m_uiEssenceNpcId, EssenceLocation[1].GetPositionX(), EssenceLocation[1].GetPositionY(), EssenceLocation[1].GetPositionZ());
         }
+        */
         DoScriptText(SAY_AGGRO, me);
         DoCast(me, m_uiSurgeSpellId);
     }
