@@ -2960,6 +2960,10 @@ void SpellMgr::LoadDbcDataCorrections()
 
         switch (spellInfo->Id)
         {
+            case 42723: // Dark Smash
+            case 59709: // Dark Smash H
+                spellInfo->AttributesEx2 &= !SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
             case 48278: // Paralyze
                 spellInfo->Targets = 1;
                 spellInfo->StackAmount = 3;
