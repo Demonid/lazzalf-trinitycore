@@ -686,6 +686,7 @@ class npc_argent_soldier : public CreatureScript
                         me->SetOrientation(3.39f);
 			            me->SetReactState(REACT_AGGRESSIVE);					
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                        me->setFaction(16);
                         bStarted = true;
                         if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
                             pInstance->HandleGameObject(pGO->GetGUID(),false);					
