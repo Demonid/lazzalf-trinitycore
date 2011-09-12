@@ -5031,13 +5031,16 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 case SPELLFAMILY_HUNTER:
                     switch (GetId())
                     {
-                        case 34477: // Misdirection
+                        case 35079: // Misdirection
+                            caster->SetReducedThreatPercent(0, 0);
+                            break;
+                        /*case 34477: // Misdirection
                             if (aurApp->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
                                 target->SetReducedThreatPercent(0, 0);
                             break;
                         case 35079: // Misdirection proc
                             target->SetReducedThreatPercent(0, 0);
-                            break;
+                            break;*/
                     }
                     break;
                /* case SPELLFAMILY_DEATHKNIGHT:
