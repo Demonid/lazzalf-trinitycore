@@ -362,18 +362,7 @@ public:
 
                     if (m_uiSummonNerubianTimer <= uiDiff && (IsHeroic() || !m_bReachedPhase3))
                     {
-                        // me->CastCustomSpell(SPELL_SUMMON_BURROWER, SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 2, 2, 4));
-                       
-                        for (int j = 0; j < RAID_MODE(1, 2, 2, 4); j++)
-                        {
-                            std::list<uint64>::iterator i = m_vBurrowGUID.begin();
-                            uint32 at = urand(0, m_vBurrowGUID.size()-1);
-                            for (uint32 k = 0; k < at; k++)
-                                ++i;
-                            if (Creature *pBurrow = Unit::GetCreature(*me, *i))
-                                pBurrow->CastSpell(pBurrow, 66333, false);
-                        }
-
+                        me->CastCustomSpell(SPELL_SUMMON_BURROWER, SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 2, 2, 4));
                         m_uiSummonNerubianTimer = 90*IN_MILLISECONDS;
                     } else m_uiSummonNerubianTimer -= uiDiff;
 
