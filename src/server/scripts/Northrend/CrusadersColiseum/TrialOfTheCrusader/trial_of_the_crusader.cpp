@@ -204,7 +204,10 @@ class npc_announcer_toc10 : public CreatureScript
                         return true;
 
                     if (GameObject* floor = GameObject::GetGameObject(*player, instanceScript->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
+                    {                    
                         floor->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
+                        floor->DestroyForNearbyPlayers();
+                    }
 
                     creature->CastSpell(creature, 69016, false);
 
@@ -319,7 +322,10 @@ class boss_lich_king_toc : public CreatureScript
                             break;
                         case 5080:
                             if (GameObject* pGoFloor = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
+                            {                            
                                 pGoFloor->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
+                                pGoFloor->DestroyForNearbyPlayers();
+                            }
                             me->CastSpell(me, 69016, false);
                             if (m_pInstance)
                             {
