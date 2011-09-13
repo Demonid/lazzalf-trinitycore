@@ -3110,6 +3110,7 @@ void SpellMgr::LoadDbcDataCorrections()
             case 65121: // Searing Light Hero
             case 62016: // Charge Orb
             case 61588: // Blazing Harpoon
+            case 68950: // Bronjahm Fear
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 52479: // Gift of the Harvester
