@@ -41,6 +41,7 @@ EndContentData */
 #define GOSSIP_ARETE_ITEM6 "Let's finish this!"
 #define GOSSIP_ARETE_ITEM7 "That's quite a tale, Lord-Commander."
 
+
 enum eArete
 {
     GOSSIP_TEXTID_ARETE1        = 13525,
@@ -869,6 +870,117 @@ public:
     }
 };
 
+//prova fix da google per quest freet he eye
+#define QUEST_FREE_YOUR_MIND               12893
+#define SPELL_SOVEREIGN_ROD                29070
+#define NPC_VILE_CREDIT_BUNNY              29845
+#define NPC_LADY_NIGHTSWOOD_CREDIT_BUNNY   29846
+#define NPC_LEAPER_BUNNY                   29847
+
+class npc_vile : public CreatureScript
+{
+public:
+    npc_vile() : CreatureScript("npc_vile") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_vileAI (pCreature);
+    }
+
+    struct npc_vileAI : public ScriptedAI
+    {
+        npc_vileAI(Creature *c) : ScriptedAI(c) {}
+
+        bool spellHit;
+
+        void Reset()
+        {
+            spellHit = false;
+        }
+
+        void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
+        {
+            if ((Spellkind->Id == SPELL_SOVEREIGN_ROD) && !spellHit &&
+                (Hitter->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_FREE_YOUR_MIND)))
+            {
+                CAST_PLR(Hitter)->KilledMonsterCredit(NPC_VILE_CREDIT_BUNNY, 0);
+                spellHit = true;
+            }
+        }
+    };
+
+};
+
+class npc_lady_nightswood : public CreatureScript
+{
+public:
+    npc_lady_nightswood() : CreatureScript("npc_lady_nightswood") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_lady_nightswoodAI (pCreature);
+    }
+
+    struct npc_lady_nightswoodAI : public ScriptedAI
+    {
+        npc_lady_nightswoodAI(Creature *c) : ScriptedAI(c) {}
+
+        bool spellHit;
+
+        void Reset()
+        {
+            spellHit = false;
+        }
+
+        void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
+        {
+            if ((Spellkind->Id == SPELL_SOVEREIGN_ROD) && !spellHit &&
+                (Hitter->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_FREE_YOUR_MIND)))
+            {
+                CAST_PLR(Hitter)->KilledMonsterCredit(NPC_LADY_NIGHTSWOOD_CREDIT_BUNNY, 0);
+                spellHit = true;
+            }
+        }
+    };
+
+};
+
+class npc_leaper : public CreatureScript
+{
+public:
+    npc_leaper() : CreatureScript("npc_leaper") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_leaperAI (pCreature);
+    }
+
+    struct npc_leaperAI : public ScriptedAI
+    {
+        npc_leaperAI(Creature *c) : ScriptedAI(c) {}
+
+        bool spellHit;
+
+        void Reset()
+        {
+            spellHit = false;
+        }
+
+        void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
+        {
+            if ((Spellkind->Id == SPELL_SOVEREIGN_ROD) && !spellHit &&
+                (Hitter->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_FREE_YOUR_MIND)))
+            {
+                CAST_PLR(Hitter)->KilledMonsterCredit(NPC_LEAPER_BUNNY, 0);
+                spellHit = true;
+            }
+        }
+    };
+
+};
+
+
+
 void AddSC_icecrown()
 {
     new npc_arete;
@@ -884,5 +996,11 @@ void AddSC_icecrown()
     new npc_ring_champions;
     new npc_ring_valiants;
     new npc_vereth_the_cunning;
-
+	//nuovi script
+    //new npc_valis_windchaser
+    //new npc_rugan_steelbelly;
+    //new npc_jeran_lockwood;
+    new npc_vile;
+    new npc_lady_nightswood;
+    new npc_leaper;
 }
