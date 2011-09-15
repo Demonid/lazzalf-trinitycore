@@ -243,22 +243,20 @@ class spell_trollgore_consume : public SpellScriptLoader
                 return true;
             }
 
-           void FilterTargets(std::list<Unit*>& unitList)
+            void FilterTargets(std::list<Unit*>& unitList)
             {
                 for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end();)
                 {
                     if ((*itr)->GetTypeId() != TYPEID_PLAYER)
                         unitList.erase(itr++);
                     else
-					{ 
-						_targetCount++;
-					
-						++itr;
-					}
-                }
-
-                
+                    { 
+                        _targetCount++;					
+                        ++itr;
+                    }
+                }                
             }
+
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
