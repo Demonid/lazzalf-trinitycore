@@ -243,11 +243,22 @@ class spell_trollgore_consume : public SpellScriptLoader
                 return true;
             }
 
-            void CountTargets(std::list<Unit*>& unitList)
+           void FilterTargets(std::list<Unit*>& unitList)
             {
-                _targetCount = unitList.size();
-            }
+                for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end();)
+                {
+                    if ((*itr)->GetTypeId() != TYPEID_PLAYER)
+                        unitList.erase(itr++);
+                    else
+					{ 
+						_targetCount++;
+					
+						++itr;
+					}
+                }
 
+                
+            }
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -274,7 +285,7 @@ class spell_trollgore_consume : public SpellScriptLoader
             void Register()
             {
                 OnEffect += SpellEffectFn(spell_trollgore_consume_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_trollgore_consume_SpellScript::CountTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_trollgore_consume_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
 
             uint32 _targetCount;
