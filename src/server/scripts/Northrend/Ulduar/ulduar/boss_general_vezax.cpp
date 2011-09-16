@@ -225,7 +225,7 @@ class boss_general_vezax : public CreatureScript
                                 However, if there are not at least 5 people outside of 15 yards 
                                 he will start casting it on players inside 15 yards melee and tank included.
                             */
-                            Unit* target = CheckPlayersInRange(RAID_MODE(2,5), 15.0f, 120.f);
+                            Unit* target = CheckPlayersInRange(RAID_MODE<uint8>(3,6), 15.0f, 120.f);
                             if (!target)
                                 target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true); 
                             if (target)
@@ -446,10 +446,8 @@ class spell_mark_of_the_faceless : public SpellScriptLoader
 
             void HandleEffectPeriodic(AuraEffect const* aurEff)
             {
-                Unit* caster = GetCaster();
-                if (!caster)
-                    return;
-                caster->CastCustomSpell(SPELL_MARK_OF_THE_FACELESS_DAMAGE, SPELLVALUE_BASE_POINT1, aurEff->GetAmount(), GetTarget(), true);
+                if (Unit* caster = GetCaster())
+                    caster->CastCustomSpell(SPELL_MARK_OF_THE_FACELESS_DAMAGE, SPELLVALUE_BASE_POINT1, aurEff->GetAmount(), GetTarget(), true);
             }
 
             void Register()
@@ -469,5 +467,5 @@ void AddSC_boss_general_vezax()
     new boss_general_vezax();
     new mob_saronite_vapors();
     new mob_saronite_animus();
-    //new spell_mark_of_the_faceless();
+    new spell_mark_of_the_faceless();
 }

@@ -5763,10 +5763,11 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                 }
                 case 62292: // Blaze (Pool of Tar)
                     // should we use custom damage?
-                    target->CastSpell((Unit*)NULL, m_spellInfo->Effects[m_effIndex].TriggerSpell, true);
+                    if (target)
+                        target->CastSpell((Unit*)NULL, m_spellInfo->Effects[m_effIndex].TriggerSpell, true);
                     break;
                 case 62399: // Overload Circuit
-                    if (target->GetMap()->IsDungeon() && int(target->GetAppliedAuras().count(62399)) >= (target->GetMap()->IsHeroic() ? 4 : 2))
+                    if (target && target->GetMap()->IsDungeon() && int(target->GetAppliedAuras().count(62399)) >= (target->GetMap()->IsHeroic() ? 4 : 2))
                     {
                          target->CastSpell(target, 62475, true); // System Shutdown
                          if (Unit* veh = target->GetVehicleBase())
@@ -5777,7 +5778,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     if (pvpWG && (pvpWG->isWarTime() == false))
                         break;
 
-                    if (GetTickNumber() == 10)
+                    if (GetTickNumber() == 10 && target)
                     {
                         target->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
                         target->RemoveAurasByType(SPELL_AURA_FLY);
@@ -5785,15 +5786,15 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     }
                     break;
                 case 58600: // No fly Zone - Dalaran
-                    if (GetTickNumber() == 10)
+                    if (GetTickNumber() == 10 && target)
                     {
                         target->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
                         target->RemoveAurasByType(SPELL_AURA_FLY);
                         target->CastSpell(target, 61286, true);
                     }
                     break;
-                case 63276: // Mark of the Faceless
-                    if (caster) 
+                /*case 63276: // Mark of the Faceless
+                    if (caster && target) 
                     {
                         uint32 count = 0;
                         Position *pos = target;
@@ -5811,9 +5812,9 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                         if (count > 0 && caster->isAlive()) // prevent healing after death
                             caster->HealBySpell(caster, GetSpellInfo(), bp * 20);
                     }
-                    break;
+                    break;*/
                 case 63802: // Brain Link
-                    if (caster)
+                    if (caster && target)
                     {
                         std::list<Unit*> unitList;
                         target->GetRaidMember(unitList, 80);
