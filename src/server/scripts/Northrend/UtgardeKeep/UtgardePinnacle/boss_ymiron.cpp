@@ -207,6 +207,10 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
+            if (pInstance)
+                if(pInstance->GetData(DATA_KING_YMIRON_EVENT) ==  NOT_STARTED)
+                    return;
+
             if (m_bIsWalking)
             {
                 if (m_uiPause_Timer <= diff)

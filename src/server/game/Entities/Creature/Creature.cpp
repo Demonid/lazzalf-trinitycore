@@ -48,6 +48,7 @@
 #include "Vehicle.h"
 #include "SpellAuraEffects.h"
 #include "Group.h"
+#include "IVMapManager.h"
 // apply implementation of the singletons
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
@@ -205,7 +206,7 @@ void Creature::RemoveFromWorld()
 void Creature::DisappearAndDie()
 {
     DestroyForNearbyPlayers();
-    //SetVisibility(VISIBILITY_OFF);
+    //SetVisible(false);
     //ObjectAccessor::UpdateObjectVisibility(this);
     if (isAlive())
         setDeathState(JUST_DIED);
@@ -1552,6 +1553,9 @@ bool Creature::FallGround()
     // use larger distance for vmap height search than in most other cases
     float ground_Z = GetMap()->GetHeight(x, y, z, true, MAX_FALL_DISTANCE);
     if (fabs(ground_Z - z) < 0.1f)
+        return false;
+
+    if (ground_Z == VMAP_INVALID_HEIGHT_VALUE)
         return false;
 
     GetMotionMaster()->MoveFall(ground_Z, EVENT_FALL_GROUND);

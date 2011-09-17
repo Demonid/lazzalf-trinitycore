@@ -130,6 +130,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Spells/Auras
   ${CMAKE_SOURCE_DIR}/src/server/game/Tools
   ${CMAKE_SOURCE_DIR}/src/server/game/Weather
+  ${CMAKE_SOURCE_DIR}/src/server/game/Warden
   ${CMAKE_SOURCE_DIR}/src/server/game/World
   ${CMAKE_SOURCE_DIR}/src/server/authserver/Server
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -153,7 +154,7 @@ endif()
 add_dependencies(worldserver revision.h)
 
 if( UNIX )
-  set(worldserver_LINK_FLAGS "-pthread -lncurses ${worldserver_LINK_FLAGS}")
+  set(worldserver_LINK_FLAGS "-pthread -lncurses -lcrypto ${worldserver_LINK_FLAGS}")
 endif()
 
 set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAGS}")
