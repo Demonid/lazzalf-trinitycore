@@ -985,13 +985,14 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
     // Check for effect immune skip if immuned
     for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
         if (target->IsImmunedToSpellEffect(m_spellInfo, effIndex))
+        {
+            // Saronite Vapors Hack
+            if (m_spellInfo->Id == 63337)
+                continue;
             effectMask &= ~(1 << effIndex);
-    // Saronite Vapors Hack
-    if (m_spellInfo->Id == 63337)
-        immuned = false;
+        }
         
     uint64 targetGUID = target->GetGUID();
-
 
     // Lookup target in already in list
     for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
