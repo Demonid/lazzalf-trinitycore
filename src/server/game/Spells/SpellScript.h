@@ -208,6 +208,7 @@ class SpellScript : public _SpellScript
         bool IsInCheckCastHook() const { return m_currentScriptState == SPELL_SCRIPT_HOOK_CHECK_CAST; }
         bool IsInHitPhase() const { return (m_currentScriptState >= HOOK_SPELL_HIT_START && m_currentScriptState < HOOK_SPELL_HIT_END); }
         bool IsInEffectHook() const { return (m_currentScriptState == SPELL_SCRIPT_HOOK_EFFECT); }
+        bool IsInAfterHitPhase() { return (m_currentScriptState == SPELL_SCRIPT_HOOK_AFTER_HIT); };
     private:
         Spell* m_spell;
         uint8 m_hitPreventEffectMask;
@@ -323,6 +324,9 @@ class SpellScript : public _SpellScript
         // Creates item. Calls Spell::DoCreateItem method.
         void CreateItem(uint32 effIndex, uint32 itemId);
 
+        // returns total damage of a spell (crit comprensive)
+        int32 GetTrueDamage();
+        
         // Returns SpellInfo from the spell that triggered the current one
         SpellInfo const* GetTriggeringSpell();
 

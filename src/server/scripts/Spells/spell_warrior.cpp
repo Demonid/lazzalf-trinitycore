@@ -46,8 +46,11 @@ class spell_warr_last_stand : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                int32 healthModSpellBasePoints0 = int32(GetCaster()->CountPctFromMaxHealth(30));
-                GetCaster()->CastCustomSpell(GetCaster(), WARRIOR_SPELL_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
+                if (Unit* caster = GetCaster())
+                {
+                    int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(30));                
+                    caster->CastCustomSpell(caster, WARRIOR_SPELL_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);            
+                }
             }
 
             void Register()
