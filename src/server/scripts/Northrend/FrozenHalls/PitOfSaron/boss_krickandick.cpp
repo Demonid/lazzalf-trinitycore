@@ -619,6 +619,7 @@ class spell_exploding_orb_hasty_grow : public SpellScriptLoader
         }
 };
 
+
 class spell_krick_pursuit : public SpellScriptLoader
 {
     public:
@@ -628,7 +629,7 @@ class spell_krick_pursuit : public SpellScriptLoader
         {
             PrepareSpellScript(spell_krick_pursuit_SpellScript);
 
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            /*void HandleScriptEffect(SpellEffIndex effIndex)
             {
                 if (GetCaster()->GetTypeId() != TYPEID_UNIT)
                     return;
@@ -643,11 +644,46 @@ class spell_krick_pursuit : public SpellScriptLoader
                     caster->AddThreat(target, float(GetEffectValue()));
                     target->AddThreat(caster, float(GetEffectValue()));
                 }
+            }*/
+
+            void HandleScriptEffect(SpellEffIndex effIndex)
+            {
+                if (GetCaster()->GetTypeId() != TYPEID_UNIT)
+                    return;
+
+                if (Unit* target = GetTargetUnit())
+                {
+                    if (Unit* caster = GetCaster())
+                        if (CreatureAI* ickAI = caster->ToCreature()->AI())
+                        {
+                            DoScriptText(SAY_ICK_CHASE_1, caster, target);
+                            caster->AddAura(GetSpellInfo()->Id, target);
+                            CAST_AI(boss_ick::boss_ickAI, ickAI)->SetTempThreat(caster->getThreatManager().getThreat(target));
+                            caster->AddThreat(target, float(GetEffectValue()));
+                            target->AddThreat(caster, float(GetEffectValue()));
+                        }
+                }
+            }
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end();)
+                {
+                    if ((*itr)->GetTypeId() != TYPEID_PLAYER)
+                        unitList.erase(itr++);
+                    else
+                        ++itr;
+                }
+
+                Unit* target = SelectRandomContainerElement(unitList);
+                unitList.clear();
+                unitList.push_back(target);
             }
 
             void Register()
             {
                 OnEffect += SpellEffectFn(spell_krick_pursuit_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_krick_pursuit_SpellScript::FilterTargets, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
