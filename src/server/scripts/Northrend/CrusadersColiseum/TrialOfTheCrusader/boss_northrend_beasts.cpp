@@ -107,7 +107,11 @@ enum BossSpells
     SPELL_TRAMPLE           = 66734,
     SPELL_FROTHING_RAGE     = 66759,
     SPELL_STAGGERED_DAZE    = 66758,
+    SPELL_BERSERK           = 47008, // Mimiron Enrage
 };
+
+#define SNOBOLD_COUNT RAID_MODE(2, 4, 2, 4)
+#define ACHI_UPPER_BACK_PAIN RAID_MODE(3797, 3813, 3797, 3813)
 
 class boss_gormok : public CreatureScript
 {
@@ -123,6 +127,8 @@ public:
     {
         boss_gormokAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             m_pInstance = (InstanceScript*)creature->GetInstanceScript();
         }
 
@@ -133,6 +139,8 @@ public:
         SummonList Summons;
         uint32 m_uiSummonTimer;
         uint32 m_uiSummonCount;
+
+        uint32 m_uiNextBossTimer;
 
         void Reset()
         {
@@ -146,12 +154,14 @@ public:
             else
                 m_uiSummonCount = 4;
 
+            m_uiNextBossTimer = 160*IN_MILLISECONDS;
+
             Summons.DespawnAll();
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            if (m_pInstance)
+            if (m_pInstance && m_uiNextBossTimer)
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_DONE);
         }
 
@@ -162,10 +172,20 @@ public:
             me->DespawnOrUnsummon();
         }
 
+        void KilledUnit(Unit* who)
+        {
+            if (who->GetTypeId() == TYPEID_PLAYER)
+            {                
+                if (m_pInstance)
+                    m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, CRITERIA_NOT_MEETED);
+            }
+        }
+
         void EnterCombat(Unit* /*who*/)
         {
             me->SetInCombatWithZone();
-            m_pInstance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_IN_PROGRESS);
+            if (m_pInstance)
+                m_pInstance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_IN_PROGRESS);
         }
 
         void JustSummoned(Creature* summon)
@@ -194,7 +214,14 @@ public:
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim())
-                return;
+                return;            
+
+            if (IsHeroic() && m_uiNextBossTimer)
+                if (m_uiNextBossTimer <= uiDiff)
+                {
+                    m_uiNextBossTimer = 0;
+                    m_pInstance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_DONE);
+                } else m_uiNextBossTimer -= uiDiff;
 
             if (m_uiImpaleTimer <= uiDiff)
             {
@@ -265,16 +292,16 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* pWho)
         {
-            m_uiTargetGUID = who->GetGUID();
-            me->TauntApply(who);
-            DoCast(who, SPELL_SNOBOLLED);
+            m_uiTargetGUID = pWho->GetGUID();
+            me->TauntApply(pWho);
+            DoCast(pWho, SPELL_SNOBOLLED);
         }
 
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
         {
-            if (pDoneBy->GetGUID()==m_uiTargetGUID)
+            if (pDoneBy->GetGUID() == m_uiTargetGUID)
                 uiDamage = 0;
         }
 
@@ -286,18 +313,31 @@ public:
             {
                 case 0:
                     if (m_bTargetDied)
-                        me->DespawnOrUnsummon();
+                    {
+                        me->DespawnOrUnsummon();;
+                        if (m_pInstance)
+                            m_pInstance->SetData(DATA_SNOBOLD_COUNT, DECREASE);
+                    }
                     break;
             }
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            if (Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID))
+            if (Unit *target = Unit::GetPlayer(*me, m_uiTargetGUID))
                 if (target->isAlive())
                     target->RemoveAurasDueToSpell(SPELL_SNOBOLLED);
             if (m_pInstance)
                 m_pInstance->SetData(DATA_SNOBOLD_COUNT, DECREASE);
+        }
+
+        void KilledUnit(Unit* who)
+        {
+            if (who->GetTypeId() == TYPEID_PLAYER)
+            {                
+                if (m_pInstance)
+                    m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, CRITERIA_NOT_MEETED);
+            }
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -361,6 +401,8 @@ struct boss_jormungarAI : public ScriptedAI
 {
     boss_jormungarAI(Creature* creature) : ScriptedAI(creature)
     {
+        me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+        me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
         instanceScript = creature->GetInstanceScript();
     }
 
@@ -372,7 +414,7 @@ struct boss_jormungarAI : public ScriptedAI
         slimePoolTimer = 15*IN_MILLISECONDS;
         spitTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
         sprayTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-        sweepTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+        sweepTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);        
     }
 
     void JustDied(Unit* /*killer*/)
@@ -383,7 +425,8 @@ struct boss_jormungarAI : public ScriptedAI
             {
                 if (!otherWorm->isAlive())
                 {
-                    instanceScript->SetData(TYPE_NORTHREND_BEASTS, SNAKES_DONE);
+                    if (m_uiNextBossTimer)
+                        instanceScript->SetData(TYPE_NORTHREND_BEASTS, SNAKES_DONE);
 
                     me->DespawnOrUnsummon();
                     otherWorm->DespawnOrUnsummon();
@@ -402,14 +445,14 @@ struct boss_jormungarAI : public ScriptedAI
         me->DespawnOrUnsummon();
     }
 
-    void KilledUnit(Unit* who)
-    {
-        if (who->GetTypeId() == TYPEID_PLAYER)
+        void KilledUnit(Unit* who)
         {
-            if (instanceScript)
-                instanceScript->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
+            if (who->GetTypeId() == TYPEID_PLAYER)
+            {                
+                if (instanceScript)
+                    instanceScript->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, CRITERIA_NOT_MEETED);
+            }
         }
-    }
 
     void EnterCombat(Unit* /*who*/)
     {
@@ -419,8 +462,26 @@ struct boss_jormungarAI : public ScriptedAI
     }
 
     void UpdateAI(const uint32 uiDiff)
-    {
-        if (!UpdateVictim()) return;
+    {     
+        if (!UpdateVictim()) 
+            return;
+
+        if (IsHeroic() && m_uiNextBossTimer) 
+        {
+            if (m_uiNextBossTimer <= uiDiff)
+            {
+                m_uiNextBossTimer = 0;
+                if (Creature* otherWorm = Unit::GetCreature(*me, instanceScript->GetData64(otherWormEntry)))
+                {
+                    if (otherWorm->isAlive())
+                        if (boss_jormungarAI* bossjormungarAI = CAST_AI(boss_jormungarAI, otherWorm->GetAI()))
+                        {
+                            bossjormungarAI->m_uiNextBossTimer = 0;                            
+                        }
+                } 
+                instanceScript->SetData(TYPE_NORTHREND_BEASTS, SNAKES_DONE);
+            } else m_uiNextBossTimer -= uiDiff;
+        }
 
         if (instanceScript && instanceScript->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL && !enraged)
         {
@@ -548,6 +609,8 @@ struct boss_jormungarAI : public ScriptedAI
 
     InstanceScript* instanceScript;
 
+    uint32 m_uiNextBossTimer;
+
     uint32 otherWormEntry;
 
     uint32 modelStationary;
@@ -592,6 +655,7 @@ class boss_acidmaw : public CreatureScript
             submergeTimer = 500;
             DoCast(me, SPELL_SUBMERGE_0);
             stage = 2;
+            m_uiNextBossTimer = 160*IN_MILLISECONDS;
         }
     };
 
@@ -623,6 +687,7 @@ public:
 
             submergeTimer = 45 * IN_MILLISECONDS;
             stage = 0;
+            m_uiNextBossTimer = 165*IN_MILLISECONDS;
         }
     };
 
@@ -644,15 +709,27 @@ public:
 
     struct mob_slime_poolAI : public ScriptedAI
     {
-        mob_slime_poolAI(Creature* creature) : ScriptedAI(creature)
+        mob_slime_poolAI(Creature *creature) : ScriptedAI(creature) 
         {
+            m_pInstance = me->GetInstanceScript();
         }
 
         bool casted;
+        InstanceScript* m_pInstance;
+
         void Reset()
         {
             casted = false;
             me->SetReactState(REACT_PASSIVE);
+        }
+
+        void KilledUnit(Unit* who)
+        {
+            if (who->GetTypeId() == TYPEID_PLAYER)
+            {                
+                if (m_pInstance)
+                    m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, CRITERIA_NOT_MEETED);
+            }
         }
 
         void UpdateAI(const uint32 /*uiDiff*/)
@@ -681,6 +758,8 @@ public:
     {
         boss_icehowlAI(Creature* creature) : ScriptedAI(creature)
         {
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             m_pInstance = (InstanceScript*)creature->GetInstanceScript();
         }
 
@@ -691,6 +770,7 @@ public:
         uint32 m_uiWhirlTimer;
         uint32 m_uiMassiveCrashTimer;
         uint32 m_uiTrampleTimer;
+        uint32 m_uiEnrageTimer;
         float  m_fTrampleTargetX, m_fTrampleTargetY, m_fTrampleTargetZ;
         uint64 m_uiTrampleTargetGUID;
         bool   m_bMovementStarted;
@@ -706,6 +786,7 @@ public:
             m_uiWhirlTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             m_uiMassiveCrashTimer = 30*IN_MILLISECONDS;
             m_uiTrampleTimer = IN_MILLISECONDS;
+            m_uiEnrageTimer = 180 * IN_MILLISECONDS;
             m_bMovementStarted = false;
             m_bMovementFinish = false;
             m_bTrampleCasted = false;
@@ -718,8 +799,27 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
+
             if (m_pInstance)
+            {
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_DONE);
+
+                if (int32(m_pInstance->GetData(DATA_SNOBOLD_COUNT)) >= SNOBOLD_COUNT)
+                    m_pInstance->DoCompleteAchievement(ACHI_UPPER_BACK_PAIN);
+            }
+
+            while (Unit* target = me->FindNearestCreature(NPC_SNOBOLD_VASSAL, 150.0f))
+            {
+                target->CombatStop();
+                target->RemoveFromWorld();
+            }
+
+            if (Unit* target = me->FindNearestCreature(34796, 150.0f)) // gormok
+                target->RemoveFromWorld();
+            if (Unit* target = me->FindNearestCreature(35144, 150.0f)) // acidmaw
+                target->RemoveFromWorld();
+            if (Unit* target = me->FindNearestCreature(34799, 150.0f)) // dreadscale
+                target->RemoveFromWorld();
         }
 
         void MovementInform(uint32 uiType, uint32 uiId)
@@ -759,9 +859,9 @@ public:
         void KilledUnit(Unit* who)
         {
             if (who->GetTypeId() == TYPEID_PLAYER)
-            {
+            {                
                 if (m_pInstance)
-                    m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
+                    m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, CRITERIA_NOT_MEETED);
             }
         }
 
@@ -792,6 +892,13 @@ public:
             switch (m_uiStage)
             {
                 case 0:
+                    if (IsHeroic() && m_uiEnrageTimer)
+                        if (m_uiEnrageTimer <= uiDiff)
+                        {
+                            DoCast(me, SPELL_BERSERK, true);
+                            m_uiEnrageTimer = 0;
+                        } else m_uiEnrageTimer -= uiDiff;
+
                     if (m_uiFerociousButtTimer <= uiDiff)
                     {
                         DoCastVictim(SPELL_FEROCIOUS_BUTT);
@@ -875,8 +982,8 @@ public:
                         Map::PlayerList const &lPlayers = me->GetMap()->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
                         {
-                            if (Unit* player = itr->getSource())
-                                if (player->isAlive() && player->IsWithinDistInMap(me, 6.0f))
+                            if (Unit* pPlayer = itr->getSource())
+                                if (pPlayer->isAlive() && pPlayer->IsWithinDistInMap(me, 6.0f))
                                 {
                                     DoCastAOE(SPELL_TRAMPLE);
                                     m_uiTrampleTimer = IN_MILLISECONDS;
