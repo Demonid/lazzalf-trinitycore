@@ -41,6 +41,7 @@ EndContentData */
 #define GOSSIP_ARETE_ITEM6 "Let's finish this!"
 #define GOSSIP_ARETE_ITEM7 "That's quite a tale, Lord-Commander."
 
+
 enum eArete
 {
     GOSSIP_TEXTID_ARETE1        = 13525,
@@ -194,6 +195,67 @@ public:
 };
 
 /*######
+## npc_squire_danny
+######*/
+
+enum eSquireDanny
+{
+    QUEST_THE_VALIANT_S_CHALLENGE_HORDE_UNDERCITY      = 13729,
+    QUEST_THE_VALIANT_S_CHALLENGE_HORDE_SENJIN         = 13727,
+    QUEST_THE_VALIANT_S_CHALLENGE_HORDE_THUNDERBLUFF   = 13728,
+    QUEST_THE_VALIANT_S_CHALLENGE_HORDE_SILVERMOON     = 13731,
+    QUEST_THE_VALIANT_S_CHALLENGE_HORDE_ORGRIMMAR      = 13726,
+    QUEST_THE_VALIANT_S_CHALLENGE_ALLIANCE_DARNASSUS   = 13725,
+    QUEST_THE_VALIANT_S_CHALLENGE_ALLIANCE_IRONFORGE   = 13713,
+    QUEST_THE_VALIANT_S_CHALLENGE_ALLIANCE_GNOMEREGAN  = 13723,
+    QUEST_THE_VALIANT_S_CHALLENGE_ALLIANCE_EXODAR      = 13724,
+    QUEST_THE_VALIANT_S_CHALLENGE_ALLIANCE_STORMWIND   = 13699,
+
+    NPC_ARGENT_CHAMPION                                = 33707,
+
+    GOSSIP_TEXTID_SQUIRE_DANNY                         = 14407
+};
+
+class npc_squire_danny : public CreatureScript
+{
+public:
+    npc_squire_danny() : CreatureScript("npc_squire_danny") { }
+
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    {
+        if (pPlayer->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_HORDE_UNDERCITY) == QUEST_STATUS_INCOMPLETE
+            || pPlayer->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_HORDE_SENJIN) == QUEST_STATUS_INCOMPLETE
+            || pPlayer->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_HORDE_THUNDERBLUFF) == QUEST_STATUS_INCOMPLETE
+            || pPlayer->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_HORDE_SILVERMOON) == QUEST_STATUS_INCOMPLETE
+            || pPlayer->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_HORDE_ORGRIMMAR) == QUEST_STATUS_INCOMPLETE
+            || pPlayer->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_ALLIANCE_DARNASSUS) == QUEST_STATUS_INCOMPLETE
+            || pPlayer->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_ALLIANCE_IRONFORGE) == QUEST_STATUS_INCOMPLETE
+            || pPlayer->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_ALLIANCE_GNOMEREGAN) == QUEST_STATUS_INCOMPLETE
+            || pPlayer->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_ALLIANCE_EXODAR) == QUEST_STATUS_INCOMPLETE
+            || pPlayer->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_ALLIANCE_STORMWIND) == QUEST_STATUS_INCOMPLETE) //We need more info about it.
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+        }
+
+        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_SQUIRE_DANNY, creature->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 uiSender, uint32 uiAction)
+    {
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        {
+            pPlayer->CLOSE_GOSSIP_MENU();
+            creature->SummonCreature(NPC_ARGENT_CHAMPION,8562.451f,1095.72f,556.784f,1.76f);
+        }
+        //else
+            //pPlayer->SEND_GOSSIP_MENU(???, creature->GetGUID()); Missing text
+        return true;
+    };
+};
+
+/*######
 ## npc_argent_valiant
 ######*/
 
@@ -272,8 +334,50 @@ public:
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_argent_valiantAI(creature);
-    }
+    };
 };
+
+/*######
+## npc_argent_tournament_post
+######*/
+/*
+enum eArgentTournamentPost
+{
+    SPELL_ROPE_BEAM                 = 63413,
+    NPC_GORMOK_THE_IMPALER          = 35469,
+    NPC_ICEHOWL                     = 35470
+};
+
+class npc_argent_tournament_post : public CreatureScript
+{
+public:
+    npc_argent_tournament_post() : CreatureScript("npc_argent_tournament_post") { }
+
+    struct npc_argent_tournament_postAI : public ScriptedAI
+    {
+        npc_argent_tournament_postAI(Creature* creature) : ScriptedAI(creature) {}
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (me->IsNonMeleeSpellCasted(false))
+                return;
+
+            if (Creature* target = me->FindNearestCreature(NPC_GORMOK_THE_IMPALER, 6.0f))
+                DoCast(target, SPELL_ROPE_BEAM);
+
+            if (Creature* target2 = me->FindNearestCreature(NPC_ICEHOWL, 6.0f))
+                DoCast(target2, SPELL_ROPE_BEAM);
+
+            if (!UpdateVictim())
+                return;
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_argent_tournament_postAI(creature);
+    };
+};*/
 
 /*######
 ## npc_alorah_and_grimmin
@@ -331,7 +435,146 @@ public:
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_alorah_and_grimminAI(creature);
-    }
+    };
+};
+
+/*######
+## npc_argent_champion
+######*/
+
+enum eArgentChampion
+{
+    SPELL_CHARGE_CHAMPION           = 63010,
+    SPELL_SHIELD_BREAKER_CHAMPION   = 65147,
+
+    NPC_ARGENT_CHAMPION_CREDIT      = 33708
+};
+
+class npc_argent_champion : public CreatureScript
+{
+public:
+    npc_argent_champion() : CreatureScript("npc_argent_champion") { }
+
+    struct npc_argent_championAI : public ScriptedAI
+    {
+        npc_argent_championAI(Creature* creature) : ScriptedAI(creature)
+        {
+            creature->GetMotionMaster()->MovePoint(0,8552.43f,1124.95f,556.786f);
+            creature->setFaction(35); //wrong faction in db?
+        }
+
+        uint32 uiChargeTimer;
+        uint32 uiShieldBreakerTimer;
+
+        void Reset()
+        {
+            uiChargeTimer = 7000;
+            uiShieldBreakerTimer = 10000;
+        }
+
+        void MovementInform(uint32 uiType, uint32 uiId)
+        {
+            if (uiType != POINT_MOTION_TYPE)
+                return;
+
+            me->setFaction(14);
+        }
+
+        void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
+        {
+            if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
+            {
+                uiDamage = 0;
+                CAST_PLR(pDoneBy)->KilledMonsterCredit(NPC_ARGENT_CHAMPION_CREDIT,0);
+                me->setFaction(35);
+                me->ForcedDespawn(5000);
+                me->SetHomePosition(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation());
+                EnterEvadeMode();
+            }
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (uiChargeTimer <= uiDiff)
+            {
+                DoCastVictim(SPELL_CHARGE);
+                uiChargeTimer = 7000;
+            } else uiChargeTimer -= uiDiff;
+
+            if (uiShieldBreakerTimer <= uiDiff)
+            {
+                DoCastVictim(SPELL_SHIELD_BREAKER);
+                uiShieldBreakerTimer = 10000;
+            } else uiShieldBreakerTimer -= uiDiff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_argent_championAI (creature);
+    };
+};
+
+/*######
+## lake_frog
+######*/
+
+#define MAIDEN 33220
+#define WARTS_SPELL 62581
+#define LIP_BALM_SPELL 62574
+#define SUMMON_ASHOOD_BRAND_SPELL 62554
+#define MAIDEN_SAY "thank to you, here is you Ashwood Brand !"
+
+struct A_BLADE_FIT_FOR_A_CHAMPION_QUEST
+{ 
+  uint32 quest_id; 
+};
+
+A_BLADE_FIT_FOR_A_CHAMPION_QUEST new_quest[] = {13603, 13666, 13673, 13741, 13746, 13752, 13757, 13762, 13768, 13773, 13778, 13783};
+
+class npc_lake_frog : public CreatureScript
+{
+    public:
+    npc_lake_frog() : CreatureScript("npc_lake_frog") { }
+
+    struct npc_lake_frogAI : public ScriptedAI
+    {
+        npc_lake_frogAI(Creature *c) : ScriptedAI(c) {}
+
+        void ReceiveEmote(Player* pPlayer, uint32 emote)
+        {
+            switch (emote)
+            {
+                case TEXT_EMOTE_KISS:
+                    for (int i = 0; i < 12; i++)
+                    {
+                        if (pPlayer->GetQuestStatus(new_quest[i].quest_id) == QUEST_STATUS_INCOMPLETE && pPlayer->HasAura(LIP_BALM_SPELL) && rand()%10 == 1)
+                        {
+                            Unit* summon = me->SummonCreature(MAIDEN, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 120000);
+                            me->DespawnOrUnsummon();
+                            if (summon)
+                            {
+                                summon->CastSpell(pPlayer, SUMMON_ASHOOD_BRAND_SPELL, true, 0, 0, 0);
+                                summon->MonsterSay(MAIDEN_SAY, LANG_UNIVERSAL, NULL);
+                            }
+                        }
+                        else if (!pPlayer->HasAura(LIP_BALM_SPELL) && ((rand()%100) > 40)) 
+                            me->CastSpell(pPlayer, WARTS_SPELL, true, 0, 0, 0);
+                    }
+                    break;
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_lake_frogAI (creature);
+    };
 };
 
 /*######
@@ -378,6 +621,207 @@ public:
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_guardian_pavilionAI(creature);
+    };
+};
+
+/*######
+## npc_ring_champions
+## UPDATE `creature_template` SET `ScriptName` = 'npc_ring_champions' WHERE `entry` IN (33738,33746,33747,33743,33740,33748,33744,33745,33749,33739);
+######*/
+#define GOSSIP_SQUIRE__CHAMP_ITEM_1 "I'm ready for battle!"
+#define SAY_START_1 "Defend yourself!"
+#define SAY_START_2 "Get ready!"
+#define SAY_DIE_1 "Wimp!"
+#define SAY_DIE_2 "You were not worthy!"
+#define SAY_END "I was defeated. Great fight!"
+
+class npc_ring_champions : public CreatureScript
+{
+public:
+    npc_ring_champions() : CreatureScript("npc_ring_champions") { }
+
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    {
+        if (pPlayer->GetQuestStatus(13790) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13793) == QUEST_STATUS_INCOMPLETE ||
+            pPlayer->GetQuestStatus(13811) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13814) == QUEST_STATUS_INCOMPLETE)
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE__CHAMP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        }
+        pPlayer->SEND_GOSSIP_MENU(14407, creature->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        pPlayer->PlayerTalkClass->ClearMenus();
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        {
+            pPlayer->CLOSE_GOSSIP_MENU();
+            creature->MonsterSay(urand(0,1) ? SAY_START_1 : SAY_START_2, LANG_UNIVERSAL, 0);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            creature->setFaction(14);
+            creature->CombatStart(pPlayer);
+        }
+        return true;
+    }
+
+    struct npc_ring_championsAI : public ScriptedAI
+    {
+        npc_ring_championsAI(Creature* creature) : ScriptedAI(creature)
+        {
+        }
+
+        uint32 uiChargeTimer;
+        uint32 uiShieldBreakerTimer;
+
+        void Reset()
+        {
+            me->setFaction(35);
+            uiChargeTimer = 7000;
+            uiShieldBreakerTimer = 10000;
+        }
+
+        void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
+        {
+            if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
+            {
+                uiDamage = 0;
+                me->CombatStop(false);
+                CAST_PLR(pDoneBy)->CastSpell(pDoneBy, 63596, true);//Reward mark
+                me->MonsterSay(SAY_END, LANG_UNIVERSAL, 0);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                EnterEvadeMode();
+            }
+        }
+
+        void KilledUnit(Unit* pVictim)
+        {
+            me->MonsterSay(urand(0,1) ? SAY_DIE_1 : SAY_DIE_2, LANG_UNIVERSAL, 0);
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (uiChargeTimer <= uiDiff)
+            {
+                DoCastVictim(63010);
+                uiChargeTimer = 7000;
+            } else uiChargeTimer -= uiDiff;
+
+            if (uiShieldBreakerTimer <= uiDiff)
+            {
+                DoCastVictim(65147);
+                uiShieldBreakerTimer = 10000;
+            } else uiShieldBreakerTimer -= uiDiff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_ring_championsAI(creature);
+    }
+};
+
+
+/*######
+## npc_ring_valiants
+## UPDATE `creature_template` SET `flags_extra` = 0, `AIName` = '', `ScriptName` = 'npc_ring_valiants' WHERE `entry` IN (33384,33306,33285,33382,33383,33558,33564,33561,33562,33559);
+######*/
+class npc_ring_valiants : public CreatureScript
+{
+public:
+    npc_ring_valiants() : CreatureScript("npc_ring_valiants") { }
+
+    bool OnGossipHello(Player* pPlayer, Creature* creature)
+    {
+        if (pPlayer->GetQuestStatus(13665) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13745) == QUEST_STATUS_INCOMPLETE ||
+            pPlayer->GetQuestStatus(13761) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13767) == QUEST_STATUS_INCOMPLETE ||
+            pPlayer->GetQuestStatus(13772) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13777) == QUEST_STATUS_INCOMPLETE ||
+            pPlayer->GetQuestStatus(13782) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13787) == QUEST_STATUS_INCOMPLETE ||
+            pPlayer->GetQuestStatus(13750) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(13756) == QUEST_STATUS_INCOMPLETE)
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE__CHAMP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        }
+        pPlayer->SEND_GOSSIP_MENU(14407, creature->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        pPlayer->PlayerTalkClass->ClearMenus();
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        {
+            pPlayer->CLOSE_GOSSIP_MENU();
+            creature->MonsterSay(urand(0,1) ? SAY_START_1 : SAY_START_2, LANG_UNIVERSAL, 0);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            creature->setFaction(14);
+            creature->CombatStart(pPlayer);
+        }
+        return true;
+    }
+
+    struct npc_ring_valiantsAI : public ScriptedAI
+    {
+        npc_ring_valiantsAI(Creature* creature) : ScriptedAI(creature)
+        {
+        }
+
+        uint32 uiChargeTimer;
+        uint32 uiShieldBreakerTimer;
+
+        void Reset()
+        {
+            me->setFaction(35);
+            uiChargeTimer = 7000;
+            uiShieldBreakerTimer = 10000;
+        }
+
+        void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
+        {
+            if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
+            {
+                uiDamage = 0;
+                me->CombatStop(false);
+                CAST_PLR(pDoneBy)->CastSpell(pDoneBy, 62724, true);//Reward mark
+                me->MonsterSay(SAY_END, LANG_UNIVERSAL, 0);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                EnterEvadeMode();
+            }
+        }
+
+        void KilledUnit(Unit* pVictim)
+        {
+            me->MonsterSay(urand(0,1) ? SAY_DIE_1 : SAY_DIE_2, LANG_UNIVERSAL, 0);
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (uiChargeTimer <= uiDiff)
+            {
+                DoCastVictim(63010);
+                uiChargeTimer = 7000;
+            } else uiChargeTimer -= uiDiff;
+
+            if (uiShieldBreakerTimer <= uiDiff)
+            {
+                DoCastVictim(65147);
+                uiShieldBreakerTimer = 10000;
+            } else uiShieldBreakerTimer -= uiDiff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_ring_valiantsAI(creature);
     }
 };
 
@@ -426,13 +870,137 @@ public:
     }
 };
 
+//prova fix da google per quest freet he eye
+#define QUEST_FREE_YOUR_MIND               12893
+#define SPELL_SOVEREIGN_ROD                29070
+#define NPC_VILE_CREDIT_BUNNY              29845
+#define NPC_LADY_NIGHTSWOOD_CREDIT_BUNNY   29846
+#define NPC_LEAPER_BUNNY                   29847
+
+class npc_vile : public CreatureScript
+{
+public:
+    npc_vile() : CreatureScript("npc_vile") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_vileAI (pCreature);
+    }
+
+    struct npc_vileAI : public ScriptedAI
+    {
+        npc_vileAI(Creature *c) : ScriptedAI(c) {}
+
+        bool spellHit;
+
+        void Reset()
+        {
+            spellHit = false;
+        }
+
+        void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
+        {
+            if ((Spellkind->Id == SPELL_SOVEREIGN_ROD) && !spellHit &&
+                (Hitter->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_FREE_YOUR_MIND)))
+            {
+                CAST_PLR(Hitter)->KilledMonsterCredit(NPC_VILE_CREDIT_BUNNY, 0);
+                spellHit = true;
+            }
+        }
+    };
+
+};
+
+class npc_lady_nightswood : public CreatureScript
+{
+public:
+    npc_lady_nightswood() : CreatureScript("npc_lady_nightswood") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_lady_nightswoodAI (pCreature);
+    }
+
+    struct npc_lady_nightswoodAI : public ScriptedAI
+    {
+        npc_lady_nightswoodAI(Creature *c) : ScriptedAI(c) {}
+
+        bool spellHit;
+
+        void Reset()
+        {
+            spellHit = false;
+        }
+
+        void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
+        {
+            if ((Spellkind->Id == SPELL_SOVEREIGN_ROD) && !spellHit &&
+                (Hitter->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_FREE_YOUR_MIND)))
+            {
+                CAST_PLR(Hitter)->KilledMonsterCredit(NPC_LADY_NIGHTSWOOD_CREDIT_BUNNY, 0);
+                spellHit = true;
+            }
+        }
+    };
+
+};
+
+class npc_leaper : public CreatureScript
+{
+public:
+    npc_leaper() : CreatureScript("npc_leaper") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_leaperAI (pCreature);
+    }
+
+    struct npc_leaperAI : public ScriptedAI
+    {
+        npc_leaperAI(Creature *c) : ScriptedAI(c) {}
+
+        bool spellHit;
+
+        void Reset()
+        {
+            spellHit = false;
+        }
+
+        void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
+        {
+            if ((Spellkind->Id == SPELL_SOVEREIGN_ROD) && !spellHit &&
+                (Hitter->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_FREE_YOUR_MIND)))
+            {
+                CAST_PLR(Hitter)->KilledMonsterCredit(NPC_LEAPER_BUNNY, 0);
+                spellHit = true;
+            }
+        }
+    };
+
+};
+
+
+
 void AddSC_icecrown()
 {
     new npc_arete;
     new npc_dame_evniki_kapsalis;
     new npc_squire_david;
+    new npc_squire_danny;
     new npc_argent_valiant;
+    //new npc_argent_tournament_post;
     new npc_alorah_and_grimmin;
+    new npc_argent_champion;
+    new npc_lake_frog;
     new npc_guardian_pavilion;
+    new npc_ring_champions;
+    new npc_ring_valiants;
     new npc_vereth_the_cunning;
+	//nuovi script
+    //new npc_valis_windchaser
+    //new npc_rugan_steelbelly;
+    //new npc_jeran_lockwood;
+    new npc_vile;
+    new npc_lady_nightswood;
+    new npc_leaper;
 }
