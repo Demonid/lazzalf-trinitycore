@@ -803,7 +803,7 @@ public:
         {
             if (MimironHardMode)
             {
-                DoCast(me, SPELL_EMERGENCY_MODE);
+                DoCast(me, SPELL_EMERGENCY_MODE, true);
                 events.ScheduleEvent(EVENT_FLAME_SUPPRESSANT, 60000, 0, PHASE_LEVIATHAN_SOLO);
             }
             
@@ -831,7 +831,7 @@ public:
                     break;
                 case DO_LEVIATHAN_ASSEMBLED:
                     if (MimironHardMode)
-                        DoCast(me, SPELL_EMERGENCY_MODE);
+                        DoCast(me, SPELL_EMERGENCY_MODE, true);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetHealth(int32(me->GetMaxHealth() / 2));
@@ -1033,9 +1033,17 @@ public:
         Vehicle* vehicle;
         Phases phase;
         EventMap events;
+
+        bool spinning;
+        bool direction;
+        uint32 spinTimer;
         
         void Reset()
-        {
+        {   
+            spinning = false;
+            direction = false;
+            spinTimer = 250;
+
             events.Reset();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_DISABLE_MOVE);
             me->SetReactState(REACT_PASSIVE);
@@ -1045,6 +1053,12 @@ public:
             me->RemoveAllAuras();
             phase = PHASE_NULL;
             events.SetPhase(PHASE_NULL);
+
+            // TODO: remove when Spinning Up is fixed properly
+            me->ApplySpellImmune(0, IMMUNITY_ID, 48181, true);
+            me->ApplySpellImmune(0, IMMUNITY_ID, 59161, true);
+            me->ApplySpellImmune(0, IMMUNITY_ID, 59163, true);
+            me->ApplySpellImmune(0, IMMUNITY_ID, 59164, true);
         }
 
         void KilledUnit(Unit *who)
@@ -1064,7 +1078,7 @@ public:
         {
             if (MimironHardMode)
             {
-                DoCast(me, SPELL_EMERGENCY_MODE);
+                DoCast(me, SPELL_EMERGENCY_MODE, true);
                 events.ScheduleEvent(EVENT_FROST_BOMB, 15000);
                 events.ScheduleEvent(EVENT_FLAME_SUPPRESSANT_2, 3000, PHASE_VX001_SOLO);
             }
@@ -1097,7 +1111,7 @@ public:
                     events.RescheduleEvent(EVENT_HAND_PULSE, 15000, 0, PHASE_VX001_ASSEMBLED);
                     if (MimironHardMode)
                     {
-                        DoCast(me, SPELL_EMERGENCY_MODE);
+                        DoCast(me, SPELL_EMERGENCY_MODE, true);
                         events.RescheduleEvent(EVENT_FROST_BOMB, 15000);
                     }
                     break;
@@ -1113,6 +1127,7 @@ public:
                 if (damage >= me->GetHealth())
                 {
                     damage = 0;
+                    spinning = false;
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     me->AttackStop();
                     me->GetMotionMaster()->Initialize();
@@ -1146,6 +1161,31 @@ public:
             if(!UpdateVictim())
                 return;
 
+            if (spinning)
+            {
+                if (spinTimer <= diff)
+                {
+                    if (Creature* leviathan = me->GetVehicleCreatureBase())
+                    {
+                        float orient = leviathan->GetOrientation();
+                        leviathan->SetFacing(orient + (direction ? M_PI/60 : -M_PI/60));
+                        me->SetOrientation(orient + (direction ? M_PI/60 : -M_PI/60));
+                    }
+                    else
+                    {
+                        float orient = me->GetOrientation();
+                        me->SetFacing(orient + (direction ? M_PI/60 : -M_PI/60));
+                        float x, y, z;
+                        z = me->GetPositionZ();
+                        me->GetNearPoint2D(x, y, 10.0f, me->GetOrientation());
+                        if (Creature* temp = me->SummonCreature(NPC_BURST_TARGET, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 250))
+                            me->SetTarget(temp->GetGUID());
+                    }
+                    spinTimer = 250;
+                }
+                else spinTimer -= diff;
+            }
+
             events.Update(diff);
 
             if (me->HasUnitState(UNIT_STAT_CASTING))
@@ -1164,7 +1204,30 @@ public:
                                     DoCast(BurstTarget, SPELL_RAPID_BURST);
                             events.RescheduleEvent(EVENT_RAPID_BURST, 3000, 0, PHASE_VX001_SOLO);
                             break;
-                        case EVENT_PRE_LASER_BARRAGE:
+                        case EVENT_LASER_BARRAGE:
+                            me->SetReactState(REACT_PASSIVE);
+                            if (Creature* leviathan = me->GetVehicleCreatureBase())
+                            {
+                                float orient = float(2*M_PI * rand_norm());
+                                leviathan->CastSpell(leviathan, 14821, true); // temporary
+                                leviathan->SetFacing(orient);
+                                leviathan->SetOrientation(orient);
+                                me->SetOrientation(orient);
+                            }
+                            direction = urand(0, 1);
+                            spinning = true;
+                            DoCast(SPELL_SPINNING_UP);
+                            events.DelayEvents(14500);
+                            events.RescheduleEvent(EVENT_LASER_BARRAGE, 60000);
+                            events.RescheduleEvent(EVENT_LASER_BARRAGE_END, 14000);
+                            break;
+                        case EVENT_LASER_BARRAGE_END:
+                            me->SetReactState(REACT_AGGRESSIVE);
+                            if (me->getVictim())
+                                AttackStart(me->getVictim());
+                            spinning = false;
+                            break;
+                        /*case EVENT_PRE_LASER_BARRAGE:
                             DoCast(SPELL_SPINNING_UP);
                             me->GetMotionMaster()->MoveRotate(40000, rand()%2 ? ROTATE_DIRECTION_LEFT : ROTATE_DIRECTION_RIGHT);
                             events.DelayEvents(14000);
@@ -1174,7 +1237,7 @@ public:
                         case EVENT_LASER_BARRAGE:
                             DoCastAOE(SPELL_LASER_BARRAGE);
                             events.CancelEvent(EVENT_LASER_BARRAGE);
-                            break;
+                            break;*/
                         case EVENT_ROCKET_STRIKE:
                             if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 me->CastSpell(target, SPELL_ROCKET_STRIKE, true);
@@ -1318,7 +1381,7 @@ public:
         void EnterCombat(Unit *who)
         {
             if (MimironHardMode)
-                DoCast(me, SPELL_EMERGENCY_MODE);
+                DoCast(me, SPELL_EMERGENCY_MODE, true);
 
             events.ScheduleEvent(EVENT_PLASMA_BALL, 1000);
             events.ScheduleEvent(EVENT_SUMMON_BOTS, 10000, 0, PHASE_AERIAL_SOLO);
@@ -1350,7 +1413,7 @@ public:
                     break;
                 case DO_AERIAL_ASSEMBLED:
                     if (MimironHardMode)
-                        DoCast(me, SPELL_EMERGENCY_MODE);
+                        DoCast(me, SPELL_EMERGENCY_MODE, true);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetHealth(int32(me->GetMaxHealth() / 2));
@@ -1532,7 +1595,7 @@ class mob_boom_bot : public CreatureScript
         {
             pInstance = me->GetInstanceScript();
             if (MimironHardMode)
-                DoCast(me, SPELL_EMERGENCY_MODE);
+                DoCast(me, SPELL_EMERGENCY_MODE, true);
         }
 
         InstanceScript* pInstance;
@@ -1569,7 +1632,7 @@ class mob_junk_bot : public CreatureScript
         mob_junk_botAI(Creature* creature) : ScriptedAI(creature)
         {
             if (MimironHardMode)
-                DoCast(me, SPELL_EMERGENCY_MODE);
+                DoCast(me, SPELL_EMERGENCY_MODE, true);
         }
     };
 
