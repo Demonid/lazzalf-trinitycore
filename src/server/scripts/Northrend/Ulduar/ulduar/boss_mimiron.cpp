@@ -108,8 +108,9 @@ enum eEvents
     
     // VX-001
     EVENT_RAPID_BURST,
-    EVENT_PRE_LASER_BARRAGE,
+    // EVENT_PRE_LASER_BARRAGE,
     EVENT_LASER_BARRAGE,
+    EVENT_LASER_BARRAGE_END,
     EVENT_ROCKET_STRIKE,
     EVENT_HEAT_WAVE,
     EVENT_HAND_PULSE,
@@ -1084,7 +1085,8 @@ public:
             }
                 
             events.ScheduleEvent(EVENT_RAPID_BURST, 500, 0, PHASE_VX001_SOLO);
-            events.ScheduleEvent(EVENT_PRE_LASER_BARRAGE, urand(35000, 40000), 0, PHASE_VX001_SOLO); // Not works in phase 4 :(
+            //events.ScheduleEvent(EVENT_PRE_LASER_BARRAGE, urand(35000, 40000), 0, PHASE_VX001_SOLO); // Not works in phase 4 :(
+            events.ScheduleEvent(EVENT_LASER_BARRAGE, urand(35000, 40000));
             events.ScheduleEvent(EVENT_ROCKET_STRIKE, 20000);
             events.ScheduleEvent(EVENT_HEAT_WAVE, urand(8000, 10000), 0, PHASE_VX001_SOLO);
             events.ScheduleEvent(EVENT_HAND_PULSE, 15000, 0, PHASE_VX001_ASSEMBLED);
@@ -1106,7 +1108,8 @@ public:
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                     phase = PHASE_VX001_ASSEMBLED;
                     events.SetPhase(PHASE_VX001_ASSEMBLED);
-                    events.RescheduleEvent(EVENT_PRE_LASER_BARRAGE, urand(35000, 40000), 0, PHASE_VX001_SOLO); // not works in phase 4
+                    //events.RescheduleEvent(EVENT_PRE_LASER_BARRAGE, urand(35000, 40000), 0, PHASE_VX001_SOLO); // not works in phase 4
+                    events.ScheduleEvent(EVENT_LASER_BARRAGE, urand(35000, 40000));
                     events.RescheduleEvent(EVENT_ROCKET_STRIKE, 20000);
                     events.RescheduleEvent(EVENT_HAND_PULSE, 15000, 0, PHASE_VX001_ASSEMBLED);
                     if (MimironHardMode)
