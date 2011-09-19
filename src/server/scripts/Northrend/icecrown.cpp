@@ -873,6 +873,7 @@ public:
 //prova fix da google per quest freet he eye
 #define QUEST_FREE_YOUR_MIND               12893
 #define SPELL_SOVEREIGN_ROD                29070
+#define SPELL_SOVEREIGN_ROD_PROC           29071
 #define NPC_VILE_CREDIT_BUNNY              29845
 #define NPC_LADY_NIGHTSWOOD_CREDIT_BUNNY   29846
 #define NPC_LEAPER_BUNNY                   29847
@@ -900,7 +901,7 @@ public:
 
         void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
         {
-            if ((Spellkind->Id == SPELL_SOVEREIGN_ROD) && !spellHit &&
+            if ((Spellkind->Id == SPELL_SOVEREIGN_ROD_PROC) && !spellHit &&
                 (Hitter->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_FREE_YOUR_MIND)))
             {
                 CAST_PLR(Hitter)->KilledMonsterCredit(NPC_VILE_CREDIT_BUNNY, 0);
@@ -934,7 +935,7 @@ public:
 
         void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
         {
-            if ((Spellkind->Id == SPELL_SOVEREIGN_ROD) && !spellHit &&
+            if ((Spellkind->Id == SPELL_SOVEREIGN_ROD_PROC) && !spellHit &&
                 (Hitter->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_FREE_YOUR_MIND)))
             {
                 CAST_PLR(Hitter)->KilledMonsterCredit(NPC_LADY_NIGHTSWOOD_CREDIT_BUNNY, 0);
@@ -968,7 +969,7 @@ public:
 
         void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
         {
-            if ((Spellkind->Id == SPELL_SOVEREIGN_ROD) && !spellHit &&
+            if ((Spellkind->Id == SPELL_SOVEREIGN_ROD_PROC) && !spellHit &&
                 (Hitter->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_FREE_YOUR_MIND)))
             {
                 CAST_PLR(Hitter)->KilledMonsterCredit(NPC_LEAPER_BUNNY, 0);
