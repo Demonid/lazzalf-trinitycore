@@ -38,6 +38,8 @@ enum
     SAY_FALRIC_SP02                         = -1668055,
 
     SPELL_HOPELESSNESS                      = 72395,
+    H_SPELL_HOPELESSNESS                    = 72390, // TODO: not in dbc. Add in DB.
+
     SPELL_IMPENDING_DESPAIR                 = 72426,
     SPELL_DEFILING_HORROR_N                 = 72435,
     SPELL_DEFILING_HORROR_H                 = 72452,
@@ -57,12 +59,10 @@ public:
         boss_falricAI(Creature *pCreature) : ScriptedAI(pCreature)
        {
             m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
-            Regular = pCreature->GetMap()->IsRegularDifficulty();
             Reset();
        }
 
        InstanceScript* m_pInstance;
-       bool Regular;
        bool m_bIsCall;
        //FUNCTIONS
        uint32 m_uiBerserkTimer;
@@ -73,6 +73,8 @@ public:
        uint32 m_uiLocNo;
        uint64 m_uiSummonGUID[16];
        uint32 m_uiCheckSummon;
+
+       uint8 uiHopelessnessCount;
 
        uint8 SummonCount;
 
@@ -87,6 +89,7 @@ public:
           m_uiHorrorTimer = urand(14000,20000);
           m_uiStrikeTimer = 2000;
           m_uiSummonTimer = 11000;
+          uiHopelessnessCount = 0;
           me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
           me->SetVisible(false);
         }
@@ -116,12 +119,13 @@ public:
 
         void AttackStart(Unit* who) 
         { 
-            if (!m_pInstance) return;
+            if (!m_pInstance) 
+                return;
 
-               if (m_pInstance->GetData(TYPE_FALRIC) != IN_PROGRESS)
+            if (m_pInstance->GetData(TYPE_FALRIC) != IN_PROGRESS)
                  return; 
 
-             ScriptedAI::AttackStart(who);
+            ScriptedAI::AttackStart(who);
         }
 
         void Summon()
@@ -225,7 +229,7 @@ public:
 
             if (m_uiStrikeTimer < uiDiff)
             {
-                DoCast(me->getVictim(), Regular ? SPELL_QUIVERING_STRIKE_N : SPELL_QUIVERING_STRIKE_H);
+                DoCast(me->getVictim(), DUNGEON_MODE(SPELL_QUIVERING_STRIKE_N, SPELL_QUIVERING_STRIKE_H));
                 m_uiStrikeTimer = (urand(7000, 14000));
             }
             else m_uiStrikeTimer -= uiDiff;
@@ -233,7 +237,7 @@ public:
             if (m_uiHorrorTimer < uiDiff)
             {
                 DoScriptText(SAY_FALRIC_SP01, me);
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 120, true))
                    DoCast(pTarget, SPELL_IMPENDING_DESPAIR);
                 m_uiHorrorTimer = (urand(15000, 25000));
             }
@@ -242,8 +246,8 @@ public:
             if (m_uiGrowlTimer < uiDiff)
             {
                 DoScriptText(SAY_FALRIC_SP02, me);
-                DoCast(me->getVictim(), Regular ? SPELL_DEFILING_HORROR_N : SPELL_DEFILING_HORROR_H);
-                m_uiGrowlTimer = (urand(25000, 30000));
+                DoCast(me->getVictim(), DUNGEON_MODE(SPELL_DEFILING_HORROR_N, SPELL_DEFILING_HORROR_H));
+                m_uiGrowlTimer = urand(25000, 30000);
             }
             else m_uiGrowlTimer -= uiDiff;
 
@@ -252,6 +256,14 @@ public:
                 DoCast(me, SPELL_BERSERK);
                 m_uiBerserkTimer = 180000;
             } else  m_uiBerserkTimer -= uiDiff;
+
+            if ((uiHopelessnessCount < 1 && HealthBelowPct(66))
+                || (uiHopelessnessCount < 2 && HealthBelowPct(33))
+                || (uiHopelessnessCount < 3 && HealthBelowPct(10)))
+            {
+                uiHopelessnessCount++;
+                DoCast(DUNGEON_MODE(SPELL_HOPELESSNESS, H_SPELL_HOPELESSNESS));
+            }
 
             DoMeleeAttackIfReady();  
 
