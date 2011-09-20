@@ -715,6 +715,8 @@ InstanceScript* ScriptMgr::CreateInstanceData(InstanceMap* map)
 
 bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Item* target)
 {
+    if (!caster)
+       return false;
     ASSERT(caster);
     ASSERT(target);
 
@@ -753,6 +755,8 @@ bool ScriptMgr::OnItemExpire(Player* player, ItemTemplate const* proto)
 
 bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Creature* target)
 {
+    if (!caster)
+       return false;
     ASSERT(caster);
     ASSERT(target);
 
@@ -948,6 +952,8 @@ void ScriptMgr::OnGameObjectUpdate(GameObject* go, uint32 diff)
 
 bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, GameObject* target)
 {
+    if (!caster)
+       return false;
     ASSERT(caster);
     ASSERT(target);
 
