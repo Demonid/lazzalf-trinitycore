@@ -134,8 +134,8 @@ void BattlegroundMgr::Update(uint32 diff)
             BattlegroundQueueTypeId bgQueueTypeId = BattlegroundQueueTypeId(scheduled[i].schedule_id >> 16 & 255);
             BattlegroundTypeId bgTypeId = BattlegroundTypeId((scheduled[i].schedule_id >> 8) & 255);
             BattlegroundBracketId bracket_id = BattlegroundBracketId(scheduled[i].schedule_id & 255);
-	    uint32 ateamId = scheduled[i].ateamId;
-            m_BattlegroundQueues[bgQueueTypeId].Update(bgTypeId, bracket_id, arenaType, arenaMMRating > 0, arenaMMRating, ateamId, ateamId);
+	        uint32 ateamId = scheduled[i].ateamId;
+            m_BattlegroundQueues[bgQueueTypeId].BattlegroundQueueUpdate(diff, bgTypeId, bracket_id, arenaType, arenaMMRating > 0, arenaMMRating, ateamId);         
         }
     }
 
