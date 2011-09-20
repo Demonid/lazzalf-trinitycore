@@ -194,7 +194,7 @@ public:
                 if (Creature* Summon = m_pInstance->instance->GetCreature(m_uiSummonGUID[m_uiCheckSummon]))
                 {
                    Summon->setFaction(14);
-                   Summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                   Summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                    Summon->SetReactState(REACT_AGGRESSIVE);
                    Summon->SetInCombatWithZone();
                 }
@@ -204,7 +204,8 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!m_pInstance) return;
+            if (!m_pInstance) 
+                return;
 
             if (m_pInstance->GetData(TYPE_FALRIC) == SPECIAL) 
             {
