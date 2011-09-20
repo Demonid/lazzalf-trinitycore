@@ -26,6 +26,7 @@
  EndScriptData */
 
 #include "ScriptPCH.h"
+#include "ScriptedCreature.h"
 #include "halls_of_reflection.h"
 
 enum
