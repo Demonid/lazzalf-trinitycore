@@ -29,7 +29,7 @@
 #include "ScriptedCreature.h"
 #include "halls_of_reflection.h"
 
-enum
+enum Texts
 {
     SAY_MARWYN_INTRO                        = -1594506,
     SAY_MARWYN_AGGRO                        = -1668060,
@@ -38,7 +38,10 @@ enum
     SAY_MARWYN_SLAY02                       = -1668062,
     SAY_MARWYN_SP01                         = -1668064,
     SAY_MARWYN_SP02                         = -1668065,
+};
 
+enum Spells
+{
     SPELL_OBLITERATE_N                      = 72360,
     SPELL_OBLITERATE_H                      = 72434,
     SPELL_SHARED_SUFFERING_N                = 72368,
@@ -60,12 +63,10 @@ public:
        boss_marwynAI(Creature *pCreature) : ScriptedAI(pCreature)
        {
             m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
-            Regular = pCreature->GetMap()->IsRegularDifficulty();
             Reset();
        }
 
        InstanceScript* m_pInstance;
-       bool Regular;
        bool m_bIsCall;
 
        //FUNCTIONS
@@ -157,12 +158,12 @@ public:
 
         void CallFallSoldier()
         {
-             for(uint8 i = 0; i < 4; i++)
+             for (uint8 i = 0; i < 4; i++)
              {
                 if (Creature* Summon = m_pInstance->instance->GetCreature(m_uiSummonGUID[m_uiCheckSummon]))
                 {
                    Summon->setFaction(14);
-                   Summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                   Summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                    Summon->SetReactState(REACT_AGGRESSIVE);
                    Summon->SetInCombatWithZone();
                 }
@@ -172,13 +173,13 @@ public:
 
         void JustDied(Unit* pKiller)
         {
-          if (m_pInstance)
-          {
-             m_pInstance->SetData(TYPE_MARWYN, DONE);
-             m_pInstance->SetData(TYPE_PHASE, 3);
-          }
+            if (m_pInstance)
+            {
+                m_pInstance->SetData(TYPE_MARWYN, DONE);
+                m_pInstance->SetData(TYPE_PHASE, 3);
+            }
 
-          DoScriptText(SAY_MARWYN_DEATH, me);
+            DoScriptText(SAY_MARWYN_DEATH, me);
         }
 
         void KilledUnit(Unit* pVictim)
@@ -245,7 +246,7 @@ public:
 
             if (m_uiObliterateTimer < uiDiff)
             {
-                DoCast(me->getVictim(), Regular ? SPELL_OBLITERATE_N : SPELL_OBLITERATE_H);
+                DoCast(me->getVictim(), DUNGEON_MODE(SPELL_OBLITERATE_N, SPELL_OBLITERATE_H));
                 m_uiObliterateTimer = urand(8000, 12000);
             } else m_uiObliterateTimer -= uiDiff;
 
@@ -260,7 +261,7 @@ public:
             if (m_uiSharedSufferingTimer < uiDiff) 
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM))
-                   DoCast(pTarget, Regular ? SPELL_SHARED_SUFFERING_N : SPELL_SHARED_SUFFERING_H);
+                   DoCast(pTarget, DUNGEON_MODE(SPELL_SHARED_SUFFERING_N, SPELL_SHARED_SUFFERING_H));
                 m_uiSharedSufferingTimer = urand(15000, 20000);
             } else m_uiSharedSufferingTimer -= uiDiff;
 
@@ -268,7 +269,7 @@ public:
             {
                 DoScriptText(SAY_MARWYN_SP01, me);
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM))
-                    DoCast(pTarget, Regular ? SPELL_CORRUPTED_FLESH_N : SPELL_CORRUPTED_FLESH_H);
+                    DoCast(pTarget, DUNGEON_MODE(SPELL_CORRUPTED_FLESH_N, SPELL_CORRUPTED_FLESH_H));
                 m_uiFleshTimer = urand(10000, 16000);
             } else m_uiFleshTimer -= uiDiff;
 
