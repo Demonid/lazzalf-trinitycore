@@ -1718,7 +1718,7 @@ class spell_set_oracle_faction_honored : public SpellScriptLoader
         {
             PrepareSpellScript(spell_set_oracle_faction_honored_SpellScript);
 
-            void HandleScript(SpellEffIndex /*effIndex*/)
+            void HandleScript(SpellEffIndex effIndex)
             {
                 Unit* target = GetHitUnit();
                 if (!target)
@@ -1761,7 +1761,7 @@ class spell_set_wolvar_faction_honored : public SpellScriptLoader
         {
             PrepareSpellScript(spell_set_wolvar_faction_honored_SpellScript);
 
-            void HandleScript(SpellEffIndex /*effIndex*/)
+            void HandleScript(SpellEffIndex effIndex)
             {
                 Unit* target = GetHitUnit();
                 if (!target)
