@@ -5532,6 +5532,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_EFFECT_REDIRECT_THREAT:
             {
+                // Tricks of the Trade
                 if (m_spellInfo->Id == 57934 && m_targets.GetUnitTarget() &&
                     m_targets.GetUnitTarget()->GetTypeId() != TYPEID_PLAYER)
                     return SPELL_FAILED_BAD_TARGETS;
