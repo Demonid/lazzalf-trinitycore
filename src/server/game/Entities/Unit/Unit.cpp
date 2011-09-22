@@ -3784,7 +3784,7 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit
                 case SPELLFAMILY_HUNTER:
                 {
                     // Wyvern Sting
-                    if (aura->GetSpellInfo()->SpellFamilyFlags[1] & 0x1000))
+                    if (aura->GetSpellInfo()->SpellFamilyFlags[1] & 0x1000)
                     {
                         Unit * caster = aura->GetCaster();
                         if (caster && !(dispeller->GetTypeId() == TYPEID_UNIT && dispeller->ToCreature()->isTotem()))
