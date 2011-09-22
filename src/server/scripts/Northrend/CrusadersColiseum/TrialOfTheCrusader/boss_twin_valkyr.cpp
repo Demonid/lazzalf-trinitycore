@@ -158,6 +158,9 @@ enum BossSpells
 
 #define SPELL_POWERING_UP_HELPER RAID_MODE<uint32>(67590, 67602, 67603, 67604)
 
+#define SPELL_EMPOWERED_DARK_HELPER RAID_MODE<uint32>(65724,67213,67214,67215)
+#define SPELL_EMPOWERED_LIGHT_HELPER RAID_MODE<uint32>(65748, 67216, 67217, 67218)
+
 #define SPELL_UNLEASHED_DARK_HELPER RAID_MODE<uint32>(65808, 67172, 67173, 67174)
 #define SPELL_UNLEASHED_LIGHT_HELPER RAID_MODE<uint32>(65795, 67238, 67239, 67240)
 
@@ -231,7 +234,9 @@ struct boss_twin_baseAI : public ScriptedAI
     int32 m_uiVortexEmote;
     uint32 m_uiSisterNpcId;
     uint32 m_uiMyEmphatySpellId;
+    uint32 m_uiMyEssenceSpellId;
     uint32 m_uiOtherEssenceSpellId;
+    uint32 m_uiEmpoweredWeaknessSpellId;
     uint32 m_uiSurgeSpellId;
     uint32 m_uiVortexSpellId;
     uint32 m_uiShieldSpellId;
@@ -535,7 +540,9 @@ public:
             m_uiVortexSay = SAY_LIGHT_VORTEX;
             m_uiSisterNpcId = NPC_DARKBANE;
             m_uiMyEmphatySpellId = SPELL_TWIN_EMPATHY_DARK;
+            m_uiMyEssenceSpellId = SPELL_LIGHT_ESSENCE_HELPER;
             m_uiOtherEssenceSpellId = SPELL_DARK_ESSENCE_HELPER;
+            m_uiEmpoweredWeaknessSpellId = SPELL_EMPOWERED_DARK_HELPER;
             m_uiSurgeSpellId = RAID_MODE(SURGE_OF_LIGHT_10N, SURGE_OF_LIGHT_25N, SURGE_OF_LIGHT_10H, SURGE_OF_LIGHT_25H);
             m_uiVortexSpellId = RAID_MODE(LIGHT_VORTEX_10N, LIGHT_VORTEX_25N, LIGHT_VORTEX_10H, LIGHT_VORTEX_25H);
             m_uiShieldSpellId = RAID_MODE(LIGHT_SHIELD_10N, LIGHT_SHIELD_25N, LIGHT_SHIELD_10H, LIGHT_SHIELD_25H);
@@ -635,6 +642,7 @@ public:
             m_uiVortexSay = SAY_DARK_VORTEX;
             m_uiSisterNpcId = NPC_LIGHTBANE;
             m_uiMyEmphatySpellId = SPELL_TWIN_EMPATHY_LIGHT;
+            m_uiMyEssenceSpellId = SPELL_DARK_ESSENCE_HELPER;
             m_uiOtherEssenceSpellId = SPELL_LIGHT_ESSENCE_HELPER;        
             m_uiEmpoweredWeaknessSpellId = SPELL_EMPOWERED_LIGHT_HELPER;
             m_uiSurgeSpellId = RAID_MODE(SURGE_OF_DARKNESS_10N, SURGE_OF_DARKNESS_25N, SURGE_OF_DARKNESS_10H, SURGE_OF_DARKNESS_25H);
