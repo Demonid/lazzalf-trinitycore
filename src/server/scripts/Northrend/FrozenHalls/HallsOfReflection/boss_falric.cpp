@@ -94,7 +94,7 @@ public:
           m_uiStrikeTimer = 2000;
           m_uiSummonTimer = 11000;
           uiHopelessnessCount = 0;
-          me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+          me->SetFlag(UNIT_FIELD_FLAGS, NULL ); //UNIT_FLAG_NON_ATTACKABLE
           me->SetVisible(false);
         }
 
