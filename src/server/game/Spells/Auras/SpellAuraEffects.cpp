@@ -5300,7 +5300,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                  break;
                  
             // Sentry Totem
-            if (GetId() == 6495 && caster->GetTypeId() == TYPEID_PLAYER)
+            /*if (GetId() == 6495 && caster->GetTypeId() == TYPEID_PLAYER)
             {
                 if (apply)
                 {
@@ -5315,8 +5315,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     caster->ToPlayer()->StopCastingBindSight();
                 return;
             }
-            break;
-            /*
+            break;*/
             switch(GetId())
             {
                 // Sentry Totem (Serverside)
@@ -5350,7 +5349,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 }
             }
             break;
-            */
         }
         case SPELLFAMILY_PALADIN:
             // if (!(mode & AURA_EFFECT_HANDLE_REAL))
