@@ -136,7 +136,7 @@ public:
         {
              m_uiLocNo = 0;
 
-             for(uint8 i = 0; i < 14; i++)
+             for (uint8 i = 0; i < 14; i++)
              {
                 switch(urand(0,3))
                 {
@@ -189,12 +189,12 @@ public:
 
         void CallFallSoldier()
         {
-             for(uint8 i = 0; i < 4; i++)
+             for (uint8 i = 0; i < 4; i++)
              {
                 if (Creature* Summon = m_pInstance->instance->GetCreature(m_uiSummonGUID[m_uiCheckSummon]))
                 {
                    Summon->setFaction(14);
-                   Summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                   Summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                    Summon->SetReactState(REACT_AGGRESSIVE);
                    Summon->SetInCombatWithZone();
                 }

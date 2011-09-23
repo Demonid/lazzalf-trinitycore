@@ -164,6 +164,8 @@ class boss_bronjahm : public CreatureScript
                             break;
                         case EVENT_SOULSTORM:
                             DoScriptText(SAY_SOUL_STORM, me);
+                            if (me->GetDistance2d(5297.33f, 2506.3f) > 5.0f)
+                                me->NearTeleportTo(5297.33f, 2506.3f, 686.069f, me->GetOrientation());
                             me->CastSpell(me, SPELL_SOULSTORM_VISUAL, true);
                             me->CastSpell(me, SPELL_SOULSTORM, false);
                             break;
