@@ -224,7 +224,9 @@ struct boss_twin_baseAI : public ScriptedAI
 
     uint8  m_uiStage;
     bool   m_bIsBerserk;
+    uint8  m_uiWaveCount;
     uint32 m_uiWeapon;
+    uint32 m_uiColorballsTimer;
     uint32 m_uiSpecialAbilityTimer;
     uint32 m_uiSpikeTimer;
     uint32 m_uiTouchTimer;
@@ -233,6 +235,7 @@ struct boss_twin_baseAI : public ScriptedAI
     int32 m_uiVortexSay;
     int32 m_uiVortexEmote;
     uint32 m_uiSisterNpcId;
+    uint32 m_uiColorballNpcId;
     uint32 m_uiMyEmphatySpellId;
     uint32 m_uiMyEssenceSpellId;
     uint32 m_uiOtherEssenceSpellId;
@@ -253,6 +256,8 @@ struct boss_twin_baseAI : public ScriptedAI
         me->SetFlying(true); */
         m_bIsBerserk = false;
 
+        m_uiWaveCount = 1;
+        m_uiColorballsTimer = 15*IN_MILLISECONDS;
         m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
         m_uiSpikeTimer = 20*IN_MILLISECONDS;
         m_uiTouchTimer = urand(10, 15)*IN_MILLISECONDS;
@@ -299,6 +304,13 @@ struct boss_twin_baseAI : public ScriptedAI
 
     void JustSummoned(Creature* summoned)
     {
+        switch (summoned->GetEntry())
+        {
+            case NPC_BULLET_DARK:
+            case NPC_BULLET_LIGHT:
+                summoned->SetCorpseDelay(0);
+                break;
+        }
         Summons.Summon(summoned);
     }
 
@@ -314,11 +326,26 @@ struct boss_twin_baseAI : public ScriptedAI
                 m_pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DARK_ESSENCE_HELPER);
                 m_pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
                 break;
-            case NPC_BULLET_CONTROLLER:
-                me->m_Events.AddEvent(new OrbsDespawner(me), me->m_Events.CalculateTime(100));
-                break;
+            //case NPC_BULLET_CONTROLLER:
+            //    me->m_Events.AddEvent(new OrbsDespawner(me), me->m_Events.CalculateTime(100));
+            //    break;
         }
         Summons.Despawn(summoned);
+    }
+
+    void SummonColorballs(uint8 quantity)
+    {
+        float x0 = ToCCommonLoc[1].GetPositionX(), y0 = ToCCommonLoc[1].GetPositionY(), r = 47.0f;
+        float y = y0;
+        for (uint8 i = 0; i < quantity; i++)
+        {
+            float x = float(urand(uint32(x0 - r), uint32(x0 + r)));
+            if (urand(0, 1))
+                y = y0 + sqrt(pow(r, 2) - pow((x-x0), 2));
+            else
+                y = y0 - sqrt(pow(r, 2) - pow((x-x0), 2));
+            me->SummonCreature(m_uiColorballNpcId, x, y, me->GetPositionZ(), TEMPSUMMON_CORPSE_DESPAWN);
+        }
     }
 
     void JustDied(Unit* /*killer*/)
@@ -492,6 +519,23 @@ struct boss_twin_baseAI : public ScriptedAI
         else
             m_uiTouchTimer -= uiDiff;
 
+        if (m_uiColorballsTimer <= uiDiff)
+        {
+            if (m_uiWaveCount >= 2)
+            {
+                SummonColorballs(12);
+                m_uiWaveCount = 0;
+            }
+            else
+            {
+                SummonColorballs(2);
+                m_uiWaveCount++;
+            }
+            m_uiColorballsTimer = 15*IN_MILLISECONDS;
+        }
+        else
+            m_uiColorballsTimer -= uiDiff;
+
         if (!m_bIsBerserk && m_uiBerserkTimer <= uiDiff)
         {
             DoCast(me, SPELL_BERSERK);
@@ -539,6 +583,7 @@ public:
             m_uiVortexEmote = EMOTE_LIGHT_VORTEX;
             m_uiVortexSay = SAY_LIGHT_VORTEX;
             m_uiSisterNpcId = NPC_DARKBANE;
+            m_uiColorballNpcId = NPC_BULLET_LIGHT;
             m_uiMyEmphatySpellId = SPELL_TWIN_EMPATHY_DARK;
             m_uiMyEssenceSpellId = SPELL_LIGHT_ESSENCE_HELPER;
             m_uiOtherEssenceSpellId = SPELL_DARK_ESSENCE_HELPER;
@@ -641,6 +686,7 @@ public:
             m_uiVortexEmote = EMOTE_DARK_VORTEX;
             m_uiVortexSay = SAY_DARK_VORTEX;
             m_uiSisterNpcId = NPC_LIGHTBANE;
+            m_uiColorballNpcId = NPC_BULLET_DARK;
             m_uiMyEmphatySpellId = SPELL_TWIN_EMPATHY_LIGHT;
             m_uiMyEssenceSpellId = SPELL_DARK_ESSENCE_HELPER;
             m_uiOtherEssenceSpellId = SPELL_LIGHT_ESSENCE_HELPER;        
