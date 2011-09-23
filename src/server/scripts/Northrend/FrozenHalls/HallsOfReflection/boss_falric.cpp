@@ -136,7 +136,7 @@ public:
         {
              m_uiLocNo = 0;
 
-             for(uint8 i = 0; i < 14; i++)
+             for (uint8 i = 0; i < 14; i++)
              {
                 switch(urand(0,3))
                 {
@@ -179,7 +179,7 @@ public:
                  if (Creature* Summon = me->SummonCreature(pSummon, SpawnLoc[m_uiLocNo].x, SpawnLoc[m_uiLocNo].y, SpawnLoc[m_uiLocNo].z, SpawnLoc[m_uiLocNo].o, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000))
                  {
                     m_uiSummonGUID[i] = Summon->GetGUID();
-                    Summon->SetFlag(UNIT_FIELD_FLAGS, NULL); //UNIT_FLAG_NON_ATTACKABLE
+                    Summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     Summon->setFaction(974);
                     Summon->SetReactState(REACT_PASSIVE); 
                  }
@@ -189,12 +189,12 @@ public:
 
         void CallFallSoldier()
         {
-             for(uint8 i = 0; i < 4; i++)
+             for (uint8 i = 0; i < 4; i++)
              {
                 if (Creature* Summon = m_pInstance->instance->GetCreature(m_uiSummonGUID[m_uiCheckSummon]))
                 {
                    Summon->setFaction(14);
-                   Summon->RemoveFlag(UNIT_FIELD_FLAGS, NULL | NULL ); //UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE
+                   Summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                    Summon->SetReactState(REACT_AGGRESSIVE);
                    Summon->SetInCombatWithZone();
                 }
@@ -221,7 +221,7 @@ public:
                         if (SummonCount > 4) 
                         {
                             m_pInstance->SetData(TYPE_FALRIC, IN_PROGRESS);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, NULL ); //UNIT_FLAG_NON_ATTACKABLE
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             me->SetInCombatWithZone();
                         }
                         else CallFallSoldier();
