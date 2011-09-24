@@ -337,7 +337,7 @@ class boss_gothik : public CreatureScript
             if (!me->isInCombat())
                 return;
 
-            switch(spell->Id)
+            switch (spell->Id)
             {
                 case SPELL_INFORM_DEAD_TRAINEE:
                     DoSummon(MOB_DEAD_TRAINEE, target, 0);
