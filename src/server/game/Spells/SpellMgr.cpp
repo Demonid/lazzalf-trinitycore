@@ -3282,6 +3282,7 @@ void SpellMgr::LoadDbcDataCorrections()
             case 27928: // To Anchor 1
             case 27935: // To Anchor 1
                 spellInfo->rangeIndex = 13;
+                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ANY;
                 break;            
             case 27915: // Gothik - Anchor to Skulls
             case 27931: // Gothik - Anchor to Skulls
