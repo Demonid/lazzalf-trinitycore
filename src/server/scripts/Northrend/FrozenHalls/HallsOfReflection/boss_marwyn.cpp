@@ -88,17 +88,26 @@ public:
 
        void Reset()
        {
-          m_uiBerserkTimer = 180000;
-          m_uiSharedSufferingTimer = 4000;
-          m_uiWellTimer = 12000;
-          m_uiTouchTimer = 8000;
-          m_uiFleshTimer = 21000;
-          m_uiObliterateTimer = 5000;
-          SummonCount = 0;
-          m_bIsCall = false;
-          m_uiSummonTimer = 15000;
-          me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-          me->SetVisible(false);
+           m_uiBerserkTimer = 180000;
+           m_uiSharedSufferingTimer = 4000;
+           m_uiWellTimer = 12000;
+           m_uiTouchTimer = 8000;
+           m_uiFleshTimer = 21000;
+           m_uiObliterateTimer = 5000;
+           SummonCount = 0;
+           m_bIsCall = false;
+           m_uiSummonTimer = 15000;
+           me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+           me->SetVisible(false);
+
+           if (!m_pInstance)
+               for (uint8 i = 0; i < 14; i++)
+                  if (Creature* Summon = m_pInstance->instance->GetCreature(m_uiSummonGUID[i]))
+                  {
+                      Summon->CombatStop();
+                      Summon->DespawnOrUnsummon();
+                      m_uiSummonGUID[i] = 0;
+                  }
         }
 
         void Summon()
@@ -193,24 +202,27 @@ public:
 
         void EnterCombat(Unit* pVictim)
         {
-            if (!m_pInstance) return;
-          //me->RemoveFlag(MOVEFLAG_WALK, MOVEMENTFLAG_WALK_MODE);
-          DoScriptText(SAY_MARWYN_AGGRO, me);
+            if (!m_pInstance) 
+                return;
+            //me->RemoveFlag(MOVEFLAG_WALK, MOVEMENTFLAG_WALK_MODE);
+            DoScriptText(SAY_MARWYN_AGGRO, me);
         }
 
         void AttackStart(Unit* who) 
         { 
-            if (!m_pInstance) return;
+            if (!m_pInstance) 
+                return;
 
-               if (m_pInstance->GetData(TYPE_MARWYN) != IN_PROGRESS)
-                 return; 
+            if (m_pInstance->GetData(TYPE_MARWYN) != IN_PROGRESS)
+                return; 
 
-             ScriptedAI::AttackStart(who);
+            ScriptedAI::AttackStart(who);
         }
 
        void UpdateAI(const uint32 uiDiff)
         {
-            if (!m_pInstance) return;
+            if (!m_pInstance) 
+                return;
 
             if (m_pInstance->GetData(TYPE_FALRIC) == SPECIAL) 
             {
