@@ -480,6 +480,14 @@ class spell_general_vezax_mark_of_the_faceless_drain : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
+                for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end();)
+                {
+                    if ((*itr)->GetTypeId() != TYPEID_PLAYER)
+                        unitList.erase(itr++);
+                    else
+                        ++itr;
+                }
+
                 unitList.remove(GetTargetUnit());
             }
 

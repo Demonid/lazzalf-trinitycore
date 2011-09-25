@@ -459,9 +459,6 @@ struct boss_twin_baseAI : public ScriptedAI
         else
             me->SetHealth(1);
 
-        if (me->HasUnitState(UNIT_STAT_CASTING))
-            return;
-
         switch (m_uiStage)
         {
             case 0:
@@ -501,6 +498,9 @@ struct boss_twin_baseAI : public ScriptedAI
             default:
                 break;
         }
+
+        if (me->HasUnitState(UNIT_STAT_CASTING))
+            return;
 
         if (m_uiSpikeTimer <= uiDiff)
         {
