@@ -482,7 +482,7 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetVisible(true);
             me->RestoreDisplayId();
-            me->RestoreFaction();
+            me->setFaction(35);
             me->GetMotionMaster()->MoveTargetedHome();
             phase = PHASE_NULL;
             encounterTimer = 0;
@@ -546,7 +546,7 @@ public:
                 }
             }
             wipe = true;
-            me->RestoreFaction();
+            // me->RestoreFaction();
             uiStep = 0;
             uiPhase_timer = -1;
             JumpToNextStep(5000);
