@@ -1808,11 +1808,13 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                     pet->CastSpell(pet, 28305, true);
                 return;
             }
-        }
-        // Monstrous Bite
-        case 54681:
-            m_caster->CastSpell(m_caster, 54681, true);
-            return;
+            // Monstrous Bite
+            case 54681:
+            {
+                m_caster->CastSpell(m_caster, 54681, true);
+                return;
+            }
+        }        
     }
 
     // normal case
@@ -6511,11 +6513,11 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
         if (m_caster->GetTypeId() == TYPEID_PLAYER)
             m_caster->ToPlayer()->GetAntiCheat()->SetSleep(3000); //AntiCheat Sleep
             
-        float angle = target->GetRelativeAngle(m_caster);
+        float angle = unitTarget->GetRelativeAngle(m_caster);
         Position pos;
-        target->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-        target->GetFirstCollisionPosition(pos, target->GetObjectSize(), angle);
-        m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize());
+        unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+        unitTarget->GetFirstCollisionPosition(pos, unitTarget->GetObjectSize(), angle);
+        m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ + unitTarget->GetObjectSize());
 
         //float x, y, z;
         //unitTarget->GetContactPoint(m_caster, x, y, z);

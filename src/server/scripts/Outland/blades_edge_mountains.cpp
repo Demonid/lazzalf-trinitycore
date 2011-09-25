@@ -758,7 +758,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_wicked_strong_fetish_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectHitTarget += SpellEffectFn(spell_wicked_strong_fetish_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 

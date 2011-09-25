@@ -684,7 +684,7 @@ class spell_cosmic_smash : public SpellScriptLoader
             {
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_cosmic_smash_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_cosmic_smash_SpellScript::FilterTargetsSubsequent, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffect += SpellEffectFn(spell_cosmic_smash_SpellScript::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+                OnEffectHitTarget += SpellEffectFn(spell_cosmic_smash_SpellScript::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
             }
 
             std::list<Unit*> sharedUnitList;
@@ -714,7 +714,7 @@ class spell_cosmic_smash_summon_trigger : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_cosmic_smash_summon_trigger_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffectHitTarget += SpellEffectFn(spell_cosmic_smash_summon_trigger_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 
@@ -743,7 +743,7 @@ class spell_cosmic_smash_summon_target : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_cosmic_smash_summon_target_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffectHitTarget += SpellEffectFn(spell_cosmic_smash_summon_target_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 
@@ -777,7 +777,7 @@ class spell_cosmic_smash_dmg : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_cosmic_smash_dmg_SpellScript::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(spell_cosmic_smash_dmg_SpellScript::CalcDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
