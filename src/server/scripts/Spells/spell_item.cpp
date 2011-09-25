@@ -881,7 +881,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_temper_queldelar_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_temper_queldelar_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -1042,7 +1042,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_gavrock_runebreaker_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_gavrock_runebreaker_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 

@@ -282,7 +282,7 @@ class spell_trollgore_consume : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_trollgore_consume_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_trollgore_consume_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_trollgore_consume_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
 
