@@ -48,7 +48,7 @@ enum VezaxSpells
 {
     AURA_OF_DESPAIR                             = 62692,
     SPELL_MARK_OF_THE_FACELESS                  = 63276,
-    SPELL_MARK_OF_THE_FACELESS_DAMAGE            = 63278,
+    SPELL_MARK_OF_THE_FACELESS_LEECH            = 63278,
     SPELL_SARONITE_BARRIER                      = 63364,
     SPELL_SEARING_FLAMES                        = 62661,
     SPELL_SHADOW_CRASH                          = 62660,
@@ -435,30 +435,65 @@ class mob_saronite_animus : public CreatureScript
     };
 };
     
-class spell_mark_of_the_faceless : public SpellScriptLoader
+class spell_general_vezax_mark_of_the_faceless_aura : public SpellScriptLoader
+{
+public:
+    spell_general_vezax_mark_of_the_faceless_aura() : SpellScriptLoader("spell_general_vezax_mark_of_the_faceless_aura") { }
+
+    class spell_general_vezax_mark_of_the_faceless_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_general_vezax_mark_of_the_faceless_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_THE_FACELESS_LEECH))
+                return false;
+            return true;
+        }
+
+        void HandleDummyTick(AuraEffect const* aurEff)
+        {
+            GetCaster()->CastCustomSpell(SPELL_MARK_OF_THE_FACELESS_LEECH, SPELLVALUE_BASE_POINT1, aurEff->GetAmount(), GetTarget(), true);
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_general_vezax_mark_of_the_faceless_AuraScript::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        }
+
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_general_vezax_mark_of_the_faceless_AuraScript();
+    }
+};
+
+class spell_general_vezax_mark_of_the_faceless_drain : public SpellScriptLoader
 {
     public:
-        spell_mark_of_the_faceless() : SpellScriptLoader("spell_mark_of_the_faceless") { }
+        spell_general_vezax_mark_of_the_faceless_drain() : SpellScriptLoader("spell_general_vezax_mark_of_the_faceless_drain") { }
 
-        class spell_mark_of_the_faceless_AuraScript : public AuraScript
+        class spell_general_vezax_mark_of_the_faceless_drain_SpellScript : public SpellScript
         {
-            PrepareAuraScript(spell_mark_of_the_faceless_AuraScript);
+            PrepareSpellScript(spell_general_vezax_mark_of_the_faceless_drain_SpellScript);
 
-            void HandleEffectPeriodic(AuraEffect const* aurEff)
+            void FilterTargets(std::list<Unit*>& unitList)
             {
-                if (Unit* caster = GetCaster())
-                    caster->CastCustomSpell(SPELL_MARK_OF_THE_FACELESS_DAMAGE, SPELLVALUE_BASE_POINT1, aurEff->GetAmount(), GetTarget(), true);
+                unitList.remove(GetTargetUnit());
             }
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_mark_of_the_faceless_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_general_vezax_mark_of_the_faceless_drain_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
             }
+
+            Unit* _target;
         };
 
-        AuraScript* GetAuraScript() const
+        SpellScript* GetSpellScript() const
         {
-            return new spell_mark_of_the_faceless_AuraScript();
+            return new spell_general_vezax_mark_of_the_faceless_drain_SpellScript();
         }
 };
 
@@ -467,5 +502,6 @@ void AddSC_boss_general_vezax()
     new boss_general_vezax();
     new mob_saronite_vapors();
     new mob_saronite_animus();
-    new spell_mark_of_the_faceless();
+    new spell_general_vezax_mark_of_the_faceless_aura();
+    new spell_general_vezax_mark_of_the_faceless_drain();
 }
