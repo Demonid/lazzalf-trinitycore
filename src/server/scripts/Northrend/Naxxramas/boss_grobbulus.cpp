@@ -68,6 +68,15 @@ public:
             }
         }
 
+        void KilledUnit(Unit* victim)
+        {
+            if (instance)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    instance->SetData(DATA_IMMORTAL_CONSTRUCT, CRITERIA_NOT_MEETED);
+            }
+        }
+
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())

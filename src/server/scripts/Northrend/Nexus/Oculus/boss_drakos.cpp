@@ -1,52 +1,54 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+* Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "ScriptPCH.h"
 #include "oculus.h"
 
 enum Spells
 {
-    SPELL_MAGIC_PULL                              = 51336,
-    SPELL_THUNDERING_STOMP                        = 50774,
-    SPELL_UNSTABLE_SPHERE_PASSIVE                 = 50756,
-    SPELL_UNSTABLE_SPHERE_PULSE                   = 50757,
-    SPELL_UNSTABLE_SPHERE_TIMER                   = 50758,
-    NPC_UNSTABLE_SPHERE                           = 28166,
+    SPELL_MAGIC_PULL = 51336,
+    SPELL_THUNDERING_STOMP = 50774,
+    SPELL_THUNDERING_STOMP_H =59370,
+    SPELL_UNSTABLE_SPHERE_PASSIVE = 50756,
+    SPELL_UNSTABLE_SPHERE_PULSE = 50757,
+    SPELL_UNSTABLE_SPHERE_TIMER = 50758,
+    NPC_UNSTABLE_SPHERE = 28166,
 };
 
+//not in db
 enum Yells
 {
-    SAY_AGGRO                                     = -1578005,
-    SAY_KILL_1                                    = -1578006,
-    SAY_KILL_2                                    = -1578007,
-    SAY_KILL_3                                    = -1578008,
-    SAY_DEATH                                     = -1578009,
-    SAY_PULL_1                                    = -1578010,
-    SAY_PULL_2                                    = -1578011,
-    SAY_PULL_3                                    = -1578012,
-    SAY_PULL_4                                    = -1578013,
-    SAY_STOMP_1                                   = -1578014,
-    SAY_STOMP_2                                   = -1578015,
-    SAY_STOMP_3                                   = -1578016
+    SAY_AGGRO = -1578005,
+    SAY_KILL_1 = -1578006,
+    SAY_KILL_2 = -1578007,
+    SAY_KILL_3 = -1578008,
+    SAY_DEATH = -1578009,
+    SAY_PULL_1 = -1578011,
+    SAY_PULL_2 = -1578012,
+    SAY_PULL_3 = -1578013,
+    SAY_PULL_4 = -1578014,
+    SAY_STOMP_1 = -1578015,
+    SAY_STOMP_2 = -1578016,
+    SAY_STOMP_3 = -1578017
 };
 
 enum DrakosAchievement
 {
-    ACHIEV_TIMED_START_EVENT                      = 18153,
+    ACHIEV_TIMED_START_EVENT = 18153,
 };
 
 enum DrakosEvents
@@ -103,31 +105,32 @@ public:
                 switch (eventId)
                 {
                     case EVENT_BOMB_SUMMON:
-                        {
-                            Position pPosition;
-                            me->GetPosition(&pPosition);
+                        Position pPosition;
+                        me->GetPosition(&pPosition);
 
-                            for (uint8 i = 0; i <= (postPull ? 3 : 0); i++)
-                            {
-                                me->GetRandomNearPosition(pPosition, float(urand(0, 10)));
-                                me->SummonCreature(NPC_UNSTABLE_SPHERE, pPosition);
-                            }
+                        for (uint8 i = 0; i <= (postPull ? 3 : 0); i++)
+                        {
+                            me->GetRandomNearPosition(pPosition, float(urand(0, 10)));
+                            me->SummonCreature(NPC_UNSTABLE_SPHERE, pPosition);
                         }
-                        events.ScheduleEvent(EVENT_BOMB_SUMMON, 2000);
+                        events.ScheduleEvent(EVENT_BOMB_SUMMON, 3000);
                         break;
                     case EVENT_MAGIC_PULL:
+                        DoScriptText(RAND(SAY_PULL_1, SAY_PULL_2, SAY_PULL_3, SAY_PULL_4), me);
                         DoCast(SPELL_MAGIC_PULL);
                         postPull = true;
                         events.ScheduleEvent(EVENT_MAGIC_PULL, 15000);
                         break;
                     case EVENT_STOMP:
                         DoScriptText(RAND(SAY_STOMP_1, SAY_STOMP_2, SAY_STOMP_3), me);
-                        DoCast(SPELL_THUNDERING_STOMP);
+                        if(me->GetMap()->IsHeroic())
+                            DoCast(SPELL_THUNDERING_STOMP_H);
+                        else
+                            DoCast(SPELL_THUNDERING_STOMP);
                         events.ScheduleEvent(EVENT_STOMP, 17000);
                         break;
                 }
             }
-
             DoMeleeAttackIfReady();
         }
 
@@ -200,3 +203,4 @@ void AddSC_boss_drakos()
     new boss_drakos();
     new npc_unstable_sphere();
 }
+

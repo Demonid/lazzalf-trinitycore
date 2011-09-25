@@ -283,8 +283,14 @@ public:
             }
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* victim)
         {
+            if (instance)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    instance->SetData(DATA_IMMORTAL_MILITARY, CRITERIA_NOT_MEETED);
+            }
+
             if (!(rand()%5))
             {
                 if (id == HORSEMEN_BARON)
@@ -310,7 +316,9 @@ public:
                 // Achievements related to the 4-horsemen are given through spell 59450 which does not exist.
                 // There is thus no way it can be given by casting the spell on the players.
                 instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 59450);
-            }
+
+                me->SummonCreature(CREATURE_TELEPORTER, TeleporterPositions[0]);
+            }           
 
             DoScriptText(SAY_DEATH[id], me);
         }

@@ -742,7 +742,8 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
             if (cInfo->AIName != "EventAI")
             {
                 sLog->outErrorDb("Creature entry %u has EventAI scripts, but its AIName is not 'EventAI', changing to EventAI", itr->first);
-                const_cast<CreatureTemplate*>(cInfo)->AIName = "EventAI";
+                if (cInfo->AIName != "SmartAI")
+                    const_cast<CreatureTemplate*>(cInfo)->AIName = "EventAI";
             }
         }
     }
