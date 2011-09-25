@@ -81,28 +81,52 @@ public:
        uint8 uiHopelessnessCount;
 
        uint8 SummonCount;
-
        uint64 pSummon;
+       bool hasBeenInCombat;
 
-        void Reset()
-        {
-          m_uiBerserkTimer = 180000;
-          SummonCount = 0;
-          m_bIsCall = false;
-          m_uiGrowlTimer = 20000;
-          m_uiHorrorTimer = urand(14000,20000);
-          m_uiStrikeTimer = 2000;
-          m_uiSummonTimer = 11000;
-          uiHopelessnessCount = 0;
-          me->SetFlag(UNIT_FIELD_FLAGS, NULL ); //UNIT_FLAG_NON_ATTACKABLE
-          me->SetVisible(false);
+       void Reset()
+       {
+           hasBeenInCombat = true;
+           m_uiBerserkTimer = 180000;
+           SummonCount = 0;
+           m_bIsCall = false;
+           m_uiGrowlTimer = 20000;
+           m_uiHorrorTimer = urand(14000,20000);
+           m_uiStrikeTimer = 2000;
+           m_uiSummonTimer = 11000;
+           uiHopelessnessCount = 0;
+           me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+           me->SetVisible(false);           
+               
+            Map* pMap = me->GetMap();
+		    if (hasBeenInCombat && pMap && pMap->IsDungeon())
+            {
+			    Map::PlayerList const &players = pMap->GetPlayers();
+			    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+			    {
+					    if (itr->getSource() && itr->getSource()->isAlive() && !itr->getSource()->isGameMaster())
+					        return; //se almeno un player è vivo, esce						
+			    }
+
+                if (!m_pInstance)
+                    for (uint8 i = 0; i < 14; i++)              
+                       if (Creature* Summon = m_pInstance->instance->GetCreature(m_uiSummonGUID[i]))
+                       {
+                           Summon->CombatStop();
+                           Summon->DespawnOrUnsummon();
+                           m_uiSummonGUID[i] = 0;
+                       }   			
+			    
+			    me->RemoveFromWorld();
+		    }
         }
 
         void EnterCombat(Unit* pVictim)
         {
-          //me->RemoveFlag(MOVEFLAG_WALK, NULL);
-          DoScriptText(SAY_FALRIC_AGGRO, me);
-          DoCast(me, SPELL_HOPELESSNESS);
+            hasBeenInCombat = true;
+            //me->RemoveFlag(MOVEFLAG_WALK, NULL);
+            DoScriptText(SAY_FALRIC_AGGRO, me);
+            DoCast(me, SPELL_HOPELESSNESS);
         }
 
         void KilledUnit(Unit* pVictim)
@@ -116,9 +140,12 @@ public:
 
         void JustDied(Unit* pKiller)
         {
-          if (!m_pInstance) return;
-             m_pInstance->SetData(TYPE_MARWYN, SPECIAL);
-          DoScriptText(SAY_FALRIC_DEATH, me);
+            if (m_pInstance) 
+            {
+               m_pInstance->SetData(TYPE_FALRIC, DONE);
+               m_pInstance->SetData(TYPE_MARWYN, SPECIAL);
+            }
+            DoScriptText(SAY_FALRIC_DEATH, me);
         }
 
         void AttackStart(Unit* who) 
