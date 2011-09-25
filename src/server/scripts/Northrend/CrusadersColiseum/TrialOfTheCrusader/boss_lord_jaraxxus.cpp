@@ -227,7 +227,7 @@ public:
             if (m_uiIncinerateFleshTimer <= uiDiff)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 150, true))
                 {
                     DoScriptText(EMOTE_INCINERATE, me, target);
                     DoScriptText(SAY_INCINERATE, me);
@@ -247,7 +247,7 @@ public:
             if (m_uiLegionFlameTimer <= uiDiff)
             {
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 150, true))
                 {
                     DoScriptText(EMOTE_LEGION_FLAME, me, target);
                     DoCast(target, SPELL_LEGION_FLAME);
