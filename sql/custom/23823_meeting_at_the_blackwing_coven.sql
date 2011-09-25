@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `ScriptName`='kolphis_darkscale_npc' WHERE `entry`='22019';
