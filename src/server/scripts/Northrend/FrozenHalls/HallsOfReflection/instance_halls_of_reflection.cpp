@@ -230,6 +230,37 @@ public:
             }
         }
 
+        bool CheckWipe()
+        {
+            Map::PlayerList const &players = instance->GetPlayers();
+            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            {
+                Player* player = itr->getSource();
+                if (player->isGameMaster())
+                    continue;
+
+                if (player->isAlive())
+                    return false;
+            }
+            return true;
+        }
+
+        void Update(uint32 diff)
+        {
+            if (!instance->HavePlayers())
+                return;
+
+            // if main event is in progress and players have wiped then reset instance
+            if ((GetData(TYPE_MARWYN) == IN_PROGRESS ||
+                 GetData(TYPE_MARWYN) == SPECIAL ||
+                 GetData(TYPE_FALRIC) == IN_PROGRESS ||
+                 GetData(TYPE_FALRIC) == SPECIAL)             
+                 && CheckWipe())
+            {
+                OpenDoor(m_uiMainGateGUID);
+            }
+        }
+
         void SetData(uint32 uiType, uint32 uiData)
         {
             switch(uiType)
