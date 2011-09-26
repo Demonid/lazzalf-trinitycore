@@ -99,15 +99,6 @@ public:
            m_uiSummonTimer = 15000;
            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
            me->SetVisible(false);
-
-           if (!m_pInstance)
-               for (uint8 i = 0; i < 14; i++)
-                  if (Creature* Summon = m_pInstance->instance->GetCreature(m_uiSummonGUID[i]))
-                  {
-                      Summon->CombatStop();
-                      Summon->DespawnOrUnsummon();
-                      m_uiSummonGUID[i] = 0;
-                  }
         }
 
         void Summon()

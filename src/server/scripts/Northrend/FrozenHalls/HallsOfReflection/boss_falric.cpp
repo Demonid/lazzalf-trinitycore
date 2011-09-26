@@ -96,29 +96,7 @@ public:
            m_uiSummonTimer = 11000;
            uiHopelessnessCount = 0;
            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-           me->SetVisible(false);           
-               
-            Map* pMap = me->GetMap();
-		    if (hasBeenInCombat && pMap && pMap->IsDungeon())
-            {
-			    Map::PlayerList const &players = pMap->GetPlayers();
-			    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-			    {
-					    if (itr->getSource() && itr->getSource()->isAlive() && !itr->getSource()->isGameMaster())
-					        return; //se almeno un player è vivo, esce						
-			    }
-
-                if (!m_pInstance)
-                    for (uint8 i = 0; i < 14; i++)              
-                       if (Creature* Summon = m_pInstance->instance->GetCreature(m_uiSummonGUID[i]))
-                       {
-                           Summon->CombatStop();
-                           Summon->DespawnOrUnsummon();
-                           m_uiSummonGUID[i] = 0;
-                       }   			
-			    
-			    me->RemoveFromWorld();
-		    }
+           me->SetVisible(false);
         }
 
         void EnterCombat(Unit* pVictim)

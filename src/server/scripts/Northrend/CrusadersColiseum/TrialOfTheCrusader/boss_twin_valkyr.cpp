@@ -148,6 +148,7 @@ enum BossSpells
     
     SPELL_CONTROLLER_PERIODIC    = 66149,
     SPELL_POWER_TWINS           = 65879,
+    SPELL_TWIN_POWER            = 65916,
     SPELL_BERSERK               = 64238,
     SPELL_POWERING_UP           = 67590,
     SPELL_SURGE_OF_SPEED        = 65828,
@@ -438,6 +439,7 @@ struct boss_twin_baseAI : public ScriptedAI
                 break;
             case ACTION_PACT:
                 m_uiStage = me->GetEntry() == NPC_LIGHTBANE ? 1 : 2;
+                DoCast(me, SPELL_TWIN_POWER);
                 break;
         }
     }
@@ -633,7 +635,7 @@ public:
             }
             */
 
-            me->SummonCreature(NPC_BULLET_CONTROLLER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
+            // me->SummonCreature(NPC_BULLET_CONTROLLER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
             boss_twin_baseAI::EnterCombat(who);
         }
         
