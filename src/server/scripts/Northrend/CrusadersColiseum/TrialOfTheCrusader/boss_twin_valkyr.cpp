@@ -55,6 +55,9 @@ enum Summons
 {
     NPC_BULLET_CONTROLLER        = 34743,
 
+    NPC_DARK_ESSENCE             = 34567,
+    NPC_LIGHT_ESSENCE            = 34568,
+
     NPC_BULLET_DARK              = 34628,
     NPC_BULLET_LIGHT             = 34630,
 };
@@ -251,7 +254,7 @@ struct boss_twin_baseAI : public ScriptedAI
     void Reset() {
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         me->SetReactState(REACT_PASSIVE);
-        me->ModifyAuraState(m_uiAuraState, true);
+        // me->ModifyAuraState(m_uiAuraState, true);
         /* Uncomment this once that they are flying above the ground
         me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         me->SetFlying(true); */
@@ -259,7 +262,7 @@ struct boss_twin_baseAI : public ScriptedAI
 
         m_uiWaveCount = 1;
         m_uiColorballsTimer = 15*IN_MILLISECONDS;
-        m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
+        m_uiSpecialAbilityTimer = urand(45,50)*IN_MILLISECONDS;
         m_uiSpikeTimer = 20*IN_MILLISECONDS;
         m_uiTouchTimer = urand(10, 15)*IN_MILLISECONDS;
         m_uiBerserkTimer = IsHeroic() ? 6*MINUTE*IN_MILLISECONDS : 10*MINUTE*IN_MILLISECONDS;
@@ -418,11 +421,11 @@ struct boss_twin_baseAI : public ScriptedAI
         me->SetInCombatWithZone();
         if (m_pInstance)
         {
-            if (Creature* pSister = GetSister())
-            {
-                me->AddAura(m_uiMyEmphatySpellId, pSister);
-                pSister->SetInCombatWithZone();
-            }
+            //if (Creature* pSister = GetSister())
+            //{
+            //    me->AddAura(m_uiMyEmphatySpellId, pSister);
+            //    pSister->SetInCombatWithZone();
+            //}
             m_pInstance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
             m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetMaxHealth());
         }
@@ -454,12 +457,15 @@ struct boss_twin_baseAI : public ScriptedAI
     void UpdateAI(const uint32 uiDiff)
     {
         if (!m_pInstance || !UpdateVictim())
-            return;
+            return;		
 
         if (m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED) != 0)
             me->SetHealth(m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED));
         else
             me->SetHealth(1);
+
+		if (me->HasUnitState(UNIT_STAT_CASTING))
+            return;
 
         switch (m_uiStage)
         {
@@ -474,7 +480,7 @@ struct boss_twin_baseAI : public ScriptedAI
                     DoScriptText(m_uiVortexSay, me);
                     DoCastAOE(m_uiVortexSpellId);
                     m_uiStage = 0;
-                    m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
+                    m_uiSpecialAbilityTimer = urand(45,50)*IN_MILLISECONDS;
                 }
                 else
                     m_uiSpecialAbilityTimer -= uiDiff;
@@ -487,12 +493,12 @@ struct boss_twin_baseAI : public ScriptedAI
                     if (Creature* pSister = GetSister())
                     {
                         pSister->AI()->DoAction(ACTION_PACT);
-                        pSister->CastSpell(pSister, SPELL_POWER_TWINS, false);
+                        // pSister->CastSpell(pSister, SPELL_POWER_TWINS, false);
                     }
                     DoCast(me, m_uiShieldSpellId);
                     DoCast(me, m_uiTwinPactSpellId);
                     m_uiStage = 0;
-                    m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
+                    m_uiSpecialAbilityTimer = urand(45,50)*IN_MILLISECONDS;
                 }
                 else
                     m_uiSpecialAbilityTimer -= uiDiff;
@@ -500,9 +506,7 @@ struct boss_twin_baseAI : public ScriptedAI
             default:
                 break;
         }
-
-        if (me->HasUnitState(UNIT_STAT_CASTING))
-            return;
+        
 
         if (m_uiSpikeTimer <= uiDiff)
         {
@@ -570,13 +574,16 @@ public:
         boss_fjolaAI(Creature* creature) : boss_twin_baseAI(creature)
         {
             m_pInstance = (InstanceScript*)creature->GetInstanceScript();
+			me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
         }
         
         InstanceScript* m_pInstance;
 
         uint32 saltAndPepperTimer;
 
-        void Reset() {
+        void Reset()
+        {
             boss_twin_baseAI::Reset();
             SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
             m_uiStage = 0;
@@ -677,7 +684,11 @@ public:
 
     struct boss_eydisAI : public boss_twin_baseAI
     {
-        boss_eydisAI(Creature* creature) : boss_twin_baseAI(creature) {}
+        boss_eydisAI(Creature* creature) : boss_twin_baseAI(creature) 
+        {
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+        }
 
         void Reset() {
             boss_twin_baseAI::Reset();
