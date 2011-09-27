@@ -1879,25 +1879,25 @@ public:
                     uint32 m_uiMarwynGUID = m_pInstance->GetData64(NPC_MARWYN);
                     if (Creature* Falric = m_pInstance->instance->GetCreature(m_uiFalricGUID))
                     {
-                        if (Falric->isAlive())
-                        {
+                        //if (Falric->isAlive())
+                        //{
                             Falric->RemoveAllAuras();
                             Falric->SetVisible(true);
                             Falric->CastSpell(Falric, SPELL_BOSS_SPAWN_AURA, false);
                             Falric->GetMotionMaster()->MovePoint(0, 5283.309f, 2031.173f, 709.319f);
                             // Mettere check per togliere eventulmente il loot
-                        }
+                        //}
                     }
                     if (Creature* Marwyn = m_pInstance->instance->GetCreature(m_uiMarwynGUID))
                     {
-                        if (Marwyn->isAlive())
-                        {
+                        //if (Marwyn->isAlive())
+                        //{
                             Marwyn->RemoveAllAuras();
                             Marwyn->SetVisible(true);
                             Marwyn->CastSpell(Marwyn, SPELL_BOSS_SPAWN_AURA, false);
                             Marwyn->GetMotionMaster()->MovePoint(0, 5335.585f, 1981.439f, 709.319f);
                             // Mettere check per togliere eventulmente il loot
-                        }
+                        //}
                     }
 
                     uint32 m_uiMainGateGUID = m_pInstance->GetData64(GO_IMPENETRABLE_DOOR);
