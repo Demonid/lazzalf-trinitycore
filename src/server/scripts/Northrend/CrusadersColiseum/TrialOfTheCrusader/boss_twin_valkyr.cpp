@@ -55,9 +55,6 @@ enum Summons
 {
     NPC_BULLET_CONTROLLER        = 34743,
 
-    NPC_DARK_ESSENCE             = 34567,
-    NPC_LIGHT_ESSENCE            = 34568,
-
     NPC_BULLET_DARK              = 34628,
     NPC_BULLET_LIGHT             = 34630,
 };
