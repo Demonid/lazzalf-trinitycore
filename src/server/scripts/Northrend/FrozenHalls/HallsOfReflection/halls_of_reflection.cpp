@@ -1879,19 +1879,25 @@ public:
                     uint32 m_uiMarwynGUID = m_pInstance->GetData64(NPC_MARWYN);
                     if (Creature* Falric = m_pInstance->instance->GetCreature(m_uiFalricGUID))
                     {
-                        Falric->RemoveAllAuras();
-                        Falric->SetVisible(true);
-                        Falric->CastSpell(Falric, SPELL_BOSS_SPAWN_AURA, false);
-                        Falric->GetMotionMaster()->MovePoint(0, 5283.309f, 2031.173f, 709.319f);
-                        // Mettere check per togliere eventulmente il loot
+                        if (Falric->isAlive())
+                        {
+                            Falric->RemoveAllAuras();
+                            Falric->SetVisible(true);
+                            Falric->CastSpell(Falric, SPELL_BOSS_SPAWN_AURA, false);
+                            Falric->GetMotionMaster()->MovePoint(0, 5283.309f, 2031.173f, 709.319f);
+                            // Mettere check per togliere eventulmente il loot
+                        }
                     }
                     if (Creature* Marwyn = m_pInstance->instance->GetCreature(m_uiMarwynGUID))
                     {
-                        Marwyn->RemoveAllAuras();
-                        Marwyn->SetVisible(true);
-                        Marwyn->CastSpell(Marwyn, SPELL_BOSS_SPAWN_AURA, false);
-                        Marwyn->GetMotionMaster()->MovePoint(0, 5335.585f, 1981.439f, 709.319f);
-                        // Mettere check per togliere eventulmente il loot
+                        if (Marwyn->isAlive())
+                        {
+                            Marwyn->RemoveAllAuras();
+                            Marwyn->SetVisible(true);
+                            Marwyn->CastSpell(Marwyn, SPELL_BOSS_SPAWN_AURA, false);
+                            Marwyn->GetMotionMaster()->MovePoint(0, 5335.585f, 1981.439f, 709.319f);
+                            // Mettere check per togliere eventulmente il loot
+                        }
                     }
 
                     uint32 m_uiMainGateGUID = m_pInstance->GetData64(GO_IMPENETRABLE_DOOR);
@@ -1910,6 +1916,7 @@ public:
     bool OnGossipHello(Player* player, Creature* creature)
     {
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
@@ -1928,17 +1935,6 @@ public:
         }
 
         InstanceScript* m_pInstance;
-
-        void Reset()
-        {
-            
-           
-        }
-
-        void UpdateAI(const uint32 uiDiff)
-        {
-          
-        }
     };
 };
 
