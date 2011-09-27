@@ -72,7 +72,7 @@ enum Data
 
     NPC_FROST_GENERAL            = 36723,
 
-    NPC_RESET_HOR                = 0, // Da Inserire
+    NPC_RESET_HOR                = 60090, // Da Inserire
 
     GO_ICECROWN_DOOR             = 201976, //72802
     GO_ICECROWN_DOOR_2           = 197342,
