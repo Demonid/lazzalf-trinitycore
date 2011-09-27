@@ -59,6 +59,8 @@ public:
         uint8 Difficulty;
         uint8 m_uiSummons;
 
+        uint64 m_uiResetNpcGUID;
+
         uint64 m_uiFalricGUID;
         uint64 m_uiMarwynGUID;  
         uint64 m_uiLichKingGUID;
@@ -138,6 +140,9 @@ public:
                 case NPC_FROST_GENERAL:
                     m_uiFrostGeneralGUID = creature->GetGUID();
                     break;
+                case NPC_RESET_HOR:
+                    m_uiResetNpcGUID = creature->GetGUID();
+                    break; 
                 //case NPC_JAINA:
                 //    if (m_uiTeamInInstance == HORDE)
                 //        creature->UpdateEntry(NPC_SYLVANA, HORDE);
@@ -259,8 +264,26 @@ public:
                  GetData(TYPE_FALRIC) == DONE) //Boss reser if the party kill it
                  && CheckWipe())
             {
-                //OpenDoor(m_uiMainGateGUID);
                 OpenDoor(m_uiExitGateGUID);
+                if (Creature* pResetNpc = instance->GetCreature(m_uiResetNpcGUID))
+                {
+                    pResetNpc->SetVisible(true);
+                    pResetNpc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    if (Creature* Falric = instance->GetCreature(m_uiFalricGUID))
+                    {
+                        if (Falric->isDead())
+                            Falric->Respawn();
+                        else if (Falric->GetAI())
+                            Falric->GetAI()->SetData(0,0);
+                    }
+                    if (Creature* Marwyn = instance->GetCreature(m_uiMarwynGUID))
+                    {
+                        if (Marwyn->isDead())
+                            Marwyn->Respawn();
+                        else if (Marwyn->GetAI())
+                            Marwyn->GetAI()->SetData(0,0);
+                    }
+                }
             }
         }
 
