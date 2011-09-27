@@ -84,6 +84,21 @@ public:
        uint64 pSummon;
        bool hasBeenInCombat;
 
+       void SetData(uint32 /*id*/, uint32 /*value*/)
+       {
+           if (!m_pInstance)
+               for (uint8 i = 0; i < 14; i++)
+                  if (Creature* Summon = m_pInstance->instance->GetCreature(m_uiSummonGUID[i]))
+                  {
+                      Summon->CombatStop();
+                      Summon->DespawnOrUnsummon();
+                      m_uiSummonGUID[i] = 0;
+                  }
+           me->RemoveAllAuras();
+           me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+           me->SetVisible(false);
+       }
+
        void Reset()
        {
            hasBeenInCombat = true;
