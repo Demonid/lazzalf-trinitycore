@@ -516,6 +516,16 @@ void SpellScript::SetCustomCastResultMessage(SpellCustomErrors result)
     m_spell->m_customError = result;
 }
 
+int32 SpellScript::GetTrueDamage()
+{
+    if (!IsInAfterHitPhase())
+    {
+        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitHeal was called while spell not in after-hit phase!", m_scriptName, m_scriptSpellId);
+        return 0;
+    }
+    return m_spell->m_true_damage;
+}
+
 SpellValue const* SpellScript::GetSpellValue()
 {
     return m_spell->m_spellValue;

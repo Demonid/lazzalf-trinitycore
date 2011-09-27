@@ -35,6 +35,8 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include "ScriptMgr.h"
+#include "../../scripts/OutdoorPvP/OutdoorPvPWG.h"
+#include "CreatureAIImpl.h"
 #include "Vehicle.h"
 
 class Aura;
@@ -447,6 +449,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                     }
 
     float DoneActualBenefit = 0.0f;
+    float BenefitMod = 1.0f;
 
     // custom amount calculations go here
     switch(GetAuraType())
@@ -649,12 +652,12 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 }
             }
             // Unholy Blight damage over time effect
-            else if (GetId() == 50536)
+            /*else if (GetId() == 50536)
             {
                 m_canBeRecalculated = false;
                 // we're getting total damage on aura apply, change it to be damage per tick
                 amount = int32((float)amount / GetTotalTicks());
-            }
+            }*/
             break;
         case SPELL_AURA_PERIODIC_ENERGIZE:
             if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_GENERIC)
@@ -752,7 +755,16 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     }
     if (DoneActualBenefit != 0.0f)
     {
-        DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellInfo());
+        // Handle SPELL_AURA_ADD_PCT_MODIFIERs
+        Unit::AuraEffectList const& AuraPctMmodifiers = caster->GetAuraEffectsByType(SPELL_AURA_ADD_PCT_MODIFIER);
+        for (Unit::AuraEffectList::const_iterator i = AuraPctMmodifiers.begin(); i != AuraPctMmodifiers.end(); ++i)
+        {
+            if ((*i)->IsAffectedOnSpell(m_spellInfo) && (*i)->GetMiscValue() == SPELLMOD_ALL_EFFECTS)
+                BenefitMod += (*i)->GetAmount() / 100.0f;
+        }
+        DoneActualBenefit *= BenefitMod;
+
+        //DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellInfo());
         amount += (int32)DoneActualBenefit;
     }
 
@@ -1199,6 +1211,22 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
                         case 59911: // Tenacity (vehicle)
                            GetBase()->RefreshDuration();
                            break;
+                        case 62038: // Biting Cold
+                            {
+                                UnitList targetList;
+                                GetTargetList(targetList);
+                                for (UnitList::iterator target = targetList.begin(); target != targetList.end(); ++target)
+                                {
+                                    if ((*target)->GetTypeId() != TYPEID_PLAYER)
+                                        continue; //break;
+                                        
+                                    if ((*target)->ToPlayer()->isMoving())
+                                        m_amount = 0; 
+                                    else
+                                        ++m_amount;
+                                }
+                            }
+                            break;
                         case 66823: case 67618: case 67619: case 67620: // Paralytic Toxin
                             // Get 0 effect aura
                             if (AuraEffect* slow = GetBase()->GetEffect(0))
@@ -1281,6 +1309,9 @@ void AuraEffect::SendTickImmune(Unit* target, Unit* caster) const
 
 void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit* caster) const
 {
+    if (!GetBase())
+        return;
+
     bool prevented = GetBase()->CallScriptEffectPeriodicHandlers(this, aurApp);
     if (prevented)
         return;
@@ -1392,6 +1423,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
     {
         case FORM_CAT:
             spellId = 3025;
+            spellId2 = 21184; //Rogue Passive (DND)
             HotWSpellId = 24900;
             break;
         case FORM_TREE:
@@ -2098,6 +2130,13 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                     target->SetPower(POWER_RAGE, Rage_val);
                 break;
             }
+            case FORM_FLIGHT_EPIC:
+            case FORM_FLIGHT:
+            {
+                // AntiCheat
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                    target->ToPlayer()->GetAntiCheat()->SetSleep(2000);
+            } break;
             default:
                 break;
         }
@@ -2840,6 +2879,9 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
     }
     else
     {
+        if (target->GetTypeId() == TYPEID_PLAYER)
+            target->ToPlayer()->GetAntiCheat()->SetSleep(1500); //AntiCheat Sleep
+
         target->Unmount();
         //some mounts like Headless Horseman's Mount or broom stick are skill based spell
         // need to remove ALL arura related to mounts, this will stop client crash with broom stick
@@ -3390,6 +3432,7 @@ void AuraEffect::HandleModMechanicImmunity(AuraApplication const* aurApp, uint8 
     {
         case 42292: // PvP trinket
         case 59752: // Every Man for Himself
+        case 53490: // Bullheaded
             mechanic = IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
             // Actually we should apply immunities here, too, but the aura has only 100 ms duration, so there is practically no point
             break;
@@ -3430,7 +3473,9 @@ void AuraEffect::HandleModMechanicImmunity(AuraApplication const* aurApp, uint8 
     }
 
     if (apply && GetSpellInfo()->AttributesEx & SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY)
-        target->RemoveAurasWithMechanic(mechanic, AURA_REMOVE_BY_DEFAULT, GetId());
+        target->HandleAuraEffectsWithMechanic(false, mechanic, AURA_REMOVE_BY_DEFAULT, GetId());
+    else
+        target->HandleAuraEffectsWithMechanic(true, mechanic, AURA_REMOVE_NONE, GetId());
 }
 
 void AuraEffect::HandleAuraModEffectImmunity(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4779,6 +4824,8 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     if (target->GetTypeId() == TYPEID_PLAYER)
                         if (Unit* spellTarget = ObjectAccessor::GetUnit(*target, target->ToPlayer()->GetComboTarget()))
                             target->CastSpell(spellTarget, 51699, true);
+                        else if (Unit * spellTarget = target->ToPlayer()->GetSelectedUnit())
+                            target->CastSpell(spellTarget, 51699, true);
                    break;
                 case 28832: // Mark of Korth'azz
                 case 28833: // Mark of Blaumeux
@@ -4805,14 +4852,18 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 {
                     int32 mana = int32(GetAmount() * pow(2.0f, GetBase()->GetStackAmount())); // mana restore - bp * 2^stackamount
                     int32 damage = mana * 2; // damage
-                    caster->CastCustomSpell(target, 63337, &mana, NULL, NULL, true);
-                    caster->CastCustomSpell(target, 63338, &damage, NULL, NULL, true);
+                    if (caster && target)
+                    {
+                        caster->CastCustomSpell(target, 63337, &mana, NULL, NULL, true);
+                        caster->CastCustomSpell(target, 63338, &damage, NULL, NULL, true);
+                    }
                     break;
                 }
                 case 71563:
-                    if (Aura* newAura = target->AddAura(71564, target))
+                    if (Aura* newAura = target->AddAura(71564, target))            
                         newAura->SetStackAmount(newAura->GetSpellInfo()->StackAmount);
-            }
+                    break;         
+             }
         }
         // AT REMOVE
         else
@@ -4846,11 +4897,28 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     caster->CastSpell(target, finalSpelId, true, NULL, this);
             }
 
+            OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORTHREND_WINTERGRASP);
+
             switch(m_spellInfo->SpellFamilyName)
             {
                 case SPELLFAMILY_GENERIC:
                     switch(GetId())
                     {
+                        case 58730: // Restricted Flight Area
+		                {
+		                    if (!target || ((target->GetAreaId() != NORTHREND_WINTERGRASP && pvpWG && pvpWG->isWarTime()) && (target->GetAreaId() != 4585) &&
+		                        (target->GetAreaId() != 4612) && (target->GetAreaId() != 4582) && (target->GetAreaId() != 4583) &&
+		                        (target->GetAreaId() != 4589) && (target->GetAreaId() != 4575) && (target->GetAreaId() != 4538) &&
+		                        (target->GetAreaId() != 4577)))
+		                        break;
+		                    // Remove Flight Auras
+		                    target->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
+		                    target->RemoveAurasByType(SPELL_AURA_FLY);
+		                    target->CastSpell(target, 61286, true);
+		                    // Parachute
+		                    target->CastSpell(target, 45472, true);
+		                    break;
+		                } 
                         case 2584: // Waiting to Resurrect
                             // Waiting to resurrect spell cancel, we must remove player from resurrect queue
                             if (target->GetTypeId() == TYPEID_PLAYER)
@@ -4945,20 +5013,36 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 case SPELLFAMILY_HUNTER:
                     switch (GetId())
                     {
-                        case 34477: // Misdirection
+                        case 35079: // Misdirection
+                            caster->SetReducedThreatPercent(0, 0);
+                            break;
+                        /*case 34477: // Misdirection
                             if (aurApp->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
                                 target->SetReducedThreatPercent(0, 0);
                             break;
                         case 35079: // Misdirection proc
                             target->SetReducedThreatPercent(0, 0);
-                            break;
+                            break;*/
                     }
                     break;
-                case SPELLFAMILY_DEATHKNIGHT:
+               /* case SPELLFAMILY_DEATHKNIGHT:
                     // Summon Gargoyle (Dismiss Gargoyle at remove)
                     if (GetId() == 61777)
                         target->CastSpell(target, GetAmount(), true);
+                    break;*/
+                case SPELLFAMILY_ROGUE:
+                {
+                    switch(GetId())
+                    {
+                        case 59628: // Tricks of the Trade
+                            if (caster)
+                                caster->SetReducedThreatPercent(0, 0);
+                            break;
+                        default:
+                            break;
+                    }
                     break;
+                }
                 default:
                     break;
             }
@@ -5195,9 +5279,10 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
         case SPELLFAMILY_SHAMAN:
         {
             if (!(mode & AURA_EFFECT_HANDLE_REAL))
-                break;
+                 break;
+                 
             // Sentry Totem
-            if (GetId() == 6495 && caster->GetTypeId() == TYPEID_PLAYER)
+            /*if (GetId() == 6495 && caster->GetTypeId() == TYPEID_PLAYER)
             {
                 if (apply)
                 {
@@ -5211,6 +5296,39 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 else
                     caster->ToPlayer()->StopCastingBindSight();
                 return;
+            }
+            break;*/
+            switch(GetId())
+            {
+                // Sentry Totem (Serverside)
+                case 6494:
+                {
+                    if (Player * pCaster = caster->ToPlayer())
+                    {
+                        pCaster->StopCastingBindSight();
+                        if (apply)
+                        {
+                            uint64 guid = pCaster->m_SummonSlot[4];
+                            if (guid)
+                            {
+                                Creature * totem = pCaster->GetMap()->GetCreature(guid);
+                                if (totem && totem->isTotem())
+                                    pCaster->CastSpell(totem, 6496, true);
+                            }
+                        }
+                        else
+                            pCaster->RemoveAurasDueToSpell(6495);
+                    }
+                    break;
+                }
+                // Sentry Totem (hack for login case)
+                case 6495:
+                {
+                    if (caster->GetTypeId() == TYPEID_PLAYER && apply)
+                        if (!caster->m_SummonSlot[4])
+                            caster->RemoveAurasDueToSpell(6495);
+                    break;
+                }
             }
             break;
         }
@@ -5600,6 +5718,9 @@ void AuraEffect::HandlePreventResurrection(AuraApplication const* aurApp, uint8 
 
 void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
 {
+
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORTHREND_WINTERGRASP);
+
     switch (GetSpellInfo()->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
@@ -5629,16 +5750,101 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                 }
                 case 62292: // Blaze (Pool of Tar)
                     // should we use custom damage?
-                    target->CastSpell((Unit*)NULL, m_spellInfo->Effects[m_effIndex].TriggerSpell, true);
+                    if (target)
+                        target->CastSpell((Unit*)NULL, m_spellInfo->Effects[m_effIndex].TriggerSpell, true);
                     break;
                 case 62399: // Overload Circuit
-                    if (target->GetMap()->IsDungeon() && int(target->GetAppliedAuras().count(62399)) >= (target->GetMap()->IsHeroic() ? 4 : 2))
+                    if (target && target->GetMap()->IsDungeon() && int(target->GetAppliedAuras().count(62399)) >= (target->GetMap()->IsHeroic() ? 4 : 2))
                     {
                          target->CastSpell(target, 62475, true); // System Shutdown
                          if (Unit* veh = target->GetVehicleBase())
                              veh->CastSpell(target, 62475, true);
                     }
                     break;
+                case 58730: // No Fly Zone - Wintergrasp
+                    if (pvpWG && (pvpWG->isWarTime() == false))
+                        break;
+
+                    if (GetTickNumber() == 10 && target)
+                    {
+                        target->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
+                        target->RemoveAurasByType(SPELL_AURA_FLY);
+                        target->CastSpell(target, 61286, true);
+                    }
+                    break;
+                case 58600: // No fly Zone - Dalaran
+                    if (GetTickNumber() == 10 && target)
+                    {
+                        target->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
+                        target->RemoveAurasByType(SPELL_AURA_FLY);
+                        target->CastSpell(target, 61286, true);
+                    }
+                    break;
+                /*case 63276: // Mark of the Faceless
+                    if (caster && target) 
+                    {
+                        uint32 count = 0;
+                        Position *pos = target;
+                        std::list<Unit*> unitList;
+                        Trinity::SpellNotifierCreatureAndPlayer notifier(caster, unitList, 15, PUSH_DST_CENTER, SPELL_TARGETS_ENEMY, pos, 0);
+                        caster->GetMap()->VisitAll(pos->m_positionX, pos->m_positionY, 15, notifier);
+                        int32 bp = GetAmount();
+                        for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                        {
+                            if (*itr == target)
+                                continue;
+                            caster->CastCustomSpell(*itr, 63278, NULL, &bp, NULL, true, NULL);
+                            count++;
+                        }
+                        if (count > 0 && caster->isAlive()) // prevent healing after death
+                            caster->HealBySpell(caster, GetSpellInfo(), bp * 20);
+                    }
+                    break;*/
+                case 63802: // Brain Link
+                    if (caster && target)
+                    {
+                        std::list<Unit*> unitList;
+                        target->GetRaidMember(unitList, 80);
+                        for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                        {
+                            Unit* pUnit = *itr;
+                            if (!pUnit || pUnit == target || !pUnit->HasAura(63802))
+                                continue;
+
+                            // Afflicted targets suffer Shadow damage whenever they are more than 20 yards apart
+                            if (target->IsWithinDist(pUnit, 20))
+                                target->CastSpell(pUnit, 63804, true, 0, 0);
+                            else
+                                target->CastSpell(pUnit, 63803, true, 0, 0);
+                            return;
+                        }
+                    }
+                    break;
+                case 62038: // Biting Cold
+                    if (target->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        // Toasty Fire
+                        if (target->GetAura(62039) &&  target->GetAura(62821))
+                            target->RemoveAurasDueToSpell(62039);
+                        // DoT stacks when the target remains stationary for 4 seconds                                        
+                        else if (GetAmount() && GetAmount() % 4 == 0)
+                            target->AddAura(62039, target);
+                        else if (target->HasAura(62039) && (target->isMoving() || target->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_JUMPING)))
+                            target->RemoveAuraFromStack(62039);
+                    }
+                    break;
+                case 62039: // Biting Cold damage
+                    {
+                        uint8 stackAmount = target->GetAura(62039)->GetStackAmount();
+                        int32 damage = (int32)(200 * pow(2.0f,stackAmount));
+                        target->CastCustomSpell(target,62188,&damage,0,0,true);                    
+                    }
+                    break;
+                case 63382: // Rapid Burst
+                    {
+                        if (target->GetMap())
+                            caster->CastSpell(target, (target->GetMap()->IsHeroic() ? RAND(64531, 64532) : RAND(63387, 64019)), true);
+                    }
                 case 64821: // Fuse Armor (Razorscale)
                     if (GetBase()->GetStackAmount() == GetSpellInfo()->StackAmount)
                     {
@@ -5736,8 +5942,23 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
 
                     if (targets.empty())
                         return;
+                        
+                    // Unit* spellTarget = SelectRandomContainerElement(targets);
 
-                    Unit* spellTarget = SelectRandomContainerElement(targets);
+                    for (UnitList::iterator itr = targets.begin(); itr != targets.end();)
+                    {
+                        if ((*itr)->isTotem()/* || (*itr)->GetCreatureType() == CREATURE_TYPE_CRITTER*/)
+                            targets.erase(itr++);
+                        else
+                            ++itr;
+                    }
+
+                    if (targets.empty())
+                        return;
+
+                    UnitList::const_iterator itr = targets.begin();
+                    std::advance(itr, rand()%targets.size());
+                    Unit* spellTarget = *itr;
 
                     target->CastSpell(spellTarget, 57840, true);
                     target->CastSpell(spellTarget, 57841, true);
@@ -6069,6 +6290,15 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
                 GetBase()->GetUnitOwner()->CastSpell(target, triggeredSpellInfo, true, 0, this, GetBase()->GetUnitOwner()->GetGUID());
                 return;
             }
+            // Rapid Recuperation (triggered energize have basepoints == 0)
+            case 56654:
+            case 58882:
+            {
+                if (int32 mana = target->GetMaxPower(POWER_MANA) / 100 * GetAmount())
+                    target->CastCustomSpell(target, triggerSpellId, &mana, NULL, NULL, true, NULL, this);
+                return;
+            }
+
             // Slime Spray - temporary here until preventing default effect works again
             // added on 9.10.2010
             case 69508:
@@ -6198,6 +6428,9 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             cleanDamage.mitigated_damage += damage - damageReductedArmor;
             damage = damageReductedArmor;
         }
+        
+        if (GetSpellInfo()->Id == 50344) // Dream Funnel
+            damage = uint32(target->GetMaxHealth()*0.05f);
 
         // Curse of Agony damage-per-tick calculation
         if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_WARLOCK && (GetSpellInfo()->SpellFamilyFlags[0] & 0x400) && GetSpellInfo()->SpellIconID == 544)
@@ -6266,6 +6499,18 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     damage = (damage <= absorb+resist) ? 0 : (damage-absorb-resist);
     if (damage)
         procVictim |= PROC_FLAG_TAKEN_DAMAGE;
+        
+    if (damage > 0) //HackFix Avoidance
+    {
+        if (GetSpellInfo()->Effects[m_effIndex].TargetA.IsArea() || GetSpellInfo()->Effects[m_effIndex].TargetB.IsArea() || GetSpellInfo()->Effects[m_effIndex].Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA)
+        {
+            resist += damage;
+            damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, GetSpellInfo()->SchoolMask));
+            if (GetCaster()->GetTypeId() == TYPEID_UNIT)
+                damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, GetSpellInfo()->SchoolMask));
+            resist -= damage;
+        }
+    }
 
     int32 overkill = damage - target->GetHealth();
     if (overkill < 0)
@@ -6275,6 +6520,10 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     target->SendPeriodicAuraLog(&pInfo);
 
     caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, BASE_ATTACK, GetSpellInfo());
+    
+    // Hack for Consecration to enter in combat and PvP mode
+    if (GetSpellInfo()->Effects[GetEffIndex()].Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA && caster->isAlive())
+        caster->CombatStart(target);
 
     caster->DealDamage(target, damage, &cleanDamage, DOT, GetSpellInfo()->GetSchoolMask(), GetSpellInfo(), true);
 }
