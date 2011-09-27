@@ -1894,6 +1894,7 @@ public:
                         // Mettere check per togliere eventulmente il loot
                     }
 
+                    uint32 m_uiMainGateGUID = m_pInstance->GetData64(GO_IMPENETRABLE_DOOR);
                     if (GameObject* pGate = m_pInstance->instance->GetGameObject(m_uiMainGateGUID))
                         pGate->SetGoState(GO_STATE_ACTIVE);
                     m_pInstance->SetData(TYPE_FALRIC, SPECIAL);
