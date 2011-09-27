@@ -88,7 +88,7 @@ public:
 
        void SetData(uint32 /*id*/, uint32 /*value*/)
        {
-           if (!m_pInstance)
+           if (m_pInstance)
                for (uint8 i = 0; i < 14; i++)
                   if (Creature* Summon = m_pInstance->instance->GetCreature(m_uiSummonGUID[i]))
                   {
