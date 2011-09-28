@@ -1865,6 +1865,8 @@ class npc_hor_reset : public CreatureScript
 {
 public:
     npc_hor_reset() : CreatureScript("npc_hor_reset") { }
+	
+
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
@@ -1873,7 +1875,10 @@ public:
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->CLOSE_GOSSIP_MENU();
-                if (InstanceScript* m_pInstance = creature->GetInstanceScript())
+                
+				//DoUpdateWorldState(WORLD_STATE_HOR, 1);
+
+				if (InstanceScript* m_pInstance = creature->GetInstanceScript())
                 {
                     uint32 m_uiFalricGUID = m_pInstance->GetData64(NPC_FALRIC);
                     uint32 m_uiMarwynGUID = m_pInstance->GetData64(NPC_MARWYN);

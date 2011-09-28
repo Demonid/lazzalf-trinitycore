@@ -94,6 +94,11 @@ enum Data
     GO_CAPTAIN_CHEST_4           = 202336, //3333
 };
 
+enum HorWorldStatus
+{
+	WORLD_STATE_HOR				= 4884
+};
+
 struct Locations
 {
     float x, y, z, o;
