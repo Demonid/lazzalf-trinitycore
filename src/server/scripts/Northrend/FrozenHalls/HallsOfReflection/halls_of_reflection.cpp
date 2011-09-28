@@ -1859,7 +1859,7 @@ public:
 
 };
 
-#define GOSSIP_START_EVENT  "We are ready!"
+/*#define GOSSIP_START_EVENT  "We are ready!"
 
 class npc_hor_reset : public CreatureScript
 {
@@ -1868,7 +1868,7 @@ public:
 	
 
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)/*
     {
         player->PlayerTalkClass->ClearMenus();
         switch(uiAction)
@@ -1941,7 +1941,7 @@ public:
 
         InstanceScript* m_pInstance;
     };
-};
+};*/
 
 void AddSC_halls_of_reflection()
 {
@@ -1955,5 +1955,5 @@ void AddSC_halls_of_reflection()
     new npc_shadowy_mercenary();
     new npc_spectral_footman();
     new npc_tortured_rifleman();
-    new npc_hor_reset();
+    //new npc_hor_reset();
 }
