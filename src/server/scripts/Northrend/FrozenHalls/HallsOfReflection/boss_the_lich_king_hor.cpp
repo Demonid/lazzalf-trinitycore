@@ -302,7 +302,7 @@ public:
                 StartEscort = true;
                 me->RemoveAurasDueToSpell(SPELL_ICE_PRISON);
                 me->RemoveAurasDueToSpell(SPELL_DARK_ARROW);
-                //me->RemoveAllAuras();
+                me->RemoveAllAuras();
                 me->setActive(true);
                 me->CastSpell(me, SPELL_FROSTMOURNE_VISUAL, false);
                 NonFight = true;
