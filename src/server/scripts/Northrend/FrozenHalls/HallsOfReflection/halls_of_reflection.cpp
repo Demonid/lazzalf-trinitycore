@@ -1943,6 +1943,24 @@ public:
     };
 }*/
 
+class npc_throw_quel_delar : public CreatureScript
+{
+    public:
+
+        npc_throw_quel_delar()
+            : CreatureScript("npc_throw_quel_delar")
+        {
+        }
+
+        // Called when a dummy spell effect is triggered on the gameobject.
+        bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, GameObject* target)
+		{ 
+			target->CastSpell (caster, 48469);
+		}
+
+		
+};
+
 void AddSC_halls_of_reflection()
 {
     new npc_jaina_and_sylvana_HRintro();
@@ -1956,4 +1974,5 @@ void AddSC_halls_of_reflection()
     new npc_spectral_footman();
     new npc_tortured_rifleman();
     //new npc_hor_reset();
+	new npc_throw_quel_delar();
 }
