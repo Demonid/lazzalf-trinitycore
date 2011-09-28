@@ -227,7 +227,7 @@ public:
 
        void UpdateAI(const uint32 uiDiff)
         {
-            if (!m_pInstance) 
+            if (m_pInstance) 
                 return;
 
             if (m_pInstance->GetData(TYPE_FALRIC) == SPECIAL) 
