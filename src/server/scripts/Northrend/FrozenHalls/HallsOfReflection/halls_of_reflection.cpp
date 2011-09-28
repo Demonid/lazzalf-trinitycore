@@ -1952,13 +1952,13 @@ class npc_throw_quel_delar : public CreatureScript
         {
         }
 
-        // Called when a dummy spell effect is triggered on the gameobject.
-        bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, GameObject* target)
+        // Called when a dummy spell effect is triggered on the creature.
+        bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Creature* target)
 		{ 
 			target->CastSpell (caster, 48469);
+			return true;
 		}
 
-		
 };
 
 void AddSC_halls_of_reflection()
