@@ -83,6 +83,7 @@ public:
         uint64 m_uiIceWall4GUID;
         uint64 m_uiGoCaveGUID;
         uint32 m_uiTeamInInstance;
+        uint64 m_uiJainaOGUID;
 
         void Initialize()
         {
@@ -288,12 +289,12 @@ public:
                         else if (Marwyn->GetAI())
                             Marwyn->GetAI()->SetData(0,0);
                     }
-                if (Creature* Lider = instance->GetCreature(m_uiLiderGUID))
+                if (Creature* JainaO = instance->GetCreature(m_uiJainaOGUID))
                 { 
-                    if (Lider->isDead())
-                        Lider->Respawn();
-                    else if (Lider->GetAI())
-                        Lider->GetAI()->SetData(0,0);
+                    if (JainaO->isDead())
+                        JainaO->Respawn();
+                    else if (JainaO->GetAI())
+                        JainaO->GetAI()->SetData(0,0);
                 }
                       
                 }
@@ -457,6 +458,8 @@ public:
                 case GO_ICE_WALL_3:        return m_uiIceWall3GUID;
                 case GO_ICE_WALL_4:        return m_uiIceWall4GUID;
                 case GO_CAVE:              return m_uiGoCaveGUID;
+                case NPC_JAINA_OUTRO:      return m_uiJainaOGUID;
+
             }
             return 0;
         }
