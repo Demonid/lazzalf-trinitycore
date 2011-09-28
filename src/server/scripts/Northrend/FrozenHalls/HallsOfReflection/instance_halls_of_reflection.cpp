@@ -266,11 +266,12 @@ public:
             if ((GetData(TYPE_MARWYN) == IN_PROGRESS ||
                  GetData(TYPE_MARWYN) == SPECIAL ||
                  GetData(TYPE_FALRIC) == IN_PROGRESS ||
-                 GetData(TYPE_FALRIC) == SPECIAL ||
-                 GetData(TYPE_LICH_KING) == IN_PROGRESS)
+                 GetData(TYPE_FALRIC) == SPECIAL)
+                 
                  && CheckWipe())
             {
                 OpenDoor(m_uiExitGateGUID);
+
                 if (Creature* pResetNpc = instance->GetCreature(m_uiResetNpcGUID))
                 {
                     pResetNpc->SetVisible(true);
@@ -289,13 +290,13 @@ public:
                         else if (Marwyn->GetAI())
                             Marwyn->GetAI()->SetData(0,0);
                     }
-                if (Creature* JainaO = instance->GetCreature(m_uiJainaOGUID))
+               /* if (Creature* JainaO = instance->GetCreature(m_uiJainaOGUID))
                 { 
                     if (JainaO->isDead())
                         JainaO->Respawn();
                     else if (JainaO->GetAI())
                         JainaO->GetAI()->SetData(0,0);
-                }
+                }*/
                       
                 }
 
