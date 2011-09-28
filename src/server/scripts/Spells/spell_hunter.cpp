@@ -171,6 +171,7 @@ public:
                 }
                 break;
             }
+			/* 
             if (spellId && caster->ToPlayer())
             {
                 if (spellId == HUNTER_SPELL_CHIMERA_SHOT_SCORPID && !caster->ToPlayer()->HasSpellCooldown(spellId))
@@ -182,6 +183,13 @@ public:
                 else
                     caster->CastCustomSpell(unitTarget, spellId, &basePoint, 0, 0, true);
             }
+			*/
+
+			if (spellId)
+                caster->CastCustomSpell(unitTarget, spellId, &basePoint, 0, 0, true);
+            if (spellId == HUNTER_SPELL_CHIMERA_SHOT_SCORPID && caster->ToPlayer()) // Scorpid Sting - Add 1 minute cooldown
+                caster->ToPlayer()->AddSpellCooldown(spellId, 0, uint32(time(NULL) + 60));
+
         }
 
         void Register()
