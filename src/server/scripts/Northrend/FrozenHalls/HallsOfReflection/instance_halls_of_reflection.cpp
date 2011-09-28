@@ -264,10 +264,9 @@ public:
             // if main event is in progress and players have wiped then reset instance
             if ((GetData(TYPE_MARWYN) == IN_PROGRESS ||
                  GetData(TYPE_MARWYN) == SPECIAL ||
-                 //GetData(TYPE_MARWYN) == DONE || //Boss reser if the party kill it
                  GetData(TYPE_FALRIC) == IN_PROGRESS ||
-                 GetData(TYPE_FALRIC) == SPECIAL ||            
-                 GetData(TYPE_FALRIC) == DONE) //Boss reser if the party kill it
+                 GetData(TYPE_FALRIC) == SPECIAL ||
+                 GetData(TYPE_LICH_KING) == IN_PROGRESS)
                  && CheckWipe())
             {
                 OpenDoor(m_uiExitGateGUID);
@@ -289,7 +288,17 @@ public:
                         else if (Marwyn->GetAI())
                             Marwyn->GetAI()->SetData(0,0);
                     }
+                if (Creature* Lider = instance->GetCreature(m_uiLiderGUID))
+                { 
+                    if (Lider->isDead())
+                        Lider->Respawn();
+                    else if (Lider->GetAI())
+                        Lider->GetAI()->SetData(0,0);
                 }
+                      
+                }
+
+
             }
         }
 
