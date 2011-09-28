@@ -264,7 +264,7 @@ public:
             // if main event is in progress and players have wiped then reset instance
             if ((GetData(TYPE_MARWYN) == IN_PROGRESS ||
                  GetData(TYPE_MARWYN) == SPECIAL ||
-                 GetData(TYPE_MARWYN) == DONE || //Boss reser if the party kill it
+                 //GetData(TYPE_MARWYN) == DONE || //Boss reser if the party kill it
                  GetData(TYPE_FALRIC) == IN_PROGRESS ||
                  GetData(TYPE_FALRIC) == SPECIAL ||            
                  GetData(TYPE_FALRIC) == DONE) //Boss reser if the party kill it

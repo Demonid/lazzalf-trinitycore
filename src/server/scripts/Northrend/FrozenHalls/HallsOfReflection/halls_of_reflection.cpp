@@ -1868,8 +1868,8 @@ public:
 	
 
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)/*
-    {
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*///, uint32 uiAction)/*
+   /* {
         player->PlayerTalkClass->ClearMenus();
         switch(uiAction)
         {
@@ -1941,7 +1941,7 @@ public:
 
         InstanceScript* m_pInstance;
     };
-};*/
+}*/
 
 void AddSC_halls_of_reflection()
 {
