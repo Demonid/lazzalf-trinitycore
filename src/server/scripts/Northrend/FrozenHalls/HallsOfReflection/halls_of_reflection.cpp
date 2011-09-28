@@ -285,7 +285,7 @@ public:
                     }
                     if (me->GetEntry() == NPC_SYLVANA)
                     {
-                        DoScriptText(SAY_SYLVANA_INTRO_03, me);
+                        DoScriptText(SAY_SYLVANA_INTRO_02, me);
                         //DoScriptText(SAY_SYLVANA_INTRO_02, me);
                         JumpNextStep(6000);
                     }
