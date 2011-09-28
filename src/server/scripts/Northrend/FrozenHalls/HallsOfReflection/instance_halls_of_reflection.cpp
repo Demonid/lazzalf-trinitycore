@@ -234,6 +234,11 @@ public:
                     break;
             }
         }
+		
+		void AddWawe()
+		{
+			DoUpdateWorldState(WORLD_STATE_HOR, 1);
+	}
 
         bool CheckWipe()
         {
@@ -242,7 +247,8 @@ public:
             {
                 Player* player = itr->getSource();
                 if (player->isGameMaster())
-                    continue;
+                   DoUpdateWorldState(WORLD_STATE_HOR, 1);
+					continue;
 
                 if (player->isAlive())
                     return false;
