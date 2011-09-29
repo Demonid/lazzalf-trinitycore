@@ -20,11 +20,11 @@
 
 /* ScriptData
 SDName: instance_halls_of_reflection
-SD%Complete: 70%
+SD%Complete: 80%
 SDComment:
 SDErrors:
 SDCategory: instance script
-SDAuthor: /dev/rsa, modified by MaxXx2021 aka Mioka
+SDAuthor: Scripted by Votyer, Mikael and Babyboy
 EndScriptData */
 
 #include "ScriptPCH.h"
@@ -269,12 +269,13 @@ public:
                  GetData(TYPE_MARWYN) == DONE || //Boss reser if the party kill it
                  GetData(TYPE_FALRIC) == IN_PROGRESS ||
                  GetData(TYPE_FALRIC) == SPECIAL ||            
-                 GetData(TYPE_FALRIC) == DONE) //Boss reser if the party kill it
-                 
+                 GetData(TYPE_FALRIC) == DONE || //Boss reser if the party kill it
+                 GetData(TYPE_FROST_GENERAL) == DONE)
                  && CheckWipe())
         
             {
                 OpenDoor(m_uiExitGateGUID);
+
                 if (Creature* pResetNpc = instance->GetCreature(m_uiResetNpcGUID))
                 {
                     pResetNpc->SetVisible(true);
@@ -293,10 +294,15 @@ public:
                         else if (Marwyn->GetAI())
                             Marwyn->GetAI()->SetData(0,0);
                     }
-                    
-                        
-                      
-                    
+
+                    if (Creature* FrostGeneral =instance->GetCreature(m_uiFrostGeneralGUID))
+                    {
+                        if (FrostGeneral->isDead())
+                            FrostGeneral->Respawn();
+                        else if (FrostGeneral->GetAI())
+                            FrostGeneral->GetAI()->SetData(0,0);
+                    }
+                   
                 }
             }
         }

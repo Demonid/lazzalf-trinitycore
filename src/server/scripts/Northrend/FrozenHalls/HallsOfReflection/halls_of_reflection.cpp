@@ -763,14 +763,14 @@ public:
             }
             if (m_pInstance->GetData(TYPE_LICH_KING) == DONE)
                 me->SetVisible(false);
-            if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
+            /*if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
                
                 {
                     if (me->isDead())
                         me->DespawnOrUnsummon();
                         
                                    
-                }
+                }*/
         }
          
 
