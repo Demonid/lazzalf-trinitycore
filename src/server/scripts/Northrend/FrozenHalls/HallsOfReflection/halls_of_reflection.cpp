@@ -767,7 +767,8 @@ public:
                
                 {
                     if (me->isDead())
-                        me->Respawn();
+                        me->DespawnOrUnsummon();
+                        
                                    
                 }
         }
