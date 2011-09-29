@@ -1664,22 +1664,17 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint8 effMask)
         {
             if (roll_chance_i(i->second))
             {
-				/* parte sostituita 
-                if (m_caster->ToPlayer() && i->first->Id == 14181)
+				if (m_caster->ToPlayer() && i->first->Id == 14181)
                 {
                     if (!m_caster->ToPlayer()->HasSpellCooldown(i->first->Id))
                     {
                         m_caster->CastSpell(unit, i->first, true);
-                        m_caster->ToPlayer()->AddSpellCooldown(i->first->Id, 0, time(NULL) + 1000);
+                        //m_caster->ToPlayer()->AddSpellCooldown(i->first->Id, 0, time(NULL) + 1000);
                     }
                 }
                 else
                     m_caster->CastSpell(unit, i->first, true);
 
-				*/
-
-				// parte aggiunta
-				m_caster->CastSpell(unit, i->first, true);
                 sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell %d triggered spell %d by SPELL_AURA_ADD_TARGET_TRIGGER aura", m_spellInfo->Id, i->first->Id);
 
                 // SPELL_AURA_ADD_TARGET_TRIGGER auras shouldn't trigger auras without duration
