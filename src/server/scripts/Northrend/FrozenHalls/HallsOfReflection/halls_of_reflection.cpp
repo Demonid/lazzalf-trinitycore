@@ -1958,7 +1958,20 @@ class npc_throw_quel_delar : public CreatureScript
 
 			void SpellHit(Unit* caster, SpellInfo const* spell) 
 			{
-				me->CastSpell (caster, 1126, false);
+				if ( spell && spell->Id == 70586 )
+					DoCast (caster, 467 , false );
+			} 
+
+			
+			//Called at World update tick
+			void UpdateAI (uint32 const diff) 
+			{
+				Unit* u = me->SelectNearbyTarget(15);
+				if ( u && u->HasAura (70013) ) {
+					DoCast(u, 1126, false);
+					u->RemoveAura(70013);
+					u->CastSpell(me, 70586, false);
+				}
 			}
 
 		};
@@ -1967,13 +1980,6 @@ class npc_throw_quel_delar : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const 
 		{ 
 			return new npc_throw_quel_delarAI(creature);
-		}
-
-        // Called when a dummy spell effect is triggered on the creature.
-        bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Creature* target)
-		{ 
-			target->CastSpell (caster, 48469);
-			return true;
 		}
 
 };
