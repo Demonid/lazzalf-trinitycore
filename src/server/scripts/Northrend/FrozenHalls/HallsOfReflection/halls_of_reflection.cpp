@@ -1868,8 +1868,45 @@ public:
 
 };
 
+class npc_throw_quel_delar : public CreatureScript // Frostmourne Altar Bunny (Quel'Delar) entry 37704
+{
+    public:
 
+        npc_throw_quel_delar()
+            : CreatureScript("npc_throw_quel_delar")
+        {
+        }
 
+		struct npc_throw_quel_delarAI : public ScriptedAI
+		{
+			npc_throw_quel_delarAI(Creature* c) : ScriptedAI(c) { }
+
+			void SpellHit(Unit* caster, SpellInfo const* spell) 
+			{
+				if ( spell && spell->Id == 70698 )
+					DoCast(caster, 69966, false);
+			}
+			
+			//Called at World update tick
+			void UpdateAI (uint32 const diff) 
+			{
+				Unit* victim = me->SelectNearbyTarget(15);
+				if ( victim && victim->GetTypeId() == TYPEID_PLAYER ) 
+					if ( victim->HasAura(70013) && victim->ToPlayer()->IsActiveQuest(24480) ) 
+					{
+						victim->RemoveAura(70013);
+						victim->CastSpell(me, 70698, false);
+					}
+			}
+
+		};
+
+		// Called when a CreatureAI object is needed for the creature.
+        CreatureAI* GetAI(Creature* creature) const 
+		{ 
+			return new npc_throw_quel_delarAI(creature);
+		}
+};
 
 void AddSC_halls_of_reflection()
 {
@@ -1883,5 +1920,5 @@ void AddSC_halls_of_reflection()
     new npc_shadowy_mercenary();
     new npc_spectral_footman();
     new npc_tortured_rifleman();
-    
+	new npc_throw_quel_delar();    
 }
