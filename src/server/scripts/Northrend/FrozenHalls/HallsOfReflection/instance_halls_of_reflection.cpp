@@ -83,7 +83,6 @@ public:
         uint64 m_uiIceWall4GUID;
         uint64 m_uiGoCaveGUID;
         uint32 m_uiTeamInInstance;
-        uint64 m_uiJainaOGUID;
 
         void Initialize()
         {
@@ -235,11 +234,11 @@ public:
                     break;
             }
         }
-		
-		void AddWawe()
+
+        void AddWawe()
 		{
 			DoUpdateWorldState(WORLD_STATE_HOR, 1);
-	}
+        }
 
         bool CheckWipe()
         {
@@ -248,8 +247,10 @@ public:
             {
                 Player* player = itr->getSource();
                 if (player->isGameMaster())
-                   DoUpdateWorldState(WORLD_STATE_HOR, 1);
-					continue;
+                    
+                    DoUpdateWorldState(WORLD_STATE_HOR, 1);
+
+                    continue;
 
                 if (player->isAlive())
                     return false;
@@ -265,13 +266,15 @@ public:
             // if main event is in progress and players have wiped then reset instance
             if ((GetData(TYPE_MARWYN) == IN_PROGRESS ||
                  GetData(TYPE_MARWYN) == SPECIAL ||
+                 GetData(TYPE_MARWYN) == DONE || //Boss reser if the party kill it
                  GetData(TYPE_FALRIC) == IN_PROGRESS ||
-                 GetData(TYPE_FALRIC) == SPECIAL)
-                 
-                 && CheckWipe())
+                 GetData(TYPE_FALRIC) == SPECIAL ||            
+                 GetData(TYPE_FALRIC) == DONE || //Boss reser if the party kill it
+                 GetData(TYPE_LICH_KING == FAIL) //lich kink reset
+                 && CheckWipe()))
+        
             {
                 OpenDoor(m_uiExitGateGUID);
-
                 if (Creature* pResetNpc = instance->GetCreature(m_uiResetNpcGUID))
                 {
                     pResetNpc->SetVisible(true);
@@ -290,17 +293,11 @@ public:
                         else if (Marwyn->GetAI())
                             Marwyn->GetAI()->SetData(0,0);
                     }
-               /* if (Creature* JainaO = instance->GetCreature(m_uiJainaOGUID))
-                { 
-                    if (JainaO->isDead())
-                        JainaO->Respawn();
-                    else if (JainaO->GetAI())
-                        JainaO->GetAI()->SetData(0,0);
-                }*/
+                    
+                        
                       
+                    
                 }
-
-
             }
         }
 
@@ -459,8 +456,6 @@ public:
                 case GO_ICE_WALL_3:        return m_uiIceWall3GUID;
                 case GO_ICE_WALL_4:        return m_uiIceWall4GUID;
                 case GO_CAVE:              return m_uiGoCaveGUID;
-                case NPC_JAINA_OUTRO:      return m_uiJainaOGUID;
-
             }
             return 0;
         }

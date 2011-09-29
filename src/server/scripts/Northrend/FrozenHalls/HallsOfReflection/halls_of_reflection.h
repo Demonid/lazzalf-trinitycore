@@ -72,7 +72,7 @@ enum Data
 
     NPC_FROST_GENERAL            = 36723,
 
-    NPC_RESET_HOR                = 60090, // Da Inserire
+    NPC_RESET_HOR                = 0, // Da Inserire
 
     GO_ICECROWN_DOOR             = 201976, //72802
     GO_ICECROWN_DOOR_2           = 197342,
@@ -94,10 +94,7 @@ enum Data
     GO_CAPTAIN_CHEST_4           = 202336, //3333
 };
 
-enum HorWorldStatus
-{
-	WORLD_STATE_HOR				= 4884
-};
+
 
 struct Locations
 {
@@ -142,6 +139,11 @@ static Locations SpawnLoc[]=
     {5319.835f, 1975.177f, 707.694f, 1.62f}, //14
     {5277.445f, 2017.197f, 707.694f, 0.05f}, //26
     {5298.198f, 2037.762f, 707.694f, 4.71f}  //0
+};
+
+enum HorWorldStatus
+{
+	WORLD_STATE_HOR				= 4884
 };
 
 #endif
