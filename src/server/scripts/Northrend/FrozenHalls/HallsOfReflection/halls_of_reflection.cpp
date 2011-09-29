@@ -763,6 +763,17 @@ public:
             }
             if (m_pInstance->GetData(TYPE_LICH_KING) == DONE)
                 me->SetVisible(false);
+<<<<<<< local
+            if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
+               
+                {
+                    if (me->isDead())
+                        me->DespawnOrUnsummon();
+                        
+                                   
+                }
+=======
+>>>>>>> other
         }
 
         void AttackStart(Unit* who)
