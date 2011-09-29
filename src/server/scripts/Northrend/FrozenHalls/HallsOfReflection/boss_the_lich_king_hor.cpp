@@ -328,6 +328,12 @@ public:
                 }
             }
 
+           
+            if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
+                me->SummonCreature(NPC_JAINA_OUTRO, 0.0f, 0.0f, 0.0f, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN);
+                
+
+
             if (m_pInstance->GetData(TYPE_ICE_WALL_01) == IN_PROGRESS)
             {
                 if (StepTimer < diff)
