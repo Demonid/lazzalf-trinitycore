@@ -1952,6 +1952,23 @@ class npc_throw_quel_delar : public CreatureScript
         {
         }
 
+		struct npc_throw_quel_delarAI : public ScriptedAI
+		{
+			npc_throw_quel_delarAI(Creature* c) : ScriptedAI(c) {}
+
+			void SpellHit(Unit* caster, SpellInfo const* spell) 
+			{
+				me->CastSpell (caster, 1126, false);
+			}
+
+		};
+
+		// Called when a CreatureAI object is needed for the creature.
+        CreatureAI* GetAI(Creature* creature) const 
+		{ 
+			return new npc_throw_quel_delarAI(creature);
+		}
+
         // Called when a dummy spell effect is triggered on the creature.
         bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Creature* target)
 		{ 
