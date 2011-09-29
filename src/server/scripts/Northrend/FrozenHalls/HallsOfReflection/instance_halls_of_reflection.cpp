@@ -269,9 +269,9 @@ public:
                  GetData(TYPE_MARWYN) == DONE || //Boss reser if the party kill it
                  GetData(TYPE_FALRIC) == IN_PROGRESS ||
                  GetData(TYPE_FALRIC) == SPECIAL ||            
-                 GetData(TYPE_FALRIC) == DONE || //Boss reser if the party kill it
-                 GetData(TYPE_LICH_KING == FAIL) //lich kink reset
-                 && CheckWipe()))
+                 GetData(TYPE_FALRIC) == DONE) //Boss reser if the party kill it
+                 
+                 && CheckWipe())
         
             {
                 OpenDoor(m_uiExitGateGUID);
