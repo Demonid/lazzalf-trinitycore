@@ -723,6 +723,8 @@ public:
             Reset();
         }
 
+        
+
         InstanceScript* m_pInstance;
 
         uint32 CastTimer;
@@ -738,6 +740,7 @@ public:
         uint64 m_uiLiderGUID;
         uint64 m_uiIceWallGUID;
         uint64 m_uipWallTargetGUID;
+        uint64 m_uiFrostGeneralGUID;
         Creature* pLichKing;
         uint32 m_chestID;
 
@@ -763,14 +766,7 @@ public:
             }
             if (m_pInstance->GetData(TYPE_LICH_KING) == DONE)
                 me->SetVisible(false);
-            /*if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
-               
-                {
-                    if (me->isDead())
-                        me->DespawnOrUnsummon();
-                        
-                                   
-                }*/
+           
         }
          
 
@@ -788,12 +784,28 @@ public:
             npc_escortAI::AttackStart(who);
 
         }
-
+        
         void JustDied(Unit* pKiller)
         {
             if (!m_pInstance)
                 return;
             m_pInstance->SetData(TYPE_LICH_KING, FAIL);
+             
+            m_uiFrostGeneralGUID = m_pInstance->GetData64(NPC_FROST_GENERAL);
+            if (Creature* FrostGeneral =m_pInstance->instance->GetCreature(m_uiFrostGeneralGUID))
+                   
+                            if (FrostGeneral->isDead())
+                            {
+                                if (Creature*LichKing = m_pInstance->instance->GetCreature(m_uiLichKingGUID))
+                                {
+            
+                                    LichKing->DespawnOrUnsummon();
+                                }
+        
+
+                            FrostGeneral->Respawn();
+                            }
+            
         }
 
         void WaypointReached(uint32 i)
