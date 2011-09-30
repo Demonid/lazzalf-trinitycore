@@ -767,17 +767,12 @@ public:
             if (m_pInstance->GetData(TYPE_LICH_KING) == DONE)
                 me->SetVisible(false);
 
-            if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
-                
-                m_uiFrostGeneralGUID = m_pInstance->GetData64(NPC_FROST_GENERAL);
-            if (Creature* FrostGeneral =m_pInstance->instance->GetCreature(m_uiFrostGeneralGUID))
-                   
-                            
-                            {
-                                
-                            FrostGeneral->Respawn();
-                            }
-
+            if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL) 
+			{
+				m_uiFrostGeneralGUID = m_pInstance->GetData64(NPC_FROST_GENERAL);
+				if (Creature* FrostGeneral = m_pInstance->instance->GetCreature(m_uiFrostGeneralGUID))
+					FrostGeneral->Respawn();
+			}
         }
 
         void AttackStart(Unit* who)
@@ -1997,7 +1992,8 @@ class npc_escape_restore : public CreatureScript
 				else
 					creature->SummonCreature(NPC_SYLVANA_OUTRO, 5556.27f, 2266.28f, 733.01f, 0.8f, TEMPSUMMON_DEAD_DESPAWN);
 
-				m_pInstance->SetData(TYPE_LICH_KING, IN_PROGRESS);                
+				m_pInstance->SetData(TYPE_LICH_KING, SPECIAL);
+				creature->SetVisible(false);
             }
 
             return true;
