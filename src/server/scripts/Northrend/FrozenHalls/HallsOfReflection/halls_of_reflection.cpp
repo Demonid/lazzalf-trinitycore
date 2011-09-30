@@ -1888,12 +1888,26 @@ class npc_throw_quel_delar : public CreatureScript // Frostmourne Altar Bunny (Q
 
 		struct npc_throw_quel_delarAI : public ScriptedAI
 		{
-			npc_throw_quel_delarAI(Creature* c) : ScriptedAI(c) { }
+			bool isSummoned;
 
+			npc_throw_quel_delarAI(Creature* c) : ScriptedAI(c) { isSummoned = false; }
+
+			// Called when the creature summon successfully other creature
+			void JustSummoned(Creature* summon) 
+			{
+				DoScriptText(SAY_JAINA_INTRO_01, summon);
+			}
+
+			// Called when a summoned creature is despawned
+			void SummonedCreatureDespawn(Creature* summon) 
+			{
+			}
+
+			// Called when hit by a spell
 			void SpellHit(Unit* caster, SpellInfo const* spell) 
 			{
 				if ( spell && spell->Id == 70698 )
-					DoCast(caster, 69966, false);
+					me->SummonCreature(37158, 0.0f, 0.0f, 0.0f, 0, TEMPSUMMON_DEAD_DESPAWN); // DoCast(caster, 69966, false);
 			}
 			
 			//Called at World update tick
@@ -1906,6 +1920,7 @@ class npc_throw_quel_delar : public CreatureScript // Frostmourne Altar Bunny (Q
 						victim->RemoveAura(70013);
 						victim->CastSpell(me, 70698, false);
 					}
+
 			}
 
 		};
@@ -1915,6 +1930,78 @@ class npc_throw_quel_delar : public CreatureScript // Frostmourne Altar Bunny (Q
 		{ 
 			return new npc_throw_quel_delarAI(creature);
 		}
+};
+
+#define GOSSIP_ITEM     "I'm ready for escape!"
+
+class npc_escape_restore : public CreatureScript
+{
+    public:
+
+        npc_escape_restore()
+            : CreatureScript("npc_escape_restore")
+        {
+        }
+
+		struct npc_escape_restoreAI : public ScriptedAI
+		{
+			InstanceScript* m_pInstance;
+
+			npc_escape_restoreAI(Creature* c) : ScriptedAI(c) 
+			{ 
+				m_pInstance = (InstanceScript*)c->GetInstanceScript();
+				me->SetVisible(false);
+			}
+
+			//Called at World update tick
+			void UpdateAI(uint32 const diff) 
+			{
+				if ( me->IsVisible() )
+					return;
+
+				if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
+					me->SetVisible(true);
+			}
+
+		};
+
+		// Called when a CreatureAI object is needed for the creature.
+        CreatureAI* GetAI(Creature* creature) const 
+		{ 
+			return new npc_escape_restoreAI(creature);
+		}
+
+		bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(907, creature->GetGUID());
+
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+        {
+			InstanceScript* m_pInstance = (InstanceScript*)creature->GetInstanceScript();
+
+			if (!m_pInstance)
+				return false;
+
+			player->PlayerTalkClass->ClearMenus();
+            if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+            {
+				player->CLOSE_GOSSIP_MENU();
+				creature->SummonCreature(BOSS_LICH_KING, 5564.25f, 2274.69f, 733.01f, 3.93f, TEMPSUMMON_DEAD_DESPAWN);
+            
+				if (m_pInstance->GetData(DATA_TEAM_IN_INSTANCE)==ALLIANCE)
+					creature->SummonCreature(NPC_JAINA_OUTRO, 5556.27f, 2266.28f, 733.01f, 0.8f, TEMPSUMMON_DEAD_DESPAWN);
+				else
+					creature->SummonCreature(NPC_SYLVANA_OUTRO, 5556.27f, 2266.28f, 733.01f, 0.8f, TEMPSUMMON_DEAD_DESPAWN);
+
+				m_pInstance->SetData(TYPE_LICH_KING, IN_PROGRESS);                
+            }
+
+            return true;
+        }
 };
 
 void AddSC_halls_of_reflection()
@@ -1930,4 +2017,5 @@ void AddSC_halls_of_reflection()
     new npc_spectral_footman();
     new npc_tortured_rifleman();
 	new npc_throw_quel_delar();
+	new npc_escape_restore();
 }
