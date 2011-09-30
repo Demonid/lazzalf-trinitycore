@@ -771,7 +771,7 @@ public:
                 m_uiFrostGeneralGUID = m_pInstance->GetData64(NPC_FROST_GENERAL);
             if (Creature* FrostGeneral =m_pInstance->instance->GetCreature(m_uiFrostGeneralGUID))
                    
-                            if (FrostGeneral->isDead())
+                            //if (FrostGeneral->isDead())
                             {
                                 if (Creature*LichKing = m_pInstance->instance->GetCreature(m_uiLichKingGUID))
                                 {
