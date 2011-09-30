@@ -285,7 +285,7 @@ public:
                     }
                     if (me->GetEntry() == NPC_SYLVANA)
                     {
-                        DoScriptText(SAY_SYLVANA_INTRO_03, me);
+                        DoScriptText(SAY_SYLVANA_INTRO_02, me);
                         //DoScriptText(SAY_SYLVANA_INTRO_02, me);
                         JumpNextStep(6000);
                     }
@@ -766,6 +766,7 @@ public:
             }
             if (m_pInstance->GetData(TYPE_LICH_KING) == DONE)
                 me->SetVisible(false);
+<<<<<<< local
             if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
                 
                 m_uiFrostGeneralGUID = m_pInstance->GetData64(NPC_FROST_GENERAL);
@@ -782,8 +783,9 @@ public:
 
                             FrostGeneral->Respawn();
                             }
+=======
+>>>>>>> other
         }
-         
 
         void AttackStart(Unit* who)
         {
@@ -1882,6 +1884,90 @@ public:
 
 };
 
+/*#define GOSSIP_START_EVENT  "We are ready!"
+
+class npc_hor_reset : public CreatureScript
+{
+public:
+    npc_hor_reset() : CreatureScript("npc_hor_reset") { }
+	
+
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*///, uint32 uiAction)/*
+   /* {
+        player->PlayerTalkClass->ClearMenus();
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_INFO_DEF+1:
+                player->CLOSE_GOSSIP_MENU();
+                
+				//DoUpdateWorldState(WORLD_STATE_HOR, 1);
+
+				if (InstanceScript* m_pInstance = creature->GetInstanceScript())
+                {
+                    uint32 m_uiFalricGUID = m_pInstance->GetData64(NPC_FALRIC);
+                    uint32 m_uiMarwynGUID = m_pInstance->GetData64(NPC_MARWYN);
+                    if (Creature* Falric = m_pInstance->instance->GetCreature(m_uiFalricGUID))
+                    {
+                        //if (Falric->isAlive())
+                        //{
+                            Falric->RemoveAllAuras();
+                            Falric->SetVisible(true);
+                            Falric->CastSpell(Falric, SPELL_BOSS_SPAWN_AURA, false);
+                            Falric->GetMotionMaster()->MovePoint(0, 5283.309f, 2031.173f, 709.319f);
+                            // Mettere check per togliere eventulmente il loot
+                        //}
+                    }
+                    if (Creature* Marwyn = m_pInstance->instance->GetCreature(m_uiMarwynGUID))
+                    {
+                        //if (Marwyn->isAlive())
+                        //{
+                            Marwyn->RemoveAllAuras();
+                            Marwyn->SetVisible(true);
+                            Marwyn->CastSpell(Marwyn, SPELL_BOSS_SPAWN_AURA, false);
+                            Marwyn->GetMotionMaster()->MovePoint(0, 5335.585f, 1981.439f, 709.319f);
+                            // Mettere check per togliere eventulmente il loot
+                        //}
+                    }
+
+                    uint32 m_uiMainGateGUID = m_pInstance->GetData64(GO_IMPENETRABLE_DOOR);
+                    if (GameObject* pGate = m_pInstance->instance->GetGameObject(m_uiMainGateGUID))
+                        pGate->SetGoState(GO_STATE_ACTIVE);
+                    m_pInstance->SetData(TYPE_FALRIC, SPECIAL);
+                }
+
+                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                creature->SetVisible(false);
+                break;
+        }
+        return true;
+    }
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+        return true;
+    }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_hor_resetAI(creature);
+    }
+
+    struct npc_hor_resetAI : public ScriptedAI
+    {
+        npc_hor_resetAI(Creature* creature) : ScriptedAI(creature)
+        {
+            m_pInstance = creature->GetInstanceScript();
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            me->SetVisible(false);
+        }
+
+        InstanceScript* m_pInstance;
+    };
+}*/
+
 class npc_throw_quel_delar : public CreatureScript // Frostmourne Altar Bunny (Quel'Delar) entry 37704
 {
     public:
@@ -1934,5 +2020,6 @@ void AddSC_halls_of_reflection()
     new npc_shadowy_mercenary();
     new npc_spectral_footman();
     new npc_tortured_rifleman();
-	new npc_throw_quel_delar();    
+    //new npc_hor_reset();
+	new npc_throw_quel_delar();
 }
