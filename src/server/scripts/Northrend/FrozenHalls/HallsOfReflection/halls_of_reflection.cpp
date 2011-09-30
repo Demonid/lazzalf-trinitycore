@@ -1978,6 +1978,8 @@ class npc_escape_restore : public CreatureScript
         {
 			InstanceScript* m_pInstance = (InstanceScript*)creature->GetInstanceScript();
 
+			uint64 m_uiLiderGUID;
+
 			if (!m_pInstance)
 				return false;
 
@@ -1992,8 +1994,20 @@ class npc_escape_restore : public CreatureScript
 				else
 					creature->SummonCreature(NPC_SYLVANA_OUTRO, 5556.27f, 2266.28f, 733.01f, 0.8f, TEMPSUMMON_DEAD_DESPAWN);
 
-				m_pInstance->SetData(TYPE_LICH_KING, SPECIAL);
-				creature->SetVisible(false);
+				m_uiLiderGUID = m_pInstance->GetData64(DATA_ESCAPE_LIDER);
+				if (Creature* Lider = m_pInstance->instance->GetCreature(m_uiLiderGUID)) {
+					Lider->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+					Lider->setActive(true);
+
+					if (m_pInstance)
+					{
+						m_pInstance->SetData64(DATA_ESCAPE_LIDER, Lider->GetGUID());
+						m_pInstance->SetData(TYPE_LICH_KING, IN_PROGRESS);
+						m_pInstance->SetData(TYPE_PHASE, 5);
+					}
+
+					creature->SetVisible(false);
+				}
             }
 
             return true;
