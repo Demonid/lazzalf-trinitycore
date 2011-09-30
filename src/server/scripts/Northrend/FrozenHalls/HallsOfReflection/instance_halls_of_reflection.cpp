@@ -269,8 +269,8 @@ public:
                  GetData(TYPE_MARWYN) == DONE || //Boss reser if the party kill it
                  GetData(TYPE_FALRIC) == IN_PROGRESS ||
                  GetData(TYPE_FALRIC) == SPECIAL ||            
-                 GetData(TYPE_FALRIC) == DONE || //Boss reser if the party kill it
-                 GetData(TYPE_FROST_GENERAL) == DONE)
+                 GetData(TYPE_FALRIC) == DONE ) //Boss reser if the party kill it
+                 //GetData(TYPE_FROST_GENERAL) == DONE)
                  && CheckWipe())
         
             {
@@ -295,13 +295,13 @@ public:
                             Marwyn->GetAI()->SetData(0,0);
                     }
 
-                    if (Creature* FrostGeneral =instance->GetCreature(m_uiFrostGeneralGUID))
+                    /*if (Creature* FrostGeneral =instance->GetCreature(m_uiFrostGeneralGUID))
                     {
                         if (FrostGeneral->isDead())
                             FrostGeneral->Respawn();
                         else if (FrostGeneral->GetAI())
                             FrostGeneral->GetAI()->SetData(0,0);
-                    }
+                    }*/
                    
                 }
             }
