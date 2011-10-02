@@ -256,6 +256,9 @@ public:
         {
             if (!instance->HavePlayers())
                 return;
+
+			if ( ( GetData(TYPE_FALRIC) == IN_PROGRESS || GetData(TYPE_MARWYN) == IN_PROGRESS ) && CheckWipe () )
+				OpenDoor(m_uiExitGateGUID);
         }
 
         void SetData(uint32 uiType, uint32 uiData)
