@@ -247,9 +247,6 @@ public:
             {
                 Player* player = itr->getSource();
                 if (player->isGameMaster())
-                    
-                    DoUpdateWorldState(WORLD_STATE_HOR, 1);
-
                     continue;
 
                 if (player->isAlive())
@@ -276,7 +273,7 @@ public:
             {
                 OpenDoor(m_uiExitGateGUID);
 
-                if (Creature* pResetNpc = instance->GetCreature(m_uiResetNpcGUID))
+                /* if (Creature* pResetNpc = instance->GetCreature(m_uiResetNpcGUID))
                 {
                     pResetNpc->SetVisible(true);
                     pResetNpc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -295,15 +292,15 @@ public:
                             Marwyn->GetAI()->SetData(0,0);
                     }
 
-                    /*if (Creature* FrostGeneral =instance->GetCreature(m_uiFrostGeneralGUID))
+                    if (Creature* FrostGeneral =instance->GetCreature(m_uiFrostGeneralGUID))
                     {
                         if (FrostGeneral->isDead())
                             FrostGeneral->Respawn();
                         else if (FrostGeneral->GetAI())
                             FrostGeneral->GetAI()->SetData(0,0);
-                    }*/
+                    } 
                    
-                }
+                } */
             }
         }
 
