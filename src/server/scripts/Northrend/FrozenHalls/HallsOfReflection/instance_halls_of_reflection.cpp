@@ -256,28 +256,6 @@ public:
         {
             if (!instance->HavePlayers())
                 return;
-
-			if ( ( GetData(TYPE_FALRIC) == IN_PROGRESS || GetData(TYPE_MARWYN) == IN_PROGRESS ) && CheckWipe() ) 
-			{
-				OpenDoor(m_uiExitGateGUID);
-				m_uiFalricGUID = GetData64(NPC_FALRIC);
-                m_uiMarwynGUID = GetData64(NPC_MARWYN);
-                if (Creature* Falric = instance->GetCreature(m_uiFalricGUID))
-                {
-                    Falric->RemoveAllAuras();
-                    Falric->SetVisible(true);
-                    Falric->CastSpell(Falric, SPELL_BOSS_SPAWN_AURA, false);
-                    Falric->GetMotionMaster()->MovePoint(0, 5283.309f, 2031.173f, 709.319f);
-                }
-                if (Creature* Marwyn = instance->GetCreature(m_uiMarwynGUID))
-                {
-                    Marwyn->RemoveAllAuras();
-                    Marwyn->SetVisible(true);
-                    Marwyn->CastSpell(Marwyn, SPELL_BOSS_SPAWN_AURA, false);
-                    Marwyn->GetMotionMaster()->MovePoint(0, 5335.585f, 1981.439f, 709.319f);
-                }
-				SetData(TYPE_FALRIC, SPECIAL);
-			}
         }
 
         void SetData(uint32 uiType, uint32 uiData)
