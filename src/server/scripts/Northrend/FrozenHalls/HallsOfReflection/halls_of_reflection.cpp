@@ -1979,8 +1979,7 @@ class npc_escape_restore : public CreatureScript
 			InstanceScript* m_pInstance = (InstanceScript*)creature->GetInstanceScript();
 
 			uint64 m_uiLiderGUID;
-			uint64 m_uiLichKingGUID;
-
+			
 			if (!m_pInstance)
 				return false;
 
@@ -1997,17 +1996,8 @@ class npc_escape_restore : public CreatureScript
 
 				m_uiLiderGUID = m_pInstance->GetData64(DATA_ESCAPE_LIDER);
 				if (Creature* Lider = m_pInstance->instance->GetCreature(m_uiLiderGUID)) {
-					Lider->SetUInt64Value(UNIT_FIELD_TARGET, 0);
-					Lider->setActive(true);
-
-					m_uiLichKingGUID = m_pInstance->GetData64(BOSS_LICH_KING);
-					if ( Creature* pLichKing = m_pInstance->instance->GetCreature(m_uiLichKingGUID) ) 
-					{
-						pLichKing->SetPhaseMask(65535, true);
-						pLichKing->AI()->AttackStart(Lider);
-						Lider->AI()->AttackStart(pLichKing);
-					}
-					creature->SetVisible(false);
+					m_pInstance->SetData(TYPE_PHASE, 3);
+					( ( npc_escortAI* ) Lider->GetAI() )->MoveInLineOfSight(player);
 				}
             }
 
