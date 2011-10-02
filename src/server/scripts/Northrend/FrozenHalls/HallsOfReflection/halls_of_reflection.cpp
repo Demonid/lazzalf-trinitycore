@@ -1941,9 +1941,6 @@ class npc_escape_restore : public CreatureScript
 			//Called at World update tick
 			void UpdateAI(uint32 const diff) 
 			{
-				if ( me->IsVisible() )
-					return;
-
 				if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
 					me->SetVisible(true);
 			}
@@ -1969,6 +1966,7 @@ class npc_escape_restore : public CreatureScript
 			InstanceScript* m_pInstance = (InstanceScript*)creature->GetInstanceScript();
 
 			uint64 m_uiLiderGUID;
+			uint64 m_uiMainGateGUID;
 			
 			if (!m_pInstance)
 				return false;
@@ -1988,7 +1986,12 @@ class npc_escape_restore : public CreatureScript
 				if (Creature* Lider = m_pInstance->instance->GetCreature(m_uiLiderGUID)) {
 					m_pInstance->SetData(TYPE_PHASE, 3);
 					m_pInstance->SetData(TYPE_LICH_KING, NOT_STARTED);
-					// ( ( npc_escortAI* ) Lider->GetAI() )->MoveInLineOfSight(player);
+
+					m_uiMainGateGUID = m_pInstance->GetData64(GO_ICECROWN_DOOR_3);
+                    if (GameObject* pGate = m_pInstance->instance->GetGameObject(m_uiMainGateGUID))
+						pGate->SetGoState(GO_STATE_ACTIVE);
+
+					creature->SetVisible (false);
 				}
             }
 
