@@ -31,6 +31,8 @@ EndScriptData */
 #include "halls_of_reflection.h"
 #include "World.h"
 
+#define SPELL_BOSS_SPAWN_AURA              72712
+
 enum PhaseControl
 {
     HORDE_CONTROL_PHASE_SHIFT_1    = 55773,
@@ -261,18 +263,39 @@ public:
                 return;
 
             // if main event is in progress and players have wiped then reset instance
-            if ((GetData(TYPE_MARWYN) == IN_PROGRESS ||
+            /* if ((GetData(TYPE_MARWYN) == IN_PROGRESS ||
                  GetData(TYPE_MARWYN) == SPECIAL ||
                  GetData(TYPE_MARWYN) == DONE || //Boss reser if the party kill it
                  GetData(TYPE_FALRIC) == IN_PROGRESS ||
                  GetData(TYPE_FALRIC) == SPECIAL ||            
                  GetData(TYPE_FALRIC) == DONE ) //Boss reser if the party kill it
                  //GetData(TYPE_FROST_GENERAL) == DONE)
-                 && CheckWipe())
-        
-            {
-                OpenDoor(m_uiExitGateGUID);
-            }
+                 && CheckWipe()) */
+			
+			if ( GetData(TYPE_PHASE) == 2 && CheckWipe() ) 
+			{
+				OpenDoor(m_uiExitGateGUID);
+				m_uiFalricGUID = GetData64(NPC_FALRIC);
+                m_uiMarwynGUID = GetData64(NPC_MARWYN);
+                if (Creature* Falric = instance->GetCreature(m_uiFalricGUID))
+                {
+                    Falric->GetAI()->SetData(0, 0);
+					Falric->RemoveAllAuras();
+                    Falric->SetVisible(true);
+                    Falric->CastSpell(Falric, SPELL_BOSS_SPAWN_AURA, false);
+                    Falric->GetMotionMaster()->MovePoint(0, 5283.309f, 2031.173f, 709.319f);
+                }
+                if (Creature* Marwyn = instance->GetCreature(m_uiMarwynGUID))
+                {
+                    Marwyn->GetAI()->SetData(0, 0);
+					Marwyn->RemoveAllAuras();
+                    Marwyn->SetVisible(true);
+                    Marwyn->CastSpell(Marwyn, SPELL_BOSS_SPAWN_AURA, false);
+                    Marwyn->GetMotionMaster()->MovePoint(0, 5335.585f, 1981.439f, 709.319f);
+                }
+
+			}
+
         }
 
         void SetData(uint32 uiType, uint32 uiData)
