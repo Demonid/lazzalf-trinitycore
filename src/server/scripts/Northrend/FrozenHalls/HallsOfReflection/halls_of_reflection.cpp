@@ -766,13 +766,6 @@ public:
             }
             if (m_pInstance->GetData(TYPE_LICH_KING) == DONE)
                 me->SetVisible(false);
-
-            if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL) 
-			{
-				m_uiFrostGeneralGUID = m_pInstance->GetData64(NPC_FROST_GENERAL);
-				if (Creature* FrostGeneral = m_pInstance->instance->GetCreature(m_uiFrostGeneralGUID))
-					FrostGeneral->Respawn();
-			}
         }
 
         void AttackStart(Unit* who)
@@ -794,10 +787,7 @@ public:
         {
             if (!m_pInstance)
                 return;
-            m_pInstance->SetData(TYPE_LICH_KING, FAIL);
-             
-           
-            
+            m_pInstance->SetData(TYPE_LICH_KING, FAIL);            
         }
 
         void WaypointReached(uint32 i)
