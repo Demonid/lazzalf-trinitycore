@@ -288,6 +288,16 @@ public:
             if (!m_pInstance)
                 return;
 
+			if (!me->getVictim())
+            {
+				if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL ) 
+				{
+					if ( despawnTime <= diff )
+						me->DespawnOrUnsummon();
+					else despawnTime -= diff;
+				}                
+            }
+
             if (m_pInstance->GetData(TYPE_LICH_KING) != IN_PROGRESS)
             {
                 if (!UpdateVictim())
@@ -332,14 +342,7 @@ public:
                 }
             }
 
-			if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL ) 
-			{
-				if ( despawnTime <= diff )
-					me->DespawnOrUnsummon();
-				else despawnTime -= diff;
-			}
-
-            if (m_pInstance->GetData(TYPE_ICE_WALL_01) == IN_PROGRESS)
+			if (m_pInstance->GetData(TYPE_ICE_WALL_01) == IN_PROGRESS)
             {
                 if (StepTimer < diff)
                     Wall01();
