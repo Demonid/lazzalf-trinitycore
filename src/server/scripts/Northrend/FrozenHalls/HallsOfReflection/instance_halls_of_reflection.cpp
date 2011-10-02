@@ -272,7 +272,6 @@ public:
         
             {
                 OpenDoor(m_uiExitGateGUID);
-				DoUpdateWorldState(WORLD_STATE_HOR, 0);
             }
         }
 
