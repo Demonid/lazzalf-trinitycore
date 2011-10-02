@@ -306,10 +306,10 @@ public:
                 DoMeleeAttackIfReady();
             }
 
-            if (me->isInCombat() && m_pInstance->GetData(TYPE_LICH_KING) == IN_PROGRESS)
+            /* if (me->isInCombat() && m_pInstance->GetData(TYPE_LICH_KING) == IN_PROGRESS)
             {
                 npc_escortAI::EnterEvadeMode();
-            }
+            } */
 
             if (m_pInstance->GetData(TYPE_LICH_KING) == IN_PROGRESS && StartEscort != true)
             {
@@ -321,7 +321,7 @@ public:
                 me->CastSpell(me, SPELL_FROSTMOURNE_VISUAL, false);
                 NonFight = true;
                 me->AttackStop();
-                me->SetSpeed(MOVE_WALK, 2.5f, true);
+                me->SetSpeed(MOVE_WALK, 1.5f, true);
                 Start(false, false);
                 Step = 0;
                 StepTimer = 100;
