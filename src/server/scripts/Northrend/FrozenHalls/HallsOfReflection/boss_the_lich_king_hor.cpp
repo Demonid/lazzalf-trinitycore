@@ -334,7 +334,7 @@ public:
                 }
             }
 
-			if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL && despawnTime < diff )
+			if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL && despawnTime <= diff )
 				me->DespawnOrUnsummon();
 			else despawnTime -= diff;
 
