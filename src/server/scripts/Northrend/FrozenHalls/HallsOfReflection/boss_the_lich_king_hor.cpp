@@ -330,7 +330,8 @@ public:
 
            
             if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
-				me->DespawnOrUnsummon();
+				me->CastSpell(me, SPELL_FURY_OF_FROSTMOURNE, false);
+                me->DespawnOrUnsummon();
                 
 
 
