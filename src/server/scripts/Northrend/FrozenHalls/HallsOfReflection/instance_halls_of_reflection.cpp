@@ -272,35 +272,7 @@ public:
         
             {
                 OpenDoor(m_uiExitGateGUID);
-
-                /* if (Creature* pResetNpc = instance->GetCreature(m_uiResetNpcGUID))
-                {
-                    pResetNpc->SetVisible(true);
-                    pResetNpc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    if (Creature* Falric = instance->GetCreature(m_uiFalricGUID))
-                    {
-                        if (Falric->isDead())
-                            Falric->Respawn();
-                        else if (Falric->GetAI())
-                            Falric->GetAI()->SetData(0,0);
-                    }
-                    if (Creature* Marwyn = instance->GetCreature(m_uiMarwynGUID))
-                    {
-                        if (Marwyn->isDead())
-                            Marwyn->Respawn();
-                        else if (Marwyn->GetAI())
-                            Marwyn->GetAI()->SetData(0,0);
-                    }
-
-                    if (Creature* FrostGeneral =instance->GetCreature(m_uiFrostGeneralGUID))
-                    {
-                        if (FrostGeneral->isDead())
-                            FrostGeneral->Respawn();
-                        else if (FrostGeneral->GetAI())
-                            FrostGeneral->GetAI()->SetData(0,0);
-                    } 
-                   
-                } */
+				DoUpdateWorldState(WORLD_STATE_HOR, 0);
             }
         }
 
