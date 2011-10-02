@@ -1987,6 +1987,7 @@ class npc_escape_restore : public CreatureScript
 				m_uiLiderGUID = m_pInstance->GetData64(DATA_ESCAPE_LIDER);
 				if (Creature* Lider = m_pInstance->instance->GetCreature(m_uiLiderGUID)) {
 					m_pInstance->SetData(TYPE_PHASE, 3);
+					m_pInstance->SetData(TYPE_LICH_KING, IN_PROGRESS);
 					// ( ( npc_escortAI* ) Lider->GetAI() )->MoveInLineOfSight(player);
 				}
             }
