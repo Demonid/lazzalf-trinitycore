@@ -257,7 +257,7 @@ public:
             if (!instance->HavePlayers())
                 return;
 
-			if ( ( GetData(TYPE_FALRIC) == IN_PROGRESS || GetData(TYPE_MARWYN) == IN_PROGRESS ) && CheckWipe () )
+			if ( ( GetData(TYPE_FALRIC) == SPECIAL || GetData(TYPE_MARWYN) == SPECIAL ) && CheckWipe () )
 				OpenDoor(m_uiExitGateGUID);
         }
 
