@@ -1989,7 +1989,7 @@ class npc_escape_restore : public CreatureScript
 
 					m_uiMainGateGUID = m_pInstance->GetData64(GO_ICECROWN_DOOR_3);
                     if (GameObject* pGate = m_pInstance->instance->GetGameObject(m_uiMainGateGUID))
-						pGate->SetGoState(GO_STATE_ACTIVE);
+						pGate->SetGoState(GO_STATE_READY);
 
 					creature->SetVisible (false);
 				}
