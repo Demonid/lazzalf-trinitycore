@@ -294,6 +294,9 @@ public:
                     Marwyn->GetMotionMaster()->MovePoint(0, 5335.585f, 1981.439f, 709.319f);
                 }
 
+				if ( instance->HavePlayers () )
+					SetData(TYPE_FALRIC, SPECIAL);
+
 			}
 
         }
