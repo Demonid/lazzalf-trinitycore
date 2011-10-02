@@ -95,7 +95,7 @@ public:
                 return;
             NonFight = false;
             StartEscort = false;
-			despawnTime = 0;
+			despawnTime = 5000;
             me->CastSpell(me, SPELL_FROSTMOURNE_VISUAL, false);
         }
 
@@ -329,14 +329,15 @@ public:
                     me->DealDamage(pLider, pLider->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     me->NearTeleportTo(5572.077f, 2283.1f, 734.976f, 3.89f);
                     m_pInstance->SetData(TYPE_LICH_KING, FAIL);
-
-					despawnTime = 5000;
                 }
             }
 
-			if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL && despawnTime <= diff )
-				me->DespawnOrUnsummon();
-			else despawnTime -= diff;
+			if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL ) 
+			{
+				if ( despawnTime <= diff )
+					me->DespawnOrUnsummon();
+				else despawnTime -= diff;
+			}
 
             if (m_pInstance->GetData(TYPE_ICE_WALL_01) == IN_PROGRESS)
             {
