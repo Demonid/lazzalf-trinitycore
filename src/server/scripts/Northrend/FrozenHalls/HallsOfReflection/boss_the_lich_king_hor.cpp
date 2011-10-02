@@ -449,6 +449,10 @@ public:
                         EmergeTimer -= diff;
                 }
             }
+            if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
+            {
+                me->DespawnOrUnsummon();
+            }
             DoMeleeAttackIfReady();
         }
     };
@@ -531,6 +535,10 @@ public:
                         EmergeTimer -= diff;
                 }
             }
+            if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
+            {
+                me->DespawnOrUnsummon();
+            }
             DoMeleeAttackIfReady();
         }
     };
@@ -583,6 +591,10 @@ public:
                         me->GetMotionMaster()->MoveChase(pLider);
                     }
                 }
+            }
+            if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
+            {
+                me->DespawnOrUnsummon();
             }
             DoMeleeAttackIfReady();
         }
