@@ -720,12 +720,13 @@ public:
         npc_jaina_and_sylvana_HRextroAI(Creature *pCreature) : npc_escortAI(pCreature)
         {
             m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+			Difficulty = m_pInstance->instance->GetDifficulty();
             Reset();
         }
 
-        
-
         InstanceScript* m_pInstance;
+
+		uint8 Difficulty;
 
         uint32 CastTimer;
         uint32 StepTimer;
@@ -736,6 +737,8 @@ public:
         bool Event;
         bool PreFight;
         bool WallCast;
+        bool Ach_hor;
+        bool Ach_hor_h;
         uint64 m_uiLichKingGUID;
         uint64 m_uiLiderGUID;
         uint64 m_uiIceWallGUID;
@@ -755,6 +758,8 @@ public:
             Step = 0;
             StepTimer = 500;
             Fight = true;
+            Ach_hor = false;
+            Ach_hor_h = false;
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             m_uipWallTargetGUID = 0;
@@ -766,35 +771,6 @@ public:
             }
             if (m_pInstance->GetData(TYPE_LICH_KING) == DONE)
                 me->SetVisible(false);
-<<<<<<< local
-            if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
-<<<<<<< local
-               
-                {
-                    if (me->isDead())
-                        me->DespawnOrUnsummon();
-                        
-                                   
-                }
-=======
->>>>>>> other
-=======
-                
-                m_uiFrostGeneralGUID = m_pInstance->GetData64(NPC_FROST_GENERAL);
-            if (Creature* FrostGeneral =m_pInstance->instance->GetCreature(m_uiFrostGeneralGUID))
-                   
-                            //if (FrostGeneral->isDead())
-                            {
-                                if (Creature*LichKing = m_pInstance->instance->GetCreature(m_uiLichKingGUID))
-                                {
-            
-                                    LichKing->DespawnOrUnsummon();
-                                }
-        
-
-                            FrostGeneral->Respawn();
-                            }
->>>>>>> other
         }
 
         void AttackStart(Unit* who)
@@ -816,10 +792,7 @@ public:
         {
             if (!m_pInstance)
                 return;
-            m_pInstance->SetData(TYPE_LICH_KING, FAIL);
-             
-           
-            
+            m_pInstance->SetData(TYPE_LICH_KING, FAIL);            
         }
 
         void WaypointReached(uint32 i)
@@ -1142,7 +1115,11 @@ public:
                     break;
                 case 12:
                     m_pInstance->SetData(TYPE_LICH_KING, DONE);
-                    JumpNextStep(10000);
+                    if (Difficulty == RAID_DIFFICULTY_10MAN_NORMAL)
+						Ach_hor = true;
+                    else if (Difficulty == RAID_DIFFICULTY_25MAN_NORMAL)
+						Ach_hor_h = true;
+					JumpNextStep(10000);
                     break;
                 case 13:
                     JumpNextStep(20000);
@@ -1273,12 +1250,23 @@ public:
 
             return;
         }
-    };
+        
+		uint32 GetData(uint32 type)
+		{
+			if (type == DATA_H_THE_HALLS_OF_REFLECTION)
+				return Ach_hor_h ? 1 : 0;
+			else if (type == DATA_THE_HALLS_OF_REFLECTION)
+				return Ach_hor ? 1 : 0;
+			return 0;
+		}
+
+	};
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
         return new npc_jaina_and_sylvana_HRextroAI(pCreature);
     }
+    
 };
 
 class npc_lich_king_hr : public CreatureScript
@@ -1894,90 +1882,6 @@ public:
 
 };
 
-/*#define GOSSIP_START_EVENT  "We are ready!"
-
-class npc_hor_reset : public CreatureScript
-{
-public:
-    npc_hor_reset() : CreatureScript("npc_hor_reset") { }
-	
-
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*///, uint32 uiAction)/*
-   /* {
-        player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->CLOSE_GOSSIP_MENU();
-                
-				//DoUpdateWorldState(WORLD_STATE_HOR, 1);
-
-				if (InstanceScript* m_pInstance = creature->GetInstanceScript())
-                {
-                    uint32 m_uiFalricGUID = m_pInstance->GetData64(NPC_FALRIC);
-                    uint32 m_uiMarwynGUID = m_pInstance->GetData64(NPC_MARWYN);
-                    if (Creature* Falric = m_pInstance->instance->GetCreature(m_uiFalricGUID))
-                    {
-                        //if (Falric->isAlive())
-                        //{
-                            Falric->RemoveAllAuras();
-                            Falric->SetVisible(true);
-                            Falric->CastSpell(Falric, SPELL_BOSS_SPAWN_AURA, false);
-                            Falric->GetMotionMaster()->MovePoint(0, 5283.309f, 2031.173f, 709.319f);
-                            // Mettere check per togliere eventulmente il loot
-                        //}
-                    }
-                    if (Creature* Marwyn = m_pInstance->instance->GetCreature(m_uiMarwynGUID))
-                    {
-                        //if (Marwyn->isAlive())
-                        //{
-                            Marwyn->RemoveAllAuras();
-                            Marwyn->SetVisible(true);
-                            Marwyn->CastSpell(Marwyn, SPELL_BOSS_SPAWN_AURA, false);
-                            Marwyn->GetMotionMaster()->MovePoint(0, 5335.585f, 1981.439f, 709.319f);
-                            // Mettere check per togliere eventulmente il loot
-                        //}
-                    }
-
-                    uint32 m_uiMainGateGUID = m_pInstance->GetData64(GO_IMPENETRABLE_DOOR);
-                    if (GameObject* pGate = m_pInstance->instance->GetGameObject(m_uiMainGateGUID))
-                        pGate->SetGoState(GO_STATE_ACTIVE);
-                    m_pInstance->SetData(TYPE_FALRIC, SPECIAL);
-                }
-
-                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                creature->SetVisible(false);
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_hor_resetAI(creature);
-    }
-
-    struct npc_hor_resetAI : public ScriptedAI
-    {
-        npc_hor_resetAI(Creature* creature) : ScriptedAI(creature)
-        {
-            m_pInstance = creature->GetInstanceScript();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-            me->SetVisible(false);
-        }
-
-        InstanceScript* m_pInstance;
-    };
-}*/
-
 class npc_throw_quel_delar : public CreatureScript // Frostmourne Altar Bunny (Quel'Delar) entry 37704
 {
     public:
@@ -1989,12 +1893,26 @@ class npc_throw_quel_delar : public CreatureScript // Frostmourne Altar Bunny (Q
 
 		struct npc_throw_quel_delarAI : public ScriptedAI
 		{
-			npc_throw_quel_delarAI(Creature* c) : ScriptedAI(c) { }
+			bool isSummoned;
 
+			npc_throw_quel_delarAI(Creature* c) : ScriptedAI(c) { isSummoned = false; }
+
+			// Called when the creature summon successfully other creature
+			void JustSummoned(Creature* summon) 
+			{
+				DoScriptText(SAY_JAINA_INTRO_01, summon);
+			}
+
+			// Called when a summoned creature is despawned
+			void SummonedCreatureDespawn(Creature* summon) 
+			{
+			}
+
+			// Called when hit by a spell
 			void SpellHit(Unit* caster, SpellInfo const* spell) 
 			{
 				if ( spell && spell->Id == 70698 )
-					DoCast(caster, 69966, false);
+					me->SummonCreature(37158, 0.0f, 0.0f, 0.0f, 0, TEMPSUMMON_DEAD_DESPAWN); // DoCast(caster, 69966, false);
 			}
 			
 			//Called at World update tick
@@ -2007,6 +1925,7 @@ class npc_throw_quel_delar : public CreatureScript // Frostmourne Altar Bunny (Q
 						victim->RemoveAura(70013);
 						victim->CastSpell(me, 70698, false);
 					}
+
 			}
 
 		};
@@ -2016,6 +1935,107 @@ class npc_throw_quel_delar : public CreatureScript // Frostmourne Altar Bunny (Q
 		{ 
 			return new npc_throw_quel_delarAI(creature);
 		}
+};
+
+#define GOSSIP_ITEM     "I'm ready for escape!"
+
+class npc_escape_restore : public CreatureScript
+{
+    public:
+
+        npc_escape_restore()
+            : CreatureScript("npc_escape_restore")
+        {
+        }
+
+		struct npc_escape_restoreAI : public ScriptedAI
+		{
+			InstanceScript* m_pInstance;
+
+			npc_escape_restoreAI(Creature* c) : ScriptedAI(c) 
+			{ 
+				m_pInstance = (InstanceScript*)c->GetInstanceScript();
+				me->SetVisible(false);
+			}
+
+			//Called at World update tick
+			void UpdateAI(uint32 const diff) 
+			{
+				if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL && m_pInstance->GetData(TYPE_FROST_GENERAL) == DONE)
+					me->SetVisible(true);
+			}
+
+		};
+
+		// Called when a CreatureAI object is needed for the creature.
+        CreatureAI* GetAI(Creature* creature) const 
+		{ 
+			return new npc_escape_restoreAI(creature);
+		}
+
+		bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(907, creature->GetGUID());
+
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+        {
+			InstanceScript* m_pInstance = (InstanceScript*)creature->GetInstanceScript();
+
+			uint64 m_uiLiderGUID;
+			uint64 m_uiMainGateGUID;
+			
+			if (!m_pInstance)
+				return false;
+
+			player->PlayerTalkClass->ClearMenus();
+            if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+            {
+				player->CLOSE_GOSSIP_MENU();
+				creature->SummonCreature(BOSS_LICH_KING, 5564.25f, 2274.69f, 733.01f, 3.93f, TEMPSUMMON_DEAD_DESPAWN);
+            
+				if (m_pInstance->GetData(DATA_TEAM_IN_INSTANCE)==ALLIANCE)
+					creature->SummonCreature(NPC_JAINA_OUTRO, 5556.27f, 2266.28f, 733.01f, 0.8f, TEMPSUMMON_DEAD_DESPAWN);
+				else
+					creature->SummonCreature(NPC_SYLVANA_OUTRO, 5556.27f, 2266.28f, 733.01f, 0.8f, TEMPSUMMON_DEAD_DESPAWN);
+
+				m_uiLiderGUID = m_pInstance->GetData64(DATA_ESCAPE_LIDER);
+				if (Creature* Lider = m_pInstance->instance->GetCreature(m_uiLiderGUID)) {
+					m_pInstance->SetData(TYPE_PHASE, 3);
+					m_pInstance->SetData(TYPE_LICH_KING, NOT_STARTED);
+
+					m_uiMainGateGUID = m_pInstance->GetData64(GO_ICECROWN_DOOR_3);
+                    if (GameObject* pGate = m_pInstance->instance->GetGameObject(m_uiMainGateGUID))
+						pGate->SetGoState(GO_STATE_READY);
+
+					creature->SetVisible (false);
+				}
+            }
+
+            return true;
+        }
+};
+
+class achievement_the_halls_of_reflection : public AchievementCriteriaScript
+{
+	public:
+		achievement_the_halls_of_reflection() : AchievementCriteriaScript("achievement_the_halls_of_reflection") { 	}
+
+	bool OnCheck(Player* /*player*/, Unit* target)
+	{
+		if (!target)
+			return false;
+
+		if ( Creature* Lider = target->ToCreature() )
+			if( Lider->AI()->GetData(DATA_THE_HALLS_OF_REFLECTION) ) //ach
+				return true;
+
+		return false;
+	}
+
 };
 
 void AddSC_halls_of_reflection()
@@ -2030,6 +2050,7 @@ void AddSC_halls_of_reflection()
     new npc_shadowy_mercenary();
     new npc_spectral_footman();
     new npc_tortured_rifleman();
-    //new npc_hor_reset();
 	new npc_throw_quel_delar();
+	new npc_escape_restore();
+    new achievement_the_halls_of_reflection();
 }
