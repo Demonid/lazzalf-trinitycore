@@ -598,7 +598,8 @@ public:
             }
             DoMeleeAttackIfReady();
         }
-
+        
+        
         void JustDied(Unit* pKiller)
         {
             if (!m_pInstance)
@@ -612,7 +613,9 @@ public:
     {
         return new npc_abonAI(pCreature);
     }
-};
+}; 
+
+
 
 void AddSC_boss_lich_king_hr()
 {
