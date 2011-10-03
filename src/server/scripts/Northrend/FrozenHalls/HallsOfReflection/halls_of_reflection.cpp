@@ -1270,27 +1270,7 @@ public:
     {
         return new npc_jaina_and_sylvana_HRextroAI(pCreature);
     }
-    class achievement_the_halls_of_reflection : public AchievementCriteriaScript
-{
-    public:
-        achievement_the_halls_of_reflection() : AchievementCriteriaScript("achievement_the_halls_of_reflection")
-        {
-           
-        }
-
-        bool OnCheck(Player* /*player*/, Unit* target)
-        {
-            if (!target)
-                return false;
-             
-
-            if (Creature*LIDER = target->ToCreature())
-                if(LIDER->AI()->GetData(DATA_THE_HALLS_OF_REFLECTION)) //ach
-                   return true;
-
-            return false;
-        }
-};
+   
 };
 
 class npc_lich_king_hr : public CreatureScript
@@ -2040,6 +2020,27 @@ class npc_escape_restore : public CreatureScript
             }
 
             return true;
+        }
+};
+ class achievement_the_halls_of_reflection : public AchievementCriteriaScript
+{
+    public:
+        achievement_the_halls_of_reflection() : AchievementCriteriaScript("achievement_the_halls_of_reflection")
+        {
+           
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (!target)
+                return false;
+             
+
+            if (Creature*LIDER = target->ToCreature())
+                if(LIDER->AI()->GetData(DATA_THE_HALLS_OF_REFLECTION)) //ach
+                   return true;
+
+            return false;
         }
 };
 
