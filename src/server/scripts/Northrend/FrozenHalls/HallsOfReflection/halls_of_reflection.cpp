@@ -1941,7 +1941,7 @@ class npc_escape_restore : public CreatureScript
 			//Called at World update tick
 			void UpdateAI(uint32 const diff) 
 			{
-				if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
+				if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL && m_pInstance->GetData(TYPE_FROST_GENERAL) == DONE)
 					me->SetVisible(true);
 			}
 
