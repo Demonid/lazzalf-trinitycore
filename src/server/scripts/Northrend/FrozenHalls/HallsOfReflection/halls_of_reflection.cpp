@@ -2057,4 +2057,5 @@ void AddSC_halls_of_reflection()
     new npc_tortured_rifleman();
 	new npc_throw_quel_delar();
 	new npc_escape_restore();
+    new achievement_the_halls_of_reflection();
 }
