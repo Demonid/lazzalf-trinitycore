@@ -146,4 +146,12 @@ enum HorWorldStatus
 	WORLD_STATE_HOR				= 4884
 };
 
+enum data
+   {
+       DATA_THE_HALLS_OF_REFLECTION = 1
+       
+       DATA_H_THE_HALLS_OF_REFLECTION = 2
+
+};
+
 #endif
