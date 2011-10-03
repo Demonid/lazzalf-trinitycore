@@ -720,15 +720,12 @@ public:
         npc_jaina_and_sylvana_HRextroAI(Creature *pCreature) : npc_escortAI(pCreature)
         {
             m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
-			Difficulty = m_pInstance->instance->GetDifficulty();
             Reset();
         }
 
         InstanceScript* m_pInstance;
 
-		uint8 Difficulty;
-
-        uint32 CastTimer;
+		uint32 CastTimer;
         uint32 StepTimer;
         uint32 Step;
         int32 HoldTimer;
@@ -737,8 +734,6 @@ public:
         bool Event;
         bool PreFight;
         bool WallCast;
-        bool Ach_hor;
-        bool Ach_hor_h;
         uint64 m_uiLichKingGUID;
         uint64 m_uiLiderGUID;
         uint64 m_uiIceWallGUID;
@@ -758,8 +753,6 @@ public:
             Step = 0;
             StepTimer = 500;
             Fight = true;
-            Ach_hor = false;
-            Ach_hor_h = false;
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             m_uipWallTargetGUID = 0;
@@ -1115,10 +1108,7 @@ public:
                     break;
                 case 12:
                     m_pInstance->SetData(TYPE_LICH_KING, DONE);
-                    if (Difficulty == RAID_DIFFICULTY_10MAN_NORMAL)
-						Ach_hor = true;
-                    else if (Difficulty == RAID_DIFFICULTY_25MAN_NORMAL)
-						Ach_hor_h = true;
+					m_pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, LK_KILL_CREDIT);
 					JumpNextStep(10000);
                     break;
                 case 13:
@@ -1250,15 +1240,6 @@ public:
 
             return;
         }
-        
-		uint32 GetData(uint32 type)
-		{
-			if (type == DATA_H_THE_HALLS_OF_REFLECTION)
-				return Ach_hor_h ? 1 : 0;
-			else if (type == DATA_THE_HALLS_OF_REFLECTION)
-				return Ach_hor ? 1 : 0;
-			return 0;
-		}
 
 	};
 
@@ -2019,25 +2000,6 @@ class npc_escape_restore : public CreatureScript
         }
 };
 
-class achievement_the_halls_of_reflection : public AchievementCriteriaScript
-{
-	public:
-		achievement_the_halls_of_reflection() : AchievementCriteriaScript("achievement_the_halls_of_reflection") { 	}
-
-	bool OnCheck(Player* /*player*/, Unit* target)
-	{
-		if (!target)
-			return false;
-
-		if ( Creature* Lider = target->ToCreature() )
-			if( Lider->AI()->GetData(DATA_THE_HALLS_OF_REFLECTION) ) //ach
-				return true;
-
-		return false;
-	}
-
-};
-
 void AddSC_halls_of_reflection()
 {
     new npc_jaina_and_sylvana_HRintro();
@@ -2052,5 +2014,4 @@ void AddSC_halls_of_reflection()
     new npc_tortured_rifleman();
 	new npc_throw_quel_delar();
 	new npc_escape_restore();
-    new achievement_the_halls_of_reflection();
 }

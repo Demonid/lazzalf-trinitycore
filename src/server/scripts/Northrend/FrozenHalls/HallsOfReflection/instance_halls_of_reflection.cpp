@@ -139,12 +139,6 @@ public:
                 case BOSS_LICH_KING: 
                     m_uiLichKingGUID = creature->GetGUID();
                     break;
-                case NPC_FROST_GENERAL:
-                    m_uiFrostGeneralGUID = creature->GetGUID();
-                    break;
-                case NPC_RESET_HOR:
-                    m_uiResetNpcGUID = creature->GetGUID();
-                    break; 
                 //case NPC_JAINA:
                 //    if (m_uiTeamInInstance == HORDE)
                 //        creature->UpdateEntry(NPC_SYLVANA, HORDE);
