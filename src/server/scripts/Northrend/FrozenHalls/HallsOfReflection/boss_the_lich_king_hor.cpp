@@ -321,7 +321,7 @@ public:
                 me->CastSpell(me, SPELL_FROSTMOURNE_VISUAL, false);
                 NonFight = true;
                 me->AttackStop();
-                me->SetSpeed(MOVE_WALK, 1.5f, true);
+                me->SetSpeed(MOVE_WALK, 1.8f, true);
                 Start(false, false);
                 Step = 0;
                 StepTimer = 100;
