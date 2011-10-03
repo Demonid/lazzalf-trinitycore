@@ -147,11 +147,9 @@ enum HorWorldStatus
 };
 
 enum data
-   {
-       DATA_THE_HALLS_OF_REFLECTION = 1
-       
-       DATA_H_THE_HALLS_OF_REFLECTION = 2
-
+{
+       DATA_THE_HALLS_OF_REFLECTION = 1,
+       DATA_H_THE_HALLS_OF_REFLECTION = 2,
 };
 
 #endif

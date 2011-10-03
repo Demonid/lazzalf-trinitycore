@@ -720,12 +720,13 @@ public:
         npc_jaina_and_sylvana_HRextroAI(Creature *pCreature) : npc_escortAI(pCreature)
         {
             m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+			Difficulty = m_pInstance->instance->GetDifficulty();
             Reset();
         }
 
-        
-
         InstanceScript* m_pInstance;
+
+		uint8 Difficulty;
 
         uint32 CastTimer;
         uint32 StepTimer;
@@ -1115,15 +1116,10 @@ public:
                 case 12:
                     m_pInstance->SetData(TYPE_LICH_KING, DONE);
                     if (Difficulty == RAID_DIFFICULTY_10MAN_NORMAL)
-                    {
-                        Ach_hor = true;
-                    }
-
+						Ach_hor = true;
                     else if (Difficulty == RAID_DIFFICULTY_25MAN_NORMAL)
-                    {
-                    Ach_hor_h = true;
-                    }
-                    JumpNextStep(10000);
+						Ach_hor_h = true;
+					JumpNextStep(10000);
                     break;
                 case 13:
                     JumpNextStep(20000);
