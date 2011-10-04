@@ -1865,66 +1865,66 @@ public:
 
 class npc_throw_quel_delar : public CreatureScript // Frostmourne Altar Bunny (Quel'Delar) entry 37704
 {
-    public:
+public:
 
-        npc_throw_quel_delar()
-            : CreatureScript("npc_throw_quel_delar")
-        {
-        }
+	npc_throw_quel_delar()
+		: CreatureScript("npc_throw_quel_delar")
+	{
+	}
 
-		struct npc_throw_quel_delarAI : public ScriptedAI
-		{
-			npc_throw_quel_delarAI(Creature* c) : ScriptedAI(c) 
-			{ 
-				m_pInstance = (InstanceScript*)c->GetInstanceScript();
-				Reset();
-			}
-
-			InstanceScript* m_pInstance;
-
-			TempSummon* tempSummon;
-
-			//Called at creature reset either by death or evade
-			void Reset() 
-			{
-				tempSummon = me->SummonCreature (37158, 0.0f, 0.0f, 0.0f, 0.0f);
-				tempSummon->SetVisible(false);
-			}
-			
-			//Called at World update tick
-			void UpdateAI (uint32 const diff) 
-			{
-				Map::PlayerList const &players = m_pInstance->instance->GetPlayers();
-				for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-				{
-					Player* player = itr->getSource();
-					
-					if ( player->isAlive() && me->IsWithinDistInMap(player, 10.0) )
-						if ( player->HasAura(70013) && ( player->ToPlayer()->IsActiveQuest(24480) || player->ToPlayer()->IsActiveQuest(24561) ) ) 
-						{
-							player->RemoveAura(70013);
-							player->CastSpell(me, 70698, false);
-							if ( !tempSummon->IsVisible() )
-								tempSummon->SetVisible(true);
-						}
-
-				}
-
-				if ( tempSummon->isDead() ) 
-				{
-					tempSummon->SetVisible(false);
-					tempSummon->Respawn();
-				}
-
-			}
-
-		};
-
-		// Called when a CreatureAI object is needed for the creature.
-        CreatureAI* GetAI(Creature* creature) const 
+	struct npc_throw_quel_delarAI : public ScriptedAI
+	{
+		npc_throw_quel_delarAI(Creature* c) : ScriptedAI(c) 
 		{ 
-			return new npc_throw_quel_delarAI(creature);
+			m_pInstance = (InstanceScript*)c->GetInstanceScript();
+			tempSummon = NULL;
 		}
+
+		InstanceScript* m_pInstance;
+
+		TempSummon* tempSummon;
+
+		// Called when hit by a spell
+		void SpellHit(Unit* caster, SpellInfo const* spell) 
+		{
+			if ( caster->GetTypeId() == TYPEID_PLAYER && spell->Id == 70698 )
+				if ( tempSummon )
+					tempSummon->SetVisible(true);
+				else tempSummon = me->SummonCreature (37158, 0.0f, 0.0f, 0.0f, 0.0f);
+		}
+
+		//Called at World update tick
+		void UpdateAI (uint32 const diff) 
+		{
+			Map::PlayerList const &players = m_pInstance->instance->GetPlayers();
+			for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+			{
+				Player* player = itr->getSource();
+
+				if ( player->isAlive() && me->IsWithinDistInMap(player, 10.0) )
+					if ( player->HasAura(70013) && ( player->ToPlayer()->IsActiveQuest(24480) || player->ToPlayer()->IsActiveQuest(24561) ) ) 
+					{
+						player->RemoveAura(70013);
+						player->CastSpell(me, 70698, false);
+					}
+
+			}
+
+			if ( tempSummon && tempSummon->isDead() ) 
+			{
+				tempSummon->SetVisible(false);
+				tempSummon->Respawn();
+			}
+
+		}
+
+	};
+
+	// Called when a CreatureAI object is needed for the creature.
+	CreatureAI* GetAI(Creature* creature) const 
+	{ 
+		return new npc_throw_quel_delarAI(creature);
+	}
 
 };
 
