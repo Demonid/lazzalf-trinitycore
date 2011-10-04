@@ -378,6 +378,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                                     if (Player* target = ObjectAccessor::GetPlayer(*m_caster, ihit->targetGUID))
                                         if (target->HasAura(m_triggeredByAuraSpell->Id))
                                             ++count;
+                            sLog->outBoss("Thaddius m_triggeredByAuraSpell->Id %u, count %u, m_spellInfo->Id", m_triggeredByAuraSpell->Id, count, m_spellInfo->Id);
                             if (count)
                             {
                                 uint32 spellId = 0;
