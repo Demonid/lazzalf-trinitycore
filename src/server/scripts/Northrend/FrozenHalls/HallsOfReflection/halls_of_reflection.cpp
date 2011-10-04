@@ -1888,8 +1888,12 @@ public:
 		void SpellHit(Unit* caster, SpellInfo const* spell) 
 		{
 			if ( caster->GetTypeId() == TYPEID_PLAYER && spell->Id == 70698 )
-				if ( tempSummon )
+				if ( tempSummon ) 
+				{
+					if ( tempSummon->isDead() )
+						tempSummon->Respawn();
 					tempSummon->SetVisible(true);
+				}
 				else tempSummon = me->SummonCreature (37158, 0.0f, 0.0f, 0.0f, 0.0f);
 		}
 
@@ -1908,13 +1912,6 @@ public:
 						player->CastSpell(me, 70698, false);
 					}
 
-			}
-
-			if ( tempSummon && tempSummon->isDead() ) 
-			{
-				tempSummon->SetVisible(false);
-				// tempSummon->Respawn();
-				tempSummon->SetVisible(false);
 			}
 
 		}
