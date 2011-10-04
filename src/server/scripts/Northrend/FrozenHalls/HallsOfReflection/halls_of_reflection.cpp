@@ -1874,44 +1874,40 @@ class npc_throw_quel_delar : public CreatureScript // Frostmourne Altar Bunny (Q
 
 		struct npc_throw_quel_delarAI : public ScriptedAI
 		{
-			bool isSummoned;
-
-			TempSummon* quelDelar;
-
-			npc_throw_quel_delarAI(Creature* c) : ScriptedAI(c) { isSummoned = false; quelDelar = NULL; }
-
-			// Called when the creature summon successfully other creature
-			void JustSummoned(Creature* summon) 
-			{
-				isSummoned = true;
+			npc_throw_quel_delarAI(Creature* c) : ScriptedAI(c) 
+			{ 
+				m_pInstance = (InstanceScript*)c->GetInstanceScript();
+				pSize = 0;
 			}
 
-			// Called when a summoned creature is despawned
-			void SummonedCreatureDespawn(Creature* summon) 
-			{
-				isSummoned = false;
-			}
+			InstanceScript* m_pInstance;
 
-			// Called when hit by a spell
-			void SpellHit(Unit* caster, SpellInfo const* spell) 
-			{
-				if ( spell && spell->Id == 70698 && !isSummoned )
-					quelDelar = me->SummonCreature(37158, 0.0f, 0.0f, 0.0f, 0, TEMPSUMMON_DEAD_DESPAWN); // DoCast(caster, 69966, false);
-			}
-			
+			uint32 pSize;
+
 			//Called at World update tick
 			void UpdateAI (uint32 const diff) 
 			{
-				Unit* victim = me->SelectNearbyTarget(15);
-				if ( victim && victim->GetTypeId() == TYPEID_PLAYER ) 
-					if ( victim->HasAura(70013) && ( victim->ToPlayer()->IsActiveQuest(24480) || victim->ToPlayer()->IsActiveQuest(24561) ) ) 
-					{
-						victim->RemoveAura(70013);
-						victim->CastSpell(me, 70698, false);
-					}
+				Map::PlayerList const &players = m_pInstance->instance->GetPlayers();
+				for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+				{
+					Player* player = itr->getSource();
+					
+					if ( player->isAlive() && me->IsWithinDistInMap(player, 10.0) )
+						if ( player->HasAura(70013) && ( player->ToPlayer()->IsActiveQuest(24480) || player->ToPlayer()->IsActiveQuest(24561) ) ) 
+						{
+							pSize = pSize + 1;
+							player->RemoveAura(70013);
+							player->CastSpell(me, 70698, false);
 
-				if ( quelDelar && quelDelar->isDead() ) 
-					quelDelar->DespawnOrUnsummon();
+							if ( ( pSize + 1 ) == players.getSize() ) 
+							{
+								DoCast(me, 69966, false);
+								pSize = 0;
+							}
+
+						}
+
+				}
 			}
 
 		};
