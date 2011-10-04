@@ -1913,7 +1913,7 @@ public:
 			if ( tempSummon && tempSummon->isDead() ) 
 			{
 				tempSummon->SetVisible(false);
-				tempSummon->Respawn();
+				// tempSummon->Respawn();
 				tempSummon->SetVisible(false);
 			}
 
