@@ -1877,13 +1877,20 @@ class npc_throw_quel_delar : public CreatureScript // Frostmourne Altar Bunny (Q
 			npc_throw_quel_delarAI(Creature* c) : ScriptedAI(c) 
 			{ 
 				m_pInstance = (InstanceScript*)c->GetInstanceScript();
-				pSize = 0;
+				Reset();
 			}
 
 			InstanceScript* m_pInstance;
 
-			uint32 pSize;
+			TempSummon* tempSummon;
 
+			//Called at creature reset either by death or evade
+			void Reset() 
+			{
+				tempSummon = me->SummonCreature (37158, 0.0f, 0.0f, 0.0f, 0.0f);
+				tempSummon->SetVisible(false);
+			}
+			
 			//Called at World update tick
 			void UpdateAI (uint32 const diff) 
 			{
@@ -1895,18 +1902,20 @@ class npc_throw_quel_delar : public CreatureScript // Frostmourne Altar Bunny (Q
 					if ( player->isAlive() && me->IsWithinDistInMap(player, 10.0) )
 						if ( player->HasAura(70013) && ( player->ToPlayer()->IsActiveQuest(24480) || player->ToPlayer()->IsActiveQuest(24561) ) ) 
 						{
-							pSize = pSize + 1;
 							player->RemoveAura(70013);
 							player->CastSpell(me, 70698, false);
+							if ( !tempSummon->IsVisible() )
+								tempSummon->SetVisible(true);
 						}
 
 				}
 
-				if ( pSize > 0 ) 
+				if ( tempSummon->isDead() ) 
 				{
-					DoCast(me, 69966, false);
-					pSize = 0;
+					tempSummon->SetVisible(false);
+					tempSummon->Respawn();
 				}
+
 			}
 
 		};
