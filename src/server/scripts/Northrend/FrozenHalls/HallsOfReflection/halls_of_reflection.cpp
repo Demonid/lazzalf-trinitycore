@@ -1894,7 +1894,7 @@ public:
 						tempSummon->Respawn();
 					tempSummon->SetVisible(true);
 				}
-				else tempSummon = me->SummonCreature (37158, 0.0f, 0.0f, 0.0f, 0.0f);
+				else tempSummon = me->SummonCreature (37158, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
 		}
 
 		//Called at World update tick
