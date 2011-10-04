@@ -1914,6 +1914,7 @@ public:
 			{
 				tempSummon->SetVisible(false);
 				tempSummon->Respawn();
+				tempSummon->SetVisible(false);
 			}
 
 		}
