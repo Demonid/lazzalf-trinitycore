@@ -1876,24 +1876,27 @@ class npc_throw_quel_delar : public CreatureScript // Frostmourne Altar Bunny (Q
 		{
 			bool isSummoned;
 
-			npc_throw_quel_delarAI(Creature* c) : ScriptedAI(c) { isSummoned = false; }
+			TempSummon* quelDelar;
+
+			npc_throw_quel_delarAI(Creature* c) : ScriptedAI(c) { isSummoned = false; quelDelar = NULL; }
 
 			// Called when the creature summon successfully other creature
 			void JustSummoned(Creature* summon) 
 			{
-				DoScriptText(SAY_JAINA_INTRO_01, summon);
+				isSummoned = true;
 			}
 
 			// Called when a summoned creature is despawned
 			void SummonedCreatureDespawn(Creature* summon) 
 			{
+				isSummoned = false;
 			}
 
 			// Called when hit by a spell
 			void SpellHit(Unit* caster, SpellInfo const* spell) 
 			{
-				if ( spell && spell->Id == 70698 )
-					me->SummonCreature(37158, 0.0f, 0.0f, 0.0f, 0, TEMPSUMMON_DEAD_DESPAWN); // DoCast(caster, 69966, false);
+				if ( spell && spell->Id == 70698 && !isSummoned )
+					quelDelar = me->SummonCreature(37158, 0.0f, 0.0f, 0.0f, 0, TEMPSUMMON_DEAD_DESPAWN); // DoCast(caster, 69966, false);
 			}
 			
 			//Called at World update tick
@@ -1901,12 +1904,14 @@ class npc_throw_quel_delar : public CreatureScript // Frostmourne Altar Bunny (Q
 			{
 				Unit* victim = me->SelectNearbyTarget(15);
 				if ( victim && victim->GetTypeId() == TYPEID_PLAYER ) 
-					if ( victim->HasAura(70013) && victim->ToPlayer()->IsActiveQuest(24480) ) 
+					if ( victim->HasAura(70013) && ( victim->ToPlayer()->IsActiveQuest(24480) || victim->ToPlayer()->IsActiveQuest(24561) ) ) 
 					{
 						victim->RemoveAura(70013);
 						victim->CastSpell(me, 70698, false);
 					}
 
+				if ( quelDelar && quelDelar->isDead() ) 
+					quelDelar->DespawnOrUnsummon();
 			}
 
 		};
@@ -1916,6 +1921,7 @@ class npc_throw_quel_delar : public CreatureScript // Frostmourne Altar Bunny (Q
 		{ 
 			return new npc_throw_quel_delarAI(creature);
 		}
+
 };
 
 #define GOSSIP_ITEM     "I'm ready for escape!"
