@@ -1898,15 +1898,14 @@ class npc_throw_quel_delar : public CreatureScript // Frostmourne Altar Bunny (Q
 							pSize = pSize + 1;
 							player->RemoveAura(70013);
 							player->CastSpell(me, 70698, false);
-
-							if ( ( pSize + 1 ) == players.getSize() ) 
-							{
-								DoCast(me, 69966, false);
-								pSize = 0;
-							}
-
 						}
 
+				}
+
+				if ( pSize > 0 ) 
+				{
+					DoCast(me, 69966, false);
+					pSize = 0;
 				}
 			}
 
