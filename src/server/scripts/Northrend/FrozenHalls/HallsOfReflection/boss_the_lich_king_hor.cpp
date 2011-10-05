@@ -394,6 +394,7 @@ public:
 
         InstanceScript* m_pInstance;
         uint32 EmergeTimer;
+		uint32 m_uiSpellGnoulJumpTimer;
         bool Emerge;
         uint64 m_uiLiderGUID;
 
@@ -401,6 +402,7 @@ public:
         {
             DoCast(me, SPELL_EMERGE_VISUAL);
             EmergeTimer = 4000;
+			m_uiSpellGnoulJumpTimer = 0;
             Emerge = false;
         }
 
@@ -430,7 +432,24 @@ public:
 
             if (m_pInstance->GetData(TYPE_LICH_KING) == IN_PROGRESS)
             {
-                if (Emerge != true)
+                
+				if ( m_uiSpellGnoulJumpTimer <= diff ) 
+				{
+
+					if(me->IsWithinDistInMap(me->getVictim(), 30.0f))
+					{
+						if (me->IsWithinDistInMap(me->getVictim(), 5.0f));
+						else 
+						{
+							DoCast(me->getVictim(),SPELL_GNOUL_JUMP);
+							m_uiSpellGnoulJumpTimer = 10000;
+						}
+					}                     
+
+				} else m_uiSpellGnoulJumpTimer -= diff;
+				
+				
+				if (Emerge != true)
                 {
                     if (EmergeTimer < diff)
                     {
@@ -445,30 +464,15 @@ public:
                             me->GetMotionMaster()->MoveChase(pLider);
                             
                         }
-                    }
-                    else
-                        EmergeTimer -= diff;
-                }
-                
-                if (m_pInstance->GetData(TYPE_LICH_KING) == IN_PROGRESS)
-                {
-                    
-                    if(me->IsWithinDistInMap(me->getVictim(), 30.0f))
-                    {
-                        if (me->IsWithinDistInMap(me->getVictim(), 5.0f));
-                        else DoCast(me->getVictim(),SPELL_GNOUL_JUMP);
-                    }
 
-                     
-                          
+                    } else EmergeTimer -= diff;
                 }
-            }
+			}                
             
             if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
-            {
-                me->DespawnOrUnsummon();
-            }
-            DoMeleeAttackIfReady();
+				me->DespawnOrUnsummon();
+			
+			DoMeleeAttackIfReady();
         }
     };
 
