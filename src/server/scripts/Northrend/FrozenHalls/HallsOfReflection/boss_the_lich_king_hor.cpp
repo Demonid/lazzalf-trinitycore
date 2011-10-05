@@ -435,16 +435,19 @@ public:
                 
 				if ( m_uiSpellGnoulJumpTimer <= diff ) 
 				{
-
-					if(me->IsWithinDistInMap(me->getVictim(), 30.0f))
+					if (Unit* target = SelectTarget( SELECT_TARGET_RANDOM, 0, 30.0f) )
 					{
-						if (me->IsWithinDistInMap(me->getVictim(), 5.0f));
-						else 
+						if(me->IsWithinDistInMap(target, 30.0f))
 						{
-							DoCast(me->getVictim(),SPELL_GNOUL_JUMP);
-							m_uiSpellGnoulJumpTimer = 10000;
-						}
-					}                     
+							if (me->IsWithinDistInMap(target, 5.0f));
+							else 
+							{
+								DoCast(target,SPELL_GNOUL_JUMP);
+								m_uiSpellGnoulJumpTimer = 10000;
+							}
+						}  
+					}
+
 
 				} else m_uiSpellGnoulJumpTimer -= diff;
 				
