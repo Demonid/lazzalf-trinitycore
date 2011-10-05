@@ -491,128 +491,120 @@ public:
 class npc_risen_witch_doctor : public CreatureScript
 {
 public:
-    npc_risen_witch_doctor() : CreatureScript("npc_risen_witch_doctor") { }
+	npc_risen_witch_doctor() : CreatureScript("npc_risen_witch_doctor") { }
 
-    struct npc_risen_witch_doctorAI : public ScriptedAI
-    {
-        npc_risen_witch_doctorAI(Creature *pCreature) : ScriptedAI(pCreature)
-        {
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
-            me->setActive(true);
-            Reset();
-        }
+	struct npc_risen_witch_doctorAI : public ScriptedAI
+	{
+		npc_risen_witch_doctorAI(Creature *pCreature) : ScriptedAI(pCreature)
+		{
+			m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+			me->setActive(true);
+			Reset();
+		}
 
-        InstanceScript* m_pInstance;
-        uint32 EmergeTimer;
-        bool Emerge;
-        uint64 m_uiLiderGUID;
-        uint32 m_uiSpellWitchDoctorShadowVolleyTimer;
-        uint32 m_uiSpellWitchDoctorShadowTimer;
-        uint32 m_uiSpellWitchDoctorCurseTimer;
+		InstanceScript* m_pInstance;
+		uint32 EmergeTimer;
+		bool Emerge;
+		uint64 m_uiLiderGUID;
+		uint32 m_uiSpellWitchDoctorShadowVolleyTimer;
+		uint32 m_uiSpellWitchDoctorShadowTimer;
+		uint32 m_uiSpellWitchDoctorCurseTimer;
 
-        void Reset()
-        {
-            DoCast(me, SPELL_EMERGE_VISUAL);
-            EmergeTimer = 5000;
-            Emerge = false;
-        }
+		void Reset()
+		{
+			DoCast(me, SPELL_EMERGE_VISUAL);
+			EmergeTimer = 5000;
+			Emerge = false;
+		}
 
-        void JustDied(Unit* pKiller)
-        {
-            if (!m_pInstance)
-                return;
+		void JustDied(Unit* pKiller)
+		{
+			if (!m_pInstance)
+				return;
 
-            m_pInstance->SetData(DATA_SUMMONS, 0);
+			m_pInstance->SetData(DATA_SUMMONS, 0);
 
-        }
+		}
 
-        void AttackStart(Unit* who)
-        {
-            if (!who)
-                return;
+		void AttackStart(Unit* who)
+		{
+			if (!who)
+				return;
 
-            if (Emerge == false)
-                return;
+			if (Emerge == false)
+				return;
 
-            ScriptedAI::AttackStart(who);
-        }
+			ScriptedAI::AttackStart(who);
+		}
 
-        void UpdateAI(const uint32 diff)
-        {
-            if (!m_pInstance)
-                return;
+		void UpdateAI(const uint32 diff)
+		{
+			if (!m_pInstance)
+				return;
 
-            if (m_pInstance->GetData(TYPE_LICH_KING) == IN_PROGRESS)
-            {
-                if (Emerge != true)
-                {
-                    if (EmergeTimer < diff)
-                    {
-                        Emerge = true;
-                        m_uiLiderGUID = m_pInstance->GetData64(DATA_ESCAPE_LIDER);
-                        if (Creature* pLider = ((Creature*)Unit::GetUnit((*me), m_uiLiderGUID)))
-                        {
-                            DoResetThreat();
-                            me->AI()->AttackStart(pLider);
-                            me->GetMotionMaster()->Clear();
-                            me->GetMotionMaster()->MoveChase(pLider);
-                        }
-                    }
-                    else
-                        EmergeTimer -= diff;
-                }
-                if (m_uiSpellWitchDoctorShadowVolleyTimer <= diff )
-                {
-                    if (me->IsWithinDistInMap(me->getVictim(), 20.0f))
-                        DoCast(me->getVictim(),DUNGEON_MODE(SPELL_SHADOW_BOLT_VALLEY_N,SPELL_SHADOW_BOLT_VALLEY_H));
-                     
-                    else 
-                    {
-                        DoCast(me->getVictim(),DUNGEON_MODE(SPELL_SHADOW_BOLT_VALLEY_N,SPELL_SHADOW_BOLT_VALLEY_H));
-                        m_uiSpellWitchDoctorShadowVolleyTimer = 10000;
-                    }
-                }
-                    else m_uiSpellWitchDoctorShadowVolleyTimer -= diff;
-                    
-                  if (m_uiSpellWitchDoctorShadowTimer <= diff )
-                  {
-                      if (me->IsWithinDistInMap(me->getVictim(), 30.0f))
-                          
-                          DoCast(me->getVictim(),DUNGEON_MODE(SPELL_SHADOW_BOLT_N,SPELL_SHADOW_BOLT_H));
-                  }
-                  else 
-                  {
-                     DoCast(me->getVictim(),DUNGEON_MODE(SPELL_SHADOW_BOLT_N,SPELL_SHADOW_BOLT_H));
-                     m_uiSpellWitchDoctorShadowTimer -= diff;
-                  }
+			if (m_pInstance->GetData(TYPE_LICH_KING) == IN_PROGRESS)
+			{
+				if (Emerge != true)
+				{
+					if (EmergeTimer < diff)
+					{
+						Emerge = true;
+						m_uiLiderGUID = m_pInstance->GetData64(DATA_ESCAPE_LIDER);
+						if (Creature* pLider = ((Creature*)Unit::GetUnit((*me), m_uiLiderGUID)))
+						{
+							DoResetThreat();
+							me->AI()->AttackStart(pLider);
+							me->GetMotionMaster()->Clear();
+							me->GetMotionMaster()->MoveChase(pLider);
+						}
+					}
+					else
+						EmergeTimer -= diff;
+				}
 
-                  if (m_uiSpellWitchDoctorCurseTimer <= diff)
-                  {
-                      if (me->IsWithinDistInMap(me->getVictim(), 30.0f))
-                          
-                          DoCast(me->getVictim(),DUNGEON_MODE(SPELL_COURSE_OF_DOOM_N,SPELL_COURSE_OF_DOOM_H));
-                  }
-                  else 
-                  {
-                      DoCast(me->getVictim(),DUNGEON_MODE(SPELL_COURSE_OF_DOOM_N,SPELL_COURSE_OF_DOOM_H));
-                      m_uiSpellWitchDoctorCurseTimer -= diff;
-                  }
-            }
-                    
-      
-            
-            if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
-            {
-                me->DespawnOrUnsummon();
-            }
-            DoMeleeAttackIfReady();
-        }
-    };
+				if (m_uiSpellWitchDoctorShadowVolleyTimer <= diff )
+				{
+					if (me->IsWithinDistInMap(me->getVictim(), 20.0f)) 
+					{
+						DoCast(me->getVictim(),DUNGEON_MODE(SPELL_SHADOW_BOLT_VALLEY_N,SPELL_SHADOW_BOLT_VALLEY_H));
+						m_uiSpellWitchDoctorShadowVolleyTimer = 20000;
+					}
+				}
+				else m_uiSpellWitchDoctorShadowVolleyTimer -= diff;
 
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new npc_risen_witch_doctorAI(pCreature);
-    }
+				if (m_uiSpellWitchDoctorShadowTimer <= diff )
+				{
+					if (me->IsWithinDistInMap(me->getVictim(), 30.0f))
+					{
+						DoCast(me->getVictim(),DUNGEON_MODE(SPELL_SHADOW_BOLT_N,SPELL_SHADOW_BOLT_H));
+						m_uiSpellWitchDoctorShadowTimer = 5000;
+					}
+				}
+				else m_uiSpellWitchDoctorShadowTimer -= diff;
+
+				if (m_uiSpellWitchDoctorCurseTimer <= diff)
+				{
+					if (me->IsWithinDistInMap(me->getVictim(), 30.0f))
+					{
+						DoCast(me->getVictim(),DUNGEON_MODE(SPELL_COURSE_OF_DOOM_N,SPELL_COURSE_OF_DOOM_H));
+						m_uiSpellWitchDoctorCurseTimer = 25000;
+					}
+				}
+				else m_uiSpellWitchDoctorCurseTimer -= diff;
+
+			}
+
+			if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
+				me->DespawnOrUnsummon();
+
+			DoMeleeAttackIfReady();
+		}
+	};
+
+	CreatureAI* GetAI(Creature* pCreature) const
+	{
+		return new npc_risen_witch_doctorAI(pCreature);
+	}
 
 };
 
