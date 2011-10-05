@@ -439,16 +439,31 @@ public:
                         m_uiLiderGUID = m_pInstance->GetData64(DATA_ESCAPE_LIDER);
                         if (Creature* pLider = ((Creature*)Unit::GetUnit((*me), m_uiLiderGUID)))
                         {
-                            DoResetThreat();
+                            //DoResetThreat();                            
                             me->AI()->AttackStart(pLider);
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MoveChase(pLider);
+                            
                         }
                     }
                     else
                         EmergeTimer -= diff;
                 }
+                
+                if (m_pInstance->GetData(TYPE_LICH_KING) == IN_PROGRESS)
+                {
+                    
+                    if(me->IsWithinDistInMap(me->getVictim(), 30.0f))
+                    {
+                        if (me->IsWithinDistInMap(me->getVictim(), 5.0f));
+                        else DoCast(me->getVictim(),SPELL_GNOUL_JUMP);
+                    }
+
+                     
+                          
+                }
             }
+            
             if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
             {
                 me->DespawnOrUnsummon();
