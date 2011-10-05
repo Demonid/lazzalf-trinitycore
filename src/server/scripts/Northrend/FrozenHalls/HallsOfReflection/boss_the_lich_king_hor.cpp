@@ -627,6 +627,7 @@ public:
 
         InstanceScript* m_pInstance;
         uint64 m_uiLiderGUID;
+        uint32 m_uiSpellAbonCleaveTimer;
         bool Walk;
 
         void Reset()
@@ -652,6 +653,15 @@ public:
                         me->GetMotionMaster()->MoveChase(pLider);
                     }
                 }
+                if (m_uiSpellAbonCleaveTimer <= diff)
+				{
+					if (me->IsWithinDistInMap(me->getVictim(), 5.0f))
+					{
+						DoCast(me->getVictim(),SPELL_ABON_STRIKE);
+						m_uiSpellAbonCleaveTimer = 5000;
+					}
+				}
+				else m_uiSpellAbonCleaveTimer -= diff;
             }
             if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
             {
