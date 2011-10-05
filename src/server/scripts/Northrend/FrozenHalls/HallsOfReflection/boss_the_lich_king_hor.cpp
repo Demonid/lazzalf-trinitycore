@@ -29,7 +29,7 @@
 #include "halls_of_reflection.h"
 #include "ScriptedEscortAI.h"
 
-enum
+enum Spells
 {
     SPELL_WINTER                       = 69780,
     SPELL_FURY_OF_FROSTMOURNE          = 70063,
@@ -52,8 +52,11 @@ enum
     SPELL_SHADOW_BOLT_VALLEY_H         = 70184,
     SPELL_SHADOW_BOLT_N                = 70080,
     SPELL_SHADOW_BOLT_H                = 70182,
+};
 
-    SAY_LICH_KING_WALL_01              = -1594486,
+enum Says
+{
+	SAY_LICH_KING_WALL_01              = -1594486,
     SAY_LICH_KING_WALL_02              = -1594491,
     SAY_LICH_KING_GNOUL                = -1594482,
     SAY_LICH_KING_ABON                 = -1594483,
