@@ -46,8 +46,10 @@ enum
     SPELL_FROSTMOURNE_VISUAL           = 73220,
 
     /*SPELLS - Witch Doctor*/
-    SPELL_COURSE_OF_DOOM               = 70144,
-    SPELL_SHADOW_BOLT_VALLEY           = 70145,
+    SPELL_COURSE_OF_DOOM_H             = 70183,
+    SPELL_COURSE_OF_DOOM_N             = 70144,
+    SPELL_SHADOW_BOLT_VALLEY_N         = 70145,
+    SPELL_SHADOW_BOLT_VALLEY_H         = 70184,
     SPELL_SHADOW_BOLT_N                = 70080,
     SPELL_SHADOW_BOLT_H                = 70182,
 
@@ -504,6 +506,9 @@ public:
         uint32 EmergeTimer;
         bool Emerge;
         uint64 m_uiLiderGUID;
+        uint32 m_uiSpellWitchDoctorShadowVolleyTimer;
+        uint32 m_uiSpellWitchDoctorShadowTimer;
+        uint32 m_uiSpellWitchDoctorCurseTimer;
 
         void Reset()
         {
@@ -556,7 +561,46 @@ public:
                     else
                         EmergeTimer -= diff;
                 }
+                if (m_uiSpellWitchDoctorShadowVolleyTimer <= diff )
+                {
+                    if (me->IsWithinDistInMap(me->getVictim(), 20.0f))
+                        DoCast(me->getVictim(),DUNGEON_MODE(SPELL_SHADOW_BOLT_VALLEY_N,SPELL_SHADOW_BOLT_VALLEY_H));
+                     
+                    else 
+                    {
+                        DoCast(me->getVictim(),DUNGEON_MODE(SPELL_SHADOW_BOLT_VALLEY_N,SPELL_SHADOW_BOLT_VALLEY_H));
+                        m_uiSpellWitchDoctorShadowVolleyTimer = 10000;
+                    }
+                }
+                    else m_uiSpellWitchDoctorShadowVolleyTimer -= diff;
+                    
+                  if (m_uiSpellWitchDoctorShadowTimer <= diff )
+                  {
+                      if (me->IsWithinDistInMap(me->getVictim(), 30.0f))
+                          
+                          DoCast(me->getVictim(),DUNGEON_MODE(SPELL_SHADOW_BOLT_N,SPELL_SHADOW_BOLT_H));
+                  }
+                  else 
+                  {
+                     DoCast(me->getVictim(),DUNGEON_MODE(SPELL_SHADOW_BOLT_N,SPELL_SHADOW_BOLT_H));
+                     m_uiSpellWitchDoctorShadowTimer -= diff;
+                  }
+
+                  if (m_uiSpellWitchDoctorCurseTimer <= diff)
+                  {
+                      if (me->IsWithinDistInMap(me->getVictim(), 30.0f))
+                          
+                          DoCast(me->getVictim(),DUNGEON_MODE(SPELL_COURSE_OF_DOOM_N,SPELL_COURSE_OF_DOOM_H));
+                  }
+                  else 
+                  {
+                      DoCast(me->getVictim(),DUNGEON_MODE(SPELL_COURSE_OF_DOOM_N,SPELL_COURSE_OF_DOOM_H));
+                      m_uiSpellWitchDoctorCurseTimer -= diff;
+                  }
             }
+                    
+      
+            
             if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
             {
                 me->DespawnOrUnsummon();
