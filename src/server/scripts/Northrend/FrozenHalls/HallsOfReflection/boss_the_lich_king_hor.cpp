@@ -338,11 +338,11 @@ public:
                 {
                     me->setActive(false);
                     SetEscortPaused(true);
-                    npc_escortAI::EnterEvadeMode();
+                    //npc_escortAI::EnterEvadeMode();
                     DoScriptText(SAY_LICH_KING_WIN, me);
                     me->CastSpell(me, SPELL_FURY_OF_FROSTMOURNE, false);
                     me->DealDamage(pLider, pLider->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                    me->NearTeleportTo(5572.077f, 2283.1f, 734.976f, 3.89f);
+                    //me->NearTeleportTo(5572.077f, 2283.1f, 734.976f, 3.89f);
                     m_pInstance->SetData(TYPE_LICH_KING, FAIL);
                 }
             }
