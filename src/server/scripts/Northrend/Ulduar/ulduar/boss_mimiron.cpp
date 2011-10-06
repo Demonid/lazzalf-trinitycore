@@ -1221,7 +1221,8 @@ public:
                             spinning = true;
                             DoCast(SPELL_SPINNING_UP);
                             events.DelayEvents(14500);
-                            events.RescheduleEvent(EVENT_LASER_BARRAGE, 60000);
+                            //events.RescheduleEvent(EVENT_LASER_BARRAGE, 60000);
+							events.ScheduleEvent(EVENT_LASER_BARRAGE, 60000 /* urand(35000, 40000) */ );
                             events.RescheduleEvent(EVENT_LASER_BARRAGE_END, 14000);
                             break;
                         case EVENT_LASER_BARRAGE_END:
