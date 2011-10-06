@@ -442,17 +442,9 @@ public:
 				{
 					if (Unit* target = SelectTarget( SELECT_TARGET_RANDOM, 0, 30.0f) )
 					{
-						if(me->IsWithinDistInMap(target, 30.0f))
-						{
-							if (me->IsWithinDistInMap(target, 5.0f));
-							else 
-							{
-								DoCast(target,SPELL_GNOUL_JUMP);
-								m_uiSpellGnoulJumpTimer = 10000;
-							}
-						}  
+						DoCast(target,SPELL_GNOUL_JUMP);
+						m_uiSpellGnoulJumpTimer = 10000;
 					}
-
 
 				} else m_uiSpellGnoulJumpTimer -= diff;
 				
@@ -466,7 +458,7 @@ public:
                         m_uiLiderGUID = m_pInstance->GetData64(DATA_ESCAPE_LIDER);
                         if (Creature* pLider = ((Creature*)Unit::GetUnit((*me), m_uiLiderGUID)))
                         {
-                            //DoResetThreat();                            
+                            DoResetThreat();                            
                             me->AI()->AttackStart(pLider);
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MoveChase(pLider);
