@@ -206,8 +206,9 @@ public:
         uint64 m_uiMainGateGUID;
         uint64 m_uiFalricGUID;
         uint64 m_uiMarwynGUID;
+        uint64 m_LichKingGUID;
         Creature* pUther;
-        Creature* pLichKing;
+
         bool Small;
 
         void Reset()
@@ -504,17 +505,17 @@ public:
                     {
                         pGate->SetGoState(GO_STATE_ACTIVE);
                     }
-                    if (Creature* LichKing = me->SummonCreature(NPC_LICH_KING,5362.469f,2062.342f,707.695f,3.97f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,360000))
+                    if (Creature* pLichKing = me->SummonCreature(NPC_LICH_KING,5362.469f,2062.342f,707.695f,3.97f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,360000))
                     {
-                        pLichKing = LichKing;
-                        LichKing->setActive(true);
+                        m_LichKingGUID = pLichKing->GetGUID();;
+                        pLichKing->setActive(true);
                     }
                     JumpNextStep(1000);
                     break;
                 case 25:
                     if (pUther)
                         pUther->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
-                    if (pLichKing)
+                    if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
                     {
                         pLichKing->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         pLichKing->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
@@ -533,17 +534,17 @@ public:
                     JumpNextStep(500);
                     break;
                 case 28:
-                    if (pLichKing)
+                    if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
                         DoScriptText(SAY_LICH_KING_17, pLichKing);
                     JumpNextStep(10000);
                     break;
                 case 29:
-                    if (pLichKing)
+                    if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
                         DoScriptText(SAY_LICH_KING_18, pLichKing);
                     JumpNextStep(5000);
                     break;
                 case 30:
-                    if (pLichKing)
+                    if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
                         pLichKing->CastSpell(pLichKing, SPELL_TAKE_FROSTMOURNE, false);
                     if (GameObject* pFrostmourne = m_pInstance->instance->GetGameObject(m_uiFrostmourneGUID))
                         pFrostmourne->SetGoState(GO_STATE_READY);
@@ -552,13 +553,13 @@ public:
                 case 31:
                     if (GameObject* pFrostmourne = m_pInstance->instance->GetGameObject(m_uiFrostmourneGUID))
                         pFrostmourne->SetPhaseMask(0, true);
-                    if (pLichKing)
+                    if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
                         pLichKing->CastSpell(pLichKing, SPELL_FROSTMOURNE_VISUAL, false);
                     me->RemoveAurasDueToSpell(SPELL_FROSTMOURNE_SOUNDS);
                     JumpNextStep(5000);
                     break;
                 case 32:
-                    if (pLichKing)
+                    if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
                         DoScriptText(SAY_LICH_KING_19, pLichKing);
                     JumpNextStep(9000);
                     break;
@@ -579,7 +580,7 @@ public:
                         Marwyn->CastSpell(Marwyn, SPELL_BOSS_SPAWN_AURA, false);
                         Marwyn->GetMotionMaster()->MovePoint(0, 5335.585f, 1981.439f, 709.319f);
                     }
-                    if (pLichKing)
+                    if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
                         pLichKing->GetMotionMaster()->MovePoint(0, 5402.286f, 2104.496f, 707.695f);
                     JumpNextStep(600);
                     break;
@@ -607,16 +608,17 @@ public:
                     JumpNextStep(4000);
                     break;
                 case 37:
-                    if (pLichKing)
+                    if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
                     {
                         pLichKing->GetMotionMaster()->MovementExpired(false);
                         pLichKing->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                         pLichKing->GetMotionMaster()->MovePoint(0, 5443.880f, 2147.095f, 707.695f);
-                    }
-                    if (me->GetEntry() == NPC_JAINA && pLichKing)
-                        DoScriptText(SAY_LICH_KING_A_21, pLichKing);
-                    if (me->GetEntry() == NPC_SYLVANA && pLichKing)
-                        DoScriptText(SAY_LICH_KING_H_21, pLichKing);
+
+                        if (me->GetEntry() == NPC_JAINA)
+                            DoScriptText(SAY_LICH_KING_A_21, pLichKing);
+                        if (me->GetEntry() == NPC_SYLVANA)
+                            DoScriptText(SAY_LICH_KING_H_21, pLichKing);
+                    }                    
                     JumpNextStep(8000);
                     break;
                 case 38:
@@ -626,7 +628,7 @@ public:
                     break;
                 case 39:
                     me->SetVisible(false);
-                    if (pLichKing)
+                    if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
                         pLichKing->SetVisible(false);
                     m_pInstance->SetData(TYPE_PHASE, 2);
                     JumpNextStep(1000);
@@ -734,12 +736,11 @@ public:
         bool Event;
         bool PreFight;
         bool WallCast;
-        uint64 m_uiLichKingGUID;
+        uint64 m_LichKingGUID;
         uint64 m_uiLiderGUID;
         uint64 m_uiIceWallGUID;
         uint64 m_uipWallTargetGUID;
         uint64 m_uiFrostGeneralGUID;
-        Creature* pLichKing;
         uint32 m_chestID;
 
         void Reset()
@@ -994,12 +995,11 @@ public:
             {
                 case 0:
                     me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                    m_uiLichKingGUID = m_pInstance->GetData64(BOSS_LICH_KING);
-                    pLichKing = m_pInstance->instance->GetCreature(m_uiLichKingGUID);
+                    m_LichKingGUID = m_pInstance->GetData64(BOSS_LICH_KING);
                     JumpNextStep(100);
                     break;
                 case 1:
-                    if (pLichKing)
+                    if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
                     {
                         pLichKing->SetPhaseMask(65535, true);
                         if (me->GetEntry() == NPC_JAINA_OUTRO)
@@ -1015,7 +1015,7 @@ public:
                     if (me->GetEntry() == NPC_SYLVANA_OUTRO)
                     {
                         Fight = false;
-                        if (pLichKing)
+                        if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
                             me->GetMotionMaster()->MovePoint(0, (me->GetPositionX()-5)+rand()%10, (me->GetPositionY()-5)+rand()%10, me->GetPositionZ());
                         JumpNextStep(3000);
                     }
@@ -1030,7 +1030,7 @@ public:
                 case 4:
                     if (me->GetEntry() == NPC_SYLVANA_OUTRO)
                     {
-                        if (pLichKing)
+                        if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
                             me->CastSpell(pLichKing, SPELL_SYLVANA_STEP, false);
                         JumpNextStep(3000);
                     }
@@ -1041,7 +1041,7 @@ public:
                     if (me->GetEntry() == NPC_SYLVANA_OUTRO)
                     {
                         Fight = false;
-                        if (pLichKing)
+                        if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
                             me->GetMotionMaster()->MovePoint(0, (me->GetPositionX()-5)+rand()%10, (me->GetPositionY()-5)+rand()%10, me->GetPositionZ());
                         JumpNextStep(3000);
                     }
@@ -1051,7 +1051,7 @@ public:
                 case 6:
                     Fight = true;
 
-                    if (pLichKing)
+                    if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
 					{
                         me->CastSpell(pLichKing, me->GetEntry() == NPC_JAINA_OUTRO ? SPELL_ICE_PRISON_VISUAL : SPELL_DARK_ARROW,true);
 						pLichKing->AttackStop();
@@ -1059,8 +1059,9 @@ public:
                     JumpNextStep(2500);
                     break;
                 case 7:
-                    if (pLichKing && !pLichKing->HasAura(SPELL_ICE_PRISON))
-                        pLichKing->CastSpell(pLichKing, me->GetEntry() == NPC_JAINA_OUTRO ? SPELL_ICE_PRISON : SPELL_DARK_ARROW, true);
+                    if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
+                        if (!pLichKing->HasAura(SPELL_ICE_PRISON))
+                            pLichKing->CastSpell(pLichKing, me->GetEntry() == NPC_JAINA_OUTRO ? SPELL_ICE_PRISON : SPELL_DARK_ARROW, true);
 
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                     me->AttackStop();
@@ -1078,7 +1079,7 @@ public:
                     break;
                 case 8:
                     me->GetMotionMaster()->MovePoint(0, 5577.187f, 2236.003f, 733.012f);
-                    if (pLichKing)
+                    if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
                         me->SetUInt64Value(UNIT_FIELD_TARGET, pLichKing->GetGUID());
                     JumpNextStep(10000);
                     break;
@@ -1198,8 +1199,9 @@ public:
                         if (GameObject* pGate = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_ICE_WALL_2)))
                         {
                             pGate->SetGoState(GO_STATE_READY);
-                            if (pLichKing && pLichKing->isAlive())
-                                DoScriptText(SAY_LICH_KING_WALL_02, pLichKing);
+                            if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
+                                if (pLichKing->isAlive())
+                                    DoScriptText(SAY_LICH_KING_WALL_02, pLichKing);
                             m_uiIceWallGUID = pGate->GetGUID();
                         }
                         break;
@@ -1207,8 +1209,9 @@ public:
                         if (GameObject* pGate = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_ICE_WALL_3)))
                         {
                             pGate->SetGoState(GO_STATE_READY);
-                            if (pLichKing && pLichKing->isAlive())
-                                DoScriptText(SAY_LICH_KING_WALL_03, pLichKing);
+                            if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
+                                if (pLichKing->isAlive())
+                                    DoScriptText(SAY_LICH_KING_WALL_03, pLichKing);
                             m_uiIceWallGUID = pGate->GetGUID();
                         }
                         break;
@@ -1216,18 +1219,20 @@ public:
                         if (GameObject* pGate = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_ICE_WALL_4)))
                         {
                             pGate->SetGoState(GO_STATE_READY);
-                            if (pLichKing && pLichKing->isAlive())
-                                DoScriptText(SAY_LICH_KING_WALL_04, pLichKing);
+                            if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
+                                if (pLichKing->isAlive())
+                                    DoScriptText(SAY_LICH_KING_WALL_04, pLichKing);
                             m_uiIceWallGUID = pGate->GetGUID();
                         }
                         break;
                     case 5:
-                        if (pLichKing && pLichKing->isAlive())
-                        {
-                            pLichKing->RemoveAurasDueToSpell(SPELL_WINTER);
-                            pLichKing->SetSpeed(MOVE_WALK, 2.5f, true);
-                            Step = 0;
-                        }
+                        if (Creature* pLichKing = m_pInstance->instance->GetCreature(m_LichKingGUID))
+                            if (pLichKing->isAlive())
+                            {
+                                pLichKing->RemoveAurasDueToSpell(SPELL_WINTER);
+                                pLichKing->SetSpeed(MOVE_WALK, 2.5f, true);
+                                Step = 0;
+                            }
                         break;
                 }
             }
