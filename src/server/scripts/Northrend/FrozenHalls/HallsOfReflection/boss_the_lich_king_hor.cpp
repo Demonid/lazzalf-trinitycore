@@ -442,6 +442,7 @@ public:
 				{
 					if (Unit* target = SelectTarget( SELECT_TARGET_RANDOM, 0, 30.0f) )
 					{
+						ScriptedAI::AttackStart(target);
 						DoCast(target,SPELL_GNOUL_JUMP);
 						m_uiSpellGnoulJumpTimer = 10000;
 					}
@@ -561,6 +562,7 @@ public:
 				{
 					if (Unit* target = SelectTarget( SELECT_TARGET_RANDOM, 0, 20.0f) )
 					{
+						ScriptedAI::AttackStart(target);
 						DoCast(target,DUNGEON_MODE(SPELL_SHADOW_BOLT_VALLEY_N,SPELL_SHADOW_BOLT_VALLEY_H));
 						m_uiSpellWitchDoctorShadowVolleyTimer = 20000;
 					}
@@ -570,6 +572,7 @@ public:
 				{
 					if ( Unit* target = SelectTarget( SELECT_TARGET_RANDOM, 0, 30.0f) )
 					{
+						ScriptedAI::AttackStart(target);
 						DoCast(target,DUNGEON_MODE(SPELL_SHADOW_BOLT_N,SPELL_SHADOW_BOLT_H));
 						m_uiSpellWitchDoctorShadowTimer = 5000;
 					}
@@ -580,7 +583,8 @@ public:
 				{
 					if ( Unit* target = SelectTarget( SELECT_TARGET_RANDOM, 0, 30.0f) )
 					{
-						DoCast(me->getVictim(),DUNGEON_MODE(SPELL_COURSE_OF_DOOM_N,SPELL_COURSE_OF_DOOM_H));
+						ScriptedAI::AttackStart(target);
+						DoCast(target,DUNGEON_MODE(SPELL_COURSE_OF_DOOM_N,SPELL_COURSE_OF_DOOM_H));
 						m_uiSpellWitchDoctorCurseTimer = 25000;
 					} 
 
@@ -648,8 +652,13 @@ public:
 
 				if (m_uiSpellAbonCleaveTimer <= diff)
 				{
-					DoCast(me->getVictim(),SPELL_ABON_STRIKE);
-					m_uiSpellAbonCleaveTimer = 5000;
+					if ( Unit* target = SelectTarget( SELECT_TARGET_RANDOM, 0, 30.0f) )
+					{
+						ScriptedAI::AttackStart(target);
+						DoCast(target,SPELL_ABON_STRIKE);
+						m_uiSpellAbonCleaveTimer = 5000;
+					}
+
 				}
 				else m_uiSpellAbonCleaveTimer -= diff;
 			}
