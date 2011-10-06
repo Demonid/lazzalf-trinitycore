@@ -559,42 +559,32 @@ public:
 
 				if (m_uiSpellWitchDoctorShadowVolleyTimer <= diff )
 				{
-                    if (Unit* target = SelectTarget( SELECT_TARGET_RANDOM, 0, 20.0f) )
-                    {
-					if (me->IsWithinDistInMap(me->getVictim(), 20.0f)) 
+					if (Unit* target = SelectTarget( SELECT_TARGET_RANDOM, 0, 20.0f) )
 					{
-						DoCast(me->getVictim(),DUNGEON_MODE(SPELL_SHADOW_BOLT_VALLEY_N,SPELL_SHADOW_BOLT_VALLEY_H));
+						DoCast(target,DUNGEON_MODE(SPELL_SHADOW_BOLT_VALLEY_N,SPELL_SHADOW_BOLT_VALLEY_H));
 						m_uiSpellWitchDoctorShadowVolleyTimer = 20000;
 					}
-				}
-                }
-				else m_uiSpellWitchDoctorShadowVolleyTimer -= diff;
-                
+				} else m_uiSpellWitchDoctorShadowVolleyTimer -= diff;
+
 				if (m_uiSpellWitchDoctorShadowTimer <= diff )
 				{
-                    if (Unit* target = SelectTarget( SELECT_TARGET_RANDOM, 0, 30.0f) )
-                    {
-					if (me->IsWithinDistInMap(me->getVictim(), 30.0f))
+					if ( Unit* target = SelectTarget( SELECT_TARGET_RANDOM, 0, 30.0f) )
 					{
-						DoCast(me->getVictim(),DUNGEON_MODE(SPELL_SHADOW_BOLT_N,SPELL_SHADOW_BOLT_H));
+						DoCast(target,DUNGEON_MODE(SPELL_SHADOW_BOLT_N,SPELL_SHADOW_BOLT_H));
 						m_uiSpellWitchDoctorShadowTimer = 5000;
 					}
-				}
-                }
-				else m_uiSpellWitchDoctorShadowTimer -= diff;
-                
+
+				} else m_uiSpellWitchDoctorShadowTimer -= diff;
+
 				if (m_uiSpellWitchDoctorCurseTimer <= diff)
 				{
-                    if (Unit* target = SelectTarget( SELECT_TARGET_RANDOM, 0, 30.0f) )
-                    {
-					if (me->IsWithinDistInMap(me->getVictim(), 30.0f))
+					if ( Unit* target = SelectTarget( SELECT_TARGET_RANDOM, 0, 30.0f) )
 					{
 						DoCast(me->getVictim(),DUNGEON_MODE(SPELL_COURSE_OF_DOOM_N,SPELL_COURSE_OF_DOOM_H));
 						m_uiSpellWitchDoctorCurseTimer = 25000;
-					}
-				}
-                }
-				else m_uiSpellWitchDoctorCurseTimer -= diff;
+					} 
+
+				} else m_uiSpellWitchDoctorCurseTimer -= diff;
 
 			}
 
@@ -615,79 +605,75 @@ public:
 class npc_abon : public CreatureScript
 {
 public:
-    npc_abon() : CreatureScript("npc_abon") { }
+	npc_abon() : CreatureScript("npc_abon") { }
 
-    struct npc_abonAI : public ScriptedAI
-    {
-        npc_abonAI(Creature *pCreature) : ScriptedAI(pCreature)
-        {
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
-            me->setActive(true);
-            Reset();
-        }
+	struct npc_abonAI : public ScriptedAI
+	{
+		npc_abonAI(Creature *pCreature) : ScriptedAI(pCreature)
+		{
+			m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+			me->setActive(true);
+			Reset();
+		}
 
-        InstanceScript* m_pInstance;
-        uint64 m_uiLiderGUID;
-        uint32 m_uiSpellAbonCleaveTimer;
-        bool Walk;
+		InstanceScript* m_pInstance;
+		uint64 m_uiLiderGUID;
+		uint32 m_uiSpellAbonCleaveTimer;
+		bool Walk;
 
-        void Reset()
-        {
-            Walk = false;
-        }
+		void Reset()
+		{
+			Walk = false;
+			m_uiSpellAbonCleaveTimer = 5000;
+		}
 
-        void UpdateAI(const uint32 diff)
-        {
-            if (!m_pInstance) return;
+		void UpdateAI(const uint32 diff)
+		{
+			if (!m_pInstance) return;
 
-            if (m_pInstance->GetData(TYPE_LICH_KING) == IN_PROGRESS)
-            {
-                if (Walk != true)
-                {
-                    Walk = true;
-                    m_uiLiderGUID = m_pInstance->GetData64(DATA_ESCAPE_LIDER);
-                    if (Creature* pLider = ((Creature*)Unit::GetUnit((*me), m_uiLiderGUID)))
-                    {
-                        DoResetThreat();
-                        me->AI()->AttackStart(pLider);
-                        me->GetMotionMaster()->Clear();
-                        me->GetMotionMaster()->MoveChase(pLider);
-                    }
-                }
-                if (m_uiSpellAbonCleaveTimer <= diff)
+			if (m_pInstance->GetData(TYPE_LICH_KING) == IN_PROGRESS)
+			{
+				if (Walk != true)
 				{
-                    if (Unit* target = SelectTarget( SELECT_TARGET_RANDOM, 0, 30.0f) )
-                    {
-					if (me->IsWithinDistInMap(me->getVictim(), 5.0f))
+					Walk = true;
+					m_uiLiderGUID = m_pInstance->GetData64(DATA_ESCAPE_LIDER);
+					if (Creature* pLider = ((Creature*)Unit::GetUnit((*me), m_uiLiderGUID)))
 					{
-						DoCast(me->getVictim(),SPELL_ABON_STRIKE);
-						m_uiSpellAbonCleaveTimer = 5000;
+						DoResetThreat();
+						me->AI()->AttackStart(pLider);
+						me->GetMotionMaster()->Clear();
+						me->GetMotionMaster()->MoveChase(pLider);
 					}
 				}
-                }
+
+				if (m_uiSpellAbonCleaveTimer <= diff)
+				{
+					DoCast(me->getVictim(),SPELL_ABON_STRIKE);
+					m_uiSpellAbonCleaveTimer = 5000;
+				}
 				else m_uiSpellAbonCleaveTimer -= diff;
-            }
-            if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
-            {
-                me->DespawnOrUnsummon();
-            }
-            DoMeleeAttackIfReady();
-        }
-        
-        
-        void JustDied(Unit* pKiller)
-        {
-            if (!m_pInstance)
-                return;
+			}
 
-            m_pInstance->SetData(DATA_SUMMONS, 0);
-        }
-    };
+			if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
+				me->DespawnOrUnsummon();
 
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new npc_abonAI(pCreature);
-    }
+			DoMeleeAttackIfReady();
+		}
+
+
+		void JustDied(Unit* pKiller)
+		{
+			if (!m_pInstance)
+				return;
+
+			m_pInstance->SetData(DATA_SUMMONS, 0);
+		}
+	};
+
+	CreatureAI* GetAI(Creature* pCreature) const
+	{
+		return new npc_abonAI(pCreature);
+	}
 }; 
 
 
