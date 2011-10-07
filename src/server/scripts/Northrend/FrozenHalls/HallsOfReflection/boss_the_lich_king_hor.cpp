@@ -584,7 +584,10 @@ public:
 					if ( Unit* target = SelectTarget( SELECT_TARGET_RANDOM, 0, 30.0f) )
 					{
 						ScriptedAI::AttackStart(target);
-						DoCast(target,DUNGEON_MODE(SPELL_COURSE_OF_DOOM_N,SPELL_COURSE_OF_DOOM_H));
+
+						if ( !target->HasAura(DUNGEON_MODE(SPELL_COURSE_OF_DOOM_N,SPELL_COURSE_OF_DOOM_H)))
+							DoCast(target,DUNGEON_MODE(SPELL_COURSE_OF_DOOM_N,SPELL_COURSE_OF_DOOM_H));
+
 						m_uiSpellWitchDoctorCurseTimer = 25000;
 					} 
 
