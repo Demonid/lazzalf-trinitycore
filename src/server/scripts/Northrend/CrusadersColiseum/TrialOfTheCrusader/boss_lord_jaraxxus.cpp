@@ -238,7 +238,7 @@ public:
 
             if (m_uiNetherPowerTimer <= uiDiff)
             {
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
+                me->CastCustomSpell(SPELL_NETHER_POWER, SPELLVALUE_AURA_STACK, RAID_MODE<uint32>(5, 10, 5,10), me, true);
                 //DoCast(me, SPELL_NETHER_POWER);
                 me->SetAuraStack(SPELL_NETHER_POWER, me, RAID_MODE(5, 10, 5, 10));
                 m_uiNetherPowerTimer = 40*IN_MILLISECONDS;

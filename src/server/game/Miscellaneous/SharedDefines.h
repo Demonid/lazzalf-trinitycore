@@ -2403,7 +2403,7 @@ enum QuestSort
 
 inline uint8 ClassByQuestSort(int32 QuestSort)
 {
-    switch(QuestSort)
+    switch (QuestSort)
     {
         case QUEST_SORT_WARLOCK:        return CLASS_WARLOCK;
         case QUEST_SORT_WARRIOR:        return CLASS_WARRIOR;
@@ -2579,7 +2579,7 @@ enum SkillType
 
 inline SkillType SkillByLockType(LockType locktype)
 {
-    switch(locktype)
+    switch (locktype)
     {
         case LOCKTYPE_PICKLOCK:    return SKILL_LOCKPICKING;
         case LOCKTYPE_HERBALISM:   return SKILL_HERBALISM;
@@ -2593,7 +2593,7 @@ inline SkillType SkillByLockType(LockType locktype)
 
 inline uint32 SkillByQuestSort(int32 QuestSort)
 {
-    switch(QuestSort)
+    switch (QuestSort)
     {
         case QUEST_SORT_HERBALISM:      return SKILL_HERBALISM;
         case QUEST_SORT_FISHING:        return SKILL_FISHING;

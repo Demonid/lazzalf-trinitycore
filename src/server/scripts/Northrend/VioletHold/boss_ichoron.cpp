@@ -159,7 +159,7 @@ public:
             if (!me->isAlive())
                 return;
 
-            switch(param)
+            switch (param)
             {
                 case ACTION_WATER_ELEMENT_HIT:
                     me->ModifyHealth(int32(me->CountPctFromMaxHealth(1)));
@@ -388,7 +388,7 @@ public:
                 {
                     if (Creature* pIchoron = Unit::GetCreature(*me, pInstance->GetData64(DATA_ICHORON)))
                     {
-                        if (me->IsWithinDist(pIchoron, 2.0f , false))
+                        if (me->IsWithinDist(pIchoron, 2.0f, false))
                         {
                             if (pIchoron->AI())
                                 pIchoron->AI()->DoAction(ACTION_WATER_ELEMENT_HIT);

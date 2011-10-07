@@ -1015,7 +1015,7 @@ public:
 
         // make some emotes
         char lastchar = args[strlen(args) - 1];
-        switch(lastchar)
+        switch (lastchar)
         {
         case '?':   creature->HandleEmoteCommand(EMOTE_ONESHOT_QUESTION);      break;
         case '!':   creature->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);   break;
@@ -1335,7 +1335,7 @@ public:
         bool added = false;
         if (tmpItem)
         {
-            switch(SlotID)
+            switch (SlotID)
             {
                 case 1:
                     creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY, ItemID);

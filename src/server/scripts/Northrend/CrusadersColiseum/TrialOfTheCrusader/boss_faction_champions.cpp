@@ -64,7 +64,7 @@ public:
     {
         boss_toc_champion_controllerAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-            m_pInstance = (InstanceScript* ) creature->GetInstanceScript();
+            m_pInstance = (InstanceScript*) creature->GetInstanceScript();
             m_uiChampionsNotStarted = 0;
             m_uiChampionsFailed = 0;
             m_uiChampionsKilled = 0;
@@ -270,7 +270,7 @@ struct boss_faction_championsAI : public ScriptedAI
 {
     boss_faction_championsAI(Creature* creature, uint32 aitype) : ScriptedAI(creature)
     {
-        m_pInstance = (InstanceScript* ) creature->GetInstanceScript();
+        m_pInstance = (InstanceScript*) creature->GetInstanceScript();
         mAIType = aitype;
         if (IsHeroic())
         {
