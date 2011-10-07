@@ -46,7 +46,6 @@
 #include "SharedDefines.h"
 #include "Formulas.h"
 #include "DisableMgr.h"
-#include "Config.h"
 
 /*********************************************************/
 /***            BATTLEGROUND MANAGER                   ***/
@@ -182,7 +181,7 @@ void BattlegroundMgr::Update(uint32 diff)
             if (time(NULL)/*sWorld->GetGameTime()*/ > m_NextArenaModResetTime)
             {
                 CharacterDatabase.PExecute("DELETE FROM arena_mod");
-                m_NextArenaModResetTime = time(NULL) + BATTLEGROUND_ARENA_MOD_RESET_HOUR * sConfig->GetIntDefault("ArenaMod.TimeToReset", 24);
+                m_NextArenaModResetTime = time(NULL) + BATTLEGROUND_ARENA_MOD_RESET_HOUR * sWorld->getIntConfig(CONFIG_ARENAMOD_TIME_RESET);
                 //CharacterDatabase.PExecute("UPDATE saved_variables SET NextArenaModReset = '"UI64FMTD"'", m_NextArenaModResetTime);
                 sWorld->setWorldState(LAST_TIME_MOD_RESET, uint64(m_NextArenaModResetTime));
             }
@@ -837,7 +836,7 @@ void BattlegroundMgr::InitAutomaticArenaModTimer()
         if(!m_NextArenaModResetTime_temp)
         {
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: Next arena mod reset time not found in SavedVariables, reseting it now.");
-            m_NextArenaModResetTime = time(NULL) + BATTLEGROUND_ARENA_MOD_RESET_HOUR * sConfig->GetIntDefault("ArenaMod.TimeToReset", 24);
+            m_NextArenaModResetTime = time(NULL) + BATTLEGROUND_ARENA_MOD_RESET_HOUR * sWorld->getIntConfig(CONFIG_ARENAMOD_TIME_RESET);
             //CharacterDatabase.PExecute("INSERT INTO saved_variables (NextArenaModReset) VALUES ('"UI64FMTD"')", m_NextArenaModResetTime);
             sWorld->setWorldState(LAST_TIME_MOD_RESET, uint64(m_NextArenaModResetTime));
         }
