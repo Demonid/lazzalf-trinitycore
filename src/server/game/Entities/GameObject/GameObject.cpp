@@ -456,6 +456,15 @@ void GameObject::Update(uint32 diff)
                         if (goInfo->trap.spellId)
                             CastSpell(ok, goInfo->trap.spellId);
 
+                        // allow to use scripts for wintergrasp vehicle teleporter
+                        if (ok->GetTypeId() == TYPEID_PLAYER && ok->GetAreaId() == NORTHREND_WINTERGRASP)
+                            if (sScriptMgr->OnGossipHello(ok->ToPlayer(), this))
+                                return;
+
+                        // Traps should put caster in combat and activate PvP mode
+                        if (owner && owner->isAlive())
+                            owner->CombatStart(ok);
+
                         m_cooldownTime = time(NULL) + (goInfo->trap.cooldown ? goInfo->trap.cooldown :  uint32(4));   // template or 4 seconds
 
                         if (goInfo->trap.type == 1)
@@ -1188,7 +1197,7 @@ void GameObject::Use(Unit* user)
                 {
                     sLog->outDebug(LOG_FILTER_MAPSCRIPTS, "Goober ScriptStart id %u for GO entry %u (GUID %u).", info->goober.eventId, GetEntry(), GetDBTableGUIDLow());
                     GetMap()->ScriptsStart(sEventScripts, info->goober.eventId, player, this);
-                    EventInform(info->goober.eventId);
+                    EventInform(info->goober.eventId, player);
                 }
 
                 // possible quest objective for active quests
@@ -1679,10 +1688,10 @@ bool GameObject::IsInRange(float x, float y, float z, float radius) const
         && dz < info->maxZ + radius && dz > info->minZ - radius;
 }
 
-void GameObject::EventInform(uint32 eventId)
+void GameObject::EventInform(uint32 eventId, Player* player)
 {
     if (eventId && m_zoneScript)
-        m_zoneScript->ProcessEvent(this, eventId);
+        m_zoneScript->ProcessEvent(this, eventId, player);
 }
 
 // overwrite WorldObject function for proper name localization
@@ -1809,7 +1818,10 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->DamagedDisplayId)
                     modelId = modelData->DamagedDisplayId;
-            SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
+
+            //Temporary hack for Fortress towers when it cannot be damaged after been half damaged
+            if (m_goInfo->entry != 190378 && m_goInfo->entry != 190377 && m_goInfo->entry != 190373 && m_goInfo->entry != 190221 && m_goInfo->entry != 195527)
+                SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
 
             if (setHealth)
             {
@@ -1842,7 +1854,9 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->DestroyedDisplayId)
                     modelId = modelData->DestroyedDisplayId;
-            SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
+            // Hack for TOCR floor
+            if (m_goInfo->entry != 195527)
+                SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
 
             if (setHealth)
             {
