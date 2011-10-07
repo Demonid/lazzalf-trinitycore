@@ -571,6 +571,7 @@ public:
 
 };
 
+
 enum eRavegerCage
 {
     NPC_DEATH_RAVAGER       = 17556,
