@@ -687,7 +687,7 @@ public:
 
         uint32 entry;
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* killer)
         {
             if (Unit* target = me->FindNearestCreature(me->GetEntry() == NPC_ORACLE ? NPC_FREZYNE : NPC_ORACLE, 100.0f))
             {            

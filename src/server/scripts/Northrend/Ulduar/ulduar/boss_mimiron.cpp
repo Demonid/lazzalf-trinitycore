@@ -840,8 +840,8 @@ public:
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                     phase = PHASE_LEVIATHAN_ASSEMBLED;
                     events.SetPhase(PHASE_LEVIATHAN_ASSEMBLED);
-                    events.RescheduleEvent(EVENT_PROXIMITY_MINE, 1000);
-                    events.RescheduleEvent(EVENT_SHOCK_BLAST, 30000);
+                    events.ScheduleEvent(EVENT_PROXIMITY_MINE, 1000);
+                    events.ScheduleEvent(EVENT_SHOCK_BLAST, 30000);
                     break;
                 case DO_ENTER_ENRAGE:
                     DoCast(me, SPELL_BERSERK, true);
@@ -869,17 +869,17 @@ public:
                             for (int i = 0; i < 10; i++)
                                 DoCast(SPELL_MINES_SPAWN);
                             DoCast(SPELL_PROXIMITY_MINES);
-                            events.RescheduleEvent(EVENT_PROXIMITY_MINE, 35000);
+                            events.ScheduleEvent(EVENT_PROXIMITY_MINE, 35000);
                             break;
                         case EVENT_PLASMA_BLAST:
                             me->MonsterTextEmote(EMOTE_LEVIATHAN, 0, true);
                             DoCast(SPELL_PLASMA_BLAST);
-                            events.RescheduleEvent(EVENT_PLASMA_BLAST, urand(30000, 35000), 0, PHASE_LEVIATHAN_SOLO);
-                            events.RescheduleEvent(EVENT_SHOCK_BLAST, urand(6000, 10000));
+                            events.ScheduleEvent(EVENT_PLASMA_BLAST, urand(30000, 35000), 0, PHASE_LEVIATHAN_SOLO);
+                            events.ScheduleEvent(EVENT_SHOCK_BLAST, urand(6000, 10000));
                             break;
                         case EVENT_SHOCK_BLAST:
                             DoCastAOE(SPELL_SHOCK_BLAST);
-                            events.RescheduleEvent(EVENT_SHOCK_BLAST, 35000);
+                            events.ScheduleEvent(EVENT_SHOCK_BLAST, 35000);
                             break;
                         case EVENT_FLAME_SUPPRESSANT:
                             DoCastAOE(SPELL_FLAME_SUPPRESSANT);
@@ -1110,12 +1110,12 @@ public:
                     events.SetPhase(PHASE_VX001_ASSEMBLED);
                     //events.RescheduleEvent(EVENT_PRE_LASER_BARRAGE, urand(35000, 40000), 0, PHASE_VX001_SOLO); // not works in phase 4
                     events.ScheduleEvent(EVENT_LASER_BARRAGE, urand(35000, 40000));
-                    events.RescheduleEvent(EVENT_ROCKET_STRIKE, 20000);
-                    events.RescheduleEvent(EVENT_HAND_PULSE, 15000, 0, PHASE_VX001_ASSEMBLED);
+                    events.ScheduleEvent(EVENT_ROCKET_STRIKE, 20000);
+                    events.ScheduleEvent(EVENT_HAND_PULSE, 15000, 0, PHASE_VX001_ASSEMBLED);
                     if (MimironHardMode)
                     {
                         DoCast(me, SPELL_EMERGENCY_MODE, true);
-                        events.RescheduleEvent(EVENT_FROST_BOMB, 15000);
+                        events.ScheduleEvent(EVENT_FROST_BOMB, 15000);
                     }
                     break;
                 case DO_ENTER_ENRAGE:
@@ -1205,7 +1205,7 @@ public:
                             if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 if (Creature *BurstTarget = me->SummonCreature(NPC_BURST_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 3000))
                                     DoCast(BurstTarget, SPELL_RAPID_BURST);
-                            events.RescheduleEvent(EVENT_RAPID_BURST, 3000, 0, PHASE_VX001_SOLO);
+                            events.ScheduleEvent(EVENT_RAPID_BURST, 3000, 0, PHASE_VX001_SOLO);
                             break;
                         case EVENT_LASER_BARRAGE:
                             me->SetReactState(REACT_PASSIVE);
@@ -1223,7 +1223,7 @@ public:
                             events.DelayEvents(14500);
                             //events.RescheduleEvent(EVENT_LASER_BARRAGE, 60000);
 							events.ScheduleEvent(EVENT_LASER_BARRAGE, 60000 /* urand(35000, 40000) */ );
-                            events.RescheduleEvent(EVENT_LASER_BARRAGE_END, 14000);
+                            events.ScheduleEvent(EVENT_LASER_BARRAGE_END, 14000);
                             break;
                         case EVENT_LASER_BARRAGE_END:
                             me->SetReactState(REACT_AGGRESSIVE);
@@ -1252,20 +1252,20 @@ public:
                                     me->CastSpell(target, SPELL_ROCKET_STRIKE, true);
                                     //if (Creature *missile = CAST_CRE(me->GetVehicleKit()->GetPassenger(6)))
                                     //    missile->CastSpell(target, SPELL_ROCKET_STRIKE, true);
-                            events.RescheduleEvent(EVENT_ROCKET_STRIKE, urand(20000, 25000));
+                            events.ScheduleEvent(EVENT_ROCKET_STRIKE, urand(20000, 25000));
                             break;
                         case EVENT_HEAT_WAVE:
                             DoCastAOE(SPELL_HEAT_WAVE);
-                            events.RescheduleEvent(EVENT_HEAT_WAVE, 10000, 0, PHASE_VX001_SOLO);
+                            events.ScheduleEvent(EVENT_HEAT_WAVE, 10000, 0, PHASE_VX001_SOLO);
                             break;
                         case EVENT_HAND_PULSE:
                             if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 DoCast(target, SPELL_HAND_PULSE);
-                            events.RescheduleEvent(EVENT_HAND_PULSE, urand(10000, 12000));
+                            events.ScheduleEvent(EVENT_HAND_PULSE, urand(10000, 12000));
                             break;
                         case EVENT_FROST_BOMB:
                             me->SummonCreature(NPC_FROST_BOMB, SummonPos[rand()%9], TEMPSUMMON_TIMED_DESPAWN, 11000);
-                            events.RescheduleEvent(EVENT_FROST_BOMB, 45000);
+                            events.ScheduleEvent(EVENT_FROST_BOMB, 45000);
                             break;
                         case EVENT_FLAME_SUPPRESSANT_2:
                             DoCastAOE(SPELL_FLAME_SUPPRESSANT_VX001);
@@ -1282,7 +1282,7 @@ public:
                                     for(std::list<Creature*>::iterator iter = m_pCreatures.begin(); iter != m_pCreatures.end(); ++iter)
                                         (*iter)->ForcedDespawn(1000);
                             }
-                            events.RescheduleEvent(EVENT_FLAME_SUPPRESSANT_2, 3000, PHASE_VX001_SOLO);
+                            events.ScheduleEvent(EVENT_FLAME_SUPPRESSANT_2, 3000, PHASE_VX001_SOLO);
                             break;
                     }
                 }
@@ -1411,8 +1411,8 @@ public:
                     if (Creature *pMagneticCore = me->GetCreature(*me, instance->GetData64(DATA_MAGNETIC_CORE)))
                         if (pMagneticCore->isAlive())
                             me->NearTeleportTo(pMagneticCore->GetPositionX(), pMagneticCore->GetPositionY(), 368.965f, 0, false);
-                    events.RescheduleEvent(EVENT_PLASMA_BALL, 22000, 0, PHASE_AERIAL_SOLO);
-                    events.RescheduleEvent(EVENT_SUMMON_BOTS, 24000, 0, PHASE_AERIAL_SOLO);
+                    events.ScheduleEvent(EVENT_PLASMA_BALL, 22000, 0, PHASE_AERIAL_SOLO);
+                    events.ScheduleEvent(EVENT_SUMMON_BOTS, 24000, 0, PHASE_AERIAL_SOLO);
                     events.ScheduleEvent(EVENT_REACTIVATE_AERIAL, 20000, 0, PHASE_AERIAL_SOLO);
                     break;
                 case DO_AERIAL_ASSEMBLED:
@@ -1424,7 +1424,7 @@ public:
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                     phase = PHASE_AERIAL_ASSEMBLED;
                     events.SetPhase(PHASE_AERIAL_ASSEMBLED);
-                    events.RescheduleEvent(EVENT_PLASMA_BALL, 2000);
+                    events.ScheduleEvent(EVENT_PLASMA_BALL, 2000);
                     break;
                 case DO_ENTER_ENRAGE:
                     DoCast(me, SPELL_BERSERK, true);
@@ -1468,7 +1468,7 @@ public:
                                 else if (Unit *target = SelectTarget(SELECT_TARGET_NEAREST, 0))
                                     DoCast(target, SPELL_PLASMA_BALL);
                             }
-                            events.RescheduleEvent(EVENT_PLASMA_BALL, 2000);
+                            events.ScheduleEvent(EVENT_PLASMA_BALL, 2000);
                             break;
                         case EVENT_REACTIVATE_AERIAL:
                             me->RemoveAurasDueToSpell(SPELL_MAGNETIC_CORE_VISUAL);
@@ -1480,7 +1480,7 @@ public:
                             if (phase == PHASE_AERIAL_SOLO)
                             {
                                 spawnAdd();
-                                events.RescheduleEvent(EVENT_SUMMON_BOTS, 10000, 0, PHASE_AERIAL_SOLO);
+                                events.ScheduleEvent(EVENT_SUMMON_BOTS, 10000, 0, PHASE_AERIAL_SOLO);
                             }
                             break;
                     }
