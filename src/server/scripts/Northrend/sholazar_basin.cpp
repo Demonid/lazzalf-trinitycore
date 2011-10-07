@@ -665,7 +665,7 @@ public:
         return true;
     }
 };
-
+/*
 enum eEnums_oracle_frezy
 {
     NPC_ORACLE       = 28667,
@@ -701,7 +701,7 @@ public:
     {
         return new npc_oracle_frezyAI(creature);
     }
-};
+};*/
 
 
 void AddSC_sholazar_basin()
@@ -713,5 +713,5 @@ void AddSC_sholazar_basin()
     new npc_engineer_helice();
     new npc_adventurous_dwarf();
     new npc_jungle_punch_target();
-    new npc_oracle_frezy();
+    // new npc_oracle_frezy();
 }

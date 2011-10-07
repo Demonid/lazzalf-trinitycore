@@ -51,7 +51,7 @@ public:
 
         if (pPlayer->isInCombat())
         {
-            pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,pItem,NULL);
+            pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pItem, NULL);
             return true;
         }
         
@@ -508,7 +508,7 @@ public:
 
 void AddSC_item_scripts()
 {
-    new item_marry_tele();
+    // new item_marry_tele();
     new item_only_for_flight();
     new item_draenei_fishing_net();
     new item_nether_wraith_beacon();
