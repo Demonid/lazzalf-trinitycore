@@ -107,7 +107,7 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case NPC_ASH: uiAshGUID = creature->GetGUID(); break;
                 case NPC_ADA: uiAdaGUID = creature->GetGUID(); break;
@@ -120,7 +120,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case GO_COURTYARD_DOOR:
                     DoorCourtyardGUID = go->GetGUID();
@@ -154,7 +154,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            switch(type)
+            switch (type)
             {
                 case TYPE_FREE_NPC:
                     if (data == DONE)
@@ -167,7 +167,7 @@ public:
                     m_auiEncounter[1] = data;
                     break;
                 case TYPE_FENRUS:
-                    switch(data)
+                    switch (data)
                     {
                         case DONE:
                             uiTimer = 1000;
@@ -202,7 +202,7 @@ public:
 
         uint32 GetData(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
                 case TYPE_FREE_NPC:
                     return m_auiEncounter[0];
@@ -272,7 +272,7 @@ public:
             {
                 if (uiTimer <= uiDiff)
                 {
-                    switch(uiPhase)
+                    switch (uiPhase)
                     {
                         case 1:
                             summon = pArchmage->SummonCreature(pArchmage->GetEntry(), SpawnLocation[4], TEMPSUMMON_TIMED_DESPAWN, 10000);

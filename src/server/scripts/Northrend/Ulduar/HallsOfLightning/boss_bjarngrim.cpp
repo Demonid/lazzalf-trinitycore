@@ -204,7 +204,7 @@ public:
         //TODO: remove when removal is done by the core
         void DoRemoveStanceAura(uint8 uiStance)
         {
-            switch(uiStance)
+            switch (uiStance)
             {
                 case STANCE_DEFENSIVE:
                     me->RemoveAurasDueToSpell(SPELL_DEFENSIVE_STANCE);
@@ -245,7 +245,7 @@ public:
 
                 m_uiStance = uiTempStance;
 
-                switch(m_uiStance)
+                switch (m_uiStance)
                 {
                     case STANCE_DEFENSIVE:
                         DoScriptText(SAY_DEFENSIVE_STANCE, me);
@@ -273,7 +273,7 @@ public:
             else
                 m_uiChangeStance_Timer -= uiDiff;
 
-            switch(m_uiStance)
+            switch (m_uiStance)
             {
                 case STANCE_DEFENSIVE:
                 {

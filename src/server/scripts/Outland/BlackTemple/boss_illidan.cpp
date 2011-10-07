@@ -547,7 +547,7 @@ public:
                 ScriptedAI::AttackStart(who);
         }
 
-        void MoveInLineOfSight(Unit* ) {}
+        void MoveInLineOfSight(Unit*) {}
 
         void JustDied(Unit* /*killer*/)
         {
@@ -637,7 +637,7 @@ public:
         void EnterPhase(PhaseIllidan NextPhase)
         {
             DoZoneInCombat();
-            switch(NextPhase)
+            switch (NextPhase)
             {
             case PHASE_NORMAL:
             case PHASE_NORMAL_2:
@@ -792,7 +792,7 @@ public:
 
         void HandleFlightSequence()
         {
-            switch(FlightCount)
+            switch (FlightCount)
             {
             case 1://lift off
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
@@ -917,7 +917,7 @@ public:
                 SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
             }
 
-            switch(TransformCount)
+            switch (TransformCount)
             {
             case 2:
                 DoResetThreat();
@@ -961,7 +961,7 @@ public:
                 }
             }
 
-            switch(Phase)
+            switch (Phase)
             {
             case PHASE_NORMAL:
                 if (HealthBelowPct(65))
@@ -1001,7 +1001,7 @@ public:
 
             if (Phase == PHASE_NORMAL || Phase == PHASE_NORMAL_2 || (Phase == PHASE_NORMAL_MAIEV && !me->HasAura(SPELL_CAGED)))
             {
-                switch(Event)
+                switch (Event)
                 {
                     //PHASE_NORMAL
                 case EVENT_BERSERK:
@@ -1075,7 +1075,7 @@ public:
 
             if (Phase == PHASE_FLIGHT)
             {
-                switch(Event)
+                switch (Event)
                 {
                 case EVENT_FIREBALL:
                     DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_FIREBALL);
@@ -1108,7 +1108,7 @@ public:
 
             if (Phase == PHASE_DEMON)
             {
-                switch(Event)
+                switch (Event)
                 {
                 case EVENT_SHADOW_BLAST:
                     me->GetMotionMaster()->Clear(false);
@@ -1221,7 +1221,7 @@ public:
 
         void EnterPhase(PhaseIllidan NextPhase)//This is in fact Illidan's phase.
         {
-            switch(NextPhase)
+            switch (NextPhase)
             {
             case PHASE_TALK_SEQUENCE:
                 if (Timer[EVENT_MAIEV_STEALTH])
@@ -1300,7 +1300,7 @@ public:
                     else Timer[i] -= diff;
                 }
 
-                switch(Event)
+                switch (Event)
                 {
                 case EVENT_MAIEV_STEALTH:
                     {
@@ -1543,7 +1543,7 @@ public:
         {
             if (!pInstance)
                 return;
-            switch(NextPhase)
+            switch (NextPhase)
             {
             case PHASE_CHANNEL:
                 BeginChannel();
@@ -1605,7 +1605,7 @@ public:
 
         void HandleTalkSequence()
         {
-            switch(TalkCount)
+            switch (TalkCount)
             {
             case 0:
                 if (GETCRE(Illidan, IllidanGUID))
@@ -1640,7 +1640,7 @@ public:
                     return;
             }
 
-            switch(ChannelCount)
+            switch (ChannelCount)
             {
             case 0: // channel failed
                 me->InterruptNonMeleeSpells(true);
@@ -1688,7 +1688,7 @@ public:
 
         void HandleWalkSequence()
         {
-            switch(WalkCount)
+            switch (WalkCount)
             {
             case 6:
                 for (uint8 i = 0; i < 2; ++i)
@@ -1736,7 +1736,7 @@ public:
 
             if (Event)
             {
-                switch(Phase)
+                switch (Phase)
                 {
                 case PHASE_CHANNEL:
                     if (JustCreated)
@@ -1877,7 +1877,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
 void boss_illidan_stormrage::boss_illidan_stormrageAI::JustSummoned(Creature* summon)
 {
     Summons.Summon(summon);
-    switch(summon->GetEntry())
+    switch (summon->GetEntry())
     {
     case PARASITIC_SHADOWFIEND:
         {
@@ -1923,7 +1923,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::JustSummoned(Creature* su
 
 void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
 {
-    switch(TalkCount)
+    switch (TalkCount)
     {
     case 0:
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

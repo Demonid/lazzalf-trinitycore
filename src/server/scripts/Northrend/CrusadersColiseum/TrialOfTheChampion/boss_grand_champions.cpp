@@ -207,7 +207,7 @@ class generic_vehicleAI_toc5 : public CreatureScript
 
         void SetData(uint32 uiType, uint32 uiData)
         {
-            switch(uiType)
+            switch (uiType)
             {
                 case 1:
                     AddWaypoint(0, 746.45f, 647.03f, 411.57f);
@@ -246,7 +246,7 @@ class generic_vehicleAI_toc5 : public CreatureScript
 
         void WaypointReached(uint32 i)
         {
-            switch(i)
+            switch (i)
             {
                 case 2:
                     if ((pInstance && uiWaypointPath == 3) || uiWaypointPath == 2)
