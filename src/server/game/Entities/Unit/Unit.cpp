@@ -8223,7 +8223,7 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                 if (procSpell->SpellFamilyFlags[0] & 0x40000000 && procSpell->SpellIconID == 242)
                 {
                     *handled = true;
-                    if (victim->HasAura(53601))
+                    if (victim && victim->HasAura(53601))
                     {
                         int32 bp0 = CalculatePctN(int32(damage / 12), dummySpell->Effects[EFFECT_2]. CalcValue());
                         // Item - Paladin T9 Holy 4P Bonus
