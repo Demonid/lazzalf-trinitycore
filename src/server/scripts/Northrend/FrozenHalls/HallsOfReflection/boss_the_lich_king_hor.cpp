@@ -52,6 +52,9 @@ enum Spells
     SPELL_SHADOW_BOLT_VALLEY_H         = 70184,
     SPELL_SHADOW_BOLT_N                = 70080,
     SPELL_SHADOW_BOLT_H                = 70182,
+    /*Spell abon*/
+    SPELL_ABON_SPRAY_H                 = 70181,
+    SPELL_ABON_SPRAY_N                 = 70176,
 };
 
 enum Says
@@ -626,6 +629,7 @@ public:
 		InstanceScript* m_pInstance;
 		uint64 m_uiLiderGUID;
 		uint32 m_uiSpellAbonCleaveTimer;
+        uint32 m_uiSpellAbonsprayTimer;
 		bool Walk;
 
 		void Reset()
@@ -664,6 +668,20 @@ public:
 
 				}
 				else m_uiSpellAbonCleaveTimer -= diff;
+            
+                if (m_uiSpellAbonsprayTimer <= diff)
+				{
+					if ( Unit* target = SelectTarget( SELECT_TARGET_RANDOM, 0, 30.0f))
+					{
+						ScriptedAI::AttackStart(target);
+                        DoCast(target,DUNGEON_MODE(SPELL_ABON_SPRAY_N,SPELL_ABON_SPRAY_H));
+						m_uiSpellAbonsprayTimer = 5000;
+					}
+
+				}
+
+				else m_uiSpellAbonsprayTimer -= diff;
+
 			}
 
 			if (m_pInstance->GetData(TYPE_LICH_KING) == FAIL)
