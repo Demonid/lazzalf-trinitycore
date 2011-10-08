@@ -361,9 +361,9 @@ class mob_stalagg : public CreatureScript
 
         void KilledUnit(Unit* victim)
         {
-            if (pInstance)
+            if (instance)
                 if (victim->GetTypeId() == TYPEID_PLAYER)
-                    pInstance->SetData(DATA_IMMORTAL_CONSTRUCT, 1);
+                    instance->SetData(DATA_IMMORTAL_CONSTRUCT, 1);
 
             DoScriptText(SAY_STAL_SLAY, me);
         }
@@ -470,9 +470,9 @@ class mob_feugen : public CreatureScript
 
         void KilledUnit(Unit* victim)
         {
-            if (pInstance)
+            if (instance)
                 if (victim->GetTypeId() == TYPEID_PLAYER)
-                    pInstance->SetData(DATA_IMMORTAL_CONSTRUCT, 1);
+                    instance->SetData(DATA_IMMORTAL_CONSTRUCT, 1);
 
             DoScriptText(SAY_FEUG_SLAY, me);
         }

@@ -539,8 +539,8 @@ void Map::ScriptsProcess()
 
                 // when script called for item spell casting then target == (unit or GO) and source is player
                 WorldObject* worldObject;
-                Player* target = target->ToPlayer();
-                if (target)
+                Player* pTarget = target->ToPlayer();
+                if (pTarget)
                 {
                     if (source->GetTypeId() != TYPEID_UNIT && source->GetTypeId() != TYPEID_GAMEOBJECT && source->GetTypeId() != TYPEID_PLAYER)
                     {
@@ -552,8 +552,8 @@ void Map::ScriptsProcess()
                 }
                 else
                 {
-                    target = source->ToPlayer();
-                    if (target)
+                    pTarget = source->ToPlayer();
+                    if (pTarget)
                     {
                         if (target->GetTypeId() != TYPEID_UNIT && target->GetTypeId() != TYPEID_GAMEOBJECT && target->GetTypeId() != TYPEID_PLAYER)
                         {
@@ -575,10 +575,10 @@ void Map::ScriptsProcess()
 
                 // quest id and flags checked at script loading
                 if ((worldObject->GetTypeId() != TYPEID_UNIT || ((Unit*)worldObject)->isAlive()) &&
-                    (step.script->QuestExplored.Distance == 0 || worldObject->IsWithinDistInMap(target, float(step.script->QuestExplored.Distance))))
-                    target->AreaExploredOrEventHappens(step.script->QuestExplored.QuestID);
+                    (step.script->QuestExplored.Distance == 0 || worldObject->IsWithinDistInMap(pTarget, float(step.script->QuestExplored.Distance))))
+                    pTarget->AreaExploredOrEventHappens(step.script->QuestExplored.QuestID);
                 else
-                    target->FailQuest(step.script->QuestExplored.QuestID);
+                    pTarget->FailQuest(step.script->QuestExplored.QuestID);
 
                 break;
             }
@@ -878,11 +878,11 @@ void Map::ScriptsProcess()
                     if (step.script->Orientation.Flags& SF_ORIENTATION_FACE_TARGET)
                     {
                         // Target must be Unit.
-                        Unit* target = _GetScriptUnit(target, false, step.script);
-                        if (!target)
+                        Unit* pTarget = _GetScriptUnit(target, false, step.script);
+                        if (!pTarget)
                             break;
 
-                        pSource->SetInFront(target);
+                        pSource->SetInFront(pTarget);
                     }
                     else
                         pSource->SetOrientation(step.script->Orientation.Orientation);

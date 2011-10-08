@@ -203,7 +203,7 @@ public:
                 AchievementEntry const *achievSnakes = GetAchievementStore()->LookupEntry(ACHI_SNAKES);
                 if (achievSnakes)
                 {
-                    Map::PlayerList const &players = pInstance->instance->GetPlayers();
+                    Map::PlayerList const &players = instance->instance->GetPlayers();
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
                         if (lWrappedPlayers.find(itr->getSource()->GetGUID()) != lWrappedPlayers.end())

@@ -81,7 +81,7 @@ void BattlegroundRV::PostUpdateImpl(uint32 diff)
 
     if (getTimer() < diff)
     {
-        if (GetBgMap(false))
+        if (FindBgMap())
             switch (getState())
             {
                 case BG_RV_STATE_OPEN_FENCES:

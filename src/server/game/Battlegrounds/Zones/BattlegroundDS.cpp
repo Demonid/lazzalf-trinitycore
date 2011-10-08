@@ -90,7 +90,7 @@ void BattlegroundDS::PostUpdateImpl(uint32 diff)
 
         if (getWaterFallTimer() < diff)
         {
-            if (GetBgMap(false))
+            if (FindBgMap())
                 if (isWaterFallActive())
                 {
                     setWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
