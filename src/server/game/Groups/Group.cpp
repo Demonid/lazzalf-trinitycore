@@ -32,7 +32,7 @@
 #include "BattlegroundMgr.h"
 #include "MapManager.h"
 #include "InstanceSaveMgr.h"
-#include "Mapinstanced.h"
+#include "MapInstanced.h"
 #include "Util.h"
 #include "LFGMgr.h"
 
