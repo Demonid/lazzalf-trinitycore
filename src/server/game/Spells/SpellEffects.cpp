@@ -5128,11 +5128,11 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 // Vigilance
                 case 50725:
                 {
-					if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+					if (!m_originalCaster || m_originalCaster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
                     // Remove Taunt cooldown
-                    ( ( Player* ) unitTarget )->RemoveSpellCooldown(355, true);
+                    ( ( Player* ) m_originalCaster )->RemoveSpellCooldown(355, true);
 
                     return;
                 }
