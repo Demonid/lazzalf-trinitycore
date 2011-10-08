@@ -1138,6 +1138,7 @@ public:
                 {
                     i->getSource()->KilledMonsterCredit(36955, 0);
                     i->getSource()->KilledMonsterCredit(37554, 0);
+					i->getSource()->KilledMonsterCredit(38211, 0);
                 }
             }
         }
