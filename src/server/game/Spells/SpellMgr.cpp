@@ -3267,6 +3267,14 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->rangeIndex = 13;
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_UNTARGETABLE;
                 break;
+            case 54680: // Monstrous Bite - Rank 1 (Devilsaur)
+            case 55495: // Monstrous Bite - Rank 2 (Devilsaur)
+            case 55496: // Monstrous Bite - Rank 3 (Devilsaur)
+            case 55497: // Monstrous Bite - Rank 4 (Devilsaur)
+            case 55498: // Monstrous Bite - Rank 5 (Devilsaur)
+            case 55499: // Monstrous Bite - Rank 6 (Devilsaur)
+                 spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_CASTER;
+                 break;
             //case 72752: // Will of the Forsaken Cooldown Triggers
             //case 72757:
             //    spellInfo->AttributesEx6 |= SPELL_ATTR_EX6_IGNORE_CASTER_AURAS;
