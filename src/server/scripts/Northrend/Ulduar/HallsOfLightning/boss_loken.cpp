@@ -72,12 +72,12 @@ public:
     {
         boss_lokenAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = creature->GetInstanceScript();
+            m_instance = creature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip
         }
 
-        InstanceScript* m_pInstance;
+        InstanceScript* m_instance;
 
         bool m_bIsAura;
 
@@ -99,10 +99,10 @@ public:
 
             m_uiHealthAmountModifier = 1;
 
-            if (m_pInstance)
+            if (m_instance)
             {
-                m_pInstance->SetData(TYPE_LOKEN, NOT_STARTED);
-                m_pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
+                m_instance->SetData(TYPE_LOKEN, NOT_STARTED);
+                m_instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
             }
         }
 
@@ -110,10 +110,10 @@ public:
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (m_pInstance)
+            if (m_instance)
             {
-                m_pInstance->SetData(TYPE_LOKEN, IN_PROGRESS);
-                m_pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
+                m_instance->SetData(TYPE_LOKEN, IN_PROGRESS);
+                m_instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
             }
         }
 
@@ -121,8 +121,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (m_pInstance)
-                m_pInstance->SetData(TYPE_LOKEN, DONE);
+            if (m_instance)
+                m_instance->SetData(TYPE_LOKEN, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -141,10 +141,10 @@ public:
                 // workaround for PULSING_SHOCKWAVE
                 if (m_uiPulsingShockwave_Timer <= uiDiff)
                 {
-                    Map* pMap = me->GetMap();
-                    if (pMap->IsDungeon())
+                    Map* map = me->GetMap();
+                    if (map->IsDungeon())
                     {
-                        Map::PlayerList const &PlayerList = pMap->GetPlayers();
+                        Map::PlayerList const &PlayerList = map->GetPlayers();
 
                         if (PlayerList.isEmpty())
                             return;

@@ -84,7 +84,7 @@ public:
         boss_sapphironAI(Creature* c) : BossAI(c, BOSS_SAPPHIRON)
             , phase(PHASE_NULL)
         {
-            pMap = me->GetMap();
+            map = me->GetMap();
         }
 
         Phases phase;
@@ -93,7 +93,7 @@ public:
 
         bool CanTheHundredClub; // needed for achievement: The Hundred Club(2146, 2147)
         uint32 CheckFrostResistTimer;
-        Map* pMap;
+        Map* map;
 
         /*
         void InitializeAI()
@@ -173,9 +173,9 @@ public:
                 AchievementEntry const* AchievTheHundredClub = GetAchievementStore()->LookupEntry(ACHIEVEMENT_THE_HUNDRED_CLUB);
                 if (AchievTheHundredClub)
                 {
-                    if (pMap && pMap->IsDungeon())
+                    if (map && map->IsDungeon())
                     {
-                        Map::PlayerList const &players = pMap->GetPlayers();
+                        Map::PlayerList const &players = map->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                             itr->getSource()->CompletedAchievement(AchievTheHundredClub);
                     }
@@ -200,9 +200,9 @@ public:
 
         void CheckPlayersFrostResist()
         {
-            if (CanTheHundredClub && pMap && pMap->IsDungeon())
+            if (CanTheHundredClub && map && map->IsDungeon())
             {
-                Map::PlayerList const &players = pMap->GetPlayers();
+                Map::PlayerList const &players = map->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
                     if (itr->getSource()->GetResistance(SPELL_SCHOOL_FROST) > MAX_FROST_RESISTANCE)
@@ -232,8 +232,8 @@ public:
             {
                 if (Player* player = Unit::GetPlayer(*me, itr->first))
                     player->RemoveAura(SPELL_ICEBOLT);
-                if (GameObject* pGo = GameObject::GetGameObject(*me, itr->second))
-                    pGo->Delete();
+                if (GameObject* go = GameObject::GetGameObject(*me, itr->second))
+                    go->Delete();
             }
             iceblocks.clear();
         }
@@ -390,10 +390,10 @@ public:
 
                 for (IceBlockMap::const_iterator itr = iceblocks.begin(); itr != iceblocks.end(); ++itr)
                 {
-                    if (GameObject* pGo = GameObject::GetGameObject(*me, itr->second))
+                    if (GameObject* go = GameObject::GetGameObject(*me, itr->second))
                     {
-                        if (pGo->IsInBetween(me, target, 4.0f)
-                            && me->GetExactDist2d(target->GetPositionX(), target->GetPositionY()) - me->GetExactDist2d(pGo->GetPositionX(), pGo->GetPositionY()) < 5.0f)
+                        if (go->IsInBetween(me, target, 4.0f)
+                            && me->GetExactDist2d(target->GetPositionX(), target->GetPositionY()) - me->GetExactDist2d(go->GetPositionX(), go->GetPositionY()) < 5.0f)
                         {
                             target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
                             targets.push_back(target);

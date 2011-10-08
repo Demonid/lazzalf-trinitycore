@@ -59,12 +59,12 @@ public:
     {
         boss_moorabiAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         bool bPhase;
 
@@ -81,8 +81,8 @@ public:
             uiTransformationTImer = 12*IN_MILLISECONDS;
             bPhase = false;
 
-            if (pInstance)
-                pInstance->SetData(DATA_MOORABI_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_MOORABI_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -90,8 +90,8 @@ public:
             DoScriptText(SAY_AGGRO, me);
             DoCast(me, SPELL_MOJO_FRENZY, true);
 
-            if (pInstance)
-                pInstance->SetData(DATA_MOORABI_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_MOORABI_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -157,8 +157,8 @@ public:
          {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_MOORABI_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_MOORABI_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim)

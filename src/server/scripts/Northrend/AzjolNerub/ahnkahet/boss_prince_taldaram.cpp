@@ -81,7 +81,7 @@ public:
     {
         boss_taldaramAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
@@ -100,7 +100,7 @@ public:
 
         CombatPhase Phase;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -112,14 +112,14 @@ public:
             Phase = NORMAL;
             uiPhaseTimer = 0;
             uiEmbraceTarget = 0;
-            if (pInstance)
-                pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_PRINCE_TALDARAM_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_PRINCE_TALDARAM_EVENT, IN_PROGRESS);
             DoScriptText(SAY_AGGRO, me);
         }
 
@@ -264,8 +264,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_PRINCE_TALDARAM_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim)
@@ -285,16 +285,16 @@ public:
 
         bool CheckSpheres()
         {
-            if (!pInstance)
+            if (!instance)
                 return false;
 
             uint64 uiSphereGuids[2];
-            uiSphereGuids[0] = pInstance->GetData64(DATA_SPHERE1);
-            uiSphereGuids[1] = pInstance->GetData64(DATA_SPHERE2);
+            uiSphereGuids[0] = instance->GetData64(DATA_SPHERE1);
+            uiSphereGuids[1] = instance->GetData64(DATA_SPHERE2);
 
             for (uint8 i=0; i < 2; ++i)
             {
-                GameObject* pSpheres = pInstance->instance->GetGameObject(uiSphereGuids[i]);
+                GameObject* pSpheres = instance->instance->GetGameObject(uiSphereGuids[i]);
                 if (!pSpheres)
                     return false;
                 if (pSpheres->GetGoState() != GO_STATE_ACTIVE)
@@ -314,7 +314,7 @@ public:
 
         void RemovePrison()
         {
-            if (!pInstance)
+            if (!instance)
                 return;
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -322,8 +322,8 @@ public:
             me->RemoveAurasDueToSpell(SPELL_BEAM_VISUAL);
             me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
             me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), DATA_GROUND_POSITION_Z, me->GetOrientation());
-            uint64 prison_GUID = pInstance->GetData64(DATA_PRINCE_TALDARAM_PLATFORM);
-            pInstance->HandleGameObject(prison_GUID, true);
+            uint64 prison_GUID = instance->GetData64(DATA_PRINCE_TALDARAM_PLATFORM);
+            instance->HandleGameObject(prison_GUID, true);
         }
     };
 
@@ -342,11 +342,11 @@ public:
     {
         mob_taldaram_flamesphereAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiDespawnTimer;
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -390,9 +390,9 @@ public:
 
     bool OnGossipHello(Player* /*player*/, GameObject* pGO)
     {
-        InstanceScript* pInstance = pGO->GetInstanceScript();
+        InstanceScript* instance = pGO->GetInstanceScript();
 
-        Creature* pPrinceTaldaram = Unit::GetCreature(*pGO, pInstance ? pInstance->GetData64(DATA_PRINCE_TALDARAM) : 0);
+        Creature* pPrinceTaldaram = Unit::GetCreature(*pGO, instance ? instance->GetData64(DATA_PRINCE_TALDARAM) : 0);
         if (pPrinceTaldaram && pPrinceTaldaram->isAlive())
         {
             // maybe these are hacks :(
@@ -401,8 +401,8 @@ public:
 
             switch (pGO->GetEntry())
             {
-                case GO_SPHERE1: pInstance->SetData(DATA_SPHERE1_EVENT, IN_PROGRESS); break;
-                case GO_SPHERE2: pInstance->SetData(DATA_SPHERE2_EVENT, IN_PROGRESS); break;
+                case GO_SPHERE1: instance->SetData(DATA_SPHERE1_EVENT, IN_PROGRESS); break;
+                case GO_SPHERE2: instance->SetData(DATA_SPHERE2_EVENT, IN_PROGRESS); break;
             }
 
             CAST_AI(boss_taldaram::boss_taldaramAI, pPrinceTaldaram->AI())->CheckSpheres();

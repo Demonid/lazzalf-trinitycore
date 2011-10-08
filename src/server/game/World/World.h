@@ -944,7 +944,6 @@ class World
         ACE_Thread_Mutex m_CharacterNameDataMapMutex;
         void LoadCharacterNameData();
 
-    private:
         void ProcessQueryCallbacks();
         ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;
 };

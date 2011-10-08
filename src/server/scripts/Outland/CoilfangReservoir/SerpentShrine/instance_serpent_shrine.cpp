@@ -55,13 +55,13 @@ class go_bridge_console : public GameObjectScript
 
         bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
-            InstanceScript* pInstance = go->GetInstanceScript();
+            InstanceScript* instance = go->GetInstanceScript();
 
-            if (!pInstance)
+            if (!instance)
                 return false;
 
-            if (pInstance)
-                pInstance->SetData(DATA_CONTROL_CONSOLE, DONE);
+            if (instance)
+                instance->SetData(DATA_CONTROL_CONSOLE, DONE);
 
             return true;
         }
@@ -74,7 +74,7 @@ class instance_serpent_shrine : public InstanceMapScript
 
         struct instance_serpentshrine_cavern_InstanceMapScript : public InstanceScript
         {
-            instance_serpentshrine_cavern_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
+            instance_serpentshrine_cavern_InstanceMapScript(Map* map) : InstanceScript(map)
             {
             }
 
@@ -439,9 +439,9 @@ class instance_serpent_shrine : public InstanceMapScript
             bool DoSpawnFrenzy;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
-            return new instance_serpentshrine_cavern_InstanceMapScript(pMap);
+            return new instance_serpentshrine_cavern_InstanceMapScript(map);
         }
 };
 

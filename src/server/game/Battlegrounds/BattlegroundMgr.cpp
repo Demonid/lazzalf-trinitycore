@@ -316,7 +316,6 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
             if (!team && plr)
                 team = plr->GetBGTeam();
             *data << uint8(team == ALLIANCE ? 1 : 0); // green or yellow
-
         }
         *data << uint32(itr2->second->DamageDone);              // damage done
         *data << uint32(itr2->second->HealingDone);             // healing done
@@ -949,8 +948,7 @@ bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)
         bgTypeId == BATTLEGROUND_BE ||
         bgTypeId == BATTLEGROUND_NA ||
         bgTypeId == BATTLEGROUND_RV ||
-        bgTypeId == BATTLEGROUND_RL ||
-        bgTypeId == BATTLEGROUND_DS);
+        bgTypeId == BATTLEGROUND_RL);
 }
 
 BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgTypeId, uint8 arenaType)
@@ -1135,7 +1133,6 @@ void BattlegroundMgr::LoadBattleMastersEntry()
         }
 
         mBattleMastersMap[entry] = BattlegroundTypeId(bgTypeId);
-
     }
     while (result->NextRow());
 
