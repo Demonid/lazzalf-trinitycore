@@ -100,29 +100,29 @@ void Map::ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* sou
 // Helpers for ScriptProcess method.
 inline Player* Map::_GetScriptPlayerSourceOrTarget(Object* source, Object* target, const ScriptInfo* scriptInfo) const
 {
-    Player* pPlayer = NULL;
+    Player* player = NULL;
     if (!source && !target)
         sLog->outError("%s source and target objects are NULL.", scriptInfo->GetDebugInfo().c_str());
     else
     {
         // Check target first, then source.
         if (target)
-            pPlayer = target->ToPlayer();
-        if (!pPlayer && source)
-            pPlayer = source->ToPlayer();
+            player = target->ToPlayer();
+        if (!player && source)
+            player = source->ToPlayer();
 
-        if (!pPlayer)
+        if (!player)
             sLog->outError("%s neither source nor target object is player (source: TypeId: %u, Entry: %u, GUID: %u; target: TypeId: %u, Entry: %u, GUID: %u), skipping.",
                 scriptInfo->GetDebugInfo().c_str(),
                 source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUIDLow() : 0,
                 target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUIDLow() : 0);
     }
-    return pPlayer;
+    return player;
 }
 
 inline Creature* Map::_GetScriptCreatureSourceOrTarget(Object* source, Object* target, const ScriptInfo* scriptInfo, bool bReverse) const
 {
-    Creature* pCreature = NULL;
+    Creature* creature = NULL;
     if (!source && !target)
         sLog->outError("%s source and target objects are NULL.", scriptInfo->GetDebugInfo().c_str());
     else
@@ -131,31 +131,31 @@ inline Creature* Map::_GetScriptCreatureSourceOrTarget(Object* source, Object* t
         {
             // Check target first, then source.
             if (target)
-                pCreature = target->ToCreature();
-            if (!pCreature && source)
-                pCreature = source->ToCreature();
+                creature = target->ToCreature();
+            if (!creature && source)
+                creature = source->ToCreature();
         }
         else
         {
             // Check source first, then target.
             if (source)
-                pCreature = source->ToCreature();
-            if (!pCreature && target)
-                pCreature = target->ToCreature();
+                creature = source->ToCreature();
+            if (!creature && target)
+                creature = target->ToCreature();
         }
 
-        if (!pCreature)
+        if (!creature)
             sLog->outError("%s neither source nor target are creatures (source: TypeId: %u, Entry: %u, GUID: %u; target: TypeId: %u, Entry: %u, GUID: %u), skipping.",
                 scriptInfo->GetDebugInfo().c_str(),
                 source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUIDLow() : 0,
                 target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUIDLow() : 0);
     }
-    return pCreature;
+    return creature;
 }
 
 inline Unit* Map::_GetScriptUnit(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const
 {
-    Unit* pUnit = NULL;
+    Unit* unit = NULL;
     if (!obj)
         sLog->outError("%s %s object is NULL.", scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
     else if (!obj->isType(TYPEMASK_UNIT))
@@ -163,42 +163,42 @@ inline Unit* Map::_GetScriptUnit(Object* obj, bool isSource, const ScriptInfo* s
             scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUIDLow());
     else
     {
-        pUnit = obj->ToUnit();
-        if (!pUnit)
+        unit = obj->ToUnit();
+        if (!unit)
             sLog->outError("%s %s object could not be casted to unit.",
                 scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
     }
-    return pUnit;
+    return unit;
 }
 
 inline Player* Map::_GetScriptPlayer(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const
 {
-    Player* pPlayer = NULL;
+    Player* player = NULL;
     if (!obj)
         sLog->outError("%s %s object is NULL.", scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
     else
     {
-        pPlayer = obj->ToPlayer();
-        if (!pPlayer)
+        player = obj->ToPlayer();
+        if (!player)
             sLog->outError("%s %s object is not a player (TypeId: %u, Entry: %u, GUID: %u).",
                 scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUIDLow());
     }
-    return pPlayer;
+    return player;
 }
 
 inline Creature* Map::_GetScriptCreature(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const
 {
-    Creature* pCreature = NULL;
+    Creature* creature = NULL;
     if (!obj)
         sLog->outError("%s %s object is NULL.", scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
     else
     {
-        pCreature = obj->ToCreature();
-        if (!pCreature)
+        creature = obj->ToCreature();
+        if (!creature)
             sLog->outError("%s %s object is not a creature (TypeId: %u, Entry: %u, GUID: %u).", scriptInfo->GetDebugInfo().c_str(),
                 isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUIDLow());
     }
-    return pCreature;
+    return creature;
 }
 
 inline WorldObject* Map::_GetScriptWorldObject(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const
@@ -539,8 +539,8 @@ void Map::ScriptsProcess()
 
                 // when script called for item spell casting then target == (unit or GO) and source is player
                 WorldObject* worldObject;
-                Player* pTarget = target->ToPlayer();
-                if (pTarget)
+                Player* target = target->ToPlayer();
+                if (target)
                 {
                     if (source->GetTypeId() != TYPEID_UNIT && source->GetTypeId() != TYPEID_GAMEOBJECT && source->GetTypeId() != TYPEID_PLAYER)
                     {
@@ -552,8 +552,8 @@ void Map::ScriptsProcess()
                 }
                 else
                 {
-                    pTarget = source->ToPlayer();
-                    if (pTarget)
+                    target = source->ToPlayer();
+                    if (target)
                     {
                         if (target->GetTypeId() != TYPEID_UNIT && target->GetTypeId() != TYPEID_GAMEOBJECT && target->GetTypeId() != TYPEID_PLAYER)
                         {
@@ -575,10 +575,10 @@ void Map::ScriptsProcess()
 
                 // quest id and flags checked at script loading
                 if ((worldObject->GetTypeId() != TYPEID_UNIT || ((Unit*)worldObject)->isAlive()) &&
-                    (step.script->QuestExplored.Distance == 0 || worldObject->IsWithinDistInMap(pTarget, float(step.script->QuestExplored.Distance))))
-                    pTarget->AreaExploredOrEventHappens(step.script->QuestExplored.QuestID);
+                    (step.script->QuestExplored.Distance == 0 || worldObject->IsWithinDistInMap(target, float(step.script->QuestExplored.Distance))))
+                    target->AreaExploredOrEventHappens(step.script->QuestExplored.QuestID);
                 else
-                    pTarget->FailQuest(step.script->QuestExplored.QuestID);
+                    target->FailQuest(step.script->QuestExplored.QuestID);
 
                 break;
             }
@@ -686,8 +686,8 @@ void Map::ScriptsProcess()
             {
                 // Source (datalong2 != 0) or target (datalong2 == 0) must be Unit.
                 bool bReverse = step.script->RemoveAura.Flags & SF_REMOVEAURA_REVERSE;
-                if (Unit* pTarget = _GetScriptUnit(bReverse ? source : target, bReverse, step.script))
-                    pTarget->RemoveAurasDueToSpell(step.script->RemoveAura.SpellID);
+                if (Unit* target = _GetScriptUnit(bReverse ? source : target, bReverse, step.script))
+                    target->RemoveAurasDueToSpell(step.script->RemoveAura.SpellID);
                 break;
             }
 
@@ -751,20 +751,20 @@ void Map::ScriptsProcess()
                 if (WorldObject* pSource = _GetScriptWorldObject(source, true, step.script))
                 {
                     // PlaySound.Flags bitmask: 0/1=anyone/target
-                    Player* pTarget = NULL;
+                    Player* target = NULL;
                     if (step.script->PlaySound.Flags & SF_PLAYSOUND_TARGET_PLAYER)
                     {
                         // Target must be Player.
-                        pTarget = _GetScriptPlayer(target, false, step.script);
-                        if (!pTarget)
+                        target = _GetScriptPlayer(target, false, step.script);
+                        if (!target)
                             break;
                     }
 
                     // PlaySound.Flags bitmask: 0/2=without/with distance dependent
                     if (step.script->PlaySound.Flags & SF_PLAYSOUND_DISTANCE_SOUND)
-                        pSource->PlayDistanceSound(step.script->PlaySound.SoundID, pTarget);
+                        pSource->PlayDistanceSound(step.script->PlaySound.SoundID, target);
                     else
-                        pSource->PlayDirectSound(step.script->PlaySound.SoundID, pTarget);
+                        pSource->PlayDirectSound(step.script->PlaySound.SoundID, target);
                 }
                 break;
 
@@ -878,11 +878,11 @@ void Map::ScriptsProcess()
                     if (step.script->Orientation.Flags& SF_ORIENTATION_FACE_TARGET)
                     {
                         // Target must be Unit.
-                        Unit* pTarget = _GetScriptUnit(target, false, step.script);
-                        if (!pTarget)
+                        Unit* target = _GetScriptUnit(target, false, step.script);
+                        if (!target)
                             break;
 
-                        pSource->SetInFront(pTarget);
+                        pSource->SetInFront(target);
                     }
                     else
                         pSource->SetOrientation(step.script->Orientation.Orientation);

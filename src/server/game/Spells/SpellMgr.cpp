@@ -3091,7 +3091,6 @@ void SpellMgr::LoadDbcDataCorrections()
             case 25425: // Shoot
             case 45761: // Shoot
             case 42611: // Shoot
-            case 62374: // Pursued
             case 63024: // Gravity Bomb Normal
             case 64234: // Gravity Bomb Hero
             case 63018: // Searing Light Normal
@@ -3410,6 +3409,9 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             // ULDUAR SPELLS
             //
+            //case 62374: // Pursued (Flame Leviathan)
+            //    spellInfo->EffectRadiusIndex[0] = 28;   // 50000yd
+            //    break;
             case 62400: // Missile Barrage
                 spellInfo->EffectRadiusIndex[0] = 22; // 200 yard
                 break;

@@ -81,7 +81,7 @@ public:
     {
         boss_slad_ranAI(Creature* c) : ScriptedAI(c), lSummons(me)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip
         }
@@ -96,7 +96,7 @@ public:
 
         SummonList lSummons;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -110,8 +110,8 @@ public:
 
             lSummons.DespawnAll();
 
-            if (pInstance)
-                pInstance->SetData(DATA_SLAD_RAN_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_SLAD_RAN_EVENT, NOT_STARTED);
 
             while (Unit* target = me->FindNearestCreature(CREATURE_SNAKE, 100.0f))
                 target->RemoveFromWorld();
@@ -124,8 +124,8 @@ public:
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_SLAD_RAN_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_SLAD_RAN_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 diff)
@@ -214,8 +214,6 @@ public:
                 }
             }
 
-            if (pInstance)
-                pInstance->SetData(DATA_SLAD_RAN_EVENT, DONE);
 
             while (Unit* target = me->FindNearestCreature(CREATURE_SNAKE, 100.0f))
             {
@@ -288,7 +286,7 @@ public:
             } else uiGripOfSladRanTimer -= diff;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
     };
 
 };
@@ -309,7 +307,7 @@ public:
 
         uint32 uiVenomousBiteTimer;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {

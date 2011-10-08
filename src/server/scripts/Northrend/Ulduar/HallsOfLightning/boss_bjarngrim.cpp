@@ -98,12 +98,12 @@ public:
     {
         boss_bjarngrimAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = creature->GetInstanceScript();
+            m_instance = creature->GetInstanceScript();
             m_uiStance = STANCE_DEFENSIVE;
             memset(&m_auiStormforgedLieutenantGUID, 0, sizeof(m_auiStormforgedLieutenantGUID));
         }
 
-        InstanceScript* m_pInstance;
+        InstanceScript* m_instance;
 
         bool m_bIsChangingStance;
 
@@ -168,8 +168,8 @@ public:
 
             SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_SHIELD, EQUIP_NO_CHANGE);
 
-            if (m_pInstance)
-                m_pInstance->SetData(TYPE_BJARNGRIM, NOT_STARTED);
+            if (m_instance)
+                m_instance->SetData(TYPE_BJARNGRIM, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -179,8 +179,8 @@ public:
             //must get both lieutenants here and make sure they are with him
             me->CallForHelp(30.0f);
 
-            if (m_pInstance)
-                m_pInstance->SetData(TYPE_BJARNGRIM, IN_PROGRESS);
+            if (m_instance)
+                m_instance->SetData(TYPE_BJARNGRIM, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -192,12 +192,12 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (m_pInstance)
+            if (m_instance)
             {
-                m_pInstance->SetData(TYPE_BJARNGRIM, DONE);
+                m_instance->SetData(TYPE_BJARNGRIM, DONE);
 
                 if (IsHeroic() && isCharged)
-                    m_pInstance->DoCompleteAchievement(ACHIEVEMENT_LIGHTNING_STRUCK);
+                    m_instance->DoCompleteAchievement(ACHIEVEMENT_LIGHTNING_STRUCK);
             }
         }
 
@@ -386,10 +386,10 @@ public:
     {
         mob_stormforged_lieutenantAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = creature->GetInstanceScript();
+            m_instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* m_pInstance;
+        InstanceScript* m_instance;
 
         uint32 m_uiArcWeld_Timer;
         uint32 m_uiRenewSteel_Timer;
@@ -402,9 +402,9 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (m_pInstance)
+            if (m_instance)
             {
-                if (Creature* pBjarngrim = m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_BJARNGRIM)))
+                if (Creature* pBjarngrim = m_instance->instance->GetCreature(m_instance->GetData64(DATA_BJARNGRIM)))
                 {
                     if (pBjarngrim->isAlive() && !pBjarngrim->getVictim())
                         pBjarngrim->AI()->AttackStart(who);
@@ -428,9 +428,9 @@ public:
 
             if (m_uiRenewSteel_Timer <= uiDiff)
             {
-                if (m_pInstance)
+                if (m_instance)
                 {
-                    if (Creature* pBjarngrim = m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_BJARNGRIM)))
+                    if (Creature* pBjarngrim = m_instance->instance->GetCreature(m_instance->GetData64(DATA_BJARNGRIM)))
                     {
                         if (pBjarngrim->isAlive())
                             DoCast(pBjarngrim, SPELL_RENEW_STEEL_N);

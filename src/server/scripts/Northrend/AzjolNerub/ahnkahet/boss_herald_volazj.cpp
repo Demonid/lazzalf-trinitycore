@@ -69,12 +69,12 @@ public:
     {
         boss_volazjAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 uiMindFlayTimer;
         uint32 uiShadowBoltVolleyTimer;
@@ -157,10 +157,10 @@ public:
             uiShadowBoltVolleyTimer = 5*IN_MILLISECONDS;
             uiShiverTimer = 15*IN_MILLISECONDS;
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_HERALD_VOLAZJ, NOT_STARTED);
-                pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
+                instance->SetData(DATA_HERALD_VOLAZJ, NOT_STARTED);
+                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
             }
 
             // Visible for all players in insanity
@@ -180,10 +180,10 @@ public:
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_HERALD_VOLAZJ, IN_PROGRESS);
-                pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
+                instance->SetData(DATA_HERALD_VOLAZJ, IN_PROGRESS);
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
             }
         }
 
@@ -238,11 +238,11 @@ public:
             // Roll Insanity
             uint32 spell = GetSpellForPhaseMask(phase);
             uint32 spell2 = GetSpellForPhaseMask(nextPhase);
-            Map* pMap = me->GetMap();
-            if (!pMap)
+            Map* map = me->GetMap();
+            if (!map)
                 return;
 
-            Map::PlayerList const &PlayerList = pMap->GetPlayers();
+            Map::PlayerList const &PlayerList = map->GetPlayers();
             if (!PlayerList.isEmpty())
             {
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -303,8 +303,8 @@ public:
         {
             DoScriptText(SAY_DEATH_1, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_HERALD_VOLAZJ, DONE);
+            if (instance)
+                instance->SetData(DATA_HERALD_VOLAZJ, DONE);
 
             Summons.DespawnAll();
             ResetPlayersPhaseMask();

@@ -83,7 +83,7 @@ public:
     {
         boss_ichoronAI(Creature* creature) : ScriptedAI(creature), m_waterElements(creature)
         {
-            pInstance  = creature->GetInstanceScript();
+            instance  = creature->GetInstanceScript();
         }
 
         bool bIsExploded;
@@ -94,7 +94,7 @@ public:
         uint32 uiWaterBoltVolleyTimer;
         uint32 uiSpawn;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         SummonList m_waterElements;
 
@@ -110,12 +110,12 @@ public:
             me->SetVisible(true);
             DespawnWaterElements();
 
-            if (pInstance)
+            if (instance)
             {
-                if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
-                    pInstance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
-                else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
-                    pInstance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
+                if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                    instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
+                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                    instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
             }
         }
 
@@ -125,18 +125,18 @@ public:
 
             DoCast(me, SPELL_PROTECTIVE_BUBBLE);
 
-            if (pInstance)
+            if (instance)
             {
-                if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_ICHORON_CELL)))
+                if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_ICHORON_CELL)))
                     if (pDoor->GetGoState() == GO_STATE_READY)
                     {
                         EnterEvadeMode();
                         return;
                     }
-                if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
-                    pInstance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
-                else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
-                    pInstance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
+                if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                    instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
+                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                    instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
             }
         }
 
@@ -259,8 +259,8 @@ public:
                         if (!m_waterElements.empty())
                         {
                             for (std::list<uint64>::const_iterator itr = m_waterElements.begin(); itr != m_waterElements.end(); ++itr)
-                                if (Creature* pTemp = Unit::GetCreature(*me, *itr))
-                                    if (pTemp->isAlive())
+                                if (Creature* temp = Unit::GetCreature(*me, *itr))
+                                    if (temp->isAlive())
                                     {
                                         bIsWaterElementsAlive = true;
                                         break;
@@ -303,17 +303,17 @@ public:
 
             DespawnWaterElements();
 
-            if (pInstance)
+            if (instance)
             {
-                if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
+                if (instance->GetData(DATA_WAVE_COUNT) == 6)
                 {
-                    pInstance->SetData(DATA_1ST_BOSS_EVENT, DONE);
-                    pInstance->SetData(DATA_WAVE_COUNT, 7);
+                    instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
+                    instance->SetData(DATA_WAVE_COUNT, 7);
                 }
-                else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
+                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
                 {
-                    pInstance->SetData(DATA_2ND_BOSS_EVENT, DONE);
-                    pInstance->SetData(DATA_WAVE_COUNT, 13);
+                    instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
+                    instance->SetData(DATA_WAVE_COUNT, 13);
                 }
             }
         }
@@ -325,7 +325,7 @@ public:
                 summoned->SetSpeed(MOVE_RUN, 0.3f);
                 summoned->GetMotionMaster()->MoveFollow(me, 0, 0);
                 m_waterElements.push_back(summoned->GetGUID());
-                pInstance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
+                instance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
             }
         }
 
@@ -334,7 +334,7 @@ public:
             if (summoned)
             {
                 m_waterElements.remove(summoned->GetGUID());
-                pInstance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
+                instance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
             }
         }
 
@@ -362,10 +362,10 @@ public:
     {
         mob_ichor_globuleAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 uiRangeCheck_Timer;
 
@@ -384,9 +384,9 @@ public:
         {
             if (uiRangeCheck_Timer < uiDiff)
             {
-                if (pInstance)
+                if (instance)
                 {
-                    if (Creature* pIchoron = Unit::GetCreature(*me, pInstance->GetData64(DATA_ICHORON)))
+                    if (Creature* pIchoron = Unit::GetCreature(*me, instance->GetData64(DATA_ICHORON)))
                     {
                         if (me->IsWithinDist(pIchoron, 2.0f, false))
                         {
@@ -404,7 +404,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             DoCast(me, SPELL_SPLASH);
-            if (Creature* pIchoron = Unit::GetCreature(*me, pInstance->GetData64(DATA_ICHORON)))
+            if (Creature* pIchoron = Unit::GetCreature(*me, instance->GetData64(DATA_ICHORON)))
                 if (pIchoron->AI())
                     pIchoron->AI()->DoAction(ACTION_WATER_ELEMENT_KILLED);
         }
