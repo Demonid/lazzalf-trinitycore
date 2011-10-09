@@ -1808,6 +1808,12 @@ class spell_auto_repair : public SpellScriptLoader
         }
 };
 
+            bool Load()
+            {
+                _target = NULL;
+                return true;
+            }
+
 void AddSC_boss_flame_leviathan()
 {
     new boss_flame_leviathan();

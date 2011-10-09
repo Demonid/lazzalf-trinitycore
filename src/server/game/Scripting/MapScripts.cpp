@@ -686,8 +686,8 @@ void Map::ScriptsProcess()
             {
                 // Source (datalong2 != 0) or target (datalong2 == 0) must be Unit.
                 bool bReverse = step.script->RemoveAura.Flags & SF_REMOVEAURA_REVERSE;
-                if (Unit* target = _GetScriptUnit(bReverse ? source : target, bReverse, step.script))
-                    target->RemoveAurasDueToSpell(step.script->RemoveAura.SpellID);
+                if (Unit* pTarget = _GetScriptUnit(bReverse ? source : target, bReverse, step.script))
+                    pTarget->RemoveAurasDueToSpell(step.script->RemoveAura.SpellID);
                 break;
             }
 
@@ -751,20 +751,20 @@ void Map::ScriptsProcess()
                 if (WorldObject* pSource = _GetScriptWorldObject(source, true, step.script))
                 {
                     // PlaySound.Flags bitmask: 0/1=anyone/target
-                    Player* target = NULL;
+                    Player* pTarget = NULL;
                     if (step.script->PlaySound.Flags & SF_PLAYSOUND_TARGET_PLAYER)
                     {
                         // Target must be Player.
-                        target = _GetScriptPlayer(target, false, step.script);
-                        if (!target)
+                        pTarget = _GetScriptPlayer(target, false, step.script);
+                        if (!pTarget)
                             break;
                     }
 
                     // PlaySound.Flags bitmask: 0/2=without/with distance dependent
                     if (step.script->PlaySound.Flags & SF_PLAYSOUND_DISTANCE_SOUND)
-                        pSource->PlayDistanceSound(step.script->PlaySound.SoundID, target);
+                        pSource->PlayDistanceSound(step.script->PlaySound.SoundID, pTarget);
                     else
-                        pSource->PlayDirectSound(step.script->PlaySound.SoundID, target);
+                        pSource->PlayDirectSound(step.script->PlaySound.SoundID, pTarget);
                 }
                 break;
 
