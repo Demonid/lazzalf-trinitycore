@@ -16998,7 +16998,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
         if (mapEntry->MapID == 624 && !sOutdoorPvPMgr->CanEnterVaultOfArchavon(this))
   	    RelocateToHomebind();
 
-        // fix crash (because of if (Map* map = _FindMap(instanceId)) in Mainstanced::CreateInstance)
+        // fix crash (because of if (Map* map = _FindMap(instanceId)) in MapInstanced::CreateInstance)
         if (instanceId)
             if (InstanceSave* save = GetInstanceSave(mapId, mapEntry->IsRaid()))
                 if (save->GetInstanceId() != instanceId)
@@ -19330,7 +19330,6 @@ void Player::Customize(uint64 guid, uint8 gender, uint8 skin, uint8 face, uint8 
     player_bytes2 |= facialHair;
 
     CharacterDatabase.PExecute("UPDATE characters SET gender = '%u', playerBytes = '%u', playerBytes2 = '%u' WHERE guid = '%u'", gender, skin | (face << 8) | (hairStyle << 16) | (hairColor << 24), player_bytes2, GUID_LOPART(guid));
-    sWorld->ReloadSingleCharacterNameData(GUID_LOPART(guid));
 }
 
 void Player::SendAttackSwingDeadTarget()
