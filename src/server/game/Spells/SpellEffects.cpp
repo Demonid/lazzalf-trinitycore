@@ -778,6 +778,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             damage += int32(m_caster->ToPlayer()->GetAmmoDPS()*item->GetTemplate()->Delay*0.001f);
 							damage += int32((m_caster->ToPlayer()->GetTotalAttackPowerValue(RANGED_ATTACK)*0.1f) + 10);
 							sLog->outWarden("%s's RANGED_ATTACK is %f!", m_caster->ToPlayer()->GetName(), m_caster->ToPlayer()->GetTotalAttackPowerValue(RANGED_ATTACK));
+							sLog->outWarden("SS totolDamage = %d!", damage);
                         }
                     }
                     // Glyph of Steady Shot
