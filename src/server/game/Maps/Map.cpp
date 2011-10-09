@@ -2699,8 +2699,8 @@ void Map::Wipe()
 {
     if (Instanceable())
     {
-        Mainstanced::InstancedMaps InstanceList = ((Mainstanced*)this)->GetInstancedMaps();
-        for (Mainstanced::InstancedMaps::iterator m_Iter = InstanceList.begin(); m_Iter != InstanceList.end(); m_Iter++)
+        MapInstanced::InstancedMaps InstanceList = ((MapInstanced*)this)->GetInstancedMaps();
+        for (MapInstanced::InstancedMaps::iterator m_Iter = InstanceList.begin(); m_Iter != InstanceList.end(); m_Iter++)
         {
             PlayerList const& pList = m_Iter->second->GetPlayers();
             for (PlayerList::const_iterator itr = pList.begin(), next; itr != pList.end(); itr = next)
