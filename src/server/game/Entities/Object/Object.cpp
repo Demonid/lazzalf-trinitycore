@@ -1361,49 +1361,6 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
     float ox, oy, oz;
     obj->GetPosition(ox, oy, oz);
 
-    // Test for WOTLK arenas    
-    const Player* plr = GetTypeId() == TYPEID_PLAYER ? ToPlayer() : NULL;
-    if (!plr && ToCreature() && ToCreature()->GetOwner())
-        plr = ToCreature()->GetOwner()->ToPlayer();
-    if (plr)
-    {
-         if (plr->GetBattleground())
-         {
-            // Hack rules for Orgrimmar Arena
-            if (GetMapId() == 618 && (BattlegroundRV*)plr->GetBattleground() && ((BattlegroundRV*)plr->GetBattleground())->fencesopened)
-            {
-                const float bochki[4][2]=
-                    {{BG_RV_OBJECT_PILAR_1, 3.08f},
-                    {BG_RV_OBJECT_PILAR_2, 6.80f},
-                    {BG_RV_OBJECT_PILAR_3, 3.08f},
-                    {BG_RV_OBJECT_PILAR_4, 6.80f}};
-                for (uint8 i=0; i<4; ++i)
-                {
-                    if (BattlegroundRV* bg =((BattlegroundRV*)plr->GetBattleground()))
-                    {
-                        // by default first(0) pilar is opened
-                        if((i+1) % 2 == uint8(bg->pillarsopened))
-                            continue;
-                        if (bg->GetBgMap())
-                            if (GameObject* bochka = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[bochki[i][0]]))
-                                if (bochka->IsInBetween(this, obj, bochki[i][1]))
-                                    return false;
-                    }
-                }
-                return true;
-            }            
-            // Hack rules for Dalaran Arena
-            else if (GetMapId() == 617 && ((BattlegroundDS*)plr->GetBattleground())->isWaterFallActive())
-            {                
-                    if (BattlegroundDS* bg = ((BattlegroundDS*)plr->GetBattleground()))
-                        if (bg->GetBgMap())
-                            if (GameObject* fontan = bg->GetBgMap()->GetGameObject(bg->m_BgObjects[BG_DS_OBJECT_WATER_1]))
-                                if (fontan->IsInBetween(this, obj, 5))
-                                    return false;
-            }
-        }
-    }
-
     return (IsWithinLOS(ox, oy, oz) && GetMap()->IsInDynLOS(GetPositionX(), GetPositionY(), GetPositionZ(), ox, oy, oz));
 }
 
