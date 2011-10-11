@@ -452,6 +452,7 @@ public:
                             {
                                 if (Player* player = itr->getSource())
                                     player->KilledMonsterCredit(20156, 0);
+                                    //pPlayer->KilledMonsterCredit(20156,me->GetGUID());
                             }
                         }
 

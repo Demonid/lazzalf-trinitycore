@@ -36,6 +36,7 @@
 #include "Unit.h"
 #include "Util.h"                                           // for Tokens typedef
 #include "WorldSession.h"
+#include "../../Custom/AntiCheat.h"
 
 // for template
 #include "SpellMgr.h"
@@ -1066,6 +1067,7 @@ private:
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
+    friend class AntiCheat;
     friend void Item::AddToUpdateQueueOf(Player* player);
     friend void Item::RemoveFromUpdateQueueOf(Player* player);
     public:
@@ -1082,6 +1084,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0);
         void TeleportOutOfMap(Map* oldMap);
+        void KnockBackWithAngle(float angle, float horizontalSpeed, float verticalSpeed);
 
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0)
         {
@@ -1333,6 +1336,12 @@ class Player : public Unit, public GridObject<Player>
             Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
             return mainItem && mainItem->GetTemplate()->InventoryType == INVTYPE_2HWEAPON && !CanTitanGrip();
         }
+        bool HasTwoHandWeaponInOneHand() const
+        {
+            Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
+            Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+            return offItem && ((mainItem && mainItem->GetTemplate()->InventoryType == INVTYPE_2HWEAPON) || offItem->GetTemplate()->InventoryType == INVTYPE_2HWEAPON);
+        }
         void SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast = false);
         bool BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot);
         bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);
@@ -1571,7 +1580,7 @@ class Player : public Unit, public GridObject<Player>
         {
             return m_RewardedQuests.find(quest_id) != m_RewardedQuests.end();
         }
-
+ 
         uint64 GetSelection() const { return m_curSelection; }
         Unit* GetSelectedUnit() const;
         Player* GetSelectedPlayer() const;
@@ -1653,6 +1662,7 @@ class Player : public Unit, public GridObject<Player>
         void AddTemporarySpell(uint32 spellId);
         void RemoveTemporarySpell(uint32 spellId);
         void SetReputation(uint32 factionentry, uint32 value);
+        void SetOneFactionReputation(uint32 factionentry, uint32 value);
         uint32 GetReputation(uint32 factionentry);
         std::string GetGuildName();
         uint32 GetFreeTalentPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS1); }
@@ -1736,6 +1746,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadSpellCooldowns(PreparedQueryResult result);
         void _SaveSpellCooldowns(SQLTransaction& trans);
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
+        uint32 GetLastPotionId() { return m_lastPotionId; } 
         void UpdatePotionCooldown(Spell* spell = NULL);
 
         void setResurrectRequestData(uint64 guid, uint32 mapId, float X, float Y, float Z, uint32 health, uint32 mana)
@@ -2258,6 +2269,23 @@ class Player : public Unit, public GridObject<Player>
 
         bool IsImmuneToEnvironmentalDamage();
         uint32 EnvironmentalDamage(EnviromentalDamage type, uint32 damage);
+	    // Char datas...
+		bool m_jail_warning;
+		bool m_jail_amnestie;
+		bool m_jail_isjailed;           // Is this player jailed?
+		std::string m_jail_char;        // Name of jailed char
+		uint32 m_jail_guid;             // guid of the jailed char
+		uint32 m_jail_release;          // When is the player a free man/woman?
+		std::string m_jail_reason;      // Why was the char jailed?
+		uint32 m_jail_times;			// How often was the player jailed?
+  	    uint32 m_jail_amnestietime;
+		uint32 m_jail_gmacc;            // Used GM acc
+		std::string m_jail_gmchar;      // Used GM char
+		std::string m_jail_lasttime;    // Last jail time
+		uint32 m_jail_duration;         // Duration of the jail
+		// Load / save functions...
+		void _LoadJail(void);           // Loads the jail datas
+		void _SaveJail(void);           // Saves the jail datas
 
         /*********************************************************/
         /***               FLOOD FILTER SYSTEM                 ***/
@@ -2704,6 +2732,15 @@ class Player : public Unit, public GridObject<Player>
         float m_rest_bonus;
         RestType rest_type;
         ////////////////////Rest System/////////////////////
+
+        // AntiCheat
+        private:
+            AntiCheat* m_anticheat; // AntiCheat
+        
+        public:
+            AntiCheat* GetAntiCheat() { return m_anticheat; }
+        // End AntiCheat
+        
         uint32 m_resetTalentsCost;
         time_t m_resetTalentsTime;
         uint32 m_usedTalentCount;
