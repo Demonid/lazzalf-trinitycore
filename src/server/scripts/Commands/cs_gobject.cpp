@@ -149,7 +149,7 @@ public:
             return false;
         }
 
-        map->Add(pGameObj);
+        map->AddToMap(pGameObj);
 
         WorldDatabase.PQuery("INSERT INTO guildhouses_add (guid, type, id, add_type, comment) VALUES (%u, 1, %u, %u, '%s')", 
                               pGameObj->GetDBTableGUIDLow(), guildhouseid, guildhouseaddid, pGameObj->GetName());   

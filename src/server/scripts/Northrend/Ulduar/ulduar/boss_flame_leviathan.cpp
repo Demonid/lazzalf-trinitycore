@@ -880,7 +880,6 @@ public:
 
 };
 
-// WHY IS THIS CALLED spell_???
 class npc_pool_of_tar : public CreatureScript
 {
     public:
