@@ -158,7 +158,7 @@ public:
             WorldDatabase.PQuery("INSERT INTO guildhouses_add (guid, type, id, add_type, comment) VALUES (%u, 0, %u, %u, '%s')", 
                                    creature->GetDBTableGUIDLow(), guildhouseid, guildhouseaddid, creature->GetName());   
 
-            map->Add(creature);
+            map->AddToMap(creature);
             sObjectMgr->AddCreatureToGrid(db_guid, sObjectMgr->GetCreatureData(db_guid));
             return true;
         }

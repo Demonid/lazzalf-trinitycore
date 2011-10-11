@@ -226,7 +226,7 @@ bool GuildHouseObject::AddGuildHouseAdd(uint32 id, uint32 add, uint32 guild)
                         else
                         {
                             if (pGameobject->isSpawnedByDefault())
-                                map->Add(pGameobject);
+                                map->AddToMap(pGameobject);
                         }
                     }                       
                 }
@@ -254,7 +254,7 @@ bool GuildHouseObject::AddGuildHouseAdd(uint32 id, uint32 add, uint32 guild)
                             delete pCreature;
                         else
                         {
-                            map->Add(pCreature);
+                            map->AddToMap(pCreature);
                         }
                     }                           
                 }
