@@ -943,7 +943,7 @@ void Aura::RefreshSpellMods()
             player->RestoreAllSpellMods(0, this);
 }
 
-bool Aura::IsArea() const
+/*bool Aura::IsArea() const
 {
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
@@ -951,7 +951,7 @@ bool Aura::IsArea() const
             return true;
     }
     return false;
-}
+}*/
 
 bool Aura::IsPassive() const
 {
@@ -2163,9 +2163,10 @@ bool Aura::CanStackWith(Aura const* existingAura) const
     // spell of same spell rank chain
     if (m_spellInfo->IsRankOf(existingSpellInfo))
     {
+        if (m_spellInfo->IsMultiSlotAura())
         // don't allow passive area auras to stack
-        if (m_spellInfo->IsMultiSlotAura() && !IsArea())
-            return true;
+        /*if (m_spellInfo->IsMultiSlotAura() && !IsArea())
+            return true;*/
         if (GetCastItemGUID() && existingAura->GetCastItemGUID())
             if (GetCastItemGUID() != existingAura->GetCastItemGUID() && (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_ENCHANT_PROC))
                 return true;
