@@ -102,6 +102,8 @@ inline uint32 GetEruptionSection(float x, float y)
     return 3;
 }
 
+#define MR_BIGGLESWORTH_DEATH_YELL -1533089
+
 class instance_naxxramas : public InstanceMapScript
 {
 public:
@@ -121,7 +123,8 @@ public:
             LoadMinionData(minionData);
         }
 
-        std::set<uint64> HeiganEruptionGUID[4];
+        //std::set<uint64> HeiganEruptionGUID[4];
+        std::set<GameObject*> HeiganEruption[4];
         uint64 GothikGateGUID;
         uint64 HorsemenChestGUID;
         uint64 SapphironGUID;
@@ -140,31 +143,44 @@ public:
         uint64 uiKelthuzadTrigger;
         uint64 uiPortals[4];
 
-        uint32 AbominationCount;
+        uint64 uiKelthuzad_2;
 
         GOState gothikDoorState;
 
         time_t minHorsemenDiedTime;
         time_t maxHorsemenDiedTime;
 
+        uint32 arachnidStatus;
+        uint32 constructStatus;
+        uint32 militaryStatus;
+        uint32 plagueStatus;
+        uint32 frostwyrmStatus;
+
+        uint32 anubStatus;
+        uint32 patchStatus;
+        uint32 razuStatus;
+        uint32 nothStatus;
+        uint32 sapphiStatus;
+        
+        uint32 AbominationCount;
+
         void Initialize()
         {
-            GothikGateGUID      = 0;
-            HorsemenChestGUID   = 0;
-            SapphironGUID       = 0;
-            uiFaerlina          = 0;
-            uiThane             = 0;
-            uiLady              = 0;
-            uiBaron             = 0;
-            uiSir               = 0;
-            uiThaddius          = 0;
-            uiHeigan            = 0;
-            uiFeugen            = 0;
-            uiStalagg           = 0;
-            uiKelthuzad         = 0;
-            uiKelthuzadTrigger  = 0;
+            AbominationCount = 0;
 
-            memset(uiPortals, 0, sizeof(uiPortals));
+            GothikGateGUID = 0;
+            HorsemenChestGUID = 0;
+            SapphironGUID = 0;
+            arachnidStatus = CRITERIA_NOT_MEETED;
+            constructStatus = CRITERIA_NOT_MEETED;
+            militaryStatus = CRITERIA_NOT_MEETED;
+            plagueStatus = CRITERIA_NOT_MEETED;
+            frostwyrmStatus = CRITERIA_NOT_MEETED;
+            anubStatus = CRITERIA_MEETED;
+            patchStatus = CRITERIA_MEETED;
+            razuStatus = CRITERIA_MEETED;
+            nothStatus = CRITERIA_MEETED;
+            sapphiStatus = CRITERIA_MEETED;
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -182,6 +198,7 @@ public:
                 case 15930: uiFeugen = creature->GetGUID(); return;
                 case 15929: uiStalagg = creature->GetGUID(); return;
                 case 15990: uiKelthuzad = creature->GetGUID(); return;
+                case 60201: uiKelthuzad_2 = creature->GetGUID(); return;
             }
 
             AddMinion(creature, true);
@@ -197,37 +214,36 @@ public:
             if (go->GetGOInfo()->displayId == 6785 || go->GetGOInfo()->displayId == 1287)
             {
                 uint32 section = GetEruptionSection(go->GetPositionX(), go->GetPositionY());
-                HeiganEruptionGUID[section].insert(go->GetGUID());
-
+                HeiganEruption[section].insert(go);
                 return;
             }
 
-            switch (go->GetEntry())
+            switch(go->GetEntry())
             {
                 case GO_GOTHIK_GATE:
                     GothikGateGUID = go->GetGUID();
                     go->SetGoState(gothikDoorState);
                     break;
-                case GO_HORSEMEN_CHEST:
-                    HorsemenChestGUID = go->GetGUID();
+                case GO_HORSEMEN_CHEST: 
+                    HorsemenChestGUID = go->GetGUID(); 
                     break;
-                case GO_HORSEMEN_CHEST_HERO:
-                    HorsemenChestGUID = go->GetGUID();
+                case GO_HORSEMEN_CHEST_HERO: 
+                    HorsemenChestGUID = go->GetGUID(); 
                     break;
-                case GO_KELTHUZAD_PORTAL01:
-                    uiPortals[0] = go->GetGUID();
+                case GO_KELTHUZAD_PORTAL01: 
+                    uiPortals[0] = go->GetGUID(); 
                     break;
-                case GO_KELTHUZAD_PORTAL02:
-                    uiPortals[1] = go->GetGUID();
+                case GO_KELTHUZAD_PORTAL02: 
+                    uiPortals[1] = go->GetGUID(); 
                     break;
-                case GO_KELTHUZAD_PORTAL03:
-                    uiPortals[2] = go->GetGUID();
+                case GO_KELTHUZAD_PORTAL03: 
+                    uiPortals[2] = go->GetGUID(); 
                     break;
-                case GO_KELTHUZAD_PORTAL04:
-                    uiPortals[3] = go->GetGUID();
+                case GO_KELTHUZAD_PORTAL04: 
+                    uiPortals[3] = go->GetGUID(); 
                     break;
-                case GO_KELTHUZAD_TRIGGER:
-                    uiKelthuzadTrigger = go->GetGUID();
+                case GO_KELTHUZAD_TRIGGER: 
+                    uiKelthuzadTrigger = go->GetGUID(); 
                     break;
                 default:
                     break;
@@ -235,14 +251,14 @@ public:
 
             AddDoor(go, true);
         }
-
+        
         void OnGameObjectRemove(GameObject* go)
         {
             if (go->GetGOInfo()->displayId == 6785 || go->GetGOInfo()->displayId == 1287)
             {
                 uint32 section = GetEruptionSection(go->GetPositionX(), go->GetPositionY());
 
-                HeiganEruptionGUID[section].erase(go->GetGUID());
+                HeiganEruption[section].erase(go);
                 return;
             }
 
@@ -295,6 +311,36 @@ public:
                         maxHorsemenDiedTime = now;
                     }
                     break;
+                case DATA_IMMORTAL_ARACHNID:
+                    arachnidStatus = value;
+                    break;
+                case DATA_IMMORTAL_CONSTRUCT:
+                    constructStatus = value;
+                    break;
+                case DATA_IMMORTAL_MILITARY:
+                    militaryStatus = value;
+                    break;
+                case DATA_IMMORTAL_PLAGUE:
+                    plagueStatus = value;
+                    break;
+                case DATA_IMMORTAL_FROSTWYRM:
+                    frostwyrmStatus = value;
+                    break;
+                case DATA_IMMORTAL_ANUB:
+                    anubStatus = value;
+                    break;
+                case DATA_IMMORTAL_PATCH:
+                    patchStatus = value;
+                    break;
+                case DATA_IMMORTAL_RAZU:
+                    razuStatus = value;
+                    break;
+                case DATA_IMMORTAL_NOTH:
+                    nothStatus = value;
+                    break;
+                case DATA_IMMORTAL_SAPPHI:
+                    sapphiStatus = value;
+                    break;
                 case DATA_ABOMINATION_KILLED:
                     AbominationCount = value;
                     break;
@@ -303,15 +349,33 @@ public:
 
         uint32 GetData(uint32 id)
         {
-            switch (id)
+            switch(id)
             {
+                case DATA_IMMORTAL_ARACHNID:
+                    return arachnidStatus;
+                case DATA_IMMORTAL_CONSTRUCT:
+                    return constructStatus;
+                case DATA_IMMORTAL_MILITARY:
+                    return militaryStatus;
+                case DATA_IMMORTAL_PLAGUE:
+                    return plagueStatus;
+                case DATA_IMMORTAL_FROSTWYRM:
+                    return frostwyrmStatus;
+                case DATA_IMMORTAL_ANUB:
+                    return anubStatus;
+                case DATA_IMMORTAL_PATCH:
+                    return patchStatus;
+                case DATA_IMMORTAL_RAZU:
+                    return razuStatus;
+                case DATA_IMMORTAL_NOTH:
+                    return nothStatus;
+                case DATA_IMMORTAL_SAPPHI:
+                    return sapphiStatus;
                 case DATA_ABOMINATION_KILLED:
                     return AbominationCount;
                 default:
-                    break;
+                    return 0;
             }
-
-            return 0;
         }
 
         uint64 GetData64(uint32 id)
@@ -348,6 +412,8 @@ public:
                 return uiPortals[3];
             case DATA_KELTHUZAD_TRIGGER:
                 return uiKelthuzadTrigger;
+            case DATA_KELTHUZAD_2:
+                return uiKelthuzad_2;
             }
             return 0;
         }
@@ -359,14 +425,14 @@ public:
 
             if (id == BOSS_HORSEMEN && state == DONE)
             {
-                if (GameObject* pHorsemenChest = instance->GetGameObject(HorsemenChestGUID))
+                if (GameObject *pHorsemenChest = instance->GetGameObject(HorsemenChestGUID))
                     pHorsemenChest->SetRespawnTime(pHorsemenChest->GetRespawnDelay());
             }
 
             return true;
         }
 
-        void HeiganErupt(uint32 section)
+        /*void HeiganErupt(uint32 section)
         {
             for (uint32 i = 0; i < 4; ++i)
             {
@@ -375,10 +441,28 @@ public:
 
                 for (std::set<uint64>::const_iterator itr = HeiganEruptionGUID[i].begin(); itr != HeiganEruptionGUID[i].end(); ++itr)
                 {
-                    if (GameObject* pHeiganEruption = instance->GetGameObject(*itr))
+                    if (GameObject *pHeiganEruption = instance->GetGameObject(*itr))
                     {
                         pHeiganEruption->SendCustomAnim(pHeiganEruption->GetGoAnimProgress());
                         pHeiganEruption->CastSpell(NULL, SPELL_ERUPTION);
+                    }
+                }
+            }
+        }*/
+    
+        void HeiganErupt(uint32 section)
+        {
+            for (uint32 i = 0; i < 4; ++i)
+            {
+                if (i == section)
+                    continue;
+
+                for (std::set<GameObject*>::iterator itr = HeiganEruption[i].begin(); itr != HeiganEruption[i].end(); ++itr)
+                {
+                    if (*itr)
+                    {
+                        (*itr)->SendCustomAnim((*itr)->GetGoAnimProgress());
+                        (*itr)->CastSpell(NULL, SPELL_ERUPTION);
                     }
                 }
             }
@@ -396,12 +480,6 @@ public:
                     if (Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_25MAN_NORMAL && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
                         return true;
                     return false;
-                case 13233: // Criteria for achievement 2186: The Immortal (25-man)
-                    // TODO.
-                    break;
-                case 13237: // Criteria for achievement 2187: The Undying (10-man)
-                    // TODO.
-                    break;
             }
             return false;
         }
@@ -409,22 +487,174 @@ public:
         std::string GetSaveData()
         {
             std::ostringstream saveStream;
-            saveStream << GetBossSaveData() << ' ' << gothikDoorState;
+            saveStream << GetBossSaveData() << gothikDoorState;
+            for (uint32 i = DATA_IMMORTAL_ARACHNID; i <= DATA_IMMORTAL_SAPPHI; ++i)
+            {
+                saveStream << " " << GetData(i);
+            }
             return saveStream.str();
         }
 
         void Load(const char * data)
         {
-            std::istringstream loadStream(LoadBossState(data));
+            /* Load bosses data */
+            LoadBossState(data);
+
+            std::istringstream loadStream(data);
+
             uint32 buff;
+
+            /* Bosses data are loaded in LoadBossState(data) */
+            for (uint32 i = 1; i <= MAX_BOSS_NUMBER; ++i)
+            {
+                
+                loadStream >> buff;
+                continue;
+            }
+            
+            /* Load Gothik's door state */   
             loadStream >> buff;
+            //sLog->outError("State: '%u'", buff);
             gothikDoorState = GOState(buff);
+
+            /* Load Immortal data */
+            for (uint32 i = DATA_IMMORTAL_ARACHNID; i <= DATA_IMMORTAL_SAPPHI; ++i)
+            {
+                loadStream >> buff;
+                //sLog->outError("type='%u', value='%u'", i, buff);
+                SetData(i, buff);
+            }
+
         }
     };
 
 };
 
+class naxxramas_teleporter_npc : public CreatureScript
+{
+    public:
+        naxxramas_teleporter_npc(): CreatureScript("naxxramas_teleporter_npc") {}
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        if (!player)
+            return true;
+
+        player->ADD_GOSSIP_ITEM(5, "Teletrasportami all'entrata", GOSSIP_SENDER_MAIN, 1);
+        player->ADD_GOSSIP_ITEM(5, "No, grazie", GOSSIP_SENDER_MAIN, 2);
+         
+        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+
+        return true;
+    };
+
+    void SendDefaultMenu_naxxramas_teleporter_npc(Player* player, Creature* creature, uint32 action)
+    {
+        if (!player)
+            return;
+
+        // Not allow in combat
+        if (!player->getAttackers().empty())
+        {
+            player->CLOSE_GOSSIP_MENU();
+            creature->MonsterSay("Sei in combat!", LANG_UNIVERSAL, 0);
+            return;
+        }
+        
+        switch(action)
+        {
+            case 1:
+                // Teletrasporta all'entrata
+                player->TeleportTo(533, 3021.639f, -3402.989f, 298.220f, 2.973f);
+                player->CLOSE_GOSSIP_MENU();
+                creature->MonsterWhisper("Ecco fatto!", player->GetGUID());
+                break;
+            case 2:
+                creature->MonsterWhisper("Ok, come preferisci...", player->GetGUID());
+                player->CLOSE_GOSSIP_MENU();
+                break;
+            default:
+                break;
+        }
+    };
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
+    {
+        player->PlayerTalkClass->ClearMenus();
+
+        // Main menu
+        if (sender == GOSSIP_SENDER_MAIN)
+            SendDefaultMenu_naxxramas_teleporter_npc(player, creature, action);
+
+        return true;
+    };
+};
+
+class mr_bigglesworth_npc : public CreatureScript
+{
+    public:
+        mr_bigglesworth_npc(): CreatureScript("mr_bigglesworth_npc") {}
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mr_bigglesworth_npcAI (creature);
+    }
+
+    struct mr_bigglesworth_npcAI : public ScriptedAI
+    {
+        mr_bigglesworth_npcAI(Creature* c) : ScriptedAI(c)
+        {
+            pInstance = c->GetInstanceScript();
+        }
+
+        InstanceScript* pInstance;
+
+        void JustDied(Unit* killer)
+        {
+            if (Creature* KelThuzad = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_KELTHUZAD_2) : 0))
+                KelThuzad->MonsterYellToZone(MR_BIGGLESWORTH_DEATH_YELL, LANG_UNIVERSAL, 0);
+        }
+    };
+};
+
+class achievement_immortal : public AchievementCriteriaScript
+{
+    public:
+        achievement_immortal() : AchievementCriteriaScript("achievement_immortal") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (!source)
+                return false;
+
+            InstanceScript* instance = source->GetInstanceScript();
+
+            if (!instance || source->GetMapId() != NAXXRAMAS_MAP)
+                return false;
+
+            if (instance->GetData(DATA_IMMORTAL_ARACHNID) != CRITERIA_MEETED)
+                return false;
+
+            if (instance->GetData(DATA_IMMORTAL_CONSTRUCT) != CRITERIA_MEETED)
+                return false;
+
+            if (instance->GetData(DATA_IMMORTAL_MILITARY) != CRITERIA_MEETED)
+                return false;
+
+            if (instance->GetData(DATA_IMMORTAL_PLAGUE) != CRITERIA_MEETED)
+                return false;
+
+            if (instance->GetData(DATA_IMMORTAL_FROSTWYRM) != CRITERIA_MEETED)
+                return false;
+
+            return true;
+        }
+};
+
 void AddSC_instance_naxxramas()
 {
     new instance_naxxramas();
+    new naxxramas_teleporter_npc();
+    new mr_bigglesworth_npc();
+    new achievement_immortal();
 }

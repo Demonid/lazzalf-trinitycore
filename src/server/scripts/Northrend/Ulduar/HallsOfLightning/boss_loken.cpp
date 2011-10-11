@@ -73,6 +73,8 @@ public:
         boss_lokenAI(Creature* creature) : ScriptedAI(creature)
         {
             m_instance = creature->GetInstanceScript();
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip
         }
 
         InstanceScript* m_instance;
