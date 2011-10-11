@@ -480,6 +480,14 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
 			me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_TURN,true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_BANDAGE, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_BLEED, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SAPPED, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SLEEP, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SILENCE, true);
+
             //if (m_pInstance)
             //    sLog->outBoss("Anub Spike Id: %u,  Created", m_pInstance->instance->GetInstanceId());
 
