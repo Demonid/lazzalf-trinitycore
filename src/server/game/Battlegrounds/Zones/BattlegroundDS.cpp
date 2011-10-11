@@ -47,6 +47,9 @@ BattlegroundDS::~BattlegroundDS()
 
 void BattlegroundDS::PostUpdateImpl(uint32 diff)
 {
+    if (!FindBgMap())
+        return;
+
     if (m_knockback)
     {
         if (m_knockback <= diff)
