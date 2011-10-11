@@ -703,6 +703,21 @@ public:
     }
 };*/
 
+class npc_mosswalker_victim : public CreatureScript
+{
+public:
+
+	npc_mosswalker_victim()
+		: CreatureScript("npc_mosswalker_victim") { }
+
+	bool OnGossipHello(Player* player, Creature* creature)
+	{   
+		if(player)
+			player->KilledMonsterCredit(28113, 0);
+
+		return true;
+	}
+};
 
 void AddSC_sholazar_basin()
 {
@@ -714,4 +729,5 @@ void AddSC_sholazar_basin()
     new npc_adventurous_dwarf();
     new npc_jungle_punch_target();
     // new npc_oracle_frezy();
+	new npc_mosswalker_victim();
 }
