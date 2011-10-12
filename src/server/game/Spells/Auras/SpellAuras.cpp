@@ -943,7 +943,7 @@ void Aura::RefreshSpellMods()
             player->RestoreAllSpellMods(0, this);
 }
 
-/*bool Aura::IsArea() const
+bool Aura::IsArea() const
 {
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
@@ -951,7 +951,7 @@ void Aura::RefreshSpellMods()
             return true;
     }
     return false;
-}*/
+}
 
 bool Aura::IsPassive() const
 {
