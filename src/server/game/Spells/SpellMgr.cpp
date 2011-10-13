@@ -3431,9 +3431,9 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             // ULDUAR SPELLS
             //
-            //case 62374: // Pursued (Flame Leviathan)
-            //    spellInfo->EffectRadiusIndex[0] = 28;   // 50000yd
-            //    break;
+            case 62374: // Pursued (Flame Leviathan)
+                spellInfo->EffectRadiusIndex[0] = 28;   // 50000yd
+                break;
             case 62400: // Missile Barrage
                 spellInfo->EffectRadiusIndex[0] = 22; // 200 yard
                 break;
