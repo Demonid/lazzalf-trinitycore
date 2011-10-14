@@ -380,8 +380,11 @@ void WardenWin::HandleData(ByteBuffer &buff)
 
     for (std::vector<uint32>::iterator itr = SendDataId.begin(); itr != SendDataId.end(); ++itr)
     {
-        rd = sWardenCheckMgr->GetWardenDataById(*itr);
+        rd = sWardenCheckMgr->GetWardenDataById(*itr);        
         rs = sWardenCheckMgr->GetWardenResultById(*itr);
+
+        if (!rd || !rs)
+            continue;
 
         type = rd->Type;
         switch (type)
