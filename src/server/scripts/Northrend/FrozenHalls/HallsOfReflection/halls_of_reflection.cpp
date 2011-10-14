@@ -507,7 +507,7 @@ public:
                     }
                     if (Creature* pLichKing = me->SummonCreature(NPC_LICH_KING,5362.469f,2062.342f,707.695f,3.97f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,360000))
                     {
-                        m_LichKingGUID = pLichKing->GetGUID();;
+                        m_LichKingGUID = pLichKing->GetGUID();
                         pLichKing->setActive(true);
                     }
                     JumpNextStep(1000);
