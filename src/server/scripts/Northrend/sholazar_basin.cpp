@@ -836,6 +836,8 @@ public:
 					}
 				} else m_uiIcyVeinsTimer -= diff;
 
+				DoMeleeAttackIfReady();
+
 			} else 
 			{
 				Creature* jaloot = Unit::GetCreature(*me, m_uiJalootGuid);
@@ -863,8 +865,6 @@ public:
 				}
 				
 			}
-
-			DoMeleeAttackIfReady();
 		}
 
     };
@@ -897,9 +897,23 @@ class npc_oracle_frenzyheart_switch : public CreatureScript
 public:
     npc_oracle_frenzyheart_switch() : CreatureScript("npc_oracle_frenzyheart_switch") { }
 
-    bool OnQuestReward(Player *player, Creature *_Creature, Quest const *_Quest, uint32 /*item*/)
+    // Called when a player completes a quest with the creature.
+    bool OnQuestComplete(Player* player, Creature* creature, Quest const* quest) 
+	{ 
+		if(player)
+		{
+			player->PlayerTalkClass->ClearMenus();
+			if ( quest->GetQuestId() == DAILY_QUEST_FRENZYHEART_CHAMPION )
+				player->CompleteQuest(DAILY_QUEST_FRENZYHEART_CHAMPION);
+			if ( quest->GetQuestId() == DAILY_QUEST_HAND_OF_THE_ORACLES )
+				player->CompleteQuest(DAILY_QUEST_HAND_OF_THE_ORACLES);
+		}
+		return true; 
+	}
+	
+	bool OnQuestReward(Player *player, Creature *_Creature, Quest const *_Quest, uint32 /*item*/)
     {
-        switch(_Quest->GetQuestId())
+		switch(_Quest->GetQuestId())
         {
         case DAILY_QUEST_FRENZYHEART_CHAMPION:
             player->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(FACTION_FRENZYHEART),9000);
@@ -908,7 +922,7 @@ public:
             player->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(FACTION_ORCLES),9000);
             break;
         }
-        return true;
+		return true;
     }
 };
 
