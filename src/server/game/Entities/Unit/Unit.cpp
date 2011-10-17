@@ -10995,7 +10995,26 @@ uint32 Unit::SpellDamageBonus(Unit* victim, SpellInfo const* spellProto, uint32 
 
     // from positive and negative SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN
     // multiplicative bonus, for example Dispersion + Shadowform (0.10*0.85=0.085)
-    TakenTotalMod *= victim->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, spellProto->GetSchoolMask());
+    // TakenTotalMod *= victim->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, spellProto->GetSchoolMask());
+    float multiplier = 1.0f;
+    int32 dmgBonusNonstackable = 0;
+    uint32 iconId = 0;
+    uint32 misc_mask = spellProto->GetSchoolMask();
+    AuraEffectList const& mTotalAuraList = victim->GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
+    for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
+    {
+        if ((*i)->GetMiscValue() & misc_mask)
+        {
+            iconId = (*i)->GetSpellInfo()->SpellIconID;
+            if (!(iconId == 2991 || iconId == 55 || iconId == 1993))
+                AddPctN(multiplier, (*i)->GetAmount());
+            else if ((*i)->GetAmount() > dmgBonusNonstackable)
+                dmgBonusNonstackable = (*i)->GetAmount();
+        }
+    }
+    if (dmgBonusNonstackable != 0)
+        AddPctN(multiplier, dmgBonusNonstackable);
+    TakenTotalMod *= multiplier;
 
     // .. taken pct: dummy auras
     AuraEffectList const& mDummyAuras = victim->GetAuraEffectsByType(SPELL_AURA_DUMMY);
@@ -11026,10 +11045,10 @@ uint32 Unit::SpellDamageBonus(Unit* victim, SpellInfo const* spellProto, uint32 
                 }
                 break;
             // Ebon Plague
-            case 1933:
-                if ((*i)->GetMiscValue() & (spellProto ? spellProto->GetSchoolMask() : 0))
-                    AddPctN(TakenTotalMod, (*i)->GetAmount());
-                break;
+            // case 1933:
+            //    if ((*i)->GetMiscValue() & (spellProto ? spellProto->GetSchoolMask() : 0))
+            //        AddPctN(TakenTotalMod, (*i)->GetAmount());
+            //    break;
         }
     }
 
