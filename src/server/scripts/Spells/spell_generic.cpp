@@ -31,7 +31,7 @@ enum eTrickTreatSpells
 {
     SPELL_TRICK_TREAT     = 44436,
     SPELL_UPSET_TUMMY     = 42966,
-    SPELL_TRICKY_TREAT    = 42919,
+    SPELL_TRICKY_TREAT    = 42965,
 };
 
 class spell_gen_trick_treat : public SpellScriptLoader
