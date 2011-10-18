@@ -29,9 +29,9 @@
 
 enum eTrickTreatSpells
 {
-    SPELL_TRICK_TREAT     = 44436,
-    SPELL_UPSET_TUMMY     = 42966,
-    SPELL_TRICKY_TREAT    = 42965,
+    SPELL_TRICKY_TREAT			= 44436,
+	SPELL_TRICKY_TREAT_AURA		= 42919,
+    SPELL_UPSET_TUMMY			= 42966
 };
 
 class spell_gen_trick_treat : public SpellScriptLoader
@@ -41,46 +41,49 @@ public:
 
     class spell_gen_trick_treat_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_gen_trick_treat_SpellScript)
+        PrepareSpellScript(spell_gen_trick_treat_SpellScript);
+		
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_TRICK_TREAT))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_UPSET_TUMMY))
-                return false;
             if (!sSpellMgr->GetSpellInfo(SPELL_TRICKY_TREAT))
+                return false;
+
+            if (!sSpellMgr->GetSpellInfo(SPELL_TRICKY_TREAT_AURA))
+                return false;
+
+            if (!sSpellMgr->GetSpellInfo(SPELL_UPSET_TUMMY))
                 return false;
             return true;
         }
 
-        void HandleScript(SpellEffIndex /*effIndex*/)
-        {           
-            if (Unit* target = GetTargetUnit())
-                if (Player* pPlayerTarget = target->ToPlayer())
-                    if (Aura* aur = pPlayerTarget->GetAura(SPELL_TRICKY_TREAT))
-                    {
-                        uint8 stack = aur->GetStackAmount();
-                        if (stack == 2)
-                        {
-                            if (rand()%5 == 0)
-                                pPlayerTarget->CastSpell(pPlayerTarget, SPELL_UPSET_TUMMY, true);
-                        }
-                        else if (stack == 3)
-                        {
-                            if (rand()%3 == 0)
-                                pPlayerTarget->CastSpell(pPlayerTarget, SPELL_UPSET_TUMMY, true);
-                        }
-                        else if (stack == 4)
-                        {
-                            if (rand()%2 == 0)
-                                pPlayerTarget->CastSpell(pPlayerTarget, SPELL_UPSET_TUMMY, true);
-                        }
-                        else if (stack >= 5)
-                        {
-                            pPlayerTarget->CastSpell(pPlayerTarget, SPELL_UPSET_TUMMY, true);
-                        }
-                    } 
-        }
+		void HandleScript(SpellEffIndex /*effIndex*/)
+		{           
+			if (Unit* target = GetHitUnit())
+				if (Player* pPlayerTarget = target->ToPlayer())
+					if (Aura* aur = pPlayerTarget->GetAura(SPELL_TRICKY_TREAT_AURA))
+					{
+						uint8 stack = aur->GetStackAmount();
+						if (stack == 2)
+						{
+							if (rand()%5 == 0)
+								pPlayerTarget->CastSpell(pPlayerTarget, SPELL_UPSET_TUMMY, true);
+						}
+						else if (stack == 3)
+						{
+							if (rand()%3 == 0)
+								pPlayerTarget->CastSpell(pPlayerTarget, SPELL_UPSET_TUMMY, true);
+						}
+						else if (stack == 4)
+						{
+							if (rand()%2 == 0)
+								pPlayerTarget->CastSpell(pPlayerTarget, SPELL_UPSET_TUMMY, true);
+						}
+						else if (stack >= 5)
+						{
+							pPlayerTarget->CastSpell(pPlayerTarget, SPELL_UPSET_TUMMY, true);
+						}
+					}
+		}
 
         void Register()
         {
