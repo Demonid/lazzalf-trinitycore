@@ -132,8 +132,9 @@ class boss_hakkar : public CreatureScript
                 //CauseInsanity_Timer
                 /*if (CauseInsanity_Timer <= diff)
                 {
+                //if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM,0))
                 if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(target, SPELL_CAUSEINSANITY);
+                    DoCast(target, SPELL_CAUSEINSANITY);
 
                 CauseInsanity_Timer = 35000 + rand()%8000;
                 } else CauseInsanity_Timer -= diff;*/
