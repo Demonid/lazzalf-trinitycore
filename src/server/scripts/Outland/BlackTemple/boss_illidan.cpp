@@ -475,6 +475,8 @@ public:
         {
             instance = c->GetInstanceScript();
             DoCast(me, SPELL_DUAL_WIELD, true);
+
+			AkamaGUID = 0;
         }
 
         InstanceScript* instance;
@@ -1840,9 +1842,12 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
                 Akama->Respawn();
             else
             {
-                CAST_AI(npc_akama_illidan::npc_akama_illidanAI, Akama->AI())->EnterEvadeMode();
-                Akama->GetMotionMaster()->MoveTargetedHome();
-                CAST_AI(npc_akama_illidan::npc_akama_illidanAI, Akama->AI())->Reset();
+				if (CAST_AI(npc_akama_illidan::npc_akama_illidanAI, Akama->AI()))
+				{
+					CAST_AI(npc_akama_illidan::npc_akama_illidanAI, Akama->AI())->EnterEvadeMode();
+					Akama->GetMotionMaster()->MoveTargetedHome();
+					CAST_AI(npc_akama_illidan::npc_akama_illidanAI, Akama->AI())->Reset();
+				}
             }
         }
         AkamaGUID = 0;

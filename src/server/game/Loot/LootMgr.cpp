@@ -25,6 +25,8 @@
 #include "SpellMgr.h"
 #include "SpellInfo.h"
 #include "Group.h"
+#include "../../scripts/OutdoorPvP/OutdoorPvPWG.h"
+#include "OutdoorPvPMgr.h"
 
 static Rates const qualityToRate[MAX_ITEM_QUALITY] = {
     RATE_DROP_ITEM_POOR,                                    // ITEM_QUALITY_POOR
@@ -457,6 +459,12 @@ void Loot::FillNotNormalLootFor(Player* pl, bool presentAtLooting)
 {
     uint32 plguid = pl->GetGUIDLow();
 
+    if (pl->HasPendingBind())
+    {
+        pl->BindToInstance();
+        pl->SetPendingBind(NULL, 0);
+    }
+
     QuestItemMap::const_iterator qmapitr = PlayerQuestItems.find(plguid);
     if (qmapitr == PlayerQuestItems.end())
         FillQuestLoot(pl);
@@ -470,7 +478,7 @@ void Loot::FillNotNormalLootFor(Player* pl, bool presentAtLooting)
         FillNonQuestNonFFAConditionalLoot(pl, presentAtLooting);
 
     // if not auto-processed player will have to come and pick it up manually
-    if (!presentAtLooting)
+    if (!presentAtLooting || !sWorld->getBoolConfig(CONFIG_LOOT_AUTO_DISTRIBUTE))
         return;
 
     // Process currency items
@@ -1263,7 +1271,7 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
     for (LootGroups::const_iterator i = Groups.begin(); i != Groups.end(); ++i)
         i->Process(loot, lootMode);
 }
-
+  
 // True if template includes at least 1 quest drop entry
 bool LootTemplate::HasQuestDrop(LootTemplateMap const& store, uint8 groupId) const
 {
