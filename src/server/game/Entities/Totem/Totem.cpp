@@ -86,37 +86,10 @@ void Totem::InitStats(uint32 duration)
 
 void Totem::InitSummon()
 {
-    // use AddAura instead of CastSpell - this in fact should be an AddSpell equivalent for creatures, but nothing like that exists so far.
     if (m_type == TOTEM_PASSIVE)
-    { 
-        {
-
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(GetSpell());
-
-        // use AddAura instead of CastSpell if it's a passive aura - this in fact should be an AddSpell equivalent for creatures, but nothing like that exists so far.
-
-        if (spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
-
-           AddAura(spellInfo->Id, this);
-
-        else
-
-            CastSpell(this, spellInfo->Id, true);
-
-   }
-        /*switch (GetSpell())
-        {
-            case 33663: // Earth Elemental Totem
-            case 32982: // Fire Elemental Totem
-            case 50461: // Anti-Magic Zone
-                CastSpell(this, GetSpell(), true);
-                break;
-            default:
-                AddAura(GetSpell(), this);
-                break;
-        }*/
+    {
+        CastSpell(this, GetSpell(), true);
     }
-    //    AddAura(GetSpell(), this);
 
     // Some totems can have both instant effect and passive spell
     if (GetSpell(1))

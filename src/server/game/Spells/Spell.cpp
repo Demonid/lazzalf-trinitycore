@@ -604,7 +604,6 @@ WorldObject* Spell::FindCorpseUsing()
 
     CellCoord p(Trinity::ComputeCellCoord(m_caster->GetPositionX(), m_caster->GetPositionY()));
     Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
     WorldObject* result = NULL;
@@ -1311,7 +1310,6 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     m_spellAura = NULL; // Set aura to null for every target-make sure that pointer is not used for unit without aura applied
 
                             //Spells with this flag cannot trigger if effect is casted on self
-                            // Slice and Dice, relentless strikes, eviscerate
     bool canEffectTrigger = !(m_spellInfo->AttributesEx3 & SPELL_ATTR3_CANT_TRIGGER_PROC) && unitTarget->CanProc() && CanExecuteTriggersOnHit(mask);
     Unit* spellHitTarget = NULL;
 
@@ -1759,12 +1757,12 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint8 effMask)
     // this is executed after spell proc spells on target hit
     // spells are triggered for each hit spell target
     // info confirmed with retail sniffs of permafrost and shadow weaving
-    if (!m_hitTriggerSpells.empty() && CanExecuteTriggersOnHit(effMask))
+    if (!m_hitTriggerSpells.empty())
     {
         int _duration = 0;
         for (HitTriggerSpells::const_iterator i = m_hitTriggerSpells.begin(); i != m_hitTriggerSpells.end(); ++i)
         {
-            if (roll_chance_i(i->second))
+            if (CanExecuteTriggersOnHit(effMask, i->first) && roll_chance_i(i->second))
             {
 				if (m_caster->ToPlayer() && i->first->Id == 14181)
                 {
@@ -6226,7 +6224,6 @@ SpellCastResult Spell::CheckItems()
     {
         CellCoord p(Trinity::ComputeCellCoord(m_caster->GetPositionX(), m_caster->GetPositionY()));
         Cell cell(p);
-        cell.data.Part.reserved = ALL_DISTRICT;
 
         GameObject* ok = NULL;
         Trinity::GameObjectFocusCheck go_check(m_caster, m_spellInfo->RequiresSpellFocus);
@@ -7489,18 +7486,17 @@ void Spell::CallScriptAfterUnitTargetSelectHandlers(std::list<Unit*>& unitTarget
     }
 }
 
-bool Spell::CanExecuteTriggersOnHit(uint8 effMask) const
+bool Spell::CanExecuteTriggersOnHit(uint8 effMask, SpellInfo const* spellInfo) const
 {
-    // check which effects can trigger proc
-    // don't allow to proc for dummy-only spell target hits
-    // prevents triggering/procing effects twice from spells like Eviscerate
-    for (uint8 i = 0;effMask && i < MAX_SPELL_EFFECTS; ++i)
+    bool only_on_dummy = (spellInfo && (spellInfo->AttributesEx4 & SPELL_ATTR4_PROC_ONLY_ON_DUMMY));
+    // If triggered spell has SPELL_ATTR4_PROC_ONLY_ON_DUMMY then it can only proc on a casted spell with SPELL_EFFECT_DUMMY
+    // If triggered spell doesn't have SPELL_ATTR4_PROC_ONLY_ON_DUMMY then it can NOT proc on SPELL_EFFECT_DUMMY (needs confirmation)
+    for (uint8 i = 0;i < MAX_SPELL_EFFECTS; ++i)
     {
-        //if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_DUMMY)
-        if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_DUMMY || m_spellInfo->SpellIconID == 2237 && m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA)
-            effMask &= ~(1<<i);
+        if ((effMask & (1 << i)) && (only_on_dummy == (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_DUMMY)))
+            return true;
     }
-    return effMask;
+    return false;
 }
 
 void Spell::PrepareTriggersExecutedOnHit()
