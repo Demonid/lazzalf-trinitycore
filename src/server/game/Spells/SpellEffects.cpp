@@ -4871,6 +4871,95 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     m_caster->CastSpell(unitTarget, 22682, true);
                     return;
                 }
+				// Hallowed Wand
+				// Random Costume
+				case 24720:
+					{
+						if(!unitTarget || !unitTarget->isAlive())
+							return;
+
+						uint32 spellId;
+						switch(rand() % 7)
+						{
+						case 0: spellId = 24717; break; // Pirate Costume
+						case 1: spellId = 24741; break; // Wisp Costume
+						case 2: spellId = 24724; break; // Skeleton Costume
+						case 3: spellId = 24719; break; // Leper Gnome Costume
+						case 4: spellId = 24718; break; // Ninja Costume
+						case 5: spellId = 24737; break; // Ghost Costume
+						case 6: spellId = 24733; break; // Bat Costume
+						}
+						m_caster->CastSpell(unitTarget, spellId, true);
+						return;
+					}
+				// Pirate Costume
+				case 24717:
+					{
+						if(!unitTarget || !unitTarget->isAlive())
+							return;
+
+						if(unitTarget->getGender() == GENDER_MALE)
+						{
+							m_caster->CastSpell(unitTarget,24708,true);
+							return;
+						}
+						else
+						{
+							m_caster->CastSpell(unitTarget,24709,true);
+							return;
+						}
+					}
+				// Ninja Costume
+				case 24718:
+					{
+						if(!unitTarget || !unitTarget->isAlive())
+							return;
+
+						if(unitTarget->getGender() == GENDER_MALE)
+						{
+							m_caster->CastSpell(unitTarget,24711,true);
+							return;
+						}
+						else
+						{
+							m_caster->CastSpell(unitTarget,24710,true);
+							return;
+						}
+					}
+				// Leper Gnome Costume
+				case 24719:
+					{
+						if(!unitTarget || !unitTarget->isAlive())
+							return;
+
+						if(unitTarget->getGender() == GENDER_MALE)
+						{
+							m_caster->CastSpell(unitTarget,24712,true);
+							return;
+						}
+						else
+						{
+							m_caster->CastSpell(unitTarget,24713,true);
+							return;
+						}
+					}
+				// Ghost Costume
+				case 24737:
+					{
+						if(!unitTarget || !unitTarget->isAlive())
+							return;
+
+						if(unitTarget->getGender() == GENDER_MALE)
+						{
+							m_caster->CastSpell(unitTarget,24735,true);
+							return;
+						}
+						else
+						{
+							m_caster->CastSpell(unitTarget,24736,true);
+							return;
+						}
+					}
                 // Piccolo of the Flaming Fire
                 case 17512:
                 {
