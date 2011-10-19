@@ -1168,7 +1168,7 @@ void Spell::AddGOTarget(GameObject* go, uint32 effectMask)
             }
         }
     }
-
+    
     if (!effectMask)
         return;
 
@@ -1442,6 +1442,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             if (caster->GetTypeId() == TYPEID_PLAYER && (m_spellInfo->Attributes & SPELL_ATTR0_STOP_ATTACK_TARGET) == 0 &&
                (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE || m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED))
                 caster->ToPlayer()->CastItemCombatSpell(unitTarget, m_attackType, procVictim, procEx);
+            
         }
 
         caster->DealSpellDamage(&damageInfo, true);
@@ -1549,7 +1550,9 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, const uint32 effectMask, bool 
         if (m_spellInfo->Speed > 0.0f && unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE) && unit->GetCharmerOrOwnerGUID() != m_caster->GetGUID())
             return SPELL_MISS_EVADE;
 
-        if (m_caster->_IsValidAttackTarget(unit, m_spellInfo))
+        //if (m_caster->_IsValidAttackTarget(unit, m_spellInfo))
+            if (m_caster->IsHostileTo(unit))
+
         {
             // spell misses if target has Invisibility or Vanish and isn't visible for caster
             if (m_spellInfo->Speed > 0.0f && unit == m_targets.GetUnitTarget()
