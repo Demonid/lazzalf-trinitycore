@@ -217,7 +217,7 @@ bool GuildHouseObject::AddGuildHouseAdd(uint32 id, uint32 add, uint32 guild)
 
                     Map* map = const_cast<Map*>(sMapMgr->CreateBaseMap(data->mapid));
 
-                    if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
+                    if (!map->Instanceable() && map->IsGridLoaded(data->posX, data->posY))
                     {
                         GameObject* pGameobject = new GameObject;
                         //sLog->outDebug("Spawning gameobject %u", itr2->first);
@@ -246,7 +246,7 @@ bool GuildHouseObject::AddGuildHouseAdd(uint32 id, uint32 add, uint32 guild)
 
                     Map* map = const_cast<Map*>(sMapMgr->CreateBaseMap(data->mapid));
                     
-                    if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
+                    if (!map->Instanceable() && map->IsGridLoaded(data->posX, data->posY))
                     {
                         Creature* pCreature = new Creature;
                         //sLog->outDebug("Spawning creature %u",itr2->first);
