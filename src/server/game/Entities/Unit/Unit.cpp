@@ -2580,6 +2580,10 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
         tmp += deflect_chance;
         if (rand < tmp)
             return SPELL_MISS_DEFLECT;
+        if (spell->SpellIconID != 3178) {
+            if(rand < tmp)
+                return SPELL_MISS_DEFLECT;
+        }
     }
 
     return SPELL_MISS_NONE;
