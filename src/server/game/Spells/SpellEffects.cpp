@@ -775,9 +775,9 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                                 damage += int32(dmg_min);
                             else
                                 damage += irand(int32(dmg_min), int32(dmg_max));
-							damage += int32(m_caster->ToPlayer()->GetAmmoDPS()*item->GetTemplate()->Delay*0.001f*2.8f);
-							damage += int32((m_caster->ToPlayer()->GetTotalAttackPowerValue(RANGED_ATTACK)*0.2f) + 150);
-							// sLog->outWarden("SteadyShot totalDamage for %s is %d!", m_caster->ToPlayer()->GetName() , damage);
+                            damage += int32(m_caster->ToPlayer()->GetAmmoDPS()*item->GetTemplate()->Delay*0.001f*2.8f);
+                            damage += int32((m_caster->ToPlayer()->GetTotalAttackPowerValue(RANGED_ATTACK)*0.2f) + 150);
+                            // sLog->outWarden("SteadyShot totalDamage for %s is %d!", m_caster->ToPlayer()->GetName() , damage);
                         }
                     }
                     // Glyph of Steady Shot
@@ -2422,7 +2422,7 @@ void Spell::EffectHeal(SpellEffIndex /*effIndex*/)
                 tickcount = 6;
 
             addhealth += tickheal * tickcount;
-			
+            
             //2P tier 8 bonus
             if (caster->HasAura(64756))
                 addhealth *= 1.1f;
@@ -2800,21 +2800,21 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
     m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, damage, power);
 
     // Scripted Mods
- 	Unit::AuraEffectList const &mOverrideClassScript= m_caster->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
+     Unit::AuraEffectList const &mOverrideClassScript= m_caster->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
  
- 	for (Unit::AuraEffectList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
-  	{
- 	    if (!(*i)->IsAffectedOnSpell(m_spellInfo))
-  	        continue;
+     for (Unit::AuraEffectList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
+      {
+         if (!(*i)->IsAffectedOnSpell(m_spellInfo))
+              continue;
 
- 	    switch ((*i)->GetMiscValue())
-  	    {
-  	        case 5497:                // Improved Mana Gems (T6 trinket - T7 bonus)
- 	        int32 basepoints = (*i)->GetAmount();
-  	        m_caster->CastCustomSpell(unitTarget, 37445, &basepoints, &basepoints, NULL, true, NULL);
-  	        break;
-  	    }
-  	}
+         switch ((*i)->GetMiscValue())
+          {
+              case 5497:                // Improved Mana Gems (T6 trinket - T7 bonus)
+             int32 basepoints = (*i)->GetAmount();
+              m_caster->CastCustomSpell(unitTarget, 37445, &basepoints, &basepoints, NULL, true, NULL);
+              break;
+          }
+      }
 
     // Mad Alchemist's Potion
     if (m_spellInfo->Id == 45051)
@@ -4333,10 +4333,10 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 break;
             }
             // Heart Strike
- 	        else if (m_spellInfo->SpellFamilyFlags[0] &  0x1000000)
- 	        {
-  	            totalDamagePercentMod *= (float(unitTarget->GetDiseasesByCaster(m_caster->GetGUID())) * 10.0f + 100.0f) / 100.0f;
-  	        }
+             else if (m_spellInfo->SpellFamilyFlags[0] &  0x1000000)
+             {
+                  totalDamagePercentMod *= (float(unitTarget->GetDiseasesByCaster(m_caster->GetGUID())) * 10.0f + 100.0f) / 100.0f;
+              }
             // Death Strike
             if (m_spellInfo->SpellFamilyFlags[0] & 0x10)
             {
@@ -4426,7 +4426,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
              weapon_total_pct = m_caster->GetModifierValue(unitMod, TOTAL_PCT);
 
         if (attackType == OFF_ATTACK && !(m_triggeredByAuraSpell && m_triggeredByAuraSpell->SpellIconID == 2023)) // Off-Hand fixed_bonus is not reduced by Off-Hand Penality (50%)
- 	            weapon_total_pct *= 2;
+                 weapon_total_pct *= 2;
 
         
         if (fixed_bonus)
@@ -4871,95 +4871,95 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     m_caster->CastSpell(unitTarget, 22682, true);
                     return;
                 }
-				// Hallowed Wand
-				// Random Costume
-				case 24720:
-					{
-						if(!unitTarget || !unitTarget->isAlive())
-							return;
+                // Hallowed Wand
+                // Random Costume
+                case 24720:
+                    {
+                        if(!unitTarget || !unitTarget->isAlive())
+                            return;
 
-						uint32 spellId;
-						switch(rand() % 7)
-						{
-						case 0: spellId = 24717; break; // Pirate Costume
-						case 1: spellId = 24741; break; // Wisp Costume
-						case 2: spellId = 24724; break; // Skeleton Costume
-						case 3: spellId = 24719; break; // Leper Gnome Costume
-						case 4: spellId = 24718; break; // Ninja Costume
-						case 5: spellId = 24737; break; // Ghost Costume
-						case 6: spellId = 24733; break; // Bat Costume
-						}
-						m_caster->CastSpell(unitTarget, spellId, true);
-						return;
-					}
-				// Pirate Costume
-				case 24717:
-					{
-						if(!unitTarget || !unitTarget->isAlive())
-							return;
+                        uint32 spellId;
+                        switch(rand() % 7)
+                        {
+                        case 0: spellId = 24717; break; // Pirate Costume
+                        case 1: spellId = 24741; break; // Wisp Costume
+                        case 2: spellId = 24724; break; // Skeleton Costume
+                        case 3: spellId = 24719; break; // Leper Gnome Costume
+                        case 4: spellId = 24718; break; // Ninja Costume
+                        case 5: spellId = 24737; break; // Ghost Costume
+                        case 6: spellId = 24733; break; // Bat Costume
+                        }
+                        m_caster->CastSpell(unitTarget, spellId, true);
+                        return;
+                    }
+                // Pirate Costume
+                case 24717:
+                    {
+                        if(!unitTarget || !unitTarget->isAlive())
+                            return;
 
-						if(unitTarget->getGender() == GENDER_MALE)
-						{
-							m_caster->CastSpell(unitTarget,24708,true);
-							return;
-						}
-						else
-						{
-							m_caster->CastSpell(unitTarget,24709,true);
-							return;
-						}
-					}
-				// Ninja Costume
-				case 24718:
-					{
-						if(!unitTarget || !unitTarget->isAlive())
-							return;
+                        if(unitTarget->getGender() == GENDER_MALE)
+                        {
+                            m_caster->CastSpell(unitTarget,24708,true);
+                            return;
+                        }
+                        else
+                        {
+                            m_caster->CastSpell(unitTarget,24709,true);
+                            return;
+                        }
+                    }
+                // Ninja Costume
+                case 24718:
+                    {
+                        if(!unitTarget || !unitTarget->isAlive())
+                            return;
 
-						if(unitTarget->getGender() == GENDER_MALE)
-						{
-							m_caster->CastSpell(unitTarget,24711,true);
-							return;
-						}
-						else
-						{
-							m_caster->CastSpell(unitTarget,24710,true);
-							return;
-						}
-					}
-				// Leper Gnome Costume
-				case 24719:
-					{
-						if(!unitTarget || !unitTarget->isAlive())
-							return;
+                        if(unitTarget->getGender() == GENDER_MALE)
+                        {
+                            m_caster->CastSpell(unitTarget,24711,true);
+                            return;
+                        }
+                        else
+                        {
+                            m_caster->CastSpell(unitTarget,24710,true);
+                            return;
+                        }
+                    }
+                // Leper Gnome Costume
+                case 24719:
+                    {
+                        if(!unitTarget || !unitTarget->isAlive())
+                            return;
 
-						if(unitTarget->getGender() == GENDER_MALE)
-						{
-							m_caster->CastSpell(unitTarget,24712,true);
-							return;
-						}
-						else
-						{
-							m_caster->CastSpell(unitTarget,24713,true);
-							return;
-						}
-					}
-				// Ghost Costume
-				case 24737:
-					{
-						if(!unitTarget || !unitTarget->isAlive())
-							return;
+                        if(unitTarget->getGender() == GENDER_MALE)
+                        {
+                            m_caster->CastSpell(unitTarget,24712,true);
+                            return;
+                        }
+                        else
+                        {
+                            m_caster->CastSpell(unitTarget,24713,true);
+                            return;
+                        }
+                    }
+                // Ghost Costume
+                case 24737:
+                    {
+                        if(!unitTarget || !unitTarget->isAlive())
+                            return;
 
-						if(unitTarget->getGender() == GENDER_MALE)
-						{
-							m_caster->CastSpell(unitTarget,24735,true);
-							return;
-						}
-						else
-						{
-							m_caster->CastSpell(unitTarget,24736,true);
-							return;
-						}
-					}
+                        if(unitTarget->getGender() == GENDER_MALE)
+                        {
+                            m_caster->CastSpell(unitTarget,24735,true);
+                            return;
+                        }
+                        else
+                        {
+                            m_caster->CastSpell(unitTarget,24736,true);
+                            return;
+                        }
+                    }
                 // Piccolo of the Flaming Fire
                 case 17512:
                 {
