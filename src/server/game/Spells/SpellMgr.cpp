@@ -3111,7 +3111,7 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectBasePoints[1] = 2499;
                 spellInfo->EffectPointsPerComboPoint[1] = 2500;
                 break;
-            case  : // Power Spark
+            case 55849: // Power Spark
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 8494: // Mana Shield (rank 2)
