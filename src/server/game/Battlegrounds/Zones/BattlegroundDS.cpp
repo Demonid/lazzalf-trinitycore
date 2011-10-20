@@ -60,9 +60,9 @@ void BattlegroundDS::PostUpdateImpl(uint32 diff)
                 if (!plr)
                     continue;
 
-                if (plr->GetDistance2d(1214.0f, 765.0f) <= 50.0f && plr->GetPositionZ() > 13.0f)
+                if (plr->GetDistance2d(1214.0f, 765.0f) <= 50.0f && plr->GetPositionZ() > 11.0f)
                     plr->KnockBackWithAngle(0.0f, 55.0f, 9.0f);
-                else if (plr->GetDistance2d(1369.0f, 817.0f) <= 50.0f && plr->GetPositionZ() > 13.0f)
+                else if (plr->GetDistance2d(1369.0f, 817.0f) <= 50.0f && plr->GetPositionZ() > 11.0f)
                     plr->KnockBackWithAngle(M_PI, 55.0f, 9.0f);
             }
             m_knockback = 0;
@@ -81,7 +81,7 @@ void BattlegroundDS::PostUpdateImpl(uint32 diff)
                 if (!plr)
                     continue;
 
-                if (plr->GetPositionZ() > 13.0f)
+                if (plr->GetPositionZ() > 11.0f)
                     HandlePlayerUnderMap(plr);
             }
             m_teleport = 5 * IN_MILLISECONDS;
@@ -145,7 +145,7 @@ void BattlegroundDS::StartingEventOpenDoors()
     SpawnBGObject(BG_DS_OBJECT_WATER_2, RESPAWN_IMMEDIATELY);
     DoorOpen(BG_DS_OBJECT_WATER_2);
 
-    m_knockback = 15 * IN_MILLISECONDS;
+    m_knockback = 30 * IN_MILLISECONDS;
     m_teleport = 5 * IN_MILLISECONDS;
     m_waterFallStatus = 0;
     m_waterFall = urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX);
