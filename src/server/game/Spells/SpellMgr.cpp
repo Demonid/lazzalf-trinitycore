@@ -3103,6 +3103,17 @@ void SpellMgr::LoadDbcDataCorrections()
                 // this will fix self-damage caused by Glyph of Chains of Ice
                 spellInfo->EffectImplicitTargetA[2] = TARGET_UNIT_TARGET_ENEMY;
                 break; 
+            case 56263: // Vortex (Ride Vehicle Spell)
+            case 55853:
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_IGNORE_HIT_RESULT;
+                break;
+            case 57143: // Life Burst (Wyrmrest Skytalon Vehicle)
+                spellInfo->EffectBasePoints[1] = 2499;
+                spellInfo->EffectPointsPerComboPoint[1] = 2500;
+                break;
+            case 55849: // Power Spark
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
             case 8494: // Mana Shield (rank 2)
                 // because of bug in dbc
                 spellInfo->procChance = 0;
