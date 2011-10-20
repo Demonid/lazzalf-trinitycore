@@ -3494,7 +3494,6 @@ void SpellMgr::LoadDbcDataCorrections()
             case 17364: // Stormstrike
             case 30207: // Shadow Grasp
             case 30531: // Soul Transfer
-            case 55849: // Power Spark
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             // ULDUAR SPELLS
