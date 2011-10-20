@@ -1933,6 +1933,7 @@ class spell_systems_shutdown : public SpellScriptLoader
                     return;
 
                 //! This could probably in the SPELL_EFFECT_SEND_EVENT handler too:
+                owner->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, false);
                 owner->AddUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
                 owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
                 owner->RemoveAurasDueToSpell(SPELL_GATHERING_SPEED);
@@ -1945,6 +1946,7 @@ class spell_systems_shutdown : public SpellScriptLoader
                     return;
 
                 owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+                owner->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
             }
 
             void Register()
