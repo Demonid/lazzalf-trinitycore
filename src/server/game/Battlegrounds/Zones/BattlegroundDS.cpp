@@ -61,9 +61,9 @@ void BattlegroundDS::PostUpdateImpl(uint32 diff)
                     continue;
 
                 if (plr->GetDistance2d(1214.0f, 765.0f) <= 50.0f && plr->GetPositionZ() > 11.0f)
-                    plr->KnockBackWithAngle(0.0f, 55.0f, 9.0f);
+                    plr->KnockBackWithAngle(0.0f, 35.0f, 9.0f);
                 else if (plr->GetDistance2d(1369.0f, 817.0f) <= 50.0f && plr->GetPositionZ() > 11.0f)
-                    plr->KnockBackWithAngle(M_PI, 55.0f, 9.0f);
+                    plr->KnockBackWithAngle(M_PI, 35.0f, 9.0f);
             }
             m_knockback = 0;
         }
