@@ -179,7 +179,7 @@ public:
             }
         }
 
-        void ProcessEvent(WorldObject* obj, uint32 eventId)
+        void ProcessEvent(WorldObject* obj, uint32 eventId, Player* /*player*/)
         {
             if (eventId == EVENT_FOCUSING_IRIS)
             {
@@ -245,11 +245,6 @@ public:
                 if (*itr_trigger == lastPortalGUID)
                     next = true;
             }
-        }
-
-        // eliminate compile warning
-        void ProcessEvent(Unit* /*unit*/, uint32 /*eventId*/)
-        {
         }
 
         void LightHandling(uint32 lightData, Player* player = NULL)
