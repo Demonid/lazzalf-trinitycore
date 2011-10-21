@@ -1339,14 +1339,12 @@ public:
             _entered = false;
         }
 
-        /*
         void IsSummonedBy(Unit* summoner)
         {
             if (InstanceScript* script = me->GetInstanceScript())
                 if (script->GetBossState(0) == IN_PROGRESS) // DATA_MALYGOS_EVENT: 0
                     me->SetPosition(summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ()-40.0f, summoner->GetOrientation());
         }
-        */
 
         void PassengerBoarded(Unit* /*unit*/, int8 /*seat*/, bool apply)
         {
@@ -1357,19 +1355,23 @@ public:
         // we can't call this in reset function, it fails.
         void MakePlayerEnter()
         {
-            if (!_instance)
-                return;
-
-            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-            {
-                summoner->CastSpell(me, SPELL_RIDE_RED_DRAGON, true);
-                if (Creature* malygos = Unit::GetCreature(*me, _instance->GetData64(DATA_MALYGOS)))
+            if (me->ToTempSummon())
+                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                 {
-                    float victimThreat = malygos->getThreatManager().getThreat(summoner);
-                    malygos->AI()->AttackStart(me);
-                    malygos->AddThreat(me, victimThreat);
+                    summoner->CastSpell(me, SPELL_RIDE_RED_DRAGON, true);
+
+                    if (!_instance)
+                        return;
+
+                    if (Creature* malygos = Unit::GetCreature(*me, _instance->GetData64(DATA_MALYGOS)))
+                    {
+                        float victimThreat = malygos->getThreatManager().getThreat(summoner);
+                        malygos->SetInCombatWith(me);
+                        malygos->AddThreat(me, victimThreat);
+                        me->SetInCombatWith(malygos);
+                        me->AddThreat(malygos, 10.0f);
+                    }
                 }
-            }
         }
 
         void UpdateAI(const uint32 diff)
