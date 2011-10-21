@@ -89,7 +89,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_malygos' WHERE `entry`=28859;
 UPDATE `creature_template` SET `ScriptName`='npc_power_spark' WHERE `entry`=30084;
 UPDATE `creature_template` SET `ScriptName`='npc_portal_eoe' WHERE `entry`=30118;
 UPDATE `creature_template` SET `ScriptName`='npc_hover_disk' WHERE `entry` IN (30234,30248);
-UPDATE `creature_template` SET `ScriptName`='npc_arcane_overload' WHERE `entry`=30282;
+UPDATE `creature_template` SET `ScriptName`='npc_arcane_overload' WHERE `entry`=(30282,30245);
 UPDATE `creature_template` SET `ScriptName`='npc_wyrmrest_skytalon' WHERE `entry`=30161;
 UPDATE `creature_template` SET `ScriptName`='npc_alexstrasza_eoe' WHERE `entry`=32295;
 
