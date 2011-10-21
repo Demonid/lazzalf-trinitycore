@@ -184,7 +184,10 @@ public:
             if (eventId == EVENT_FOCUSING_IRIS)
             {
                 if (Creature* malygos = instance->GetCreature(malygosGUID))
+                {
+                    malygos->SetInCombatWithZone();
                     malygos->GetMotionMaster()->MovePoint(4, 770.10f, 1275.33f, 267.23f); // MOVE_INIT_PHASE_ONE
+                }
 
                 if (GameObject* exitPortal = instance->GetGameObject(exitPortalGUID))
                     exitPortal->SetPhaseMask(0x1000, true); // just something out of sight
