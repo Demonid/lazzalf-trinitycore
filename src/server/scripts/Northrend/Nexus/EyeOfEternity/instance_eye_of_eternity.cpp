@@ -185,7 +185,6 @@ public:
             {
                 if (Creature* malygos = instance->GetCreature(malygosGUID))
                 {
-                    malygos->SetInCombatWithZone();
                     malygos->GetMotionMaster()->MovePoint(4, 770.10f, 1275.33f, 267.23f); // MOVE_INIT_PHASE_ONE
                 }
 
