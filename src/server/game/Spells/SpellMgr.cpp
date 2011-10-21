@@ -3148,7 +3148,6 @@ void SpellMgr::LoadDbcDataCorrections()
             case 64234: // Gravity Bomb Hero
             case 63018: // Searing Light Normal
             case 65121: // Searing Light Hero
-            case 62016: // Charge Orb
             case 61588: // Blazing Harpoon
             case 52479: // Gift of the Harvester
                 spellInfo->MaxAffectedTargets = 1;

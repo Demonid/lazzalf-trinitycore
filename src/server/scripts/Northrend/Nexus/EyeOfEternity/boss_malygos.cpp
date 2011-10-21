@@ -662,7 +662,12 @@ public:
                         if (player->isAlive())
                         {
                             if (apply)
+                            {                                
+                                if (Pet* pet = player->GetPet())
+                                    player->RemovePet(pet, PET_SAVE_NOT_IN_SLOT, true);
+                                player->UnsummonAllTotems();
                                 player->CastSpell(player, SPELL_SUMMOM_RED_DRAGON, true);
+                            }
                             else
                                 player->ExitVehicle();
                         }
