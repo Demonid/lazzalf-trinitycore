@@ -366,8 +366,7 @@ public:
             if (instance)
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
 
-            // Why that ?! 
-            // DoCast(SPELL_BERSERKER);
+            DoCast(SPELL_BERSERKER);
         }
 
         void KilledUnit(Unit* who)
