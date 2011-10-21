@@ -1312,7 +1312,7 @@ class creature_ancient_conservator : public CreatureScript
                     me->SummonCreature(NPC_HEALTHY_SPORE, pos, TEMPSUMMON_TIMED_DESPAWN, 20000);
                 }
                 healthySporesSpawned += 2;
-                uiSpawnHealthySporeTimer = 2000;
+                uiSpawnHealthySporeTimer = urand(2000, 5000);
             }
             else uiSpawnHealthySporeTimer -= diff;
 
@@ -1343,19 +1343,37 @@ class creature_healthy_spore : public CreatureScript
     {
         creature_healthy_sporeAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
+            _instance = creature->GetInstanceScript();
+            _shrinkTimer = urand(22000, 30000);
+        }
+
+        void Reset()
+        {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-            me->SetInCombatWithZone();            
+            me->setFaction(35);
+            DoCast(me, SPELL_HEALTHY_SPORE_VISUAL, true);
+            DoCast(me, SPELL_GROW, true);
+            DoCast(me, SPELL_POTENT_PHEROMONES, true);
         }
 
         void UpdateAI(const uint32 diff)
         {
-            if (!me->HasAura(SPELL_HEALTHY_SPORE_VISUAL))
+            if (_instance && _instance->GetBossState(BOSS_FREYA) != IN_PROGRESS)
+                    me->DisappearAndDie();
+
+            if (_shrinkTimer <= diff)
             {
-                DoCast(me, SPELL_HEALTHY_SPORE_VISUAL);
-                DoCast(me, SPELL_POTENT_PHEROMONES);
-                DoCast(me, SPELL_GROW);
+                me->RemoveAurasDueToSpell(SPELL_GROW);
+                me->ForcedDespawn(2000);
+                _shrinkTimer = 3000;
             }
+            else
+                _shrinkTimer -= diff;
         }
+
+         private:
+            InstanceScript* _instance;
+            uint32 _shrinkTimer;
     };
 
     CreatureAI* GetAI(Creature* creature) const
