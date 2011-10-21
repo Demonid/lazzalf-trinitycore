@@ -3033,10 +3033,6 @@ void SpellMgr::LoadDbcDataCorrections()
             case 42835: // Spout
                 spellInfo->Effect[0] = 0; // remove damage effect, only anim is needed
                 break;
-            case 62311: // Algalon - Cosmic Smash
-            case 64596: // Algalon - Cosmic Smash
-                spellInfo->rangeIndex = 13;
-                break;
             case 30657: // Quake
                 spellInfo->EffectTriggerSpell[0] = 30571;
                 break;
@@ -3376,8 +3372,6 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
                 break;
             case 62661:     // Searing Flames
-            case 61915:     // Lightning Whirl 10
-            case 63483:     // Lightning Whirl 25
             case 55098:     // Transformation
             case 65875:     // Twin Pact (Dark) 10
             case 67303:     // Twin Pact (Dark) 25
@@ -3498,6 +3492,17 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             // ULDUAR SPELLS
             //
+            case 62016: // Thorim - Charge Orb
+                spellInfo->MaxAffectedTargets = 1;
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_UNTARGETABLE;
+                break;
+            case 62017: // Thorim - Lightning Shock
+            case 62042: // Thorim - Stormhammer
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
+            case 62039: // Hodir - Biting Cold - Remove on Move
+                spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_MOVE;
+                break;
             case 62374: // Pursued (Flame Leviathan)
                 spellInfo->EffectRadiusIndex[0] = 28;   // 50000yd
                 break;
@@ -3545,21 +3550,50 @@ void SpellMgr::LoadDbcDataCorrections()
             // effect and implement a script hack for that.
                 spellInfo->Effect[EFFECT_1] = 0;
                 break;
+            case 62056: // Kologarn - some Stone Grip related Spells that have SPELL_ATTR1_IGNORE_IMMUNITY (NYI?)
+            case 63985:
+            case 64224:
+            case 64225:
+            case 62287: // Tar Passive
+                spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
+                break;
             case 64386: // Terrifying Screech (Auriaya)
             case 64389: // Sentinel Blast (Auriaya)
             case 64678: // Sentinel Blast (Auriaya)
                 spellInfo->DurationIndex = 28; // 5 seconds, wrong DBC data?
                 break;
-            // case 64321: // Potent Pheromones (Freya)
+            case 64321: // Potent Pheromones (Freya)
                 // spell should dispel area aura, but doesn't have the attribute
                 // may be db data bug, or blizz may keep reapplying area auras every update with checking immunity
                 // that will be clear if we get more spells with problem like this
-                // spellInfo->AttributesEx |= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
-                // break;
+                spellInfo->AttributesEx |= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
+                break;
+            case 62711: // Ignis - Grab
+                spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
+                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
+                break;
             case 62584: // Lifebinder's Gift
             case 64185: // Lifebinder's Gift
                 spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_NEARBY_ENTRY;
                 spellInfo->EffectImplicitTargetB[2] = TARGET_UNIT_NEARBY_ENTRY;
+                break;
+            case 62311: // Algalon - Cosmic Smash
+            case 64596: // Algalon - Cosmic Smash
+                spellInfo->rangeIndex = 13;
+                break;
+            case 61915: // Lightning Whirl (Brundir)
+            case 63483: // Lightning Whirl (Brundir)
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
+                break;
+            case 63414: // Mimiron - Spinning Up
+            case 63274: // Mimiron - Laser Barrage
+                // temporary remove channeled flag due to facing issues when casting on self
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
+                break;
+            case 63241: // Mangrove Ent 10 - Tranquility
+            case 63554: // Mangrove Ent 25 - Tranquility
+                spellInfo->EffectImplicitTargetA[0] = TARGET_SRC_CASTER;
+                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_SRC_AREA_ALLY;
                 break;
             // ENDOF ULDUAR SPELLS
             //
