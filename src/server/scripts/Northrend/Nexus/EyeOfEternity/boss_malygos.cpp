@@ -666,7 +666,13 @@ public:
                                 if (Pet* pet = player->GetPet())
                                     player->RemovePet(pet, PET_SAVE_NOT_IN_SLOT, true);
                                 player->UnsummonAllTotems();
-                                player->CastSpell(player, SPELL_SUMMOM_RED_DRAGON, true);
+                                // player->CastSpell(player, SPELL_SUMMOM_RED_DRAGON, true);
+                                if (Creature* mount = player->SummonCreature(NPC_WYRMREST_SKYTALON, player->GetPositionX(), player->GetPositionY(),
+                                    player->GetPositionZ(), player->GetOrientation()))
+                                {
+                                    mount->SetFlying(true);
+                                    mount->SetSpeed(MOVE_FLIGHT, 2.0f);
+                                }
                             }
                             else
                                 player->ExitVehicle();
