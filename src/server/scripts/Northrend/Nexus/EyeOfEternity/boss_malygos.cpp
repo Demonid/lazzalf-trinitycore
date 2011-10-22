@@ -325,6 +325,10 @@ public:
                     if (target->GetTypeId() != TYPEID_PLAYER)
                         continue;
 
+                    if (Pet* pet = target->ToPlayer()->GetPet())
+                        target->ToPlayer()->RemovePet(pet, PET_SAVE_NOT_IN_SLOT, true);
+                    target->UnsummonAllTotems();
+
                     // The rest is handled in the AI of the vehicle.
                     target->CastSpell(target, SPELL_SUMMOM_RED_DRAGON, true);
                 }
