@@ -316,7 +316,19 @@ public:
             summons.DespawnAll();
             // players that used Hover Disk are no in the aggro list
             me->SetInCombatWithZone();
-            HandleRedDrakes(true);
+            // HandleRedDrakes(true);
+            std::list<HostileReference*> &m_threatlist = me->getThreatManager().getThreatList();
+            for (std::list<HostileReference*>::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+            {
+                if (Unit* target = (*itr)->getTarget())
+                {
+                    if (target->GetTypeId() != TYPEID_PLAYER)
+                        continue;
+
+                    // The rest is handled in the AI of the vehicle.
+                    target->CastSpell(target, SPELL_SUMMOM_RED_DRAGON, true);
+                }
+            }
 
             if (GameObject* go = GameObject::GetGameObject(*me, instance->GetData64(DATA_PLATFORM)))
                 go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED); // In sniffs it has this flag, but i don't know how is applied.
