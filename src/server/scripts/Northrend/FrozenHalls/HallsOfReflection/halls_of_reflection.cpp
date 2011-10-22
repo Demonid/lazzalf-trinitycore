@@ -596,7 +596,8 @@ public:
                         pGate->SetGoState(GO_STATE_ACTIVE);
                     if (Creature* Falric = ((Creature*)Unit::GetUnit(*me, m_uiFalricGUID)))
                         DoScriptText(SAY_FALRIC_INTRO2, Falric);
-                    m_pInstance->SetData(TYPE_FALRIC, SPECIAL);
+                    //m_pInstance->SetData(TYPE_FALRIC, SPECIAL);
+					m_pInstance->SetData(DATA_SUMMONS, SPECIAL);
                     JumpNextStep(4000);
                     break;
                 case 36:
@@ -2014,6 +2015,61 @@ class npc_escape_restore : public CreatureScript
         }
 };
 
+#define GOSSIP_ITEM     "I'm ready!"
+
+class npc_waves_restore : public CreatureScript
+{
+    public:
+
+        npc_waves_restore()
+            : CreatureScript("npc_waves_restore")
+        {
+        }
+
+		struct npc_waves_restoreAI : public ScriptedAI
+		{
+			InstanceScript* m_pInstance;
+
+			npc_waves_restoreAI(Creature* c) : ScriptedAI(c) 
+			{ 
+				m_pInstance = (InstanceScript*)c->GetInstanceScript();
+				me->SetVisible(false);
+			}
+
+		};
+
+		// Called when a CreatureAI object is needed for the creature.
+        CreatureAI* GetAI(Creature* creature) const 
+		{ 
+			return new npc_waves_restoreAI(creature);
+		}
+
+		bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            player->SEND_GOSSIP_MENU(907, creature->GetGUID());
+
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+        {
+			InstanceScript* m_pInstance = (InstanceScript*)creature->GetInstanceScript();
+
+			if (!m_pInstance)
+				return false;
+
+			player->PlayerTalkClass->ClearMenus();
+            if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+            {
+				m_pInstance->SetData(DATA_SUMMONS, SPECIAL);
+				creature->SetVisible(false);
+            }
+
+            return true;
+        }
+};
+
 void AddSC_halls_of_reflection()
 {
     new npc_jaina_and_sylvana_HRintro();
@@ -2028,4 +2084,5 @@ void AddSC_halls_of_reflection()
     new npc_tortured_rifleman();
 	new npc_throw_quel_delar();
 	new npc_escape_restore();
+	new npc_waves_restore();
 }

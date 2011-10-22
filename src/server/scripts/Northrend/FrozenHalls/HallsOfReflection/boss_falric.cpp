@@ -47,8 +47,12 @@ enum Spells
     SPELL_QUIVERING_STRIKE_N                = 72422,
     SPELL_QUIVERING_STRIKE_H                = 72453,
 
-    SPELL_HOPELESSNESS                      = 72395,
-    H_SPELL_HOPELESSNESS                    = 72390, // TODO: not in dbc. Add in DB.
+    SPELL_HOPELESSNESS_20                      = 72395,
+	SPELL_HOPELESSNESS_40                      = 72396,
+	SPELL_HOPELESSNESS_60                      = 72397,
+    H_SPELL_HOPELESSNESS_25                    = 72390,
+	H_SPELL_HOPELESSNESS_50                    = 72391,
+	H_SPELL_HOPELESSNESS_75                    = 72393,
 
     SPELL_BERSERK                           = 47008
 };
@@ -84,23 +88,11 @@ public:
        uint64 pSummon;
        bool hasBeenInCombat;
 
-       void SetData(uint32 /*id*/, uint32 /*value*/)
-       {
-           if (m_pInstance)
-               for (uint8 i = 0; i < 14; i++)
-                  if (Creature* Summon = m_pInstance->instance->GetCreature(m_uiSummonGUID[i]))
-                  {
-                      Summon->CombatStop();
-                      Summon->DespawnOrUnsummon();
-                      m_uiSummonGUID[i] = 0;
-                  }
-           me->RemoveAllAuras();
-           me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-           me->SetVisible(false);
-       }
-
        void Reset()
        {
+		   if (!me->isAlive())
+			   me->Respawn();
+
            hasBeenInCombat = true;
            m_uiBerserkTimer = 180000;
            SummonCount = 0;
@@ -111,15 +103,16 @@ public:
            m_uiSummonTimer = 11000;
            uiHopelessnessCount = 0;
            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-           me->SetVisible(false);
+		   
+		   if ( m_pInstance->GetData(TYPE_PHASE) == 2 )
+			   me->SetVisible(true);
+		   else me->SetVisible(false);
         }
 
         void EnterCombat(Unit* pVictim)
         {
             hasBeenInCombat = true;
-            //me->RemoveFlag(MOVEFLAG_WALK, NULL);
             DoScriptText(SAY_FALRIC_AGGRO, me);
-            DoCast(me, SPELL_HOPELESSNESS);
         }
 
         void KilledUnit(Unit* pVictim)
@@ -131,15 +124,12 @@ public:
             }
         }
 
-        void JustDied(Unit* pKiller)
-        {
-            if (m_pInstance) 
-            {
-               m_pInstance->SetData(TYPE_FALRIC, DONE);
-               m_pInstance->SetData(TYPE_MARWYN, SPECIAL);
-            }
-            DoScriptText(SAY_FALRIC_DEATH, me);
-        }
+		void JustDied(Unit* pKiller)
+		{
+			if (m_pInstance) 
+				m_pInstance->SetData(TYPE_FALRIC, DONE);
+			DoScriptText(SAY_FALRIC_DEATH, me);
+		}
 
         void AttackStart(Unit* who) 
         { 
@@ -152,104 +142,15 @@ public:
             ScriptedAI::AttackStart(who);
         }
 
-        void Summon()
-        {
-             m_uiLocNo = 0;
-
-             for (uint8 i = 0; i < 14; i++)
-             {
-                switch(urand(0,3))
-                {
-                   case 0:
-                       switch(urand(1, 3))
-                       {
-                         case 1: pSummon = NPC_DARK_1; break;
-                         case 2: pSummon = NPC_DARK_3; break;
-                         case 3: pSummon = NPC_DARK_6; break;
-                       }
-                       break;
-                   case 1: 
-                       switch(urand(1, 3))
-                       {
-                         case 1: pSummon = NPC_DARK_2; break;
-                         case 2: pSummon = NPC_DARK_3; break;
-                         case 3: pSummon = NPC_DARK_4; break;
-                       }
-                       break;
-                   case 2: 
-                       switch(urand(1, 3))
-                       {
-                         case 1: pSummon = NPC_DARK_2; break;
-                         case 2: pSummon = NPC_DARK_5; break;
-                         case 3: pSummon = NPC_DARK_6; break;
-                       }
-                       break;
-                   case 3: 
-                       switch(urand(1, 3))
-                       {
-                         case 1: pSummon = NPC_DARK_1; break;
-                         case 2: pSummon = NPC_DARK_5; break;
-                         case 3: pSummon = NPC_DARK_4; break;
-                       }
-                       break;
-                 }
-
-                 m_uiCheckSummon = 0;
-
-                 if (Creature* Summon = me->SummonCreature(pSummon, SpawnLoc[m_uiLocNo].x, SpawnLoc[m_uiLocNo].y, SpawnLoc[m_uiLocNo].z, SpawnLoc[m_uiLocNo].o, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000))
-                 {
-                    m_uiSummonGUID[i] = Summon->GetGUID();
-                    Summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    Summon->setFaction(974);
-                    Summon->SetReactState(REACT_PASSIVE); 
-                 }
-                 m_uiLocNo++;
-             }
-        }
-
-        void CallFallSoldier()
-        {
-             for (uint8 i = 0; i < 4; i++)
-             {
-                if (Creature* Summon = m_pInstance->instance->GetCreature(m_uiSummonGUID[m_uiCheckSummon]))
-                {
-                   Summon->setFaction(14);
-                   Summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                   Summon->SetReactState(REACT_AGGRESSIVE);
-                   Summon->SetInCombatWithZone();
-                }
-                m_uiCheckSummon++;
-             }
-        }
-
         void UpdateAI(const uint32 uiDiff)
         {
             if (!m_pInstance) 
                 return;
 
-            if (m_pInstance->GetData(TYPE_FALRIC) == SPECIAL) 
-            {
-                if (!m_bIsCall) 
-                {
-                   m_bIsCall = true;
-                   Summon();
-                }
+            if (m_pInstance->GetData(TYPE_FALRIC) != IN_PROGRESS)
+                 return;
 
-                if (m_uiSummonTimer < uiDiff) 
-                {
-                        ++SummonCount;
-                        if (SummonCount > 4) 
-                        {
-                            m_pInstance->SetData(TYPE_FALRIC, IN_PROGRESS);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            me->SetInCombatWithZone();
-                        }
-                        else CallFallSoldier();
-                        m_uiSummonTimer = 60000;
-                } else m_uiSummonTimer -= uiDiff;
-            }
-
-            if (!UpdateVictim())
+			if (!UpdateVictim())
                 return;
 
             if (m_uiStrikeTimer < uiDiff)
@@ -282,23 +183,57 @@ public:
                 m_uiBerserkTimer = 180000;
             } else  m_uiBerserkTimer -= uiDiff;
 
-            if ((uiHopelessnessCount < 1 && HealthBelowPct(66))
-                || (uiHopelessnessCount < 2 && HealthBelowPct(33))
-                || (uiHopelessnessCount < 3 && HealthBelowPct(10)))
-            {
-                uiHopelessnessCount++;
-                DoCast(DUNGEON_MODE(SPELL_HOPELESSNESS, H_SPELL_HOPELESSNESS));
-            }
+			if ( HealthBelowPct(66) )
+				if ( uiHopelessnessCount == 0 )
+				{
+					uiHopelessnessCount++;
+					DoCast( DUNGEON_MODE(SPELL_HOPELESSNESS_20, H_SPELL_HOPELESSNESS_25) );
+				}
+
+			/* 
+			
+			if ( HealthBelowPct(33) )
+				if ( uiHopelessnessCount == 1 )
+				{
+					uiHopelessnessCount++;
+					me->RemoveAura ( DUNGEON_MODE(SPELL_HOPELESSNESS_20, H_SPELL_HOPELESSNESS_25) );
+					DoCast( DUNGEON_MODE(SPELL_HOPELESSNESS_40, H_SPELL_HOPELESSNESS_50) );
+				}
+
+			if ( HealthBelowPct(10) )
+				if ( uiHopelessnessCount == 2 )
+				{
+					uiHopelessnessCount++;
+					me->RemoveAura ( DUNGEON_MODE(SPELL_HOPELESSNESS_40, H_SPELL_HOPELESSNESS_50) );
+					DoCast( DUNGEON_MODE(SPELL_HOPELESSNESS_60, H_SPELL_HOPELESSNESS_75) );
+				}
+
+			*/
 
             DoMeleeAttackIfReady();  
 
             return;
         }
+
+		void DoAction(int32 const param)
+		{
+			switch (param)
+			{
+			case 0:
+				m_pInstance->SetData(TYPE_FALRIC, IN_PROGRESS);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->SetInCombatWithZone();
+				break;
+			}
+		}
+
     };
+
     CreatureAI* GetAI(Creature* pCreature) const
     {
         return new boss_falricAI(pCreature);
     }
+
 };
 
 void AddSC_boss_falric()
