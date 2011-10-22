@@ -666,13 +666,13 @@ public:
                                 if (Pet* pet = player->GetPet())
                                     player->RemovePet(pet, PET_SAVE_NOT_IN_SLOT, true);
                                 player->UnsummonAllTotems();
-                                // player->CastSpell(player, SPELL_SUMMOM_RED_DRAGON, true);
-                                if (Creature* mount = player->SummonCreature(NPC_WYRMREST_SKYTALON, player->GetPositionX(), player->GetPositionY(),
+                                player->CastSpell(player, SPELL_SUMMOM_RED_DRAGON, true);
+                                /*if (Creature* mount = player->SummonCreature(NPC_WYRMREST_SKYTALON, player->GetPositionX(), player->GetPositionY(),
                                     player->GetPositionZ(), player->GetOrientation()))
                                 {
                                     mount->SetFlying(true);
                                     mount->SetSpeed(MOVE_FLIGHT, 2.0f);
-                                }
+                                }*/
                             }
                             else
                                 player->ExitVehicle();
@@ -1345,12 +1345,14 @@ public:
             _entered = false;
         }
 
+        /*
         void IsSummonedBy(Unit* summoner)
         {
             if (InstanceScript* script = me->GetInstanceScript())
                 if (script->GetBossState(0) == IN_PROGRESS) // DATA_MALYGOS_EVENT: 0
                     me->SetPosition(summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ()-40.0f, summoner->GetOrientation());
         }
+        */
 
         void PassengerBoarded(Unit* /*unit*/, int8 /*seat*/, bool apply)
         {
@@ -1371,11 +1373,10 @@ public:
 
                     if (Creature* malygos = Unit::GetCreature(*me, _instance->GetData64(DATA_MALYGOS)))
                     {
-                        float victimThreat = malygos->getThreatManager().getThreat(summoner);
-                        malygos->SetInCombatWith(me);
-                        malygos->AddThreat(me, victimThreat);
-                        me->SetInCombatWith(malygos);
-                        me->AddThreat(malygos, 10.0f);
+                        float victim_threat = malygos->getThreatManager().getThreat(summoner);
+                        malygos->getThreatManager().resetAllAggro();
+                        malygos->AI()->AttackStart(me);
+                        malygos->AddThreat(me, victim_threat);
                     }
                 }
         }
