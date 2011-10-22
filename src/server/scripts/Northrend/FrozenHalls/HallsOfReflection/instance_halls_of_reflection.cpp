@@ -31,14 +31,19 @@ EndScriptData */
 #include "halls_of_reflection.h"
 #include "World.h"
 
-#define SPELL_BOSS_SPAWN_AURA              72712
-
 enum PhaseControl
 {
     HORDE_CONTROL_PHASE_SHIFT_1    = 55773,
     HORDE_CONTROL_PHASE_SHIFT_2    = 60028,
     ALLIANCE_CONTROL_PHASE_SHIFT_1 = 55774,
     ALLIANCE_CONTROL_PHASE_SHIFT_2 = 60027,
+};
+
+enum Events
+{
+    EVENT_NONE,
+    EVENT_NEXT_WAVE,
+    EVENT_START_LICH_KING,
 };
 
 class instance_halls_of_reflection : public InstanceMapScript
@@ -49,24 +54,23 @@ public:
     struct instance_halls_of_reflection_InstanceMapScript : public InstanceScript
     {
         instance_halls_of_reflection_InstanceMapScript(Map* pMap) : InstanceScript(pMap) 
-        {
-            Difficulty = pMap->GetDifficulty();
-            Initialize();
-        }
+		{ 
+			Difficulty = pMap->GetDifficulty();
+		}
 
         uint32 m_auiEncounter[MAX_ENCOUNTERS+1];
+		uint32 m_aiuSummons[MAX_ENCOUNTERS+1];
         uint32 m_auiLider;
         std::string strSaveData;
 
         uint8 Difficulty;
         uint8 m_uiSummons;
 
-        uint64 m_uiResetNpcGUID;
-
         uint64 m_uiFalricGUID;
         uint64 m_uiMarwynGUID;  
         uint64 m_uiLichKingGUID;
         uint64 m_uiLiderGUID;
+		uint64 m_uiNpcWavesRestoreGUID;
 
         uint64 m_uiMainGateGUID;
         uint64 m_uiExitGateGUID;
@@ -85,18 +89,28 @@ public:
         uint64 m_uiIceWall4GUID;
         uint64 m_uiGoCaveGUID;
         uint32 m_uiTeamInInstance;
+		
+		bool setEvent;
+
+		EventMap events;
 
         void Initialize()
         {
+			events.Reset();
+
             for (uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
                 m_auiEncounter[i] = NOT_STARTED;
+			for (uint8 i = 0; i < MAX_ENCOUNTERS + 1; ++i)
+                m_aiuSummons[i] = NOT_STARTED;
             m_uiMainGateGUID = 0;
             m_uiFrostmourneGUID = 0;
             m_uiFalricGUID = 0;
             m_uiLiderGUID = 0;
+			m_uiNpcWavesRestoreGUID = 0;
             m_uiLichKingGUID = 0;
             m_uiExitGateGUID = 0;
             m_uiSummons = 0;
+			setEvent = false;
             m_uiIceWall1GUID = 0;
             m_uiIceWall2GUID = 0;
             m_uiIceWall3GUID = 0;
@@ -142,10 +156,8 @@ public:
                 case NPC_FROST_GENERAL:
                     m_uiFrostGeneralGUID = creature->GetGUID();
                     break;
-                //case NPC_JAINA:
-                //    if (m_uiTeamInInstance == HORDE)
-                //        creature->UpdateEntry(NPC_SYLVANA, HORDE);
-                //    break;
+				case NPC_WAVES_RESTORE:
+					m_uiNpcWavesRestoreGUID = creature->GetGUID();
                 default:
                     break;
             }
@@ -154,7 +166,7 @@ public:
         void OnPlayerEnter(Player *pPlayer)
         { 
             //if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP)) 
-            //    return;
+                //return;
 
             switch (pPlayer->GetTeam())
             {
@@ -240,8 +252,8 @@ public:
             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
                 Player* player = itr->getSource();
-                if (player->isGameMaster())
-                    continue;
+                // if (player->isGameMaster())
+                    // continue;
 
                 if (player->isAlive())
                     return false;
@@ -249,18 +261,174 @@ public:
             return true;
         }
 
+		bool IsEncounterInProgress() const
+        {
+            for (uint8 i = 0; i < MAX_ENCOUNTERS + 1; ++i)
+                if (m_aiuSummons[i] == IN_PROGRESS) return true;
+
+            return false;
+        }
+
         void Update(uint32 diff)
         {
             if (!instance->HavePlayers())
                 return;
 
-			if ( ( GetData(TYPE_FALRIC) == SPECIAL || GetData(TYPE_MARWYN) == SPECIAL ) && CheckWipe () )
-				OpenDoor(m_uiExitGateGUID);
+			if ( IsEncounterInProgress() && CheckWipe() )
+				DoWipe();
+			
+			if (GetData(TYPE_FALRIC) == DONE && !setEvent)
+			{
+				setEvent = true;
+				events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
+			}
+
+			events.Update(diff);
+
+            switch(events.ExecuteEvent())
+            {
+                case EVENT_NEXT_WAVE:
+					SetData(DATA_SUMMONS, EVENT_NEXT_WAVE);
+                    AddWave();
+					if ( GetData(DATA_SUMMONS) <= 4 )
+						events.ScheduleEvent(EVENT_NEXT_WAVE, 60000);
+					if ( GetData(DATA_SUMMONS) > 5 && GetData(DATA_SUMMONS) <= 9 )
+						events.ScheduleEvent(EVENT_NEXT_WAVE, 60000);
+                    break;
+            }
+        }
+
+		void AddWave()
+        {
+            DoUpdateWorldState(WORLD_STATE_HOR, 1);
+            DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, m_uiSummons);
+
+            switch(m_uiSummons)
+            {
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                    if (Creature* pFalric = instance->GetCreature(m_uiFalricGUID))
+                        SpawnWave(pFalric);
+                    break;
+                case 5:
+					if (Creature* pFalric = instance->GetCreature(m_uiFalricGUID))
+					{
+						SetData(TYPE_FALRIC, SPECIAL);
+						pFalric->AI()->DoAction(0);
+					}
+                    break;
+                case 6:
+                case 7:
+                case 8:
+                case 9:
+                    if (Creature* pMarwyn  = instance->GetCreature(m_uiMarwynGUID))
+					{
+						if ( GetData(DATA_SUMMONS) == 6 )
+							pMarwyn->AI()->DoAction(1);
+                        SpawnWave(pMarwyn);
+					}
+                    break;
+                case 10:
+                    if (GetData(TYPE_MARWYN) != DONE) // wave should not have been started if DONE. Check anyway to avoid bug exploit!
+                        if (Creature* pMarwyn = instance->GetCreature(m_uiMarwynGUID))
+						{
+                            SetData(TYPE_MARWYN, SPECIAL);
+							pMarwyn->AI()->DoAction(0);
+							CloseDoor(m_uiExitGateGUID);
+						}
+                    break;
+            }
+        }
+
+		void SpawnWave(Creature* pSummoner)
+        {
+            uint32 index;
+
+            pSummoner->SetVisible(true);
+			            
+            index = urand(0, ENCOUNTER_WAVE_MERCENARY - 1);
+            if ( Creature* Summon = pSummoner->SummonCreature(NPC_GHOSTLY_ROGUE, MercenarySpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000))
+			{
+				Summon->setFaction(14);
+				Summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+				Summon->SetReactState(REACT_AGGRESSIVE);
+				Summon->SetInCombatWithZone();
+			}
+
+            index = urand(0, ENCOUNTER_WAVE_FOOTMAN - 1);
+            if ( Creature* Summon = pSummoner->SummonCreature(NPC_GHOSTLY_FOOTMAN, FootmenSpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000))
+			{
+				Summon->setFaction(14);
+				Summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+				Summon->SetReactState(REACT_AGGRESSIVE);
+				Summon->SetInCombatWithZone();
+			}
+
+            index = urand(0, ENCOUNTER_WAVE_RIFLEMAN - 1);
+            if ( Creature* Summon = pSummoner->SummonCreature(NPC_GHOSTLY_RIFLEMAN, RiflemanSpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000))
+			{
+				Summon->setFaction(14);
+				Summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+				Summon->SetReactState(REACT_AGGRESSIVE);
+				Summon->SetInCombatWithZone();
+			}
+
+            index = urand(0, ENCOUNTER_WAVE_PRIEST - 1);
+			if ( Creature* Summon = pSummoner->SummonCreature(NPC_GHOSTLY_PRIEST, PriestSpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000))
+			{
+				Summon->setFaction(14);
+				Summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+				Summon->SetReactState(REACT_AGGRESSIVE);
+				Summon->SetInCombatWithZone();
+			}
+
+            index = urand(0, ENCOUNTER_WAVE_MAGE - 1);
+			if ( Creature* Summon = pSummoner->SummonCreature(NPC_GHOSTLY_MAGE, MageSpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000))
+			{
+				Summon->setFaction(14);
+				Summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+				Summon->SetReactState(REACT_AGGRESSIVE);
+				Summon->SetInCombatWithZone();
+			}
+
+			CloseDoor(m_uiExitGateGUID);
+        }
+
+		void DoWipe()
+        {
+			events.Reset();
+			
+			if ( GetData(DATA_SUMMONS) <= 4 )
+				SetData(DATA_SUMMONS, 0);
+				
+			if ( GetData(DATA_SUMMONS) == 5 )
+				SetData(DATA_SUMMONS, 0);
+				
+			if ( GetData(DATA_SUMMONS) > 5 && GetData(DATA_SUMMONS) <= 9 )
+				SetData(DATA_SUMMONS, 0);
+				
+			if ( GetData(DATA_SUMMONS) == 10 )
+				SetData(DATA_SUMMONS, 0);
+				
+			DoUpdateWorldState(WORLD_STATE_HOR, 1);
+            DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, m_uiSummons);
+            OpenDoor(m_uiExitGateGUID);
+
+			if ( Creature* waves = instance->GetCreature(m_uiNpcWavesRestoreGUID) )
+				waves->SetVisible(true);
         }
 
         void SetData(uint32 uiType, uint32 uiData)
         {
-            switch(uiType)
+			if (uiType == DATA_SUMMONS && uiData == SPECIAL)
+            {
+                events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
+                return;
+            }
+
+			switch(uiType)
             {
                 case TYPE_PHASE:                
                     m_auiEncounter[uiType] = uiData; 
@@ -332,10 +500,18 @@ public:
                 case DATA_SUMMONS:              
                     if (uiData == 3) 
                         m_uiSummons = 0;
-                    else if (uiData == 1) 
-                        ++m_uiSummons;
+					else if (uiData == 1) 
+					{
+						for (uint8 i = 0; i < MAX_ENCOUNTERS + 1; ++i)
+							m_aiuSummons[i] = NOT_STARTED;
+						++m_uiSummons;
+						m_aiuSummons[m_uiSummons - 1] = IN_PROGRESS;
+					}
                     else if (uiData == 0) 
+					{
+						m_aiuSummons[m_uiSummons - 1] = NOT_STARTED;
                         --m_uiSummons;
+					}
                     uiData = NOT_STARTED;
                     break;
             }
@@ -413,6 +589,7 @@ public:
                 case GO_ICE_WALL_3:        return m_uiIceWall3GUID;
                 case GO_ICE_WALL_4:        return m_uiIceWall4GUID;
                 case GO_CAVE:              return m_uiGoCaveGUID;
+				case NPC_WAVES_RESTORE:    return m_uiNpcWavesRestoreGUID;
             }
             return 0;
         }

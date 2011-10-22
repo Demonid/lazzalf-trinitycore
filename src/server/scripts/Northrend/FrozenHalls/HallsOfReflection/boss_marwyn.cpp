@@ -86,23 +86,11 @@ public:
 
        uint64 pSummon;
 
-       void SetData(uint32 /*id*/, uint32 /*value*/)
-       {
-           if (m_pInstance)
-               for (uint8 i = 0; i < 14; i++)
-                  if (Creature* Summon = m_pInstance->instance->GetCreature(m_uiSummonGUID[i]))
-                  {
-                      Summon->CombatStop();
-                      Summon->DespawnOrUnsummon();
-                      m_uiSummonGUID[i] = 0;
-                  }
-           me->RemoveAllAuras();
-           me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-           me->SetVisible(false);
-       }
-
        void Reset()
        {
+		   if (!me->isAlive())
+			   me->Respawn();
+
            m_uiBerserkTimer = 180000;
            m_uiSharedSufferingTimer = 4000;
            m_uiWellTimer = 12000;
@@ -113,77 +101,10 @@ public:
            m_bIsCall = false;
            m_uiSummonTimer = 15000;
            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-           me->SetVisible(false);
-        }
-
-        void Summon()
-        {
-             m_uiLocNo = 14;
-
-             for(uint8 i = 0; i < 14; i++)
-             {
-                switch(urand(0,3))
-                {
-                   case 0:
-                       switch(urand(1, 3))
-                       {
-                         case 1: pSummon = NPC_DARK_1; break;
-                         case 2: pSummon = NPC_DARK_3; break;
-                         case 3: pSummon = NPC_DARK_6; break;
-                       }
-                       break;
-                   case 1: 
-                       switch(urand(1, 3))
-                       {
-                         case 1: pSummon = NPC_DARK_2; break;
-                         case 2: pSummon = NPC_DARK_3; break;
-                         case 3: pSummon = NPC_DARK_4; break;
-                       }
-                       break;
-                   case 2: 
-                       switch(urand(1, 3))
-                       {
-                         case 1: pSummon = NPC_DARK_2; break;
-                         case 2: pSummon = NPC_DARK_5; break;
-                         case 3: pSummon = NPC_DARK_6; break;
-                       }
-                       break;
-                   case 3: 
-                       switch(urand(1, 3))
-                       {
-                         case 1: pSummon = NPC_DARK_1; break;
-                         case 2: pSummon = NPC_DARK_5; break;
-                         case 3: pSummon = NPC_DARK_4; break;
-                       }
-                       break;
-                 }
-
-                 m_uiCheckSummon = 0;
-
-                 if (Creature* Summon = me->SummonCreature(pSummon, SpawnLoc[m_uiLocNo].x, SpawnLoc[m_uiLocNo].y, SpawnLoc[m_uiLocNo].z, SpawnLoc[m_uiLocNo].o, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000))
-                 {
-                    m_uiSummonGUID[i] = Summon->GetGUID();
-                    Summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    Summon->SetReactState(REACT_PASSIVE);
-                    Summon->setFaction(974);
-                 }
-                 m_uiLocNo++;
-             }
-        }
-
-        void CallFallSoldier()
-        {
-             for (uint8 i = 0; i < 4; i++)
-             {
-                if (Creature* Summon = m_pInstance->instance->GetCreature(m_uiSummonGUID[m_uiCheckSummon]))
-                {
-                   Summon->setFaction(14);
-                   Summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                   Summon->SetReactState(REACT_AGGRESSIVE);
-                   Summon->SetInCombatWithZone();
-                }
-                m_uiCheckSummon++;
-             }
+           
+		   if ( m_pInstance->GetData(TYPE_PHASE) == 2 )
+			   me->SetVisible(true);
+		   else me->SetVisible(false);
         }
 
         void JustDied(Unit* pKiller)
@@ -210,7 +131,6 @@ public:
         {
             if (!m_pInstance) 
                 return;
-            //me->RemoveFlag(MOVEFLAG_WALK, MOVEMENTFLAG_WALK_MODE);
             DoScriptText(SAY_MARWYN_AGGRO, me);
         }
 
@@ -230,36 +150,10 @@ public:
             if (!m_pInstance) 
                 return;
 
-            if (m_pInstance->GetData(TYPE_FALRIC) == SPECIAL) 
-            {
-                if (!m_bIsCall) 
-                {
-                   m_bIsCall = true;
-                   Summon();
-                }
-            }
-
-            if (m_pInstance->GetData(TYPE_MARWYN) == SPECIAL) 
-            {
-               if (m_uiSummonTimer < uiDiff) 
-               {
-                       ++SummonCount;
-                       if (SummonCount == 1)
-                          DoScriptText(SAY_MARWYN_INTRO, me);
-
-                       if (SummonCount > 4) 
-                       {
-                            m_pInstance->SetData(TYPE_MARWYN, IN_PROGRESS);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->SetInCombatWithZone();
-                       }
-                       else CallFallSoldier();
-                       m_uiSummonTimer = 60000;
-               } else m_uiSummonTimer -= uiDiff;
-            }
-
-            if (!UpdateVictim())
+            if (m_pInstance->GetData(TYPE_MARWYN) != IN_PROGRESS) 
+				return;
+            
+			if (!UpdateVictim())
                 return;
 
             if (m_uiObliterateTimer < uiDiff)
@@ -301,7 +195,24 @@ public:
 
             return;
         }
+
+	   void DoAction(int32 const param)
+	   {
+		   switch (param)
+		   {
+		   case 0:
+			   m_pInstance->SetData(TYPE_MARWYN, IN_PROGRESS);
+			   me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+			   me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+			   me->SetInCombatWithZone();
+			   break;
+		   case 1:
+			   DoScriptText(SAY_MARWYN_INTRO, me);
+		   }
+	   }
+
     };
+
     CreatureAI* GetAI(Creature* pCreature) const
     {
         return new boss_marwynAI(pCreature);
