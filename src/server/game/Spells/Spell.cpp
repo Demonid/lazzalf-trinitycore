@@ -1168,7 +1168,7 @@ void Spell::AddGOTarget(GameObject* go, uint32 effectMask)
             }
         }
     }
-
+    
     if (!effectMask)
         return;
 
@@ -1442,6 +1442,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             if (caster->GetTypeId() == TYPEID_PLAYER && (m_spellInfo->Attributes & SPELL_ATTR0_STOP_ATTACK_TARGET) == 0 &&
                (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE || m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED))
                 caster->ToPlayer()->CastItemCombatSpell(unitTarget, m_attackType, procVictim, procEx);
+            
         }
 
         caster->DealSpellDamage(&damageInfo, true);
@@ -1549,7 +1550,9 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, const uint32 effectMask, bool 
         if (m_spellInfo->Speed > 0.0f && unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE) && unit->GetCharmerOrOwnerGUID() != m_caster->GetGUID())
             return SPELL_MISS_EVADE;
 
-        if (m_caster->_IsValidAttackTarget(unit, m_spellInfo))
+        //if (m_caster->_IsValidAttackTarget(unit, m_spellInfo))
+            if (m_caster->IsHostileTo(unit))
+
         {
             // spell misses if target has Invisibility or Vanish and isn't visible for caster
             if (m_spellInfo->Speed > 0.0f && unit == m_targets.GetUnitTarget()
@@ -1757,14 +1760,12 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint8 effMask)
     // this is executed after spell proc spells on target hit
     // spells are triggered for each hit spell target
     // info confirmed with retail sniffs of permafrost and shadow weaving
-    //if (!m_hitTriggerSpells.empty())
-    if (!m_hitTriggerSpells.empty() && CanExecuteTriggersOnHit(effMask))
+    if (!m_hitTriggerSpells.empty())
     {
         int _duration = 0;
         for (HitTriggerSpells::const_iterator i = m_hitTriggerSpells.begin(); i != m_hitTriggerSpells.end(); ++i)
         {
-            //if (CanExecuteTriggersOnHit(effMask, i->first) && roll_chance_i(i->second))
-            if (roll_chance_i(i->second))
+            if (CanExecuteTriggersOnHit(effMask, i->first) && roll_chance_i(i->second))
             {
 				if (m_caster->ToPlayer() && i->first->Id == 14181)
                 {
@@ -7488,36 +7489,17 @@ void Spell::CallScriptAfterUnitTargetSelectHandlers(std::list<Unit*>& unitTarget
     }
 }
 
-//bool Spell::CanExecuteTriggersOnHit(uint8 effMask, SpellInfo const* spellInfo) const
-/*bool Spell::CanExecuteTriggersOnHit(uint8 effMask) const
+bool Spell::CanExecuteTriggersOnHit(uint8 effMask, SpellInfo const* spellInfo) const
 {
-    //bool only_on_dummy = (spellInfo && (spellInfo->AttributesEx4 & SPELL_ATTR4_PROC_ONLY_ON_DUMMY));
+    bool only_on_dummy = (spellInfo && (spellInfo->AttributesEx4 & SPELL_ATTR4_PROC_ONLY_ON_DUMMY));
     // If triggered spell has SPELL_ATTR4_PROC_ONLY_ON_DUMMY then it can only proc on a casted spell with SPELL_EFFECT_DUMMY
     // If triggered spell doesn't have SPELL_ATTR4_PROC_ONLY_ON_DUMMY then it can NOT proc on SPELL_EFFECT_DUMMY (needs confirmation)
-    /*for (uint8 i = 0;i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0;i < MAX_SPELL_EFFECTS; ++i)
     {
         if ((effMask & (1 << i)) && (only_on_dummy == (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_DUMMY)))
             return true;
     }
-    return false;*/
-    //Add the hack fix again because the Liberate fix doesn't work.
-    /*for (uint8 i = 0;effMask && i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_DUMMY || m_spellInfo->SpellIconID == 2237 && m_spellInfo->Effects[i].Effect == SPELL_EFFECT_APPLY_AURA)
-            effMask &= ~(1<<i);
-    }
-}*/
-bool Spell::CanExecuteTriggersOnHit(uint8 effMask) const
-{
-    // check which effects can trigger proc
-    // don't allow to proc for dummy-only spell target hits
-    // prevents triggering/procing effects twice from spells like Eviscerate
-    for (uint8 i = 0;effMask && i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_DUMMY)
-            effMask &= ~(1<<i);
-    }
-    return effMask;
+    return false;
 }
 
 void Spell::PrepareTriggersExecutedOnHit()

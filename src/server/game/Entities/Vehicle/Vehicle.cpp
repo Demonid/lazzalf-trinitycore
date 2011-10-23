@@ -150,8 +150,7 @@ void Vehicle::ApplyAllImmunities()
 
     // ... Fear, Snare, Root, Stun ...
     _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
-    if (_me->GetEntry() != 33113) // Flame Leviathan can be snared
-        _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SNARE, true);
+    _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SNARE, true);
     _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
     _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
     _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_STUN, true);

@@ -300,9 +300,7 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket & recv_data)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJ_USE Message [guid=%u]", GUID_LOPART(guid));
 
     // ignore for remote control state
-    if (_player->m_mover->GetTypeId() == TYPEID_UNIT && !_player->GetVehicle())
-        return;
-    else if (_player->m_mover->GetTypeId() == TYPEID_PLAYER && _player->m_mover != _player)
+    if (_player->m_mover != _player)
         return;
 
     if (GameObject* obj = GetPlayer()->GetMap()->GetGameObject(guid))
@@ -380,16 +378,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         // not have spell in spellbook or spell passive and not casted by client
         if ((mover->GetTypeId() == TYPEID_UNIT && !mover->ToCreature()->HasSpell(spellId)) || spellInfo->IsPassive())
         {
-            if (mover->IsVehicle() && _player->HasActiveSpell(spellId) && !spellInfo->IsPassive())
-            {
-                mover = _player;
-            }
-            else
-            {
-                //cheater? kick? ban?
-                recvPacket.rfinish(); // prevent spam at ignore packet
-                return;
-            }
+            //cheater? kick? ban?
+            recvPacket.rfinish(); // prevent spam at ignore packet
+            return;
         }
     }
 
