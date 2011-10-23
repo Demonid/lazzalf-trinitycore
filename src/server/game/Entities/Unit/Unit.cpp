@@ -8288,7 +8288,7 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                     return true;
                 }
                 break;
-            }
+            }    
             // Item - Paladin Holy T8 2P
             /*else if (dummySpell->Id == 64890)
             {

@@ -319,11 +319,8 @@ void WorldSession::SendExternalMails()
             {
                 sLog->outDetail("EXTERNAL MAIL> Adding %u of item with id %u", itemCount, itemId);
                 Item* mailItem = Item::CreateItem(itemId, itemCount);
-                if (mailItem)
-                {
-                    mailItem->SaveToDB(trans);
-                    mail->AddItem(mailItem);
-                }
+                mailItem->SaveToDB(trans);
+                mail->AddItem(mailItem);
             }
             else
                 sLog->outError("EXTERNAL MAIL> Tried to add non-existing item with id %u, aborted", itemId);
