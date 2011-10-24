@@ -28,14 +28,14 @@ BattlegroundRV::BattlegroundRV()
 {
     m_BgObjects.resize(BG_RV_OBJECT_MAX);
 
-    m_StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_1M;
+    m_StartDelayTimes[BG_STARTING_EVENT_FIRST] = BG_START_DELAY_1M;
     m_StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_30S;
-    m_StartDelayTimes[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_15S;
+    m_StartDelayTimes[BG_STARTING_EVENT_THIRD] = BG_START_DELAY_15S;
     m_StartDelayTimes[BG_STARTING_EVENT_FOURTH] = BG_START_DELAY_NONE;
     //we must set messageIds
-    m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_ARENA_ONE_MINUTE;
+    m_StartMessageIds[BG_STARTING_EVENT_FIRST] = LANG_ARENA_ONE_MINUTE;
     m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_ARENA_THIRTY_SECONDS;
-    m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
+    m_StartMessageIds[BG_STARTING_EVENT_THIRD] = LANG_ARENA_FIFTEEN_SECONDS;
     m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_HAS_BEGUN;
 }
 
@@ -46,6 +46,12 @@ BattlegroundRV::~BattlegroundRV()
 
 void BattlegroundRV::PostUpdateImpl(uint32 diff)
 {
+    if (GetStatus() != STATUS_IN_PROGRESS)
+        return;
+
+    if (!FindBgMap())
+        return;
+
     if (getTimer() < diff)
     {
         switch (getState())
@@ -65,6 +71,7 @@ void BattlegroundRV::PostUpdateImpl(uint32 diff)
                     DoorOpen(i);
                 setTimer(BG_RV_PILAR_TO_FIRE_TIMER);
                 setState(BG_RV_STATE_OPEN_FIRE);
+                SwitchDynLos();
                 break;
             case BG_RV_STATE_OPEN_FIRE:
                 // FIXME: after 3.2.0 it's only decorative and should be opened only one time at battle start
@@ -78,6 +85,7 @@ void BattlegroundRV::PostUpdateImpl(uint32 diff)
                     DoorOpen(i);
                 setTimer(BG_RV_PILAR_TO_FIRE_TIMER);
                 setState(BG_RV_STATE_CLOSE_FIRE);
+                SwitchDynLos();
                 break;
         }
     }
@@ -100,6 +108,19 @@ void BattlegroundRV::StartingEventOpenDoors()
 
     setState(BG_RV_STATE_OPEN_FENCES);
     setTimer(BG_RV_FIRST_TIMER);
+
+    // Add all DynLoS to the map
+    if (FindBgMap())
+    {
+        m_DynLos[0] = GetBgMap()->AddDynLOSObject(763.632385f, -306.162384f, 25.909504f, BG_RV_PILLAR_SMALL_RADIUS, BG_RV_PILLAR_SMALL_HEIGHT);
+        m_DynLos[1] = GetBgMap()->AddDynLOSObject(763.611145f, -261.856750f, 25.909504f, BG_RV_PILLAR_SMALL_RADIUS, BG_RV_PILLAR_SMALL_HEIGHT);
+        m_DynLos[2] = GetBgMap()->AddDynLOSObject(723.644287f, -284.493256f, 24.648525f, BG_RV_PILLAR_BIG_RADIUS, BG_RV_PILLAR_BIG_RADIUS);
+        m_DynLos[3] = GetBgMap()->AddDynLOSObject(802.211609f, -284.493256f, 24.648525f, BG_RV_PILLAR_BIG_RADIUS, BG_RV_PILLAR_BIG_HEIGHT);
+
+        // Activate the small ones
+        for (uint8 i = 0; i <= 1; i++)
+            GetBgMap()->SetDynLOSObjectState(m_DynLos[i], true);
+    }
 }
 
 void BattlegroundRV::AddPlayer(Player* plr)
@@ -146,6 +167,10 @@ void BattlegroundRV::HandleKillPlayer(Player* player, Player* killer)
 
 bool BattlegroundRV::HandlePlayerUnderMap(Player* player)
 {
+    // Wait for elevators to Go up, before start checking for UnderMaped players
+    if(GetStartTime() < uint32(m_StartDelayTimes[BG_STARTING_EVENT_FIRST] + 20*IN_MILLISECONDS))
+        return true;
+
     player->TeleportTo(GetMapId(), 763.5f, -284, 28.276f, 2.422f, false);
     return true;
 }
@@ -208,11 +233,11 @@ bool BattlegroundRV::SetupBattleground()
         || !AddObject(BG_RV_OBJECT_PILAR_3, BG_RV_OBJECT_TYPE_PILAR_3, 763.611145f, -261.856750f, 25.909504f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_RV_OBJECT_PILAR_4, BG_RV_OBJECT_TYPE_PILAR_4, 802.211609f, -284.493256f, 24.648525f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
 /*
-    // Pilars Collision - Fixme: Use the collision pilars - should make u break LoS
-        || !AddObject(BG_RV_OBJECT_PILAR_COLLISION_1, BG_RV_OBJECT_TYPE_PILAR_COLLISION_1, 763.632385f, -306.162384f, 30.639660f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_RV_OBJECT_PILAR_COLLISION_2, BG_RV_OBJECT_TYPE_PILAR_COLLISION_2, 723.644287f, -284.493256f, 32.382710f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_RV_OBJECT_PILAR_COLLISION_3, BG_RV_OBJECT_TYPE_PILAR_COLLISION_3, 763.611145f, -261.856750f, 30.639660f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_RV_OBJECT_PILAR_COLLISION_4, BG_RV_OBJECT_TYPE_PILAR_COLLISION_4, 802.211609f, -284.493256f, 32.382710f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
+// Pilars Collision - Fixme: Use the collision pilars - should make u break LoS
+|| !AddObject(BG_RV_OBJECT_PILAR_COLLISION_1, BG_RV_OBJECT_TYPE_PILAR_COLLISION_1, 763.632385f, -306.162384f, 30.639660f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
+|| !AddObject(BG_RV_OBJECT_PILAR_COLLISION_2, BG_RV_OBJECT_TYPE_PILAR_COLLISION_2, 723.644287f, -284.493256f, 32.382710f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
+|| !AddObject(BG_RV_OBJECT_PILAR_COLLISION_3, BG_RV_OBJECT_TYPE_PILAR_COLLISION_3, 763.611145f, -261.856750f, 30.639660f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
+|| !AddObject(BG_RV_OBJECT_PILAR_COLLISION_4, BG_RV_OBJECT_TYPE_PILAR_COLLISION_4, 802.211609f, -284.493256f, 32.382710f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
 */
 )
     {
@@ -220,4 +245,28 @@ bool BattlegroundRV::SetupBattleground()
         return false;
     }
     return true;
+}
+
+void BattlegroundRV::SwitchDynLos()
+{
+    // switch all DynLos to the opposite state
+    for (uint8 i = 0; i <= 3; i++)
+        GetBgMap()->SetDynLOSObjectState(m_DynLos[i], !GetBgMap()->GetDynLOSObjectState(m_DynLos[i]));
+
+    // Force every pillar to update their status to players
+    for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+    {
+        Player *player = ObjectAccessor::FindPlayer(itr->first);
+        if (!player)
+            continue;
+
+        if(GameObject* pilar = GetBGObject(BG_RV_OBJECT_PILAR_1))
+            pilar->SendUpdateToPlayer(player);
+        if(GameObject* pilar = GetBGObject(BG_RV_OBJECT_PILAR_2))
+            pilar->SendUpdateToPlayer(player);
+        if(GameObject* pilar = GetBGObject(BG_RV_OBJECT_PILAR_3))
+            pilar->SendUpdateToPlayer(player);
+        if(GameObject* pilar = GetBGObject(BG_RV_OBJECT_PILAR_4))
+            pilar->SendUpdateToPlayer(player);
+    }
 }

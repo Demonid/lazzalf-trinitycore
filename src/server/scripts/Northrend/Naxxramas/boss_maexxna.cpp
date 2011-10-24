@@ -83,6 +83,22 @@ public:
             events.ScheduleEvent(EVENT_SUMMON, 30000);
         }
 
+        void JustDied(Unit* /*killer*/)
+        {
+            _JustDied();
+
+            me->SummonCreature(CREATURE_TELEPORTER, TeleporterPositions[2]);
+        }
+
+        void KilledUnit(Unit* victim)
+        {
+            if (instance)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    instance->SetData(DATA_IMMORTAL_ARACHNID, CRITERIA_NOT_MEETED);
+            }
+        }
+
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim() || !CheckInRoom())

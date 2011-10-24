@@ -1,19 +1,19 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+* Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "ScriptPCH.h"
 #include "eye_of_eternity.h"
@@ -41,6 +41,12 @@ public:
             lastPortalGUID = 0;
             platformGUID = 0;
             exitPortalGUID = 0;
+            irisGUID = 0;
+            worldTriggerGUID = 0;
+            surgeGUID = 0;
+            alexstraszaProxyGUID = 0;
+            currentLight = 1773;
+            checkFallingPlayersTimer = 1000;
         };
 
         bool SetBossState(uint32 type, EncounterState state)
@@ -62,8 +68,11 @@ public:
                         }
                     }
 
-                    SpawnGameObject(GO_FOCUSING_IRIS, focusingIrisPosition);
-                    SpawnGameObject(GO_EXIT_PORTAL, exitPortalPosition);
+                    if (GameObject* iris = instance->GetGameObject(irisGUID))
+                        iris->SetPhaseMask(PHASEMASK_NORMAL, true);
+
+                    if (GameObject* exit = instance->GetGameObject(exitPortalGUID))
+                        exit->SetPhaseMask(PHASEMASK_NORMAL, true);
 
                     if (GameObject* platform = instance->GetGameObject(platformGUID))
                         platform->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
@@ -73,33 +82,59 @@ public:
                     if (Creature* malygos = instance->GetCreature(malygosGUID))
                         malygos->SummonCreature(NPC_ALEXSTRASZA, 829.0679f, 1244.77f, 279.7453f, 2.32f);
 
-                    SpawnGameObject(GO_EXIT_PORTAL, exitPortalPosition);
-
-                    // we make the platform appear again because at the moment we don't support looting using a vehicle
-                    if (GameObject* platform = instance->GetGameObject(platformGUID))
-                        platform->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
-
-                    if (GameObject* chest = instance->GetGameObject(chestGUID))
-                        chest->SetRespawnTime(7*DAY);
+                    if (GameObject* exit = instance->GetGameObject(exitPortalGUID))
+                        exit->SetPhaseMask(PHASEMASK_NORMAL, true);
                 }
             }
             return true;
         }
 
-        //TODO: this should be handled in map, maybe add a summon function in map
-        // There is no other way afaik...
-        void SpawnGameObject(uint32 entry, Position& pos)
+        void Update(uint32 diff)
         {
-            GameObject* go = new GameObject;
-            if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, instance,
-                PHASEMASK_NORMAL, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(),
-                0, 0, 0, 0, 120, GO_STATE_READY))
-            {
-                delete go;
+            Creature* malygos = instance->GetCreature(malygosGUID);
+            if (!malygos)
                 return;
-            }
 
-            instance->AddToMap(go);
+            if (malygos->AI()->GetData(DATA_PHASE) != 3) // PHASE_THREE
+                return;
+
+            if (checkFallingPlayersTimer < diff)
+            {
+                Map::PlayerList const &PlayerList = instance->GetPlayers();
+                if (PlayerList.isEmpty())
+                    return;
+
+                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                {
+                    Player* plr = i->getSource();
+                    if (plr->isAlive() && !plr->GetVehicleBase() && plr->GetPositionZ() <= 150.0f)
+                    {
+                        plr->SetMovement(MOVE_ROOT);
+                        plr->EnvironmentalDamage(DAMAGE_FALL_TO_VOID, plr->GetMaxHealth());
+                    }
+                }
+                checkFallingPlayersTimer = 1000;
+            }
+           else
+                checkFallingPlayersTimer -= diff;
+        }
+
+        void OnPlayerEnter(Player* player)
+        {
+            Creature* malygos = instance->GetCreature(malygosGUID);
+            if (!malygos)
+                return;
+
+            uint32 data = LIGHT_NATIVE << 16;
+            if (GetBossState(DATA_MALYGOS_EVENT) == DONE)
+                data = LIGHT_CLOUDS << 16;
+
+            LightHandling(data, player);
+
+            if (GetBossState(DATA_MALYGOS_EVENT) == DONE)
+                if (GameObject* platform = instance->GetGameObject(platformGUID))
+                    if (platform->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED)) // platform may be intact, due to server crash
+                        player->CastSpell(player, SPELL_SUMMOM_RED_DRAGON, true);
         }
 
         void OnGameObjectCreate(GameObject* go)
@@ -109,16 +144,12 @@ public:
                 case GO_NEXUS_RAID_PLATFORM:
                     platformGUID = go->GetGUID();
                     break;
-                case GO_FOCUSING_IRIS:
-                    go->GetPosition(&focusingIrisPosition);
+                case GO_FOCUSING_IRIS_10:
+                case GO_FOCUSING_IRIS_25:
+                    irisGUID = go->GetGUID();
                     break;
                 case GO_EXIT_PORTAL:
                     exitPortalGUID = go->GetGUID();
-                    go->GetPosition(&exitPortalPosition);
-                    break;
-                case GO_ALEXSTRASZA_S_GIFT:
-                case GO_ALEXSTRASZA_S_GIFT_2:
-                    chestGUID = go->GetGUID();
                     break;
             }
         }
@@ -136,21 +167,29 @@ public:
                 case NPC_PORTAL_TRIGGER:
                     portalTriggers.push_back(creature->GetGUID());
                     break;
+                case NPC_WORLD_TRIGGER_AOI:
+                    worldTriggerGUID = creature->GetGUID();
+                    break;
+                case NPC_SURGE_OF_POWER:
+                    surgeGUID = creature->GetGUID();
+                    break;
+                case NPC_ALEXSTRASZA_PROXY:
+                    alexstraszaProxyGUID = creature->GetGUID();
+                    break;
             }
         }
 
-        void ProcessEvent(WorldObject* obj, uint32 eventId)
+        void ProcessEvent(WorldObject* obj, uint32 eventId, Player* /*player*/)
         {
             if (eventId == EVENT_FOCUSING_IRIS)
             {
-                if (GameObject* go = obj->ToGameObject())
-                    go->Delete(); // this is not the best way.
-
                 if (Creature* malygos = instance->GetCreature(malygosGUID))
+                {
                     malygos->GetMotionMaster()->MovePoint(4, 770.10f, 1275.33f, 267.23f); // MOVE_INIT_PHASE_ONE
+                }
 
                 if (GameObject* exitPortal = instance->GetGameObject(exitPortalGUID))
-                    exitPortal->Delete();
+                    exitPortal->SetPhaseMask(0x1000, true); // just something out of sight
             }
         }
 
@@ -191,7 +230,7 @@ public:
 
         void PowerSparksHandling()
         {
-            bool next =  (lastPortalGUID == portalTriggers.back() || !lastPortalGUID ? true : false);
+            bool next = (lastPortalGUID == portalTriggers.back() || !lastPortalGUID ? true : false);
 
             for (std::list<uint64>::const_iterator itr_trigger = portalTriggers.begin(); itr_trigger != portalTriggers.end(); ++itr_trigger)
             {
@@ -210,7 +249,30 @@ public:
             }
         }
 
-        void SetData(uint32 data, uint32 /*value*/)
+        void LightHandling(uint32 lightData, Player* player = NULL)
+        {
+            uint32 transition = lightData & 0xFFFF;
+            uint32 newLight = (lightData >> 16);
+
+            if (!player)
+            {
+                if (currentLight == newLight)
+                    return;
+
+                currentLight = newLight;
+            }
+
+            WorldPacket data(SMSG_OVERRIDE_LIGHT, 12);
+            data << uint32(LIGHT_NATIVE);
+            data << newLight;
+            data << transition;
+            if (player)
+                player->GetSession()->SendPacket(&data);
+            else
+                instance->SendToPlayers(&data);
+        }
+
+        void SetData(uint32 data, uint32 value)
         {
             switch (data)
             {
@@ -220,6 +282,9 @@ public:
                 case DATA_POWER_SPARKS_HANDLING:
                     PowerSparksHandling();
                     break;
+                case DATA_LIGHT_HANDLING:
+                    LightHandling(value);
+                    break;
             }
         }
 
@@ -227,14 +292,21 @@ public:
         {
             switch (data)
             {
-                case DATA_TRIGGER:
+                case DATA_VORTEX:
                     return vortexTriggers.front();
                 case DATA_MALYGOS:
                     return malygosGUID;
                 case DATA_PLATFORM:
                     return platformGUID;
+                case DATA_IRIS:
+                    return irisGUID;
+                case DATA_AOI:
+                    return worldTriggerGUID;
+                case DATA_SURGE:
+                    return surgeGUID;
+                case DATA_PROXY:
+                    return alexstraszaProxyGUID;
             }
-
             return 0;
         }
 
@@ -287,9 +359,12 @@ public:
             uint64 lastPortalGUID;
             uint64 platformGUID;
             uint64 exitPortalGUID;
-            uint64 chestGUID;
-            Position focusingIrisPosition;
-            Position exitPortalPosition;
+            uint64 irisGUID;
+            uint64 worldTriggerGUID;
+            uint64 surgeGUID;
+            uint64 alexstraszaProxyGUID;
+            uint32 currentLight;
+            uint16 checkFallingPlayersTimer;
     };
 };
 

@@ -255,7 +255,16 @@ public:
         void DamageTaken(Unit* /*done_by*/, uint32 &damage)
         {
             if (withbody)
+            {
+                damage = 0;
                 return;
+            }
+
+            if (die)
+            {
+                damage = 0;
+                return;
+            }
 
             switch (Phase)
             {
@@ -273,7 +282,7 @@ public:
                         die = true;
                         withbody = true;
                         wait = 300;
-                        damage = me->GetHealth() - me->CountPctFromMaxHealth(1);
+			            damage = me->GetHealth() - 1;
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         me->StopMoving();
                         //me->GetMotionMaster()->MoveIdle();
@@ -306,6 +315,7 @@ public:
         }
 
         void Disappear();
+
         void UpdateAI(const uint32 diff)
         {
             if (!withbody)
@@ -463,8 +473,13 @@ public:
                     wp_reached = false;
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     SaySound(SAY_ENTRANCE);
-                    if (Unit* player = Unit::GetUnit((*me), PlayerGUID))
-                        DoStartMovement(player);
+                    // if (Unit* player = Unit::GetUnit((*me), PlayerGUID))
+                    //     DoStartMovement(player);
+                    if (Player* player = Unit::GetPlayer((*me),PlayerGUID))
+                    {
+                        AttackStart(player);
+                        //DoStartMovement(player);
+                    }
                     break;
                 }
             }
@@ -582,7 +597,7 @@ public:
             {
                 withhead = false;
                 returned = false;
-                damage = me->GetHealth() - me->CountPctFromMaxHealth(1);
+                damage = me->GetHealth() - 1;
                 me->RemoveAllAuras();
                 me->SetName("Headless Horseman, Unhorsed");
 
@@ -841,6 +856,7 @@ public:
             player->AreaExploredOrEventHappens(11405);
             if (Creature* horseman = soil->SummonCreature(HH_MOUNTED, FlightPoint[20].x, FlightPoint[20].y, FlightPoint[20].z, 0, TEMPSUMMON_MANUAL_DESPAWN, 0))
             {
+                horseman->setActive(true);
                 CAST_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->PlayerGUID = player->GetGUID();
                 CAST_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->FlyMode();
             }

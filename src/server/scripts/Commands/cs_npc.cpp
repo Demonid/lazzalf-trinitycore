@@ -90,6 +90,7 @@ public:
             { "yell",           SEC_MODERATOR,      false, &HandleNpcYellCommand,              "", NULL },
             { "tame",           SEC_GAMEMASTER,     false, &HandleNpcTameCommand,              "", NULL },
             { "add",            SEC_GAMEMASTER,     false, NULL,                 "", npcAddCommandTable },
+                { "guildadd",       SEC_GAMEMASTER,     false, &HandleNpcAddGuildCommand,          "", NULL },
             { "delete",         SEC_GAMEMASTER,     false, NULL,              "", npcDeleteCommandTable },
             { "follow",         SEC_GAMEMASTER,     false, NULL,              "", npcFollowCommandTable },
             { "set",            SEC_GAMEMASTER,     false, NULL,                 "", npcSetCommandTable },
@@ -102,6 +103,65 @@ public:
         };
         return commandTable;
     }
+        
+        //add spawn of creature for a GuildHouse
+        static bool HandleNpcAddGuildCommand(ChatHandler* handler, const char* args)
+        {
+            if (!*args)
+                return false;
+
+            char* charID = handler->extractKeyFromLink((char*)args,"Hcreature_entry");
+            if (!charID)
+                return false;
+
+            char* guildhouse = strtok(NULL, " ");
+            if (!guildhouse)
+                return false;
+
+            char* guildhouseadd = strtok(NULL, " ");
+            if (!guildhouseadd)
+                return false;
+
+            char* team = strtok(NULL, " ");
+            int32 teamval = 0;
+            if (team) { teamval = atoi(team); }
+            if (teamval < 0) { teamval = 0; }
+            
+            uint32 id  = atoi(charID);
+            uint32 guildhouseid = atoi(guildhouse);
+            uint32 guildhouseaddid = atoi(guildhouseadd);
+
+            if (!id || !guildhouseid || !guildhouseaddid)
+                return false;
+
+            Player *chr = handler->GetSession()->GetPlayer();
+            float x = chr->GetPositionX();
+            float y = chr->GetPositionY();
+            float z = chr->GetPositionZ();
+            float o = chr->GetOrientation();
+            Map *map = chr->GetMap();
+
+            Creature* creature = new Creature;
+            if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, (uint32)teamval, x, y, z, o))
+            {
+                delete creature;
+                return false;
+            }
+
+            creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
+
+            uint32 db_guid = creature->GetDBTableGUIDLow();
+
+            // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
+            creature->LoadFromDB(db_guid, map);
+
+            WorldDatabase.PQuery("INSERT INTO guildhouses_add (guid, type, id, add_type, comment) VALUES (%u, 0, %u, %u, '%s')", 
+                                   creature->GetDBTableGUIDLow(), guildhouseid, guildhouseaddid, creature->GetName());   
+
+            map->AddToMap(creature);
+            sObjectMgr->AddCreatureToGrid(db_guid, sObjectMgr->GetCreatureData(db_guid));
+            return true;
+        }
 
     //add spawn of creature
     static bool HandleNpcAddCommand(ChatHandler* handler, const char* args)
@@ -130,7 +190,7 @@ public:
         {
             uint32 tguid = chr->GetTransport()->AddNPCPassenger(0, id, chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
             if (tguid > 0)
-                WorldDatabase.PQuery("INSERT INTO creature_transport (guid, npc_entry, transport_entry,  TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO) values (%u, %u, %f, %f, %f, %f, %u)", tguid, id, chr->GetTransport()->GetEntry(), chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
+                WorldDatabase.PExecute("INSERT INTO creature_transport (guid, npc_entry, transport_entry,  TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO) values (%u, %u, %f, %f, %f, %f, %u)", tguid, id, chr->GetTransport()->GetEntry(), chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
 
             return true;
         }
@@ -382,6 +442,9 @@ public:
         unit->CombatStop();
         unit->DeleteFromDB();
         unit->AddObjectToRemoveList();
+                
+            // GuidHouse
+            WorldDatabase.PQuery("DELETE FROM guildhouses_add WHERE guid = %u AND type = 0", unit->GetDBTableGUIDLow());
 
         handler->SendSysMessage(LANG_COMMAND_DELCREATMESSAGE);
 

@@ -827,7 +827,8 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
                                 "expansion, "               //6
                                 "mutetime, "                //7
                                 "locale, "                  //8
-                                "recruiter "                //9
+                                "recruiter, "                //9
+                                "os "                       //10
                                 "FROM account "
                                 "WHERE username = '%s'",
                                 safe_account.c_str());
@@ -897,6 +898,8 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
         locale = LOCALE_enUS;
 
     uint32 recruiter = fields[9].GetUInt32();
+
+    std::string os = fields[10].GetString();
 
     // Checks gmlevel per Realm
     result =
@@ -1002,6 +1005,10 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     m_Session->LoadGlobalAccountData();
     m_Session->LoadTutorialsData();
     m_Session->ReadAddonsInfo(recvPacket);
+
+    // Initialize Warden system only if it is enabled by config
+    if (sWorld->getBoolConfig(CONFIG_BOOL_WARDEN_ENABLED))
+        m_Session->InitWarden(&K, os);
 
     // Sleep this Network thread for
     uint32 sleepTime = sWorld->getIntConfig(CONFIG_SESSION_ADD_DELAY);
