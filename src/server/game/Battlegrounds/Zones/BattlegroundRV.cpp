@@ -110,14 +110,17 @@ void BattlegroundRV::StartingEventOpenDoors()
     setTimer(BG_RV_FIRST_TIMER);
 
     // Add all DynLoS to the map
-    m_DynLos[0] = GetBgMap()->AddDynLOSObject(763.632385f, -306.162384f, 25.909504f, BG_RV_PILLAR_SMALL_RADIUS, BG_RV_PILLAR_SMALL_HEIGHT);
-    m_DynLos[1] = GetBgMap()->AddDynLOSObject(763.611145f, -261.856750f, 25.909504f, BG_RV_PILLAR_SMALL_RADIUS, BG_RV_PILLAR_SMALL_HEIGHT);
-    m_DynLos[2] = GetBgMap()->AddDynLOSObject(723.644287f, -284.493256f, 24.648525f, BG_RV_PILLAR_BIG_RADIUS, BG_RV_PILLAR_BIG_RADIUS);
-    m_DynLos[3] = GetBgMap()->AddDynLOSObject(802.211609f, -284.493256f, 24.648525f, BG_RV_PILLAR_BIG_RADIUS, BG_RV_PILLAR_BIG_HEIGHT);
+    if (FindBgMap())
+    {
+        m_DynLos[0] = GetBgMap()->AddDynLOSObject(763.632385f, -306.162384f, 25.909504f, BG_RV_PILLAR_SMALL_RADIUS, BG_RV_PILLAR_SMALL_HEIGHT);
+        m_DynLos[1] = GetBgMap()->AddDynLOSObject(763.611145f, -261.856750f, 25.909504f, BG_RV_PILLAR_SMALL_RADIUS, BG_RV_PILLAR_SMALL_HEIGHT);
+        m_DynLos[2] = GetBgMap()->AddDynLOSObject(723.644287f, -284.493256f, 24.648525f, BG_RV_PILLAR_BIG_RADIUS, BG_RV_PILLAR_BIG_RADIUS);
+        m_DynLos[3] = GetBgMap()->AddDynLOSObject(802.211609f, -284.493256f, 24.648525f, BG_RV_PILLAR_BIG_RADIUS, BG_RV_PILLAR_BIG_HEIGHT);
 
-    // Activate the small ones
-    for (uint8 i = 0; i <= 1; i++)
-        GetBgMap()->SetDynLOSObjectState(m_DynLos[i], true);
+        // Activate the small ones
+        for (uint8 i = 0; i <= 1; i++)
+            GetBgMap()->SetDynLOSObjectState(m_DynLos[i], true);
+    }
 }
 
 void BattlegroundRV::AddPlayer(Player* plr)

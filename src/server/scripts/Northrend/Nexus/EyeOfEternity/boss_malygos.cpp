@@ -1392,10 +1392,7 @@ public:
                         float victim_threat = malygos->getThreatManager().getThreat(summoner);
                         malygos->getThreatManager().resetAllAggro();
                         malygos->AI()->AttackStart(me);
-                        if (victim_threat)
-                            malygos->AddThreat(me, victim_threat);
-                        else
-                            malygos->AddThreat(me, 10);
+                        malygos->AddThreat(me, victim_threat);
                     }
                 }
         }
