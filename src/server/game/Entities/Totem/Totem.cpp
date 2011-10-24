@@ -88,7 +88,18 @@ void Totem::InitSummon()
 {
     if (m_type == TOTEM_PASSIVE)
     {
-        CastSpell(this, GetSpell(), true);
+        switch (GetSpell())
+        {
+            case 33663: // Earth Elemental Totem
+            case 32982: // Fire Elemental Totem
+            case 50461: // Anti-Magic Zone
+                CastSpell(this, GetSpell(), true);
+                break;
+            default:
+                AddAura(GetSpell(), this);
+                break;
+        }
+        //CastSpell(this, GetSpell(), true);
     }
 
     // Some totems can have both instant effect and passive spell
