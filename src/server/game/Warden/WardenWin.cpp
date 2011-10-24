@@ -383,8 +383,11 @@ void WardenWin::HandleData(ByteBuffer &buff)
         rd = sWardenCheckMgr->GetWardenDataById(*itr);        
         rs = sWardenCheckMgr->GetWardenResultById(*itr);
 
-        if (!rd || !rs)
+        if (!rd)
+        {
+            buff.read_skip(1);
             continue;
+        }
 
         type = rd->Type;
         switch (type)
