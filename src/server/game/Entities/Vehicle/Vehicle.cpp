@@ -89,6 +89,8 @@ void Vehicle::Install()
                 break;
         }
     }
+    
+    //Reset(); // Rimosso da Trinity
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
         sScriptMgr->OnInstall(this);
@@ -139,11 +141,22 @@ void Vehicle::Reset(bool evading /*= false*/)
 
 void Vehicle::ApplyAllImmunities()
 {
-    // This couldn't be done in DB, because some spells have MECHANIC_NONE
+    // This couldn't be done in DB, because Vehicle's immunities are overriden by Player's ones
 
-    // Vehicles should be immune on Knockback ...
+    // Vehicles should be immune on Knockback, Deathgrip ...
     _me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
     _me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
+    _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+
+    // ... Fear, Snare, Root, Stun ...
+    _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+    if (_me->GetEntry() != 33113) // Flame Leviathan can be snared
+        _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SNARE, true);
+    _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+    _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+    _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_STUN, true);
+    _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+    _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
 
     // Mechanical units & vehicles ( which are not Bosses, they have own immunities in DB ) should be also immune on healing ( exceptions in switch below )
     if (_me->ToCreature() && _me->ToCreature()->GetCreatureInfo()->type == CREATURE_TYPE_MECHANICAL && !_me->ToCreature()->isWorldBoss())
@@ -172,6 +185,7 @@ void Vehicle::ApplyAllImmunities()
     // Different immunities for vehicles goes below
     switch (GetVehicleInfo()->m_ID)
     {
+        case 244: // Wintergrasp Turret
         case 160:
             _me->SetControlled(true, UNIT_STAT_ROOT);
             _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_DECREASE_SPEED, true);
@@ -194,7 +208,23 @@ void Vehicle::RemoveAllPassengers()
     // Even in 'hacky' cases, there should at least be VEHICLE_SPELL_RIDE_HARDCODED on us.
     // SeatMap::const_iterator itr;
     // for (itr = Seats.begin(); itr != Seats.end(); ++itr)
-    //    ASSERT(!itr->second.passenger);
+    //     ASSERT(!itr->second.passenger);
+    for (SeatMap::iterator itr = Seats.begin(); itr != Seats.end(); ++itr)
+        if (Unit *passenger = ObjectAccessor::GetUnit(*GetBase(), itr->second.Passenger))
+        {
+            if (passenger->IsVehicle())
+                passenger->GetVehicleKit()->RemoveAllPassengers();
+
+            if (passenger->GetVehicle() != this)
+                sLog->outCrash("Vehicle %u has invalid passenger %u. Seat: %i", _me->GetEntry(), passenger->GetEntry(), itr->first);
+
+            passenger->ExitVehicle();
+            if (itr->second.Passenger)
+            {
+                sLog->outCrash("Vehicle %u cannot remove passenger %u. "UI64FMTD" is still on vehicle.", _me->GetEntry(), passenger->GetEntry(), itr->second.Passenger);
+                itr->second.Passenger = 0;
+            }
+        }
 }
 
 bool Vehicle::HasEmptySeat(int8 seatId) const
@@ -294,6 +324,9 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     if (unit->GetVehicle() != this)
         return false;
 
+    if (unit->GetTypeId() == TYPEID_PLAYER && unit->GetMap()->IsBattleArena())
+        return false;
+
     SeatMap::iterator seat;
     if (seatId < 0) // no specific seat requirement
     {
@@ -337,8 +370,22 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         }
     }
 
+    //if (seat->second.SeatInfo->m_flags && !(seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_UNK11))
+    //    unit->AddUnitState(UNIT_STAT_ONVEHICLE);
+
     if (seat->second.SeatInfo->m_flags && !(seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_UNK11))
-        unit->AddUnitState(UNIT_STAT_ONVEHICLE);
+    {
+        switch (GetVehicleInfo()->m_ID)
+        {
+            //case 342: // Ignis
+            case 353: // XT-002
+            //case 380: // Kologarn's Right Arm
+                break;
+            default: 
+                unit->AddUnitState(UNIT_STAT_ONVEHICLE);
+                break; 
+        }
+    }
 
     unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     VehicleSeatEntry const* veSeat = seat->second.SeatInfo;
@@ -357,6 +404,10 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
             ASSERT(false);
     }
 
+    // hide passenger from selection
+    if (seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE)
+        unit->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
     if (_me->IsInWorld())
     {
         unit->SendClearTarget();                                // SMSG_BREAK_TARGET
@@ -371,6 +422,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
 
             // update all passenger's positions
             RelocatePassengers(_me->GetPositionX(), _me->GetPositionY(), _me->GetPositionZ(), _me->GetOrientation());
+            //RelocatePassengers(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
         }
     }
 
@@ -407,6 +459,10 @@ void Vehicle::RemovePassenger(Unit* unit)
 
     if (_me->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
         _me->RemoveCharmedBy(unit);
+
+    // restore passenger selection
+    if (seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE)
+        unit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
     if (_me->IsInWorld())
     {
@@ -503,4 +559,30 @@ uint8 Vehicle::GetAvailableSeatCount() const
             ++ret;
 
     return ret;
+}
+
+void Vehicle::Relocate(Position pos)
+{
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Relocate %u", _me->GetEntry());
+
+    std::set<Unit*> vehiclePlayers;
+    for (int8 i = 0; i < 8; i++)
+        vehiclePlayers.insert(GetPassenger(i));
+
+    // passengers should be removed or they will have movement stuck
+    RemoveAllPassengers();
+
+    for (std::set<Unit*>::const_iterator itr = vehiclePlayers.begin(); itr != vehiclePlayers.end(); ++itr)
+    {
+        if (Unit* plr = (*itr))
+        {
+            // relocate/setposition doesn't work for player
+            plr->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+            //plr->TeleportTo(pPlayer->GetMapId(), triggerPos.GetPositionX(), triggerPos.GetPositionY(), triggerPos.GetPositionZ(), triggerPos.GetOrientation(), TELE_TO_NOT_LEAVE_COMBAT);
+        }
+    }
+
+    _me->UpdatePosition(pos, true);
+    // problems, and impossible to do delayed enter
+    //pPlayer->EnterVehicle(veh);
 }

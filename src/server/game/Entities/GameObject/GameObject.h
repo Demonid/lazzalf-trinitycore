@@ -781,7 +781,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
             return GO_DESTRUCTIBLE_INTACT;
         }
 
-        void EventInform(uint32 eventId);
+        void EventInform(uint32 eventId, Player* = NULL);
 
         uint64 GetRotation() const { return m_rotation; }
         virtual uint32 GetScriptId() const { return GetGOInfo()->ScriptId; }

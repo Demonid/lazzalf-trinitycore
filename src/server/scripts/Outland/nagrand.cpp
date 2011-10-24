@@ -703,6 +703,127 @@ public:
     }
 };
 
+/*######
+## npc_mana_bomb
+## http://www.wowhead.com/quest=10446 The Final Code (Alliance)
+## http://www.wowhead.com/quest=10447 The Final Code (Horde)
+######*/
+
+enum eManaBomb
+{
+    SAY_COUNT_1                 = -1000472,
+    SAY_COUNT_2                 = -1000473,
+    SAY_COUNT_3                 = -1000474,
+    SAY_COUNT_4                 = -1000475,
+    SAY_COUNT_5                 = -1000476,
+    SPELL_MANA_BOMB_LIGHTNING   = 37843,
+    SPELL_MANA_BOMB_EXPL        = 35513,
+    NPC_MANA_BOMB_EXPL_TRIGGER  = 20767,
+    NPC_MANA_BOMB_KILL_TRIGGER  = 21039
+};
+
+class npc_mana_bomb : public CreatureScript
+{
+public:
+    npc_mana_bomb() : CreatureScript("npc_mana_bomb") { }
+
+    bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+    {
+        if (Creature* pCreature = GetClosestCreatureWithEntry(pGo, NPC_MANA_BOMB_EXPL_TRIGGER, INTERACTION_DISTANCE))
+        {
+            if (npc_mana_bombAI* pBombAI = dynamic_cast<npc_mana_bombAI*>(pCreature->AI()))
+                pBombAI->DoTrigger(pPlayer, pGo);
+        }
+
+        return true;
+    }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_mana_bombAI (pCreature);
+    }
+
+    struct npc_mana_bombAI : public ScriptedAI
+    {
+        npc_mana_bombAI(Creature* pCreature) : ScriptedAI(pCreature) 
+        { 
+            Reset(); 
+        }
+
+        GameObject* pManaBomb;
+
+        bool m_bIsActivated;
+        uint32 m_uiEventTimer;
+        uint32 m_uiEventCounter;
+
+        void Reset()
+        {
+            pManaBomb = NULL;
+            m_bIsActivated = false;
+            m_uiEventTimer = 1000;
+            m_uiEventCounter = 0;
+        }
+
+        void DoTrigger(Player* pPlayer, GameObject* pGo)
+        {
+            if (m_bIsActivated)
+                return;
+            m_bIsActivated = true;
+            pPlayer->KilledMonsterCredit(NPC_MANA_BOMB_KILL_TRIGGER,me->GetGUID());
+            pManaBomb = pGo;
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (!m_bIsActivated)
+                return;
+
+            if (m_uiEventTimer < uiDiff)
+            {
+                m_uiEventTimer = 1000;
+
+                if (m_uiEventCounter < 10)
+                    me->CastSpell(me, SPELL_MANA_BOMB_LIGHTNING, false);
+
+                switch(m_uiEventCounter)
+                {
+                    case 5:
+                        if (pManaBomb)
+                            pManaBomb->SetGoState(GO_STATE_ACTIVE);
+                        DoScriptText(SAY_COUNT_1, me);
+                        break;
+                    case 6:
+                        DoScriptText(SAY_COUNT_2, me);
+                        break;
+                    case 7:
+                        DoScriptText(SAY_COUNT_3, me);
+                        break;
+                    case 8:
+                        DoScriptText(SAY_COUNT_4, me);
+                        break;
+                    case 9:
+                        DoScriptText(SAY_COUNT_5, me);
+                        break;
+                    case 10:
+                        me->CastSpell(me, SPELL_MANA_BOMB_EXPL, false);
+                        break;
+                    case 30:
+                        if (pManaBomb)
+                            pManaBomb->SetGoState(GO_STATE_READY);                            
+                        Reset();
+                        break;
+                }
+
+                ++m_uiEventCounter;
+            }
+            else
+                m_uiEventTimer -= uiDiff;
+        }
+    };
+};
+
+
+
 void AddSC_nagrand()
 {
     new npc_greatmother_geyah();
@@ -712,4 +833,5 @@ void AddSC_nagrand()
     new go_corkis_prison();
     new npc_kurenai_captive();
     new go_warmaul_prison();
+    new npc_mana_bomb();
 }

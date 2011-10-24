@@ -36,6 +36,9 @@ class MapManager
 
     public:
 
+        Map* FindMapByThread(ACE_thread_t tId);
+        MapUpdater m_updater;
+
         Map* CreateMap(uint32, const WorldObject* obj, uint32 instanceId);
         Map const* CreateBaseMap(uint32 id) const { return const_cast<MapManager*>(this)->_createBaseMap(id); }
         Map* FindMap(uint32 mapid, uint32 instanceId = 0) const;
@@ -146,7 +149,7 @@ class MapManager
         uint32 GetNextInstanceId() { return _nextInstanceId; };
         void SetNextInstanceId(uint32 nextInstanceId) { _nextInstanceId = nextInstanceId; };
 
-        MapUpdater * GetMapUpdater() { return &m_updater; }
+        // MapUpdater * GetMapUpdater() { return &m_updater; }
 
     private:
         typedef UNORDERED_MAP<uint32, Map*> MapMapType;
@@ -177,7 +180,7 @@ class MapManager
 
         InstanceIds _instanceIds;
         uint32 _nextInstanceId;
-        MapUpdater m_updater;
+        //MapUpdater m_updater;
 };
 #define sMapMgr ACE_Singleton<MapManager, ACE_Thread_Mutex>::instance()
 #endif
