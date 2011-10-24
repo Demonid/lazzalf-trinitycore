@@ -1453,74 +1453,72 @@ enum FriendOrFowl
 class spell_gen_turkey_marker : public SpellScriptLoader
 {
     public:
-        spell_gen_turkey_marker() : SpellScriptLoader("spell_gen_turkey_marker") { }
-
-        class spell_gen_turkey_marker_AuraScript : public AuraScript
+    spell_gen_turkey_marker() : SpellScriptLoader("spell_gen_turkey_marker") { }
+    
+    class spell_gen_turkey_marker_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_gen_turkey_marker_AuraScript);
+    
+        void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
         {
-            PrepareAuraScript(spell_gen_turkey_marker_AuraScript);
-
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                // store stack apply times, so we can pop them while they expire
-                _applyTimes.push_back(getMSTime());
-
-                // on stack 15 cast the achievement crediting spell
-                if (GetStackAmount() >= 15)
-                    GetTarget()->CastSpell(GetTarget(), SPELL_TURKEY_VENGEANCE, true, NULL, aurEff, GetCasterGUID());
-            }
-
-            void OnPeriodic(AuraEffect const* /*aurEff*/)
-            {
-                if (_applyTimes.empty())
-                    return;
-
-                // pop stack if it expired for us
-                if (_applyTimes.front() + GetMaxDuration() < getMSTime())
-                    ModStackAmount(-1, AURA_REMOVE_BY_EXPIRE);
-            }
-
-            void Register()
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_gen_turkey_marker_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_turkey_marker_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-
-            std::list<uint32> _applyTimes;
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_gen_turkey_marker_AuraScript();
+            // store stack apply times, so we can pop them while they expire
+            _applyTimes.push_back(getMSTime());
+        
+            // on stack 15 cast the achievement crediting spell
+            if (GetStackAmount() >= 15)
+                GetTarget()->CastSpell(GetTarget(), SPELL_TURKEY_VENGEANCE, true, NULL, aurEff, GetCasterGUID());
         }
-};
-
-class spell_gen_lifeblood : public SpellScriptLoader
-{
-    public:
-        spell_gen_lifeblood() : SpellScriptLoader("spell_gen_lifeblood") { }
-
-        class spell_gen_lifeblood_AuraScript : public AuraScript
+    
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            PrepareAuraScript(spell_gen_lifeblood_AuraScript);
-
-            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                return;
+    
+            // find our new aura which replaces this one aura is inserted to m_ownedAuras before old removal takes place
+            Aura* newAura = GetTarget()->GetOwnedAura(GetId(), 0, 0, 0, GetAura());
+            // this should never happen
+            if (!newAura)
+                return;
+    
+            std::list<AuraScript*> const& loadedScripts = newAura->m_loadedScripts;
+            
+            // find the new aura's script and give it our stored stack apply times
+            for (std::list<AuraScript*>::const_iterator itr = loadedScripts.begin(); itr != loadedScripts.end(); ++itr)
             {
-                if (Unit* owner = GetUnitOwner())
-                    amount += int32(CalculatePctF(owner->GetMaxHealth(), 1.5f / aurEff->GetTotalTicks()));
+                if (spell_gen_turkey_marker_AuraScript* scr = dynamic_cast<spell_gen_turkey_marker_AuraScript*>(*itr))
+                {
+                    scr->_applyTimes.splice(scr->_applyTimes.begin(), _applyTimes);
+                    break;
+                }
             }
-
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_lifeblood_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_gen_lifeblood_AuraScript();
         }
+    
+        void OnPeriodic(AuraEffect const* /*aurEff*/)
+        {
+            if (_applyTimes.empty())
+                return;
+        
+        // pop stack if it expired for us
+        if (_applyTimes.front() + GetMaxDuration() < getMSTime())
+            if (ModStackAmount(-1))
+                GetTarget()->RemoveOwnedAura(GetAura(), AURA_REMOVE_BY_EXPIRE);
+        }
+    
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_gen_turkey_marker_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_gen_turkey_marker_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_turkey_marker_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    
+        std::list<uint32> _applyTimes;
+    };
+    
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_gen_turkey_marker_AuraScript();
+    }
 };
-
 enum MagicRoosterSpells
 {
     SPELL_MAGIC_ROOSTER_NORMAL          = 66122,
